@@ -1,0 +1,661 @@
+{% extends "_base.html" %}
+
+{% block title %}Site Profile Dashboard{% endblock %}
+
+{% block head_extra %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Overall page container for consistent padding */
+        .profile-dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 15px 2rem 15px; /* Added top/bottom padding to the whole page content */
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .page-header h1 {
+            margin-bottom: 0.25rem;
+            font-size: 2em;
+            color: var(--dark);
+        }
+        .page-header h1 i {
+            color: var(--primary); /* THEME: Use project primary */
+            margin-right: 10px;
+        }
+        .page-header .text-muted {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .profile-dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 1.5rem;
+            background-color: var(--light);
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .profile-dashboard-header h1#dashboard-title {
+            margin: 0;
+            font-size: 1.6em;
+            color: var(--dark);
+        }
+        .profile-dashboard-header h1#dashboard-title i {
+            color: var(--primary); /* THEME: Use project primary */
+            margin-right: 10px;
+        }
+
+        .btn-toggle-add-form {
+            background: var(--primary); /* THEME: Use project primary */
+            color: white;
+            padding: 10px 22px;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .btn-toggle-add-form:hover {
+            background-color: #0d8a6a; /* Darker shade of primary */
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        .btn-toggle-add-form i { margin-right: 8px; }
+
+        #addProfileFormContainer {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+        }
+        #addProfileFormContainer h2 {
+            font-size: 1.5em;
+            color: var(--dark);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary); /* THEME: Use project primary */
+            padding-bottom: 0.75rem;
+        }
+        #addProfileFormContainer h2 i {
+            color: var(--primary); /* THEME: Use project primary */
+            margin-right:10px;
+        }
+
+        .existing-profiles-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Each card takes full width - for landscape appearance */
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .profile-display-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 6px 22px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: 1px solid #e0e0e0;
+        }
+        .profile-display-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .profile-card-header {
+            background: var(--primary); /* THEME: Use project primary */
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: 8px; /* Match card radius */
+            border-top-right-radius: 8px; /* Match card radius */
+        }
+        .profile-card-header h3 { margin: 0; font-size: 1.2em; font-weight: 600; }
+        .profile-card-header h3 i { margin-right: 10px; }
+
+        .profile-card-header .actions .btn {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 6px 14px;
+            font-size: 0.85em;
+            border-radius: 20px;
+            transition: background-color 0.2s ease;
+        }
+        .profile-card-header .actions .btn:hover { background-color: rgba(255,255,255,0.3); }
+        .profile-card-header .actions .btn-danger-action {
+            background-color: var(--danger); border-color: var(--danger);
+        }
+        .profile-card-header .actions .btn-danger-action:hover {
+            background-color: #c82333;
+            border-color: #c82333;
+        }
+        .profile-card-header .actions form { margin-left: 10px; display: inline; }
+
+        .profile-card-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+            font-size: 0.95rem;
+            display: grid;
+            grid-template-columns: auto 1fr; /* Label and value columns */
+            gap: 0.75rem 1rem;
+        }
+        .profile-card-body p.detail-item {
+            display: contents;
+        }
+        .profile-card-body .detail-label {
+            grid-column: 1;
+            color: #333;
+            font-weight: 600;
+            padding-right: 10px;
+            white-space: nowrap;
+            margin-top: 0.25rem;
+        }
+        .profile-card-body .detail-value {
+            grid-column: 2;
+            color: #555;
+            word-break: break-word;
+        }
+         .profile-card-body .detail-value a {
+             color: var(--primary);
+             text-decoration: none;
+        }
+         .profile-card-body .detail-value a:hover {
+             text-decoration: underline;
+        }
+
+        .profile-card-body .section-list-container {
+            grid-column: span 2;
+            margin-top: 0.5rem;
+        }
+        .profile-card-body .section-list-label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .profile-card-body .section-list {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .profile-card-body .section-list li {
+            background-color: #e0f2f1;
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            border: 1px solid var(--primary);
+            font-weight: 500;
+        }
+
+        .profile-card-footer {
+            background-color: #fdfdfd;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e9ecef;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        .profile-card-footer h4 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            font-size: 1em;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        .processing-log-list-display { list-style: none; padding: 10px; font-size: 0.85em; max-height: 120px; overflow-y: auto; background-color: #fff; border: 1px solid #dee2e6; border-radius: 6px; }
+        .processing-log-list-display li { margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dotted #e9ecef; display: flex; align-items: flex-start;}
+        .processing-log-list-display li:last-child { border-bottom: none; }
+        .log-icon { margin-right: 8px; min-width: 16px; text-align: center; margin-top: 1px;}
+        .log-success .fa-check-circle, .log-icon.log-success { color: var(--success); }
+        .log-failure .fa-times-circle, .log-icon.log-failure { color: var(--danger); }
+        .log-skipped .fa-info-circle, .log-icon.log-skipped { color: var(--info); }
+        .log-unknown .fa-question-circle, .log-icon.log-unknown { color: var(--text-muted); }
+        .log-details { display: flex; flex-direction: column; }
+        .log-ticker { font-weight: 500; color: var(--dark); }
+        .log-message { color: #555; font-size:0.95em; }
+        .log-timestamp { color: var(--text-muted); font-size: 0.85em; margin-top: 2px;}
+
+
+        .no-profiles-message {
+            text-align: center; padding: 3rem 1.5rem;
+            background-color: #fff;
+            border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+        }
+        .no-profiles-message p { font-size: 1.1em; margin-bottom: 1rem; color: #555;}
+        .no-profiles-message .fa-folder-open {
+            color: var(--primary);
+            margin-bottom:1.5rem; font-size: 3em;
+        }
+
+        .form-section-card h3 { font-size: 1.2em; color: var(--dark); margin-top: 1.5rem; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: #444; font-size: 0.9em;}
+        .form-control, .form-select { width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.95em; transition: border-color 0.2s ease, box-shadow 0.2s ease; background-color: #fff; }
+        .form-control.is-invalid { border-color: var(--danger, #dc3545); }
+        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 0.2rem rgba(16, 172, 132, 0.15); }
+        .btn-secondary-action { background-color: #6c757d; color: white; padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin-right: 10px; transition: background-color 0.2s ease;}
+        .btn-secondary-action:hover { background-color: #5a6268;}
+        .report-sections-container { border: 1px solid #ccc; border-radius: 6px; padding: 1rem; max-height: 200px; overflow-y: auto; background-color: #fdfdfd; margin-bottom:1rem;}
+        .report-sections-container .checkbox-group { display: block; margin-bottom: 0.5rem; }
+        .report-sections-container .checkbox-group input[type="checkbox"] { margin-right: 8px; vertical-align: middle; accent-color: var(--primary); }
+        .report-sections-container .checkbox-group label { font-weight: normal; font-size: 0.9em; color: #333; cursor: pointer;}
+        .report-sections-controls { margin-top: 0.5rem; margin-bottom: 0.75rem; }
+        .writer-entry { background-color: #f8f9fa; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border: 1px solid #e0e0e0; position: relative; }
+        .writer-entry h4 { font-size: 1em; color: var(--dark); margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;}
+        .remove-writer-btn { background-color: #fbe0e2; color: var(--danger); border: 1px solid var(--danger); padding: 5px 10px; font-size: 0.8em; border-radius: 4px; cursor: pointer; }
+        .remove-writer-btn:hover { background-color: var(--danger); color: white; }
+        .btn-submit-profile {
+            background: var(--primary);
+            color: white; padding: 12px 28px;
+            border: none; border-radius: 25px; cursor: pointer;
+            font-size: 1em; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.05em; transition: all 0.25s ease; margin-top: 1.5rem;
+        }
+        .btn-submit-profile:hover {
+            background-color: #0d8a6a;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+         .guidelines-card {
+            margin-top: 3rem; padding: 1.5rem;
+            background-color: #e9f5fd;
+            border-left: 4px solid var(--info);
+            border-radius: 8px;
+        }
+        .guidelines-card h2 i { color: var(--info); }
+        .guidelines-card h3 { margin-top: 1rem; color: var(--dark)}
+        .guidelines-card ol li { margin-bottom: 0.5rem;}
+        .guidelines-card code { background-color: #d0d0d0; color: var(--dark); padding: 2px 5px; border-radius:3px; }
+        .form-text.text-danger {
+            font-size: 0.8rem;
+            color: var(--danger, #dc3545);
+            display: block;
+            margin-top: .25rem;
+        }
+        .error-summary {
+            background-color: var(--danger-bg, #f8d7da);
+            color: var(--danger-text, #721c24);
+            border: 1px solid var(--danger, #f5c2c7);
+            padding: 1rem;
+            border-radius: .25rem;
+            margin-bottom: 1.5rem;
+        }
+        .error-summary h5 { margin-top: 0; color: var(--danger-text); font-size: 1.1em; margin-bottom: 0.5rem;}
+        .error-summary ul { list-style: disc; margin-left: 1.5rem; padding-left: 0.5rem; margin-bottom: 0;}
+        .error-summary ul li { font-size: 0.9em; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-dashboard-container">
+    <div class="page-header">
+        <h1><i class="fas fa-sitemap"></i> Site Profile Dashboard</h1>
+        <p class="text-muted">Welcome, {{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'User') }}! Manage your WordPress site configurations.</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages-container" style="margin-bottom: 1.5rem;">
+        {% for category, message in messages %}
+            {% set is_field_error = false %}
+            {% if errors_add and errors_add is mapping %}
+                {% for field_error_message in errors_add.values() %}
+                    {% if message == field_error_message %}
+                        {% set is_field_error = true %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% if not is_field_error %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="profile-dashboard-header">
+        <h1 id="dashboard-title"><i class="fas fa-stream"></i> Your Site Profiles</h1>
+        <button id="toggleAddProfileFormBtn" class="btn-toggle-add-form">
+            <i class="fas {{ 'fa-minus-circle' if show_add_form_on_load else 'fa-plus-circle' }}"></i>
+            {{ 'Hide Add Profile Form' if show_add_form_on_load else 'Add New Site Profile' }}
+        </button>
+    </div>
+
+    <div id="addProfileFormContainer" {% if show_add_form_on_load %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+        <section class="form-section-card">
+            <h2><i class="fas fa-plus-circle"></i> Add New Site Profile</h2>
+
+            {% if errors_add and errors_add is mapping and errors_add|length > 0 %}
+            <div class="error-summary">
+                <h5>Please correct the following errors:</h5>
+                <ul>
+                    {% for field, error_message in errors_add.items() %}
+                        <li>{{ error_message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form action="{{ url_for('add_site_profile') }}" method="POST" id="addSiteProfileForm">
+                <div class="form-group">
+                    <label for="profile_name_add">Profile Name:</label>
+                    <input type="text" id="profile_name_add" name="profile_name" 
+                           class="form-control {% if errors_add and errors_add.profile_name_add %}is-invalid{% endif %}" required
+                           value="{{ form_data_add.profile_name if form_data_add and form_data_add.profile_name is not none else '' }}"
+                           placeholder="e.g., My Awesome Blog">
+                    {% if errors_add and errors_add.profile_name_add %}
+                        <small class="form-text text-danger">{{ errors_add.profile_name_add }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="site_url_add">Site URL:</label>
+                    <input type="url" id="site_url_add" name="site_url" 
+                           class="form-control {% if errors_add and errors_add.site_url_add %}is-invalid{% endif %}" required
+                           value="{{ form_data_add.site_url if form_data_add and form_data_add.site_url is not none else '' }}"
+                           placeholder="https://example.com">
+                    {% if errors_add and errors_add.site_url_add %}
+                        <small class="form-text text-danger">{{ errors_add.site_url_add }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="sheet_name_add">Default Google Sheet Name (for Tickers):</label>
+                    <input type="text" id="sheet_name_add" name="sheet_name" class="form-control"
+                           value="{{ form_data_add.sheet_name if form_data_add and form_data_add.sheet_name is not none else '' }}"
+                           placeholder="Sheet1 (Optional)">
+                </div>
+
+                <div class="form-group">
+                    <label for="stockforecast_category_id_add">WordPress Category ID (for posts):</label>
+                    <input type="text" id="stockforecast_category_id_add" name="stockforecast_category_id" 
+                           class="form-control {% if errors_add and errors_add.stockforecast_category_id_add %}is-invalid{% endif %}"
+                           value="{{ form_data_add.stockforecast_category_id if form_data_add and form_data_add.stockforecast_category_id is not none else '' }}"
+                           placeholder="e.g., 6 (Optional, must be a number)">
+                    {% if errors_add and errors_add.stockforecast_category_id_add %}
+                        <small class="form-text text-danger">{{ errors_add.stockforecast_category_id_add }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="min_scheduling_gap_minutes_add">Min Scheduling Gap (minutes):</label>
+                    <input type="number" id="min_scheduling_gap_minutes_add" name="min_scheduling_gap_minutes" 
+                           class="form-control {% if errors_add and (errors_add.min_scheduling_gap_minutes_add or errors_add.scheduling_gaps_general) %}is-invalid{% endif %}"
+                           value="{{ form_data_add.min_scheduling_gap_minutes if form_data_add and form_data_add.min_scheduling_gap_minutes is not none else '45' }}"
+                           min="1" required>
+                    {% if errors_add and errors_add.min_scheduling_gap_minutes_add %}
+                        <small class="form-text text-danger">{{ errors_add.min_scheduling_gap_minutes_add }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="max_scheduling_gap_minutes_add">Max Scheduling Gap (minutes):</label>
+                    <input type="number" id="max_scheduling_gap_minutes_add" name="max_scheduling_gap_minutes" 
+                           class="form-control {% if errors_add and (errors_add.max_scheduling_gap_minutes_add or errors_add.scheduling_gaps_general) %}is-invalid{% endif %}"
+                           value="{{ form_data_add.max_scheduling_gap_minutes if form_data_add and form_data_add.max_scheduling_gap_minutes is not none else '68' }}"
+                           min="1" required>
+                    {% if errors_add and errors_add.max_scheduling_gap_minutes_add %}
+                        <small class="form-text text-danger">{{ errors_add.max_scheduling_gap_minutes_add }}</small>
+                    {% endif %}
+                    {% if errors_add and errors_add.scheduling_gaps_general %}
+                        <small class="form-text text-danger">{{ errors_add.scheduling_gaps_general }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="env_prefix_for_feature_image_colors_add">.env Prefix for Feature Image Colors:</label>
+                    <input type="text" id="env_prefix_for_feature_image_colors_add" name="env_prefix_for_feature_image_colors" class="form-control"
+                           value="{{ form_data_add.env_prefix_for_feature_image_colors if form_data_add and form_data_add.env_prefix_for_feature_image_colors is not none else '' }}"
+                           placeholder="e.g., MYSITE (Optional)">
+                    <small class="form-text">If 'MYSITE', expects MYSITE_FEATURE_BG_COLOR in .env.</small>
+                </div>
+
+                <h3><i class="fas fa-users"></i> WordPress Writers</h3>
+                <div id="authorsContainerAdd">
+                    {# JS will populate based on form_data_add.authors_raw if available #}
+                </div>
+                <button type="button" id="addAuthorBtn" class="btn-secondary-action"><i class="fas fa-user-plus"></i> Add Writer</button>
+                {% if errors_add and errors_add.authors_general %}
+                    <p class="form-text text-danger" style="margin-top: 0.5rem;">{{ errors_add.authors_general }}</p>
+                {% endif %}
+                {% if errors_add and form_data_add and form_data_add.authors_raw %}
+                    {% for i in range(form_data_add.authors_raw|length) %}
+                        {% if errors_add['author_' ~ i ~ '_general'] %}
+                             <p class="form-text text-danger" style="margin-top: 0.25rem;">{{ errors_add['author_' ~ i ~ '_general'] }}</p>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                <p class="form-text">At least one writer required. App Password is required for each writer. <a href="#wp-guidelines" class="smooth-scroll">Help?</a></p>
+
+                <h3><i class="fas fa-tasks"></i> Report Sections to Include</h3>
+                <div class="report-sections-controls">
+                    <button type="button" id="selectAllSectionsAdd" class="btn-secondary-action btn-sm">Select All</button>
+                    <button type="button" id="unselectAllSectionsAdd" class="btn-secondary-action btn-sm">Unselect All</button>
+                </div>
+                <div class="report-sections-container" id="reportSectionsAddContainer">
+                    {% set selected_sections = form_data_add.report_sections_to_include if form_data_add and form_data_add.report_sections_to_include is defined else all_report_sections %}
+                    {% for section_key in all_report_sections %}
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="add_section_{{ section_key }}" name="report_sections_to_include[]" value="{{ section_key }}"
+                                   {% if section_key in selected_sections %}checked{% endif %}>
+                            <label for="add_section_{{ section_key }}">{{ section_key.replace("_", " ").title() }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+                 {% if errors_add and errors_add.report_sections_add %}
+                    <small class="form-text text-danger">{{ errors_add.report_sections_add }}</small>
+                {% endif %}
+
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button type="submit" class="btn-submit-profile"><i class="fas fa-save"></i> Add Profile</button>
+                    <button type="button" id="cancelAddProfileBtn" class="btn-secondary-action" style="background-color: #6c757d; color:white;">Cancel</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    {# --- Existing Profiles Grid --- #}
+    {% if profiles and profiles|length > 0 %}
+        <div class="existing-profiles-grid">
+            {% for profile in profiles %}
+            <div class="profile-display-card">
+                <div class="profile-card-header">
+                    <h3><i class="fas fa-globe-americas"></i> {{ profile.profile_name }}</h3>
+                    <div class="actions btn-group">
+                        <a href="{{ url_for('edit_site_profile', profile_id_from_firestore=profile.profile_id) }}" class="btn btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                        <form action="{{ url_for('delete_site_profile', profile_id_to_delete=profile.profile_id) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger-action" onclick="return confirm('Are you sure you want to delete profile \'{{ profile.profile_name|escape }}\'? This cannot be undone.');"><i class="fas fa-trash"></i> Delete</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="profile-card-body">
+                    <p class="detail-item"><span class="detail-label">Site URL:</span><span class="detail-value"><a href="{{ profile.site_url }}" target="_blank" rel="noopener noreferrer">{{ profile.site_url }}</a></span></p>
+                    <p class="detail-item"><span class="detail-label">Writers:</span><span class="detail-value">{{ profile.authors|length if profile.authors else 0 }}</span></p>
+                    <p class="detail-item"><span class="detail-label">Default Sheet:</span><span class="detail-value">{{ profile.sheet_name if profile.sheet_name else 'N/A' }}</span></p>
+                    <p class="detail-item"><span class="detail-label">Category ID:</span><span class="detail-value">{{ profile.stockforecast_category_id if profile.stockforecast_category_id else 'N/A' }}</span></p>
+                    <div class="section-list-container">
+                        {% if profile.report_sections_to_include and profile.report_sections_to_include|length > 0 %}
+                            <span class="section-list-label">Active Sections:</span>
+                            <ul class="section-list">
+                            {% for section in profile.report_sections_to_include[:3] %}<li>{{ section.replace("_", " ").title() }}</li>{% endfor %}
+                            {% if profile.report_sections_to_include|length > 3 %}<li>+ {{ profile.report_sections_to_include|length - 3 }} more</li>{% endif %}
+                            </ul>
+                        {% else %}<p class="detail-item"><span class="detail-label">Active Sections:</span><span class="detail-value">All default</span></p>{% endif %}
+                    </div>
+                    <p class="detail-item" style="margin-top: 0.5rem;"><span class="detail-label">Posts Today:</span><span class="detail-value"><strong>{{ posts_today_by_profile.get(profile.profile_id, 0) }}</strong> / <span title="Global daily cap per site">{{ absolute_max_posts_cap if absolute_max_posts_cap is not none else 'N/A' }}</span></span></p>
+                    <p class="detail-item"><span class="detail-label">Last Updated:</span><span class="detail-value"><small class="text-muted">{{ profile.last_updated_at|format_datetime if profile.last_updated_at else 'N/A' }}</small></span></p>
+                </div>
+                <div class="profile-card-footer">
+                    <h4>Today's Log ({{ last_run_date_for_counts if last_run_date_for_counts else 'N/A' }}):</h4>
+                    {% set profile_log = processed_tickers_log_map.get(profile.profile_id, []) %}
+                    {% if profile_log and profile_log|length > 0 %}
+                        <ul class="processing-log-list-display">
+                            {% for entry in profile_log | reverse | list %}
+                                <li class="log-{{ entry.status | lower if entry.status else 'unknown' }}">
+                                    <span class="log-icon">
+                                        {% if entry.status == 'success' %}<i class="fas fa-check-circle"></i>
+                                        {% elif entry.status == 'failure' %}<i class="fas fa-times-circle"></i>
+                                        {% elif entry.status and ('skipped' in entry.status or 'limit' in entry.status or 'no_tickers' in entry.status) %}<i class="fas fa-info-circle"></i>
+                                        {% else %}<i class="fas fa-question-circle"></i>{% endif %}
+                                    </span>
+                                    <div class="log-details">
+                                        <span class="log-ticker">{{ entry.ticker if entry.ticker else 'N/A' }}</span>
+                                        <span class="log-message" title="{{ entry.message if entry.message else '' }}">{{ (entry.message if entry.message else '') | truncate(60, True) }}</span>
+                                        <span class="log-timestamp"> ({{ entry.timestamp.split(' ')[1].split('.')[0] if entry.timestamp and ' ' in entry.timestamp else entry.timestamp }})</span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}<p style="font-size:0.9em; color:#6c757d; text-align:center; padding:10px 0;">No activity today.</p>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-profiles-message">
+            <p><i class="fas fa-folder-open"></i></p>
+            <p>No site profiles configured yet.</p>
+            <p>Click "Add New Site Profile" to create one!</p>
+        </div>
+    {% endif %}
+
+    <div id="wp-guidelines" class="guidelines-card">
+        <h2><i class="fab fa-wordpress-simple"></i> WordPress Connection Guidelines</h2>
+        <p>For each writer, you'll need their WordPress User ID and an Application Password from the target WordPress site.</p>
+        <h3>How to Find WordPress User ID:</h3>
+        <ol>
+            <li>Log in to your WordPress admin dashboard.</li>
+            <li>Go to <strong>Users &rarr; All Users</strong>.</li>
+            <li>Hover over a username. The link in your browser's status bar will show <code>user_id=X</code>. Or, click "Edit" for that user; the URL in your address bar will show the <code>user_id</code>. This number <code>X</code> is the User ID.</li>
+        </ol>
+        <h3>How to Generate a WordPress Application Password:</h3>
+        <ol>
+            <li>Log in as the WordPress user who will be posting.</li>
+            <li>Go to <strong>Users &rarr; Profile</strong> (or Edit Profile).</li>
+            <li>Scroll down to the "Application Passwords" section. (If this section is not visible, the REST API might be disabled on your site, or a security plugin might be blocking Application Passwords. You may need to enable the REST API or check plugin settings.)</li>
+            <li>Enter a name for this application (e.g., "Tickzen Automation") and click "Add New Application Password".</li>
+            <li>A new password will be generated (e.g., <code>xxxx xxxx xxxx xxxx</code>). <strong>Copy this password immediately and save it securely. You will not be able to see it again after leaving this page.</strong></li>
+            <li>Use this generated password in the "Application Password" field when adding or editing a writer in Tickzen. <em>Do not use your main WordPress login password here.</em></li>
+        </ol>
+        <p><small><strong>Security Tip:</strong> Consider creating a dedicated WordPress user with an "Editor" or "Author" role specifically for automation, rather than using an Administrator account, to limit potential security exposure.</small></p>
+    </div>
+</div>
+{% endblock %}
+{% block scripts_extra %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Manage Profiles JS Loaded (Validation Enhanced V4 - JS/Jinja Fix)");
+
+        const addProfileFormContainer = document.getElementById('addProfileFormContainer');
+        const toggleButton = document.getElementById('toggleAddProfileFormBtn');
+
+        // Safely get and parse the boolean flag from Jinja
+        // Jinja renders {{ show_add_form_on_load | default(false) | tojson | safe }}
+        // as 'true' or 'false' (a string). JSON.parse converts it to a JS boolean.
+        const shouldShowAddForm = JSON.parse('{{ show_add_form_on_load | default(false) | tojson | safe }}');
+
+        // This script block primarily handles the state when the page is loaded
+        // with the "Add Profile" form already open due to server-side validation errors.
+        // The main click-to-toggle functionality is handled by static/js/main.js.
+
+        if (shouldShowAddForm) {
+            console.log("Add form is shown on load (due to server-side validation error).");
+            // Ensure the container is visible (Jinja template should also handle this based on the same flag)
+            if (addProfileFormContainer) {
+                addProfileFormContainer.style.display = 'block';
+            }
+
+            // Update the toggle button's text since the form is open.
+            if (toggleButton) {
+                toggleButton.innerHTML = '<i class="fas fa-minus-circle"></i> Hide Add Profile Form';
+            }
+
+            // Initialize author fields with any submitted data (for repopulation).
+            let submittedAuthorsData = [];
+            // Default to an empty array string '[]' if form_data_add.authors_raw is not available or empty.
+            // Jinja renders this into a string like: const rawDataJSString = '[{"wp_username":"Test","wp_user_id":"1"}, ...]' or '[]';
+            const rawDataJSString = '{{ (form_data_add.authors_raw if form_data_add and form_data_add.authors_raw else []) | tojson | safe }}';
+            
+            try {
+                const parsedData = JSON.parse(rawDataJSString); // Parse the JSON string into a JS array
+                if (Array.isArray(parsedData)) {
+                   submittedAuthorsData = parsedData;
+                }
+                console.log("Repopulating 'Add Profile' authors with (from manage_profiles.html):", JSON.stringify(submittedAuthorsData));
+            } catch (e) {
+                console.error("Error parsing submitted authors data for repopulation (in manage_profiles.html):", e, "Raw string was:", rawDataJSString);
+            }
+
+            if (typeof initializeAuthorManagement === "function") {
+                // The 'add' type ensures passwords aren't pre-filled from this data,
+                // only username and user ID if available in submittedAuthorsData.
+                initializeAuthorManagement('authorsContainerAdd', 'addAuthorBtn', submittedAuthorsData, 'add');
+            } else {
+                console.warn("initializeAuthorManagement function (expected from main.js) not found. Author fields might not repopulate correctly.");
+            }
+
+            // Initialize report section controls.
+            if (typeof setupReportSectionControls === "function") {
+                 setupReportSectionControls('Add'); // 'Add' prefix for IDs in add form
+            } else {
+                console.warn("setupReportSectionControls function (expected from main.js) not found. Report sections might not work correctly.");
+            }
+        } else {
+            // If the form is not pre-opened by the server (no validation error),
+            // main.js handles the initial setup for a *fresh* add form when the toggle button is clicked.
+            // We can still ensure that if main.js hasn't run its general initializers yet,
+            // they get a chance here for the hidden form.
+            // These functions in main.js should ideally be idempotent or check if already initialized.
+            console.log("Add form is not set to show on load. main.js will handle its fresh initialization on toggle if not already done.");
+            if (document.getElementById('authorsContainerAdd')) { // Check if the container exists
+                 if (typeof initializeAuthorManagement === "function") {
+                    // This might be redundant if main.js also calls it on DOMContentLoaded,
+                    // but ensures initialization if this script runs first or independently.
+                    initializeAuthorManagement('authorsContainerAdd', 'addAuthorBtn', [], 'add'); // Initialize empty for add
+                }
+            }
+            if (document.getElementById('reportSectionsAddContainer')) { // Check if the container exists
+                if (typeof setupReportSectionControls === "function") {
+                    setupReportSectionControls('Add');
+                }
+            }
+        }
+
+        // Smooth scroll for #wp-guidelines link (page-specific enhancement)
+        document.querySelectorAll('a.smooth-scroll[href="#wp-guidelines"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetElement = document.getElementById('wp-guidelines');
+                if (targetElement) {
+                    let navbarHeight = 0;
+                    const mainNavbar = document.querySelector('.navbar');
+                    if (mainNavbar && (getComputedStyle(mainNavbar).position === 'sticky' || getComputedStyle(mainNavbar).position === 'fixed') ) {
+                        navbarHeight = mainNavbar.offsetHeight;
+                    }
+                    const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                    const offsetPosition = elementPosition - navbarHeight - 20; // 20px extra buffer
+
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                }
+            });
+        });
+    });
+    </script>
+{% endblock %}

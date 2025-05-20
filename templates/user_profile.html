@@ -1,0 +1,75 @@
+{% extends "_base.html" %}
+
+{% block title %}Your Profile - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="user-profile-container">
+    <h2 class="page-title"><i class="fas fa-user-circle"></i> Your Profile</h2>
+
+    {% if is_user_logged_in %}
+    <div class="profile-grid">
+        <div class="profile-card info-card">
+            <div class="card-header">
+                <h3><i class="fas fa-id-card"></i> Account Details</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>Display Name:</strong> {{ user_displayName if user_displayName else 'Not Set' }}</p>
+                <p><strong>Email:</strong> {{ user_email }}</p>
+                <p><strong>User ID (UID):</strong> {{ session.firebase_user_uid }}</p>
+                <p class="text-muted small mt-3">
+                    To update your password or other Firebase Authentication managed settings, please use the options provided by Firebase (e.g., password reset emails).
+                </p>
+            </div>
+        </div>
+
+        <div class="profile-card actions-card">
+            <div class="card-header">
+                <h3><i class="fas fa-rocket"></i> Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <ul class="quick-links-list">
+                    <li><a href="{{ url_for('manage_site_profiles') }}" class="btn btn-primary btn-block"><i class="fas fa-cogs"></i> Manage Site Profiles</a></li>
+                    <li><a href="{{ url_for('automation_runner_page') }}" class="btn btn-success btn-block"><i class="fas fa-play-circle"></i> Run Automation</a></li>
+                    </ul>
+            </div>
+        </div>
+        
+        <div class="profile-card settings-card">
+            <div class="card-header">
+                <h3><i class="fas fa-user-cog"></i> Account Management</h3>
+            </div>
+            <div class="card-body">
+                 <button id="logoutButtonPage" class="btn btn-danger btn-block"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                 <p class="text-muted small mt-3">
+                    Need to change your email or password? These actions are managed through your Firebase account. If you initiated a password reset, check your email.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="profile-card">
+        <div class="card-body">
+            <p>You are not logged in.</p>
+            <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    const logoutButtonPage = document.getElementById('logoutButtonPage');
+    if (logoutButtonPage) {
+        logoutButtonPage.addEventListener('click', () => {
+            if (typeof handleLogout === 'function') { // Assuming handleLogout is globally available from firebase-init.js
+                handleLogout();
+            } else {
+                // Fallback or direct link if handleLogout isn't ready/available
+                window.location.href = "{{ url_for('logout') }}"; 
+            }
+        });
+    }
+</script>
+{% endblock %}

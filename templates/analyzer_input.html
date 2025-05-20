@@ -1,0 +1,529 @@
+{% extends "_base.html" %}
+
+{% block title %}AI Stock Analysis & Prediction - Input{% endblock %}
+
+{% block head_extra %}
+    {# Font Awesome 6.4.0 - Ensure this version is compatible or update _base.html if it loads a different version #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    /* Root variables from your _base.html (for reference during styling)
+       --primary: #10ac84;
+       --secondary: #2e86de;
+       --dark: #2d3436;
+       --light: #f5f6fa;
+       --success: #27ae60;
+       --warning: #f39c12;
+       --danger: #e74c3c;
+       --info: #3498db;
+       --font-main: 'Poppins', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+       --primary-rgb: 16, 172, 132; (Define in _base.html if --primary is #10ac84)
+    */
+
+    /* Page Body & Container */
+    .analyzer-page-body {
+        background-color: var(--light, #f5f6fa);
+        font-family: var(--font-main, 'Segoe UI', Roboto, sans-serif);
+        color: var(--dark, #2d3436);
+        min-height: 100vh; /* Ensure it takes full height */
+    }
+
+    .analyzer-content-wrapper {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
+
+    .analyzer-container {
+        width: 90%;
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    /* Hero Section (Input Area) */
+    .hero-analyzer {
+        background: linear-gradient(135deg, var(--primary, #10ac84), var(--secondary, #2e86de));
+        color: #ffffff;
+        padding: 4rem 2rem;
+        text-align: center;
+        border-radius: 12px;
+        margin-bottom: 3rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    .hero-analyzer h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+    .hero-analyzer p.subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 2.5rem;
+        opacity: 0.9;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #analysis-form-section-hero {
+        max-width: 550px;
+        margin: 0 auto;
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        border-radius: 8px;
+    }
+    #analysis-form-section-hero label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: #ffffff;
+        text-align: left;
+    }
+    #ticker-input-hero {
+        width: 100%;
+        padding: 14px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 6px;
+        font-size: 1.1rem;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: var(--dark, #2d3436);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    #ticker-input-hero::placeholder { color: #888; }
+    #ticker-input-hero:focus {
+        border-color: #ffffff;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.3);
+        outline: none;
+    }
+    #analysis-form-section-hero small {
+        display: block;
+        margin-top: 0.75rem;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+        text-align: left;
+    }
+    #analysis-form-section-hero .btn-analyze {
+        padding: 14px 28px;
+        font-size: 1.15rem;
+        font-weight: 600;
+        background-color: #ffffff;
+        color: var(--primary, #10ac84);
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        width: 100%;
+        margin-top: 1.5rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    #analysis-form-section-hero .btn-analyze:hover {
+        background-color: var(--light, #f5f6fa);
+        color: var(--secondary, #2e86de);
+        transform: translateY(-2px);
+    }
+    #analysis-form-section-hero .btn-analyze:disabled {
+        background-color: #e0e0e0;
+        color: #999;
+        cursor: not-allowed;
+        transform: translateY(0);
+    }
+    #analysis-form-section-hero .btn-analyze .spinner {
+        width: 20px; height: 20px; border-width: 3px;
+        border-left-color: var(--primary, #10ac84) !important;
+        display: inline-block; vertical-align: middle; margin-right: 10px;
+    }
+
+    /* How It Works Section */
+    .how-it-works-analyzer {
+        padding: 3rem 0;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        margin-bottom: 3rem;
+    }
+    .how-it-works-analyzer h2 {
+        text-align: center;
+        color: var(--dark, #2d3436);
+        margin-bottom: 2.5rem;
+        font-size: 2.2rem;
+        font-weight: 600;
+    }
+    .how-it-works-analyzer h2 i {
+        color: var(--primary, #10ac84);
+        margin-right: 12px;
+    }
+    .how-it-works-grid-analyzer {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+    .work-step-analyzer {
+        background-color: var(--light, #f5f6fa);
+        padding: 2rem 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid #e9ecef;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .work-step-analyzer:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(var(--primary-rgb, 16, 172, 132), 0.15);
+    }
+    .work-step-analyzer .icon-container-analyzer {
+        font-size: 2.5rem;
+        color: var(--primary, #10ac84);
+        margin-bottom: 1.25rem;
+        background-color: rgba(var(--primary-rgb, 16, 172, 132), 0.1);
+        width: 70px; height: 70px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin-left: auto; margin-right: auto;
+    }
+    .work-step-analyzer h3 {
+        color: var(--dark, #2d3436);
+        margin-bottom: 0.75rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+    .work-step-analyzer p {
+        font-size: 0.95rem;
+        color: #555;
+        line-height: 1.7;
+    }
+
+    /* Progress Indicator Styles */
+    #progress-indicator-analyzer {
+        display: none; padding: 2.5rem; border-radius: 8px;
+        background-color: #ffffff; text-align: center;
+        margin-top: 2rem; box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+    #progress-indicator-analyzer .spinner {
+        margin: 0 auto 1.5rem auto; width: 50px; height: 50px;
+        border-width: 5px; border-left-color: var(--primary, #10ac84);
+    }
+    #progress-main-message-analyzer {
+        font-size: 1.6rem; color: var(--primary, #10ac84);
+        font-weight: 600; margin-bottom: 0.75rem;
+    }
+    #generation-time-info-analyzer, #timer-message-analyzer {
+        font-size: 1rem; color: #555; margin-bottom: 1.5rem;
+    }
+    #timer-message-analyzer {
+        font-weight: bold; color: var(--dark, #2d3436); margin-top: 1.25rem;
+    }
+    #progress-steps-analyzer {
+        list-style: none; padding: 0; margin: 0 auto 1.5rem auto;
+        max-width: 550px; text-align: left;
+    }
+    #progress-steps-analyzer li {
+        padding: 0.9rem 0.5rem; border-bottom: 1px solid #f0f0f0;
+        font-size: 1.05rem; color: #444; position: relative;
+        padding-left: 40px; display: flex; align-items: center;
+        transition: background-color 0.2s ease;
+    }
+    #progress-steps-analyzer li:last-child { border-bottom: none; }
+    #progress-steps-analyzer li:hover { background-color: #f9f9f9; }
+    #progress-steps-analyzer li .status-icon {
+        font-family: "Font Awesome 6 Free", "FontAwesome"; /* FA6 with fallback */
+        font-weight: 900; /* Solid icons */
+        margin-right: 15px; width: 22px;
+        text-align: center; font-style: normal; font-size: 1.1em;
+    }
+    #progress-steps-analyzer li .status-icon.pending::before {
+        content: "\f2f1"; /* FA6: fa-hourglass-half */
+        color: var(--warning, #f39c12);
+    }
+    #progress-steps-analyzer li .status-icon.processing::before {
+        content: "\f110"; /* FA6: fa-spinner */
+        color: var(--primary, #10ac84);
+        animation: spin 1s linear infinite;
+    }
+    #progress-steps-analyzer li .status-icon.completed::before {
+        content: "\f00c"; /* FA6: fa-check */
+        color: var(--success, #27ae60);
+    }
+    #progress-steps-analyzer li.completed { color: var(--success, #27ae60); font-weight: 500; }
+    #progress-steps-analyzer li.processing { color: var(--primary, #10ac84); font-weight: 600; }
+
+    /* Alert styling */
+    .alert { margin-bottom: 1.5rem; }
+    /* Ensure .btn-close is styled if not using Bootstrap's full CSS */
+    .alert .btn-close {
+        padding: 0.5rem 1rem; background: transparent; border:0;
+        float: right; font-size: 1.2rem; font-weight: bold; line-height: 1;
+        color: #000; text-shadow: 0 1px 0 #fff; opacity: .5;
+    }
+    .alert .btn-close:hover { opacity: .75; }
+
+
+    /* Responsive Adjustments */
+    @media screen and (max-width: 992px) {
+        .hero-analyzer { padding: 3rem 1.5rem; }
+        .hero-analyzer h1 { font-size: 2.4rem; }
+        .hero-analyzer p.subtitle { font-size: 1.1rem; }
+        .how-it-works-analyzer h2 { font-size: 2rem; }
+        #analysis-form-section-hero { padding: 1.5rem; }
+    }
+    @media screen and (max-width: 768px) {
+        .hero-analyzer { padding: 2.5rem 1rem; }
+        .hero-analyzer h1 { font-size: 2rem; }
+        .hero-analyzer p.subtitle { font-size: 1rem; }
+        .how-it-works-analyzer { padding: 2rem 0; }
+        .how-it-works-analyzer h2 { font-size: 1.8rem; }
+        .work-step-analyzer { padding: 1.5rem 1rem; }
+        .work-step-analyzer h3 { font-size: 1.15rem; }
+        #progress-indicator-analyzer { padding: 1.5rem; }
+        #progress-main-message-analyzer { font-size: 1.3rem; }
+        #progress-steps-analyzer li { font-size: 0.95rem; padding-left: 35px; }
+        #analysis-form-section-hero .btn-analyze, #ticker-input-hero { font-size: 1rem; padding: 12px 15px; }
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block body_class %}analyzer-page-body{% endblock %}
+
+{% block content %}
+<div class="analyzer-content-wrapper">
+    <div class="analyzer-container">
+
+        <section class="hero-analyzer animate fadeIn">
+            <h1>AI-Driven Stock Insights</h1>
+            <p class="subtitle">Unlock the Future of Trading. Enter a stock ticker below to receive a comprehensive analysis and 12-month price prediction, powered by advanced AI.</p>
+            
+            <div id="analysis-form-section-hero">
+                <form method="POST" action="{{ url_for('start_stock_analysis') }}">
+                    <div style="margin-bottom: 1rem;">
+                        <label for="ticker-input-hero">Enter Stock Ticker (e.g., AAPL, MSFT):</label>
+                        <input type="text" id="ticker-input-hero" name="ticker" required
+                               placeholder="Type ticker and press Enter or click Analyze">
+                        <small>Use standard US stock tickers or index symbols like ^GSPC.</small>
+                    </div>
+                    <button type="submit" class="btn-analyze">
+                        <i class="fas fa-magnifying-glass-chart" style="margin-right: 10px;"></i>Analyze Stock
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div style="margin-bottom: 2rem;">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="how-it-works-analyzer animate fadeIn delay-1">
+            <h2><i class="fas fa-cogs"></i>Our Analysis Process</h2>
+            <div class="how-it-works-grid-analyzer">
+                <div class="work-step-analyzer">
+                    <div class="icon-container-analyzer"><i class="fas fa-database"></i></div>
+                    <h3>1. Data Aggregation</h3>
+                    <p>We gather extensive historical stock data, trading volumes, and key macroeconomic indicators from multiple reliable financial sources.</p>
+                </div>
+                <div class="work-step-analyzer">
+                    <div class="icon-container-analyzer"><i class="fas fa-microchip"></i></div>
+                    <h3>2. AI Preprocessing</h3>
+                    <p>Our system meticulously cleans, normalizes, and transforms the raw data, preparing it for optimal performance with our AI models.</p>
+                </div>
+                <div class="work-step-analyzer">
+                    <div class="icon-container-analyzer"><i class="fas fa-chart-line"></i></div>
+                    <h3>3. Indicator Analysis</h3>
+                    <p>A wide array of technical indicators (SMAs, RSI, MACD) and fundamental data points (P/E, EPS growth) are calculated and analyzed.</p>
+                </div>
+                <div class="work-step-analyzer">
+                    <div class="icon-container-analyzer"><i class="fas fa-brain"></i></div>
+                    <h3>4. Predictive Modeling</h3>
+                    <p>Sophisticated machine learning models, including advanced time-series algorithms, generate future price trend predictions.</p>
+                </div>
+                <div class="work-step-analyzer">
+                    <div class="icon-container-analyzer"><i class="fas fa-shield-halved"></i></div>
+                    <h3>5. Risk Evaluation</h3>
+                    <p>We assess potential risks by analyzing market volatility, historical drawdowns, and other statistical factors to provide a risk profile.</p>
+                </div>
+                <div class="work-step-analyzer">
+                    <div class="icon-container-analyzer"><i class="fas fa-file-invoice-dollar"></i></div>
+                    <h3>6. Insightful Reporting</h3>
+                    <p>All findings are synthesized into a clear, comprehensive report with actionable insights, charts, and data-driven recommendations.</p>
+                </div>
+            </div>
+        </section>
+
+        <div id="progress-indicator-analyzer">
+            <div class="spinner"></div>
+            <p id="progress-main-message-analyzer">Generating Your In-Depth Stock Analysis...</p>
+            <p id="generation-time-info-analyzer"><i>Estimated: 15-25 seconds.</i></p>
+            <ul id="progress-steps-analyzer">
+                <li id="step-collect-data"><span class="status-icon pending"></span>Collecting Data</li>
+                <li id="step-preprocess"><span class="status-icon pending"></span>Preprocessing Data</li>
+                <li id="step-tech-analysis"><span class="status-icon pending"></span>Analyzing Technicals</li>
+                <li id="step-fund-analysis"><span class="status-icon pending"></span>Analyzing Fundamentals</li>
+                <li id="step-risk-analysis"><span class="status-icon pending"></span>Performing Risk Scan</li>
+                <li id="step-train-predict"><span class="status-icon pending"></span>AI Modeling & Prediction</li>
+                <li id="step-finalize"><span class="status-icon pending"></span>Compiling Report</li>
+            </ul>
+            <p id="timer-message-analyzer">Elapsed time: 0 seconds</p>
+            <p style="font-size: 0.85rem; color: #777; margin-top: 1.5rem;"><i>Please note: The step-by-step progress is a visual illustration while our servers work on your request.</i></p>
+        </div>
+        
+        <div id="error-message-area-analyzer" style="margin-top: 1.5rem; text-align:center;">
+            {# For client-side JS errors or specific messages #}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const formActionUrl = "{{ url_for('start_stock_analysis') }}";
+    const form = document.querySelector(`form[action="${formActionUrl}"]`);
+    const formSectionHero = document.getElementById('analysis-form-section-hero');
+    const progressIndicator = document.getElementById('progress-indicator-analyzer');
+    const timerMessage = document.getElementById('timer-message-analyzer');
+    const generationTimeInfo = document.getElementById('generation-time-info-analyzer');
+    const submitButton = form ? form.querySelector('button.btn-analyze') : null;
+    const errorMessageArea = document.getElementById('error-message-area-analyzer');
+    
+    let timerInterval;
+    let secondsElapsed = 0;
+
+    const steps = [
+        { id: 'step-collect-data', duration: 3 },
+        { id: 'step-preprocess', duration: 2 },
+        { id: 'step-tech-analysis', duration: 3 },
+        { id: 'step-fund-analysis', duration: 3 },
+        { id: 'step-risk-analysis', duration: 2 },
+        { id: 'step-train-predict', duration: 4 },
+        { id: 'step-finalize', duration: 1 }
+    ];
+
+    function startTimer() {
+        secondsElapsed = 0;
+        timerMessage.textContent = 'Elapsed time: 0 seconds';
+        generationTimeInfo.innerHTML = '<i>Estimated: 15-25 seconds.</i>';
+
+        timerInterval = setInterval(() => {
+            secondsElapsed++;
+            timerMessage.textContent = `Elapsed time: ${secondsElapsed} seconds`;
+            if (secondsElapsed > 30 && generationTimeInfo.textContent.startsWith("Estimated")) {
+                generationTimeInfo.innerHTML = '<i>This is taking a bit longer than usual. Please be patient... <br>Your report will load once processing is complete.</i>';
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+    }
+
+    async function simulateProgress() {
+        steps.forEach(stepConfig => {
+            const stepElement = document.getElementById(stepConfig.id);
+            if (stepElement) {
+                const iconElement = stepElement.querySelector('.status-icon');
+                stepElement.classList.remove('processing', 'completed');
+                if (iconElement) iconElement.className = 'status-icon pending';
+            }
+        });
+
+        for (let i = 0; i < steps.length; i++) {
+            const stepElement = document.getElementById(steps[i].id);
+            const iconElement = stepElement ? stepElement.querySelector('.status-icon') : null;
+
+            if (i > 0) {
+                const prevStepElement = document.getElementById(steps[i-1].id);
+                const prevIconElement = prevStepElement ? prevStepElement.querySelector('.status-icon') : null;
+                if (prevStepElement && prevIconElement) {
+                    prevStepElement.classList.remove('processing');
+                    prevStepElement.classList.add('completed');
+                    prevIconElement.className = 'status-icon completed';
+                }
+            }
+            
+            if (stepElement && iconElement) {
+                stepElement.classList.remove('pending');
+                stepElement.classList.add('processing');
+                iconElement.className = 'status-icon processing';
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, steps[i].duration * 900)); 
+            
+            if (i === steps.length - 1) {
+                 if (stepElement && iconElement) {
+                    stepElement.classList.remove('processing');
+                    stepElement.classList.add('completed');
+                    iconElement.className = 'status-icon completed';
+                }
+            }
+        }
+    }
+
+    if (form && submitButton) {
+        form.addEventListener('submit', function(e) {
+            const tickerInput = document.getElementById('ticker-input-hero');
+            if (!tickerInput || !tickerInput.value.trim()) {
+                e.preventDefault(); 
+                if(errorMessageArea) {
+                    errorMessageArea.innerHTML = '<div class="alert alert-danger" role="alert">Please enter a stock ticker.</div>';
+                }
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-magnifying-glass-chart" style="margin-right: 10px;"></i>Analyze Stock';
+                return;
+            }
+            if(errorMessageArea) errorMessageArea.innerHTML = '';
+
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<div class="spinner"></div>Processing...'; 
+            
+            // Instead of hiding the whole form section, we could just disable inputs within it.
+            // For now, keeping the hide behavior for simplicity.
+            const heroSection = document.querySelector('.hero-analyzer'); // Select the main hero section
+            if (heroSection) {
+                // Hide the form specifically, or the whole hero if preferred
+                // formSectionHero is the div inside hero-analyzer that contains the form
+                if (formSectionHero) formSectionHero.style.display = 'none';
+            }
+
+
+            if(progressIndicator) {
+                progressIndicator.style.display = 'block';
+                 // Scroll progress into view, ensuring it's not abrupt if hero was tall
+                if (heroSection) { // Scroll relative to where hero was
+                     heroSection.insertAdjacentElement('afterend', progressIndicator);
+                }
+                progressIndicator.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            startTimer();
+            simulateProgress().catch(console.error);
+        });
+    }
+
+    window.addEventListener('beforeunload', () => {
+        stopTimer();
+    });
+
+    document.addEventListener('click', function (event) {
+        if (event.target.matches('.alert .btn-close')) {
+            const alertNode = event.target.closest('.alert');
+            if (alertNode) {
+                alertNode.style.transition = 'opacity 0.3s ease-out';
+                alertNode.style.opacity = '0';
+                setTimeout(() => {
+                    alertNode.style.display = 'none';
+                    alertNode.remove(); // Optional: remove from DOM after fade
+                }, 300);
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

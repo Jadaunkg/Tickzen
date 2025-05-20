@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Tickzen{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head_extra %}{% endblock %}
+    <style>
+        :root {
+            --primary: #10ac84;
+            --secondary: #2e86de;
+            --dark: #2d3436; /* Used by new footer background */
+            --light: #f5f6fa;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --info: #3498db;
+            --font-main: 'Poppins', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --lp-primary: #2557a7; /* Landing page primary, used by new footer social icon hover */
+            --lp-secondary: #1e3a8a;
+            /* --accent: #3b82f6; /* This was from landing-page.html, replaced by base.html --primary for footer h3::after */
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { height: 100%; scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-main); margin: 0; background-color: var(--light);
+            color: #333; line-height: 1.6; display: flex; flex-direction: column;
+            min-height: 100vh; font-size: 15px; overflow-x: hidden;
+            -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+        }
+        .site-container { flex: 1; display: flex; flex-direction: column; }
+        .container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+
+        .navbar {
+            background-color: #ffffff; padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07); display: flex;
+            justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .navbar-brand { font-size: 1.8em; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
+        .navbar-brand i { margin-right: 8px; }
+        .navbar-toggler { display: none; font-size: 1.5rem; background: none; border: none; color: #333; cursor: pointer; }
+        .navbar-nav { list-style: none; padding: 0; margin: 0; display: flex; align-items: center; }
+        .nav-item { margin-left: 15px; position: relative; /* For dropdown positioning */ }
+        .nav-item:first-child { margin-left: 0; }
+
+
+        .nav-link {
+            text-decoration: none; color: #555; font-weight: 500;
+            padding: 8px 12px; border-radius: 6px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex; align-items: center; gap: 0.4rem;
+            white-space: nowrap; /* Prevent text wrapping in nav links */
+        }
+        .nav-link i { margin-right: 6px; }
+        .nav-link:hover, .nav-link.active { background-color: var(--primary); color: #ffffff; }
+        .nav-link.nav-link-user { font-weight: 400; color: #777; }
+        .nav-link.logout-btn { background-color: var(--danger-bg, #fde2e4); color: var(--danger, #941b0c); }
+        .nav-link.logout-btn:hover { background-color: var(--danger, #e63946); color: #ffffff; }
+        .nav-link.btn-login { background-color: var(--primary); color: white; padding: 8px 15px; border-radius: 20px; }
+        .nav-link.btn-login:hover { background-color: var(--secondary); }
+
+        /* Dropdown Menu Styles */
+        .nav-item.dropdown .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%; /* Position below the nav item */
+            left: 0;
+            background-color: white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 0 0 4px 4px;
+            z-index: 1001;
+            min-width: 200px; /* Adjust as needed */
+            padding: 0.5rem 0;
+            list-style: none; /* Remove bullets from ul */
+        }
+        .nav-item.dropdown:hover .dropdown-menu,
+        .nav-item.dropdown .dropdown-toggle:focus + .dropdown-menu, /* For accessibility with keyboard nav */
+        .nav-item.dropdown .dropdown-menu:hover { /* Keep open when hovering menu */
+            display: block;
+        }
+        .dropdown-menu .nav-link { /* Style for links within dropdown */
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .dropdown-menu .nav-link:hover {
+            background-color: var(--light); /* Lighter hover for dropdown */
+            color: var(--primary);
+        }
+        .dropdown-menu .nav-link i {
+            margin-right: 10px; /* More space for icons in dropdown */
+            width: 1.2em; /* Align text if icons vary in width */
+        }
+        .dropdown-toggle::after { /* Basic dropdown arrow */
+            content: ' \25BC'; /* Down arrow */
+            font-size: 0.7em;
+            margin-left: 0.5em;
+            display: inline-block;
+        }
+
+
+        .main-content { flex-grow: 1; padding: 0; }
+        .flash-messages-container { width: 80%; max-width: 900px; margin: 20px auto; padding: 0; list-style: none; }
+        .alert { padding: 15px 20px; margin-bottom: 15px; border: 1px solid transparent; border-radius: 8px; font-size: 0.95em; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .alert-success { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; }
+        .alert-danger { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; }
+        .alert-warning { background-color: #fff3cd; color: #664d03; border-color: #ffecb5; }
+        .alert-info { background-color: #cff4fc; color: #055160; border-color: #b6effb; }
+        
+        /* New Footer Styles from landing-page.html - Adapted */
+        footer {
+            background-color: var(--dark); /* Uses base.html --dark */
+            color: white;
+            padding: 4rem 0 2rem;
+            margin-top: auto; /* Ensures footer stays at bottom for flex column */
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .footer-column h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            color: white; /* Ensure h3 text is visible on dark background */
+        }
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--primary); /* Adapted to use base.html --primary */
+        }
+         .footer-column p { /* Ensure p text is visible */
+            color: #d1d5db;
+        }
+        .footer-column ul {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-column ul li {
+            margin-bottom: 0.75rem;
+        }
+        .footer-column ul li a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .footer-column ul li a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #374151; /* A slightly lighter grey than typical footer dark */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .social-icon svg { /* Ensure SVGs inside are styled correctly if not inheriting */
+            fill: currentColor;
+        }
+        .social-icon:hover {
+            background-color: var(--lp-primary); /* Adapted to use base.html --lp-primary for this specific hover */
+        }
+        .footer-bottom {
+            border-top: 1px solid #374151; /* Using a specific grey for the border */
+            padding-top: 2rem;
+            text-align: center;
+            color: #9ca3af; /* Light grey for copyright text */
+        }
+        /* End of New Footer Styles */
+
+        @media (max-width: 1024px) { /* Adjust breakpoint if menu still too wide */
+            .nav-item { margin-left: 10px; } /* Reduce space slightly */
+        }
+
+        @media (max-width: 992px) { /* Existing breakpoint for mobile toggle */
+            .navbar-toggler { display: block; }
+            .navbar-nav {
+                display: none; flex-direction: column; width: 100%;
+                position: absolute; top: 100%; left: 0;
+                background-color: #ffffff; box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+                padding-bottom: 0; border-top: 1px solid #eee;
+            }
+            .navbar-nav.active { display: flex; }
+            .nav-item { margin-left: 0; width: 100%; text-align: left; /* Align text left for mobile */ }
+            .nav-item:not(:last-child) { border-bottom: 1px solid #f0f0f0; }
+            .nav-link {
+                display: block; width: 100%; padding: 12px 20px;
+                margin: 0; border-radius: 0; justify-content: flex-start; /* Align icon+text left */
+            }
+            .nav-link.btn-login { margin: 10px 20px; width: auto; border-radius: 20px; text-align: center; justify-content: center;}
+
+            /* Mobile Dropdown Behavior */
+            .nav-item.dropdown .dropdown-menu {
+                position: static; /* Remove absolute positioning */
+                display: block; /* Always show content if parent is 'active' (JS toggled) */
+                box-shadow: none;
+                border-radius: 0;
+                border-top: 1px solid #eee;
+                background-color: #f9f9f9; /* Slightly different bg for mobile dropdown */
+                padding-left: 20px; /* Indent dropdown items */
+            }
+            .nav-item.dropdown:hover .dropdown-menu { 
+                display: none; 
+            }
+            .navbar-nav.active .nav-item.dropdown .dropdown-menu {
+                display:block;
+            }
+
+            .dropdown-menu .nav-link {
+                padding: 10px 20px 10px 10px; /* Adjust padding for indented items */
+            }
+            .dropdown-toggle::after { display: none; } /* Hide desktop arrow on mobile */
+        }
+        
+        /* Custom Animations from landing-page.html */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate {
+            animation: fadeIn 0.8s ease forwards;
+            /* Initial state for JS-controlled fade-in if not using CSS animation directly on load,
+               but CSS animation with 'forwards' should handle this.
+               If elements are added dynamically or should only animate on first scroll into view,
+               JS might set opacity to 0 then add .animate, or CSS might need .animate to start with opacity 0.
+               Given the provided landing page, .animate applies the animation directly.
+            */
+        }
+        
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+
+    </style>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <div class="site-container">
+        <header class="navbar">
+            {% if is_user_logged_in %}
+                <a href="{{ url_for('dashboard_page') }}" class="navbar-brand"> {# CORRECTED: Logged-in users go to dashboard #}
+                    <i class="fas fa-rocket"></i> Tickzen
+                </a>
+            {% else %}
+                <a href="{{ url_for('stock_analysis_homepage_route') }}" class="navbar-brand">
+                    <i class="fas fa-rocket"></i> Tickzen
+                </a>
+            {% endif %}
+            <button class="navbar-toggler" type="button" aria-label="Toggle navigation" onclick="toggleNavbar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="navbar-nav" id="navbarNav">
+                {% if is_user_logged_in %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'dashboard_page' %}active{% endif %}" href="{{ url_for('dashboard_page') }}">
+                            <i class="fas fa-tachometer-alt"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'analyzer_input_page' %}active{% endif %}" href="{{ url_for('analyzer_input_page') }}">
+                            <i class="fas fa-search-dollar"></i>Stock Analyzer
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'manage_site_profiles' %}active{% endif %}" href="{{ url_for('manage_site_profiles') }}">
+                            <i class="fas fa-sitemap"></i>Profiles
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'automation_runner_page' %}active{% endif %}" href="{{ url_for('automation_runner_page') }}">
+                            <i class="fas fa-play-circle"></i>Run Automation
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-tools"></i>Tools
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="toolsDropdown">
+                            <li>
+                                <a class="nav-link {% if request.endpoint == 'wp_generator_page' %}active{% endif %}" href="{{ url_for('wp_generator_page') }}">
+                                    <i class="fas fa-file-alt"></i>WP Asset Gen
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link {% if request.endpoint == 'wordpress_automation_portal_route' %}active{% endif %}" href="{{ url_for('wordpress_automation_portal_route') }}">
+                                    <i class="fas fa-robot"></i>WP Automation
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle nav-link-user" href="#" id="userDropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i>{{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'Account') }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="nav-link {% if request.endpoint == 'user_profile_page' %}active{% endif %}" href="{{ url_for('user_profile_page') }}">
+                                    <i class="fas fa-id-card"></i>My Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link logout-btn-js logout-btn" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    {# Navbar for logged-out users (landing page style) #}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#how-it-works">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#pricing">Pricing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#faq">FAQs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn-login" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Tickzen</h3>
+                    <p>Making data-driven investment decisions accessible to everyone through advanced AI-powered stock analysis and forecasting.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon" aria-label="Facebook">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="Twitter">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="LinkedIn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                <rect x="2" y="9" width="4" height="12"></rect>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Features</h3>
+                    <ul>
+                        <li><a href="{{ url_for('stock_analysis_homepage_route') }}#features">AI Price Forecasting</a></li>
+                        <li><a href="{{ url_for('stock_analysis_homepage_route') }}#features">Technical Analysis</a></li>
+                        <li><a href="{{ url_for('stock_analysis_homepage_route') }}#features">Fundamental Data</a></li>
+                        <li><a href="{{ url_for('stock_analysis_homepage_route') }}#features">Risk Analysis</a></li>
+                        <li><a href="{{ url_for('stock_analysis_homepage_route') }}#features">Interactive Reports</a></li>
+                        <li><a href="{{ url_for('stock_analysis_homepage_route') }}#features">WordPress Publishing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Knowledge Base</a></li>
+                        <li><a href="#">API Documentation</a></li>
+                        <li><a href="#">Video Tutorials</a></li>
+                        <li><a href="#">Market News</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; {{ now.year if now else '2025' }} Tickzen. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleNavbar() {
+            const navbarNav = document.getElementById('navbarNav');
+            if (navbarNav) {
+                navbarNav.classList.toggle('active');
+            }
+        }
+        
+        // Combined and refined smooth scroll logic
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scroll for internal links (e.g. footer, navbar on homepage)
+            document.querySelectorAll('a[href^="#"], .navbar-nav a[href*="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    let targetId = this.hash;
+                    let isCorrectPageForHash = true; // Assume true for simple hash links
+
+                    // Special handling for navbar links pointing to homepage sections
+                    if (this.closest('.navbar-nav')) {
+                        const homepageUrl = "{{ url_for('stock_analysis_homepage_route') }}";
+                        isCorrectPageForHash = (window.location.pathname === homepageUrl && targetId) || 
+                                               (this.href.startsWith(window.location.origin + homepageUrl + "#"));
+                        if (this.href.includes(homepageUrl + "#")) {
+                             targetId = "#" + this.href.split('#')[1];   
+                        }
+                    }
+                    
+                    if (targetId && targetId !== '#' && isCorrectPageForHash) {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            e.preventDefault();
+                            let navbarHeight = 0;
+                            const mainNavbar = document.querySelector('.navbar');
+                            if (mainNavbar && (getComputedStyle(mainNavbar).position === 'sticky' || getComputedStyle(mainNavbar).position === 'fixed')) {
+                                navbarHeight = mainNavbar.offsetHeight;
+                            }
+                            
+                            window.scrollTo({
+                                top: targetElement.offsetTop - navbarHeight - 20, // Adjusted offset
+                                behavior: 'smooth'
+                            });
+
+                            // Close mobile navbar if open
+                            const navbarNav = document.getElementById('navbarNav');
+                            if (navbarNav && navbarNav.classList.contains('active')) {
+                                navbarNav.classList.remove('active');
+                            }
+                        }
+                    } else if (targetId === '#' && isCorrectPageForHash) {
+                        e.preventDefault(); // Prevent jumping to top for href="#"
+                    }
+                    // If not isCorrectPageForHash, let the default browser navigation handle it (e.g. to another page)
+                });
+            });
+
+            // Prevent default for dropdown toggles if they are just href="#"
+            document.querySelectorAll('.dropdown-toggle[href="#"]').forEach(toggle => {
+                toggle.addEventListener('click', function(e){
+                    e.preventDefault();
+                });
+            });
+        });
+    </script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="{{ url_for('static', filename='js/firebase-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    {% block scripts_extra %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation script from landing-page.html
+            const animateElements = document.querySelectorAll('.animate');
+            
+            function checkIfInView() {
+                const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+                animateElements.forEach(element => {
+                    const rect = element.getBoundingClientRect();
+                    // Check if element is already animated by CSS to avoid re-setting style
+                    // The CSS animation has `forwards`, so it will hold the final state.
+                    // This JS mainly ensures elements that might load off-screen and scroll into view
+                    // get a chance to play animation if CSS alone doesn't catch it or if
+                    // initial state opacity=0 is managed by JS adding .animate class.
+                    // However, current .animate class applies animation immediately.
+                    // For robustness, this can ensure visibility.
+                    if (rect.top <= windowHeight * 0.85 && rect.bottom >= 0 && rect.left <= window.innerWidth && rect.right >=0) {
+                        // If the element is meant to be animated by CSS, direct style manipulation might conflict.
+                        // The CSS rule `.animate { animation: fadeIn 0.8s ease forwards; }` handles the animation.
+                        // This JS block might be redundant or for a slightly different behavior.
+                        // For now, keeping it as per landing-page.html's script section for visibility.
+                        // A more robust way would be for JS to add a class like 'in-view' that triggers CSS transition/animation.
+                        // But following the provided script:
+                        // To ensure animation plays and is not cut short, we can check if it has been 'activated'
+                        if (!element.classList.contains('animation-activated')) {
+                             // If we want CSS to handle it, we should ensure opacity is 0 initially
+                             // and then this JS could add the .animate class or another trigger class.
+                             // For now, assuming .animate is on elements from start.
+                             // The original JS directly set opacity and transform, which bypasses @keyframes.
+                             // Let's assume the CSS .animate is the primary driver. This script becomes a fallback.
+                             // To make it less conflicting, we'll just ensure it's visible if it somehow wasn't.
+                             // element.style.opacity = '1';
+                             // element.style.transform = 'translateY(0)';
+                             element.classList.add('animation-activated'); // Mark as handled by JS scroll check
+                        }
+                    }
+                });
+            }
+            
+            if (animateElements.length > 0) {
+                // Set initial state for elements that will be animated on scroll,
+                // if they don't have the .animate class from the start.
+                // Or, if .animate sets opacity:0 initially.
+                // The current .animate has `animation: fadeIn ...` which starts from opacity 0.
+                window.addEventListener('scroll', checkIfInView);
+                checkIfInView(); // Initial check for elements already in view
+            }
+
+            // Smooth scroll from landing-page.html (now integrated into the main DOMContentLoaded listener above)
+            // The combined scroll logic above is more robust for handling different types of hash links.
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>
