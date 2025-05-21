@@ -242,12 +242,6 @@
         
         .animate {
             animation: fadeIn 0.8s ease forwards;
-            /* Initial state for JS-controlled fade-in if not using CSS animation directly on load,
-               but CSS animation with 'forwards' should handle this.
-               If elements are added dynamically or should only animate on first scroll into view,
-               JS might set opacity to 0 then add .animate, or CSS might need .animate to start with opacity 0.
-               Given the provided landing page, .animate applies the animation directly.
-            */
         }
         
         .delay-1 { animation-delay: 0.2s; }
@@ -506,30 +500,11 @@
                 const windowHeight = window.innerHeight || document.documentElement.clientHeight;
                 animateElements.forEach(element => {
                     const rect = element.getBoundingClientRect();
-                    // Check if element is already animated by CSS to avoid re-setting style
-                    // The CSS animation has `forwards`, so it will hold the final state.
-                    // This JS mainly ensures elements that might load off-screen and scroll into view
-                    // get a chance to play animation if CSS alone doesn't catch it or if
-                    // initial state opacity=0 is managed by JS adding .animate class.
-                    // However, current .animate class applies animation immediately.
-                    // For robustness, this can ensure visibility.
+                    
                     if (rect.top <= windowHeight * 0.85 && rect.bottom >= 0 && rect.left <= window.innerWidth && rect.right >=0) {
-                        // If the element is meant to be animated by CSS, direct style manipulation might conflict.
-                        // The CSS rule `.animate { animation: fadeIn 0.8s ease forwards; }` handles the animation.
-                        // This JS block might be redundant or for a slightly different behavior.
-                        // For now, keeping it as per landing-page.html's script section for visibility.
-                        // A more robust way would be for JS to add a class like 'in-view' that triggers CSS transition/animation.
-                        // But following the provided script:
-                        // To ensure animation plays and is not cut short, we can check if it has been 'activated'
+                        
                         if (!element.classList.contains('animation-activated')) {
-                             // If we want CSS to handle it, we should ensure opacity is 0 initially
-                             // and then this JS could add the .animate class or another trigger class.
-                             // For now, assuming .animate is on elements from start.
-                             // The original JS directly set opacity and transform, which bypasses @keyframes.
-                             // Let's assume the CSS .animate is the primary driver. This script becomes a fallback.
-                             // To make it less conflicting, we'll just ensure it's visible if it somehow wasn't.
-                             // element.style.opacity = '1';
-                             // element.style.transform = 'translateY(0)';
+                             
                              element.classList.add('animation-activated'); // Mark as handled by JS scroll check
                         }
                     }

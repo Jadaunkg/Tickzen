@@ -12,12 +12,7 @@ from functools import wraps
 import re # For basic URL validation
 import traceback
 
-# --- (Keep your existing imports and setup for Firebase, auto_publisher, pipeline etc.) ---
-# Ensure FIREBASE_INITIALIZED_SUCCESSFULLY, AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY, etc. are defined
-# Assume initialize_firebase_admin, verify_firebase_token, get_firestore_client are defined
-# Assume get_user_site_profiles_from_firestore, save_user_site_profile_to_firestore, etc. are defined
-# Assume get_automation_shared_context is defined
-# Assume ALL_SECTIONS is defined (from get_all_report_section_keys)
+
 FIREBASE_INITIALIZED_SUCCESSFULLY = True # Placeholder
 AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True # Placeholder
 PIPELINE_IMPORTED_SUCCESSFULLY = True # Placeholder
@@ -104,17 +99,27 @@ def format_datetime_filter(value, fmt="%Y-%m-%d %H:%M:%S"):
         if isinstance(value, str):
             dt_obj = datetime.fromisoformat(value.replace('Z', '+00:00')) if value.endswith('Z') else datetime.fromisoformat(value)
         elif isinstance(value, (int, float)): # Handle timestamps
-            dt_obj = datetime.fromtimestamp(value, timezone.utc)
+            # Attempt to determine if it's seconds or milliseconds
+            if value > 10**10: # Likely milliseconds
+                 dt_obj = datetime.fromtimestamp(value / 1000, timezone.utc)
+            else: # Likely seconds
+                 dt_obj = datetime.fromtimestamp(value, timezone.utc)
         elif isinstance(value, datetime):
             dt_obj = value
+        # Handling Firestore Timestamp (google.cloud.firestore_v1.base_timestamp.Timestamp)
+        elif hasattr(value, 'seconds') and hasattr(value, 'nanoseconds'): # Heuristic for Firestore Timestamp
+            dt_obj = datetime.fromtimestamp(value.seconds + value.nanoseconds / 1e9, timezone.utc)
         else:
             return value # Fallback for unknown types
+        
         if dt_obj.tzinfo is None:
             dt_obj = dt_obj.replace(tzinfo=timezone.utc) # Assume UTC if naive
+        
         return dt_obj.strftime(fmt)
     except (ValueError, AttributeError, TypeError) as e:
-        app.logger.warning(f"Could not format datetime value '{value}': {e}")
+        app.logger.warning(f"Could not format datetime value '{value}' (type: {type(value)}): {e}")
         return value
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -238,7 +243,15 @@ def stock_analysis_homepage_route():
 @app.route('/dashboard')
 @login_required
 def dashboard_page():
-    return render_template('dashboard.html', title="Dashboard - Tickzen")
+    user_uid = session.get('firebase_user_uid')
+    report_history, total_reports = [], 0 # Default values
+    if user_uid:
+        report_history, total_reports = get_report_history_for_user(user_uid, display_limit=10) # Get last 10 reports
+    return render_template('dashboard.html',
+                           title="Dashboard - Tickzen",
+                           report_history=report_history,
+                           total_reports=total_reports)
+
 
 @app.route('/analyzer', methods=['GET'])
 def analyzer_input_page():
@@ -259,10 +272,10 @@ def start_stock_analysis():
         return redirect(url_for('analyzer_input_page'))
 
     try:
-        timestamp = str(int(time.time()))
-        app.logger.info(f"Running full stock analysis for ticker {ticker} with timestamp {timestamp}...")
+        request_timestamp_for_report = int(time.time()) # Use this for report generation and history
+        app.logger.info(f"Running full stock analysis for ticker {ticker} with timestamp {request_timestamp_for_report}...")
 
-        pipeline_result = run_pipeline(ticker, timestamp, APP_ROOT)
+        pipeline_result = run_pipeline(ticker, str(request_timestamp_for_report), APP_ROOT)
         
         report_html_content_from_pipeline = None
         path_info_from_pipeline = None
@@ -276,7 +289,7 @@ def start_stock_analysis():
                "<html" in report_html_content_from_pipeline.lower() and \
                "Error Generating Report" not in report_html_content_from_pipeline:
                 
-                generated_filename = f"{ticker}_report_dynamic_{timestamp}.html" # This filename is already being used
+                generated_filename = f"{ticker}_report_dynamic_{request_timestamp_for_report}.html"
                 absolute_report_filepath_on_disk = os.path.join(STOCK_REPORTS_PATH, generated_filename)
                 try:
                     with open(absolute_report_filepath_on_disk, 'w', encoding='utf-8') as f:
@@ -322,11 +335,18 @@ def start_stock_analysis():
             app.logger.error(f"Post-processing: Report filename for URL or absolute disk path is invalid or file does not exist. URL Filename: '{report_filename_for_url}', Disk Path: '{absolute_report_filepath_on_disk}'")
             raise ValueError("Report generation was unsuccessful or the final report path is invalid.")
 
-        # === THIS IS THE MODIFIED REDIRECT ===
+        # --- SAVE TO HISTORY ---
+        if 'firebase_user_uid' in session and report_filename_for_url:
+            user_uid = session['firebase_user_uid']
+            # Use the same timestamp that was used for the report filename for consistency
+            generated_at_dt = datetime.fromtimestamp(request_timestamp_for_report, timezone.utc)
+            save_report_to_history(user_uid, ticker, report_filename_for_url, generated_at_dt)
+            app.logger.info(f"Attempted to save report to history for user {user_uid}, ticker {ticker}, filename {report_filename_for_url}")
+        # --- END SAVE TO HISTORY ---
+
         view_report_url = url_for('view_generated_report', ticker=ticker, filename=report_filename_for_url)
         app.logger.info(f"Redirecting to new report viewer for {ticker}. Filename: '{report_filename_for_url}'. Viewer URL: {view_report_url}")
         return redirect(view_report_url)
-        # === END OF MODIFIED REDIRECT ===
 
     except Exception as e:
         app.logger.error(f"Error during stock analysis for {ticker}: {e}", exc_info=True)
@@ -334,29 +354,24 @@ def start_stock_analysis():
         return redirect(url_for('analyzer_input_page'))
 
 
-# === Add this new route ===
+# --- REPORT VIEWING ROUTES ---
 @app.route('/view-report/<ticker>/<path:filename>')
-@login_required # Assuming reports should be accessed by logged-in users
+@login_required 
 def view_generated_report(ticker, filename):
     report_url = url_for('serve_static_report', filename=filename)
-    # Ensure filename is safe to be used in download attribute (though url_for and secure_filename should handle much of this)
-    # For direct use in download attribute, further sanitization or using a simpler alias might be considered
-    # if filenames can have complex characters. Here, we assume 'filename' is already secured.
     return render_template('view_report_page.html',
                            title=f"Analysis Report: {ticker.upper()}",
                            ticker=ticker.upper(),
                            report_url=report_url,
-                           download_filename=filename) # Pass filename for download link
+                           download_filename=filename) 
 
 
 @app.route('/static/stock_reports/<path:filename>')
 def serve_static_report(filename):
-    # Corrected: Removed cache_timeout
     return send_from_directory(STOCK_REPORTS_PATH, filename)
 
 @app.route('/static/<path:filename>')
-def serve_static_general(filename): # General static files (CSS, JS)
-    # Corrected: Removed cache_timeout
+def serve_static_general(filename): 
     return send_from_directory(app.static_folder, filename)
 
 
@@ -384,10 +399,9 @@ def verify_token_route():
     if decoded_token and 'uid' in decoded_token:
         session['firebase_user_uid'] = decoded_token['uid']
         session['firebase_user_email'] = decoded_token.get('email')
-        session['firebase_user_displayName'] = decoded_token.get('name', '') # 'name' is common from Google Sign-In
-        session.permanent = True # Make session permanent based on app.config PERMANENT_SESSION_LIFETIME
+        session['firebase_user_displayName'] = decoded_token.get('name', '') 
+        session.permanent = True 
         app.logger.info(f"User {decoded_token['uid']} logged in. Email: {decoded_token.get('email')}, Name: {decoded_token.get('name')}")
-        # Include a 'next_url' in the response for client-side redirection
         return jsonify({"status": "success", "uid": decoded_token['uid'], "next_url": url_for('dashboard_page')}), 200
     else:
         app.logger.warning(f"Token verification failed. Decoded token: {decoded_token}")
@@ -397,10 +411,9 @@ def verify_token_route():
 def logout():
     session.clear()
     flash("You have been successfully logged out.", "info")
-    return redirect(url_for('stock_analysis_homepage_route')) # Redirect to public homepage
+    return redirect(url_for('stock_analysis_homepage_route')) 
 
 # --- USER & PROFILE MANAGEMENT ---
-# (The rest of the file remains the same as your last provided version)
 @app.route('/user-profile')
 @login_required
 def user_profile_page():
@@ -412,7 +425,6 @@ def manage_site_profiles():
     user_uid = session['firebase_user_uid']
     profiles = get_user_site_profiles_from_firestore(user_uid)
     shared_context = get_automation_shared_context(user_uid, profiles)
-    # Check if there are form data and errors from a previous POST attempt (for Add form)
     form_data_add = session.pop('form_data_add_repopulate', None)
     show_add_form_on_load_flag = session.pop('show_add_form_on_load_flag', False)
     errors_add_repopulate = session.pop('errors_add_repopulate', None)
@@ -729,10 +741,7 @@ def delete_site_profile(profile_id_to_delete):
         flash(f"Failed to delete profile ID '{profile_id_to_delete}'.", "error")
     return redirect(url_for('manage_site_profiles'))
 
-
-
-# --- New Firestore Functions for Report History ---
-
+# --- REPORT HISTORY MANAGEMENT ---
 def save_report_to_history(user_uid, ticker, filename, generated_at_dt):
     """Saves a record of a generated report to Firestore."""
     if not FIREBASE_INITIALIZED_SUCCESSFULLY:
@@ -744,66 +753,77 @@ def save_report_to_history(user_uid, ticker, filename, generated_at_dt):
         return False
     try:
         reports_history_collection = db.collection(u'userGeneratedReports')
+        # Ensure generated_at_dt is timezone-aware (UTC) before saving
+        if generated_at_dt.tzinfo is None:
+            generated_at_dt = generated_at_dt.replace(tzinfo=timezone.utc)
+
         reports_history_collection.add({
             u'user_uid': user_uid,
-            u'ticker': ticker,
+            u'ticker': ticker.upper(), # Store ticker in uppercase for consistency
             u'filename': filename,
-            u'generated_at': generated_at_dt  # Store as Python datetime, Firestore converts to Timestamp
+            u'generated_at': generated_at_dt 
         })
-        app.logger.info(f"Report history saved for user {user_uid}, ticker {ticker}.")
+        app.logger.info(f"Report history saved for user {user_uid}, ticker {ticker}, filename {filename}.")
         return True
     except Exception as e:
-        app.logger.error(f"Error saving report history for user {user_uid}: {e}", exc_info=True)
+        app.logger.error(f"Error saving report history for user {user_uid}, ticker {ticker}: {e}", exc_info=True)
         return False
 
 def get_report_history_for_user(user_uid, display_limit=10):
     """Fetches report history for a user and the total count of their reports."""
     if not FIREBASE_INITIALIZED_SUCCESSFULLY:
-        app.logger.error("Firestore not available for fetching report history.")
+        app.logger.error(f"Firestore not available for fetching report history for user {user_uid}.")
         return [], 0
     db = get_firestore_client()
     if not db:
-        app.logger.error("Firestore client not available for fetching report history.")
+        app.logger.error(f"Firestore client not available for fetching report history for user {user_uid}.")
         return [], 0
     
     reports_for_display = []
     total_user_reports_count = 0
     
     try:
-        # Base query for the user's reports
         base_query = db.collection(u'userGeneratedReports').where(u'user_uid', u'==', user_uid)
-
-        # Get all documents for counting (can be slow for very large numbers)
-        # For better performance on huge datasets, consider a separate counter updated by a Cloud Function.
-        all_user_reports_stream = base_query.stream()
-        # Consuming the stream to count. This is acceptable for moderate numbers of reports per user.
-        all_user_reports_docs = list(all_user_reports_stream)
-        total_user_reports_count = len(all_user_reports_docs)
-
-        # Now, sort these documents in memory by 'generated_at' for display
-        # Ensure 'generated_at' is present and comparable (datetime/Timestamp)
-        def get_generated_at(doc):
-            data = doc.to_dict()
-            ts = data.get('generated_at')
-            # If it's already a datetime, great. If it's a Firestore Timestamp, it's also comparable.
-            # If it's something else or missing, provide a fallback for sorting.
-            if not isinstance(ts, (datetime, type(db.document().get().create_time))): # Check against actual Timestamp type if possible
-                 return datetime.min.replace(tzinfo=timezone.utc) # Fallback for sorting if malformed
-            return ts
-
-        sorted_user_reports = sorted(all_user_reports_docs, key=get_generated_at, reverse=True)
         
-        for i, doc_snapshot in enumerate(sorted_user_reports):
-            if i < display_limit:
-                report_data = doc_snapshot.to_dict()
-                report_data['id'] = doc_snapshot.id 
-                # 'generated_at' from Firestore will be a google.cloud.firestore_v1.base_timestamp.Timestamp
-                # which works with the format_datetime_filter
-                reports_for_display.append(report_data)
-            else:
-                break # Stop once display_limit is reached for the list
+        # Efficiently count documents (if supported by Firestore client library version for direct count)
+        # Otherwise, streaming all and counting is a fallback.
+        # For very large collections, consider maintaining a counter in a separate document.
+        try:
+            count_query = base_query.count() # Attempt to use aggregate count
+            count_result = count_query.get()
+            total_user_reports_count = count_result[0][0].value if count_result else 0
+        except AttributeError: # Fallback if .count() is not available or behaves differently
+            app.logger.warning("Firestore count() aggregate not available or failed, falling back to streaming for count.")
+            all_user_reports_stream = base_query.stream()
+            all_user_reports_docs = list(all_user_reports_stream) # Consume stream to count
+            total_user_reports_count = len(all_user_reports_docs)
+            # If we fell back, we already have the docs, so we can sort these instead of re-querying
+            # However, the original logic sorted after fetching with limit, which is more efficient.
+            # To maintain that, we will re-query with ordering and limit if we used the fallback.
+            # For simplicity here, if fallback used, we sort 'all_user_reports_docs' if display_limit is large.
+            # But ideally, we always use a query with orderBy and limit for display.
+
+        # Query for display with ordering and limit
+        display_query = base_query.order_by(u'generated_at', direction='DESCENDING').limit(display_limit)
+        docs_for_display_stream = display_query.stream()
+
+        for doc_snapshot in docs_for_display_stream:
+            report_data = doc_snapshot.to_dict()
+            report_data['id'] = doc_snapshot.id 
+            
+            # Ensure 'generated_at' is a datetime object for the template filter
+            generated_at_val = report_data.get('generated_at')
+            if hasattr(generated_at_val, 'seconds'): # Firestore Timestamp
+                 report_data['generated_at'] = datetime.fromtimestamp(generated_at_val.seconds + generated_at_val.nanoseconds / 1e9, timezone.utc)
+            elif isinstance(generated_at_val, (int, float)): # Unix timestamp (seconds or ms)
+                if generated_at_val > 10**10: # Likely ms
+                    report_data['generated_at'] = datetime.fromtimestamp(generated_at_val / 1000, timezone.utc)
+                else: # Likely s
+                    report_data['generated_at'] = datetime.fromtimestamp(generated_at_val, timezone.utc)
+
+            reports_for_display.append(report_data)
                 
-        app.logger.info(f"Fetched {len(reports_for_display)} report history items for user {user_uid} (Total found: {total_user_reports_count}).")
+        app.logger.info(f"Fetched {len(reports_for_display)} report history items for user {user_uid} (Display Limit: {display_limit}, Total Found: {total_user_reports_count}).")
         return reports_for_display, total_user_reports_count
         
     except Exception as e:
@@ -953,6 +973,7 @@ def generate_wp_assets():
         if html_report_fragment and "Error Generating Report" not in html_report_fragment:
             duration = time.time() - start_time
             app.logger.info(f"WordPress asset pipeline for {ticker} completed in {duration:.2f}s.")
+            
             return jsonify({
                 'status': 'success',
                 'ticker': ticker,
@@ -970,7 +991,7 @@ def generate_wp_assets():
         return jsonify({'status': 'error', 'message': f"A server error occurred while generating assets for {ticker}."}), 500
 
 
-# --- Main Execution ---
+#--- Main Execution ---
 if __name__ == '__main__':
     app.logger.info(f"Current CWD: {os.getcwd()}")
     app.logger.info(f"APP_ROOT: {APP_ROOT}, Static: {app.static_folder}, Templates: {app.template_folder}")
