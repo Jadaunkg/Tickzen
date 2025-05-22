@@ -1,527 +1,517 @@
 {% extends "_base.html" %}
 
-{% block title %}AI Stock Analysis & Prediction - Input{% endblock %}
+{% block title %}AI Stock Analysis - Input{% endblock %}
 
 {% block head_extra %}
-    {# Font Awesome 6.4.0 - Ensure this version is compatible or update _base.html if it loads a different version #}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 <style>
-    /* Root variables from your _base.html (for reference during styling)
-       --primary: #10ac84;
-       --secondary: #2e86de;
-       --dark: #2d3436;
-       --light: #f5f6fa;
-       --success: #27ae60;
-       --warning: #f39c12;
-       --danger: #e74c3c;
-       --info: #3498db;
-       --font-main: 'Poppins', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-       --primary-rgb: 16, 172, 132; (Define in _base.html if --primary is #10ac84)
+    /* ... (All CSS styles from the previous version should remain here) ... */
+    /*
+      Assuming CSS custom properties like --primary, --secondary, --dark, --light,
+      --success, --warning, --danger, --info, --font-main, and --primary-rgb
+      are defined in your _base.html or a global style.css linked in _base.html.
+      Example fallback values are provided.
     */
 
-    /* Page Body & Container */
     .analyzer-page-body {
         background-color: var(--light, #f5f6fa);
-        font-family: var(--font-main, 'Segoe UI', Roboto, sans-serif);
+        font-family: var(--font-main, 'Poppins', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif);
         color: var(--dark, #2d3436);
-        min-height: 100vh; /* Ensure it takes full height */
-    }
-
-    .analyzer-content-wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         padding-top: 2rem;
-        padding-bottom: 3rem;
+        padding-bottom: 2rem;
     }
 
     .analyzer-container {
-        width: 90%;
-        max-width: 960px;
+        width: 100%;
+        max-width: 650px;
         margin: 0 auto;
-        padding: 0 15px;
+        padding: 1rem;
     }
 
-    /* Hero Section (Input Area) */
-    .hero-analyzer {
-        background: linear-gradient(135deg, var(--primary, #10ac84), var(--secondary, #2e86de));
-        color: #ffffff;
-        padding: 4rem 2rem;
-        text-align: center;
+    .analyzer-card {
+        background-color: #ffffff;
         border-radius: 12px;
-        margin-bottom: 3rem;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-    .hero-analyzer h1 {
-        font-size: 2.8rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        line-height: 1.2;
-    }
-    .hero-analyzer p.subtitle {
-        font-size: 1.2rem;
-        margin-bottom: 2.5rem;
-        opacity: 0.9;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    #analysis-form-section-hero {
-        max-width: 550px;
-        margin: 0 auto;
-        background-color: rgba(255, 255, 255, 0.1);
-        padding: 2rem;
-        border-radius: 8px;
-    }
-    #analysis-form-section-hero label {
-        display: block;
-        margin-bottom: 0.75rem;
-        font-weight: 600;
-        color: #ffffff;
-        text-align: left;
-    }
-    #ticker-input-hero {
-        width: 100%;
-        padding: 14px 18px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        border-radius: 6px;
-        font-size: 1.1rem;
-        background-color: rgba(255, 255, 255, 0.9);
-        color: var(--dark, #2d3436);
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    #ticker-input-hero::placeholder { color: #888; }
-    #ticker-input-hero:focus {
-        border-color: #ffffff;
-        background-color: #ffffff;
-        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.3);
-        outline: none;
-    }
-    #analysis-form-section-hero small {
-        display: block;
-        margin-top: 0.75rem;
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-        text-align: left;
-    }
-    #analysis-form-section-hero .btn-analyze {
-        padding: 14px 28px;
-        font-size: 1.15rem;
-        font-weight: 600;
-        background-color: #ffffff;
-        color: var(--primary, #10ac84);
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-        width: 100%;
-        margin-top: 1.5rem;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    #analysis-form-section-hero .btn-analyze:hover {
-        background-color: var(--light, #f5f6fa);
-        color: var(--secondary, #2e86de);
-        transform: translateY(-2px);
-    }
-    #analysis-form-section-hero .btn-analyze:disabled {
-        background-color: #e0e0e0;
-        color: #999;
-        cursor: not-allowed;
-        transform: translateY(0);
-    }
-    #analysis-form-section-hero .btn-analyze .spinner {
-        width: 20px; height: 20px; border-width: 3px;
-        border-left-color: var(--primary, #10ac84) !important;
-        display: inline-block; vertical-align: middle; margin-right: 10px;
-    }
-
-    /* How It Works Section */
-    .how-it-works-analyzer {
-        padding: 3rem 0;
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-        margin-bottom: 3rem;
-    }
-    .how-it-works-analyzer h2 {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
         text-align: center;
-        color: var(--dark, #2d3436);
-        margin-bottom: 2.5rem;
-        font-size: 2.2rem;
-        font-weight: 600;
-    }
-    .how-it-works-analyzer h2 i {
-        color: var(--primary, #10ac84);
-        margin-right: 12px;
-    }
-    .how-it-works-grid-analyzer {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-    }
-    .work-step-analyzer {
-        background-color: var(--light, #f5f6fa);
-        padding: 2rem 1.5rem;
-        border-radius: 8px;
-        text-align: center;
-        border: 1px solid #e9ecef;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .work-step-analyzer:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 10px 30px rgba(var(--primary-rgb, 16, 172, 132), 0.15);
+
+    .analyzer-card:hover {
+        transform: translateY(-5px);
+        /* Ensure --primary-rgb is defined, e.g., "16, 172, 132" for #10ac84 */
+        box-shadow: 0 12px 35px rgba(var(--primary-rgb, 16, 172, 132), 0.15);
     }
-    .work-step-analyzer .icon-container-analyzer {
-        font-size: 2.5rem;
+
+    .analyzer-header {
+        margin-bottom: 2rem;
+    }
+
+    .analyzer-header .icon {
+        font-size: 3.5em;
         color: var(--primary, #10ac84);
-        margin-bottom: 1.25rem;
-        background-color: rgba(var(--primary-rgb, 16, 172, 132), 0.1);
-        width: 70px; height: 70px;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        margin-left: auto; margin-right: auto;
+        margin-bottom: 1rem;
+        display: block;
     }
-    .work-step-analyzer h3 {
+
+    .analyzer-header h1 {
+        font-size: 2.2em;
         color: var(--dark, #2d3436);
-        margin-bottom: 0.75rem;
-        font-size: 1.3rem;
         font-weight: 600;
+        margin-bottom: 0.5rem;
     }
-    .work-step-analyzer p {
-        font-size: 0.95rem;
+
+    .analyzer-header p {
+        font-size: 1.1em;
         color: #555;
-        line-height: 1.7;
+        line-height: 1.6;
     }
 
-    /* Progress Indicator Styles */
-    #progress-indicator-analyzer {
-        display: none; padding: 2.5rem; border-radius: 8px;
-        background-color: #ffffff; text-align: center;
-        margin-top: 2rem; box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    .form-group {
+        margin-bottom: 1.5rem;
+        text-align: left;
     }
-    #progress-indicator-analyzer .spinner {
-        margin: 0 auto 1.5rem auto; width: 50px; height: 50px;
-        border-width: 5px; border-left-color: var(--primary, #10ac84);
-    }
-    #progress-main-message-analyzer {
-        font-size: 1.6rem; color: var(--primary, #10ac84);
-        font-weight: 600; margin-bottom: 0.75rem;
-    }
-    #generation-time-info-analyzer, #timer-message-analyzer {
-        font-size: 1rem; color: #555; margin-bottom: 1.5rem;
-    }
-    #timer-message-analyzer {
-        font-weight: bold; color: var(--dark, #2d3436); margin-top: 1.25rem;
-    }
-    #progress-steps-analyzer {
-        list-style: none; padding: 0; margin: 0 auto 1.5rem auto;
-        max-width: 550px; text-align: left;
-    }
-    #progress-steps-analyzer li {
-        padding: 0.9rem 0.5rem; border-bottom: 1px solid #f0f0f0;
-        font-size: 1.05rem; color: #444; position: relative;
-        padding-left: 40px; display: flex; align-items: center;
-        transition: background-color 0.2s ease;
-    }
-    #progress-steps-analyzer li:last-child { border-bottom: none; }
-    #progress-steps-analyzer li:hover { background-color: #f9f9f9; }
-    #progress-steps-analyzer li .status-icon {
-        font-family: "Font Awesome 6 Free", "FontAwesome"; /* FA6 with fallback */
-        font-weight: 900; /* Solid icons */
-        margin-right: 15px; width: 22px;
-        text-align: center; font-style: normal; font-size: 1.1em;
-    }
-    #progress-steps-analyzer li .status-icon.pending::before {
-        content: "\f2f1"; /* FA6: fa-hourglass-half */
-        color: var(--warning, #f39c12);
-    }
-    #progress-steps-analyzer li .status-icon.processing::before {
-        content: "\f110"; /* FA6: fa-spinner */
-        color: var(--primary, #10ac84);
-        animation: spin 1s linear infinite;
-    }
-    #progress-steps-analyzer li .status-icon.completed::before {
-        content: "\f00c"; /* FA6: fa-check */
-        color: var(--success, #27ae60);
-    }
-    #progress-steps-analyzer li.completed { color: var(--success, #27ae60); font-weight: 500; }
-    #progress-steps-analyzer li.processing { color: var(--primary, #10ac84); font-weight: 600; }
 
-    /* Alert styling */
-    .alert { margin-bottom: 1.5rem; }
-    /* Ensure .btn-close is styled if not using Bootstrap's full CSS */
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-size: 1em;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        box-sizing: border-box;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary, #10ac84);
+        /* Ensure --primary-rgb is defined */
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb, 16, 172, 132), 0.25);
+        outline: none;
+    }
+
+    .btn-analyze {
+        background-color: var(--primary, #10ac84);
+        color: white;
+        padding: 0.875rem 1.5rem;
+        font-size: 1.1em;
+        font-weight: 500;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        display: inline-block;
+        width: auto;
+        min-width: 200px;
+    }
+
+    .btn-analyze:hover {
+        background-color: #138d75; /* Darker shade of default --primary if not defined */
+        transform: translateY(-2px);
+    }
+    .btn-analyze:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .flash-messages-container {
+        width: 100%;
+        max-width: 650px;
+        margin: 0 auto 1.5rem auto;
+        padding: 0 1rem;
+        position: sticky;
+        top: 10px;
+        z-index: 1050;
+    }
+
+    .alert {
+        border-radius: 8px;
+        font-size: 1em;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
     .alert .btn-close {
-        padding: 0.5rem 1rem; background: transparent; border:0;
-        float: right; font-size: 1.2rem; font-weight: bold; line-height: 1;
-        color: #000; text-shadow: 0 1px 0 #fff; opacity: .5;
+        padding: 0.75rem 1rem;
+        background-color: transparent;
+        border: none;
+        font-size: 1.2rem;
+        opacity: 0.7;
     }
-    .alert .btn-close:hover { opacity: .75; }
-
-
-    /* Responsive Adjustments */
-    @media screen and (max-width: 992px) {
-        .hero-analyzer { padding: 3rem 1.5rem; }
-        .hero-analyzer h1 { font-size: 2.4rem; }
-        .hero-analyzer p.subtitle { font-size: 1.1rem; }
-        .how-it-works-analyzer h2 { font-size: 2rem; }
-        #analysis-form-section-hero { padding: 1.5rem; }
-    }
-    @media screen and (max-width: 768px) {
-        .hero-analyzer { padding: 2.5rem 1rem; }
-        .hero-analyzer h1 { font-size: 2rem; }
-        .hero-analyzer p.subtitle { font-size: 1rem; }
-        .how-it-works-analyzer { padding: 2rem 0; }
-        .how-it-works-analyzer h2 { font-size: 1.8rem; }
-        .work-step-analyzer { padding: 1.5rem 1rem; }
-        .work-step-analyzer h3 { font-size: 1.15rem; }
-        #progress-indicator-analyzer { padding: 1.5rem; }
-        #progress-main-message-analyzer { font-size: 1.3rem; }
-        #progress-steps-analyzer li { font-size: 0.95rem; padding-left: 35px; }
-        #analysis-form-section-hero .btn-analyze, #ticker-input-hero { font-size: 1rem; padding: 12px 15px; }
+    .alert .btn-close:hover {
+        opacity: 1;
     }
 
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    /* --- Progress Indicator Styles --- */
+    .progress-container-wrapper {
+        display: none;
+        width: 100%;
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .progress-container-wrapper h2 {
+        font-size: 1.8em;
+        color: var(--dark, #2d3436);
+        margin-bottom: 0.5rem;
+    }
+    .progress-container-wrapper p {
+        font-size: 1em;
+        color: #555;
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-bar-custom {
+        width: 100%;
+        background-color: #e9ecef;
+        border-radius: 25px;
+        padding: 4px;
+        margin-bottom: 1rem;
+        height: 30px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .progress-bar-custom .progress-bar-inner {
+        height: 100%;
+        width: 0%;
+        background-color: var(--success, #27ae60);
+        background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+        background-size: 1rem 1rem;
+        border-radius: 20px;
+        transition: width 0.4s ease-in-out, background-color 0.4s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 500;
+        font-size: 0.9em;
+    }
+
+    .progress-text {
+        font-size: 1.1em;
+        color: var(--dark, #2d3436);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .time-eta-container {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9em;
+        color: #555;
+        margin-bottom: 1rem;
+        padding: 0 0.5rem;
+    }
+    .time-display, .eta-display {
+        background-color: var(--light, #f5f6fa);
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+
+    .progress-message-custom {
+        font-size: 0.95em;
+        color: #444;
+        margin-top: 1rem;
+        min-height: 20px;
+    }
+
+    #errorMessageArea {
+        display: none;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        color: var(--danger-text, #721c24); /* Assumes --danger-text is defined, else dark red */
+        background-color: var(--danger-bg, #f8d7da); /* Assumes --danger-bg is defined, else light red */
+        border: 1px solid var(--danger, #e74c3c);
+        border-radius: 8px;
+        text-align: left;
+    }
+    /* --- End Progress Indicator Styles --- */
+
+    @media (max-width: 768px) {
+        .analyzer-card {
+            padding: 2rem;
+        }
+        .analyzer-header h1 {
+            font-size: 1.8em;
+        }
+        .analyzer-header p {
+            font-size: 1em;
+        }
+        .progress-container-wrapper {
+            padding: 1.5rem;
+        }
+    }
 </style>
 {% endblock %}
 
-{% block body_class %}analyzer-page-body{% endblock %}
-
 {% block content %}
-<div class="analyzer-content-wrapper">
-    <div class="analyzer-container">
-
-        <section class="hero-analyzer animate fadeIn">
-            <h1>AI-Driven Stock Insights</h1>
-            <p class="subtitle">Unlock the Future of Trading. Enter a stock ticker below to receive a comprehensive analysis and 12-month price prediction, powered by advanced AI.</p>
-            
-            <div id="analysis-form-section-hero">
-                <form method="POST" action="{{ url_for('start_stock_analysis') }}">
-                    <div style="margin-bottom: 1rem;">
-                        <label for="ticker-input-hero">Enter Stock Ticker (e.g., AAPL, MSFT):</label>
-                        <input type="text" id="ticker-input-hero" name="ticker" required
-                               placeholder="Type ticker and press Enter or click Analyze">
-                        <small>Use standard US stock tickers or index symbols like ^GSPC.</small>
-                    </div>
-                    <button type="submit" class="btn-analyze">
-                        <i class="fas fa-magnifying-glass-chart" style="margin-right: 10px;"></i>Analyze Stock
-                    </button>
-                </form>
-            </div>
-        </section>
-
+<div class="analyzer-page-body">
+    <div class="flash-messages-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div style="margin-bottom: 2rem;">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                </div>
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
             {% endif %}
         {% endwith %}
-
-        <section class="how-it-works-analyzer animate fadeIn delay-1">
-            <h2><i class="fas fa-cogs"></i>Our Analysis Process</h2>
-            <div class="how-it-works-grid-analyzer">
-                <div class="work-step-analyzer">
-                    <div class="icon-container-analyzer"><i class="fas fa-database"></i></div>
-                    <h3>1. Data Aggregation</h3>
-                    <p>We gather extensive historical stock data, trading volumes, and key macroeconomic indicators from multiple reliable financial sources.</p>
-                </div>
-                <div class="work-step-analyzer">
-                    <div class="icon-container-analyzer"><i class="fas fa-microchip"></i></div>
-                    <h3>2. AI Preprocessing</h3>
-                    <p>Our system meticulously cleans, normalizes, and transforms the raw data, preparing it for optimal performance with our AI models.</p>
-                </div>
-                <div class="work-step-analyzer">
-                    <div class="icon-container-analyzer"><i class="fas fa-chart-line"></i></div>
-                    <h3>3. Indicator Analysis</h3>
-                    <p>A wide array of technical indicators (SMAs, RSI, MACD) and fundamental data points (P/E, EPS growth) are calculated and analyzed.</p>
-                </div>
-                <div class="work-step-analyzer">
-                    <div class="icon-container-analyzer"><i class="fas fa-brain"></i></div>
-                    <h3>4. Predictive Modeling</h3>
-                    <p>Sophisticated machine learning models, including advanced time-series algorithms, generate future price trend predictions.</p>
-                </div>
-                <div class="work-step-analyzer">
-                    <div class="icon-container-analyzer"><i class="fas fa-shield-halved"></i></div>
-                    <h3>5. Risk Evaluation</h3>
-                    <p>We assess potential risks by analyzing market volatility, historical drawdowns, and other statistical factors to provide a risk profile.</p>
-                </div>
-                <div class="work-step-analyzer">
-                    <div class="icon-container-analyzer"><i class="fas fa-file-invoice-dollar"></i></div>
-                    <h3>6. Insightful Reporting</h3>
-                    <p>All findings are synthesized into a clear, comprehensive report with actionable insights, charts, and data-driven recommendations.</p>
-                </div>
-            </div>
-        </section>
-
-        <div id="progress-indicator-analyzer">
-            <div class="spinner"></div>
-            <p id="progress-main-message-analyzer">Generating Your In-Depth Stock Analysis...</p>
-            <p id="generation-time-info-analyzer"><i>Estimated: 15-25 seconds.</i></p>
-            <ul id="progress-steps-analyzer">
-                <li id="step-collect-data"><span class="status-icon pending"></span>Collecting Data</li>
-                <li id="step-preprocess"><span class="status-icon pending"></span>Preprocessing Data</li>
-                <li id="step-tech-analysis"><span class="status-icon pending"></span>Analyzing Technicals</li>
-                <li id="step-fund-analysis"><span class="status-icon pending"></span>Analyzing Fundamentals</li>
-                <li id="step-risk-analysis"><span class="status-icon pending"></span>Performing Risk Scan</li>
-                <li id="step-train-predict"><span class="status-icon pending"></span>AI Modeling & Prediction</li>
-                <li id="step-finalize"><span class="status-icon pending"></span>Compiling Report</li>
-            </ul>
-            <p id="timer-message-analyzer">Elapsed time: 0 seconds</p>
-            <p style="font-size: 0.85rem; color: #777; margin-top: 1.5rem;"><i>Please note: The step-by-step progress is a visual illustration while our servers work on your request.</i></p>
-        </div>
-        
-        <div id="error-message-area-analyzer" style="margin-top: 1.5rem; text-align:center;">
-            {# For client-side JS errors or specific messages #}
-        </div>
-
     </div>
-</div>
+
+    <div class="analyzer-container" id="analyzerFormSection">
+        <div class="analyzer-card">
+            <div class="analyzer-header">
+                <span class="icon"><i class="fas fa-chart-line"></i></span>
+                <h1>Stock Analyzer</h1>
+                <p>Enter a stock ticker symbol to generate an in-depth AI-powered analysis and price prediction report.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('start_stock_analysis') }}" id="analyzeForm">
+                <div class="form-group">
+                    <label for="tickerInput">Stock Ticker Symbol</label>
+                    <input type="text" class="form-control" id="tickerInput" name="ticker" placeholder="e.g., AAPL, MSFT, GOOGL" required>
+                </div>
+                <button type="submit" class="btn btn-analyze" id="analyzeButton">
+                    <i class="fas fa-cogs"></i> Analyze Stock
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="progress-container-wrapper" id="progressIndicator">
+        <h2><i class="fas fa-hourglass-half"></i> Generating Your Report...</h2>
+        <p>Please wait while we process your request. This may take a few moments.</p>
+        <div class="progress-bar-custom">
+            <div class="progress-bar-inner" id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+        </div>
+        <p class="progress-text" id="progressText">Initializing...</p>
+        <div class="time-eta-container">
+            <span class="time-display">Elapsed Time: <strong id="elapsedTime">0s</strong></span>
+            <span class="eta-display">Est. Time Remaining: <strong id="etaTime">Calculating...</strong></span>
+        </div>
+        <p class="progress-message-custom" id="progressMessage">Fetching data and warming up the AI hamsters...</p>
+        <div id="errorMessageArea" class="alert alert-danger" style="display: none; text-align:left;"></div>
+         <p style="margin-top: 1.5rem; font-size: 0.85em; color: #777;">
+            <i class="fas fa-info-circle"></i> Please do not close or refresh this page. You will be redirected automatically once the report is ready.
+        </p>
+    </div>
+    </div>
 {% endblock %}
 
 {% block scripts_extra %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const formActionUrl = "{{ url_for('start_stock_analysis') }}";
-    const form = document.querySelector(`form[action="${formActionUrl}"]`);
-    const formSectionHero = document.getElementById('analysis-form-section-hero');
-    const progressIndicator = document.getElementById('progress-indicator-analyzer');
-    const timerMessage = document.getElementById('timer-message-analyzer');
-    const generationTimeInfo = document.getElementById('generation-time-info-analyzer');
-    const submitButton = form ? form.querySelector('button.btn-analyze') : null;
-    const errorMessageArea = document.getElementById('error-message-area-analyzer');
-    
-    let timerInterval;
-    let secondsElapsed = 0;
+document.addEventListener('DOMContentLoaded', function () {
+    const analyzeForm = document.getElementById('analyzeForm');
+    const analyzerFormSection = document.getElementById('analyzerFormSection');
+    const progressIndicator = document.getElementById('progressIndicator');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const elapsedTimeDisplay = document.getElementById('elapsedTime');
+    const etaTimeDisplay = document.getElementById('etaTime');
+    const progressMessage = document.getElementById('progressMessage');
+    const errorMessageArea = document.getElementById('errorMessageArea');
+    const tickerInput = document.getElementById('tickerInput');
+    const analyzeButton = document.getElementById('analyzeButton');
 
-    const steps = [
-        { id: 'step-collect-data', duration: 3 },
-        { id: 'step-preprocess', duration: 2 },
-        { id: 'step-tech-analysis', duration: 3 },
-        { id: 'step-fund-analysis', duration: 3 },
-        { id: 'step-risk-analysis', duration: 2 },
-        { id: 'step-train-predict', duration: 4 },
-        { id: 'step-finalize', duration: 1 }
+    let timerInterval;
+    let elapsedTime = 0;
+    let progressSimulationInterval;
+    let currentProgress = 0;
+    let estimatedTotalTime = 20; // Default, will be recalculated
+
+    const progressStages = [
+        { percent: 10, message: "Connecting to data streams...", duration: 1 },     // Approx 1 sec
+        { percent: 25, message: "Fetching historical stock data...", duration: 1 },  // Approx 2 sec
+        { percent: 40, message: "Analyzing market trends...", duration: 1 },       // Approx 2 sec
+        { percent: 60, message: "Running predictive models...", duration: 1 },      // Approx 3 sec
+        { percent: 75, message: "Compiling fundamental analysis...", duration: 1 }, // Approx 2 sec
+        { percent: 90, message: "Generating report visuals...", duration: 1 },     // Approx 2 sec
+        { percent: 95, message: "Finalizing report structure...", duration: 1 },   // Approx 2 sec
+        { percent: 100, message: "Almost ready!", duration: 0 }                     // Instant completion
     ];
+    estimatedTotalTime = progressStages.reduce((acc, stage) => acc + stage.duration, 0);
 
     function startTimer() {
-        secondsElapsed = 0;
-        timerMessage.textContent = 'Elapsed time: 0 seconds';
-        generationTimeInfo.innerHTML = '<i>Estimated: 15-25 seconds.</i>';
+        elapsedTime = 0;
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+    }
 
-        timerInterval = setInterval(() => {
-            secondsElapsed++;
-            timerMessage.textContent = `Elapsed time: ${secondsElapsed} seconds`;
-            if (secondsElapsed > 30 && generationTimeInfo.textContent.startsWith("Estimated")) {
-                generationTimeInfo.innerHTML = '<i>This is taking a bit longer than usual. Please be patient... <br>Your report will load once processing is complete.</i>';
-            }
-        }, 1000);
+    function updateTimer() {
+        elapsedTime++;
+        elapsedTimeDisplay.textContent = `${elapsedTime}s`;
+        updateETA();
     }
 
     function stopTimer() {
         clearInterval(timerInterval);
+        if (progressSimulationInterval) clearTimeout(progressSimulationInterval);
     }
 
-    async function simulateProgress() {
-        steps.forEach(stepConfig => {
-            const stepElement = document.getElementById(stepConfig.id);
-            if (stepElement) {
-                const iconElement = stepElement.querySelector('.status-icon');
-                stepElement.classList.remove('processing', 'completed');
-                if (iconElement) iconElement.className = 'status-icon pending';
-            }
-        });
-
-        for (let i = 0; i < steps.length; i++) {
-            const stepElement = document.getElementById(steps[i].id);
-            const iconElement = stepElement ? stepElement.querySelector('.status-icon') : null;
-
-            if (i > 0) {
-                const prevStepElement = document.getElementById(steps[i-1].id);
-                const prevIconElement = prevStepElement ? prevStepElement.querySelector('.status-icon') : null;
-                if (prevStepElement && prevIconElement) {
-                    prevStepElement.classList.remove('processing');
-                    prevStepElement.classList.add('completed');
-                    prevIconElement.className = 'status-icon completed';
-                }
-            }
-            
-            if (stepElement && iconElement) {
-                stepElement.classList.remove('pending');
-                stepElement.classList.add('processing');
-                iconElement.className = 'status-icon processing';
-            }
-            
-            await new Promise(resolve => setTimeout(resolve, steps[i].duration * 900)); 
-            
-            if (i === steps.length - 1) {
-                 if (stepElement && iconElement) {
-                    stepElement.classList.remove('processing');
-                    stepElement.classList.add('completed');
-                    iconElement.className = 'status-icon completed';
-                }
-            }
+    function updateETA() {
+        const timeRemaining = Math.max(0, estimatedTotalTime - elapsedTime);
+        if (currentProgress < 95 && elapsedTime <= estimatedTotalTime) { // Show ETA normally
+             etaTimeDisplay.textContent = `${timeRemaining}s`;
+        } else if (currentProgress >= 95 && currentProgress < 100) { // Nearing end of simulation
+            etaTimeDisplay.textContent = `Finalizing...`;
+        } else if (elapsedTime > estimatedTotalTime && currentProgress < 100) { // If simulation is slower than expected but not complete
+            etaTimeDisplay.textContent = `Just a bit more...`;
+        } else { // Simulation complete or past estimated time
+            etaTimeDisplay.textContent = `Done!`;
         }
     }
+    
+    function resetProgress() {
+        stopTimer();
+        currentProgress = 0;
+        if (progressBar) {
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            progressBar.style.backgroundColor = 'var(--success, #27ae60)';
+        }
+        if (progressText) progressText.textContent = 'Initializing...';
+        if (elapsedTimeDisplay) elapsedTimeDisplay.textContent = '0s';
+        if (etaTimeDisplay) etaTimeDisplay.textContent = 'Calculating...';
+        if (progressMessage) progressMessage.textContent = 'Ready to start.';
+        if (analyzerFormSection) analyzerFormSection.style.display = 'block';
+        if (progressIndicator) progressIndicator.style.display = 'none';
+        if (errorMessageArea) errorMessageArea.style.display = 'none';
+        
+        if (tickerInput) tickerInput.disabled = false;
+        if (analyzeButton) analyzeButton.disabled = false;
+    }
 
-    if (form && submitButton) {
-        form.addEventListener('submit', function(e) {
-            const tickerInput = document.getElementById('ticker-input-hero');
-            if (!tickerInput || !tickerInput.value.trim()) {
-                e.preventDefault(); 
-                if(errorMessageArea) {
-                    errorMessageArea.innerHTML = '<div class="alert alert-danger" role="alert">Please enter a stock ticker.</div>';
+    function simulateProgress() {
+        currentProgress = 0;
+        if (progressBar) {
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            progressBar.style.backgroundColor = 'var(--success, #27ae60)';
+        }
+
+        let stageIndex = 0;
+
+        function runStage() {
+            if (stageIndex >= progressStages.length || (currentProgress >= 100 && stageIndex > 0) ) {
+                currentProgress = 100; // Ensure it hits 100%
+                if (progressBar) {
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = '100%';
                 }
-                submitButton.disabled = false;
-                submitButton.innerHTML = '<i class="fas fa-magnifying-glass-chart" style="margin-right: 10px;"></i>Analyze Stock';
+                if (progressText) progressText.textContent = 'Processing Complete!';
+                if (progressMessage) progressMessage.textContent = 'Waiting for server to redirect...';
+                if (etaTimeDisplay) etaTimeDisplay.textContent = 'Done!';
+                // Actual redirect is handled by the server response to the form POST
                 return;
             }
-            if(errorMessageArea) errorMessageArea.innerHTML = '';
 
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<div class="spinner"></div>Processing...'; 
+            const stage = progressStages[stageIndex];
+            currentProgress = stage.percent;
             
-            // Instead of hiding the whole form section, we could just disable inputs within it.
-            // For now, keeping the hide behavior for simplicity.
-            const heroSection = document.querySelector('.hero-analyzer'); // Select the main hero section
-            if (heroSection) {
-                // Hide the form specifically, or the whole hero if preferred
-                // formSectionHero is the div inside hero-analyzer that contains the form
-                if (formSectionHero) formSectionHero.style.display = 'none';
+            if (progressBar) {
+                progressBar.style.width = `${currentProgress}%`;
+                progressBar.textContent = `${currentProgress}%`;
             }
+            if (progressText) progressText.textContent = `Progress: ${currentProgress}%`;
+            if (progressMessage) progressMessage.textContent = stage.message;
+            
+            if (stage.duration > 0 && currentProgress < 100) {
+                progressSimulationInterval = setTimeout(() => {
+                    stageIndex++;
+                    runStage();
+                }, stage.duration * 1000);
+            } else { 
+                stageIndex++;
+                runStage(); // Move to next stage if duration is 0 or already 100%
+            }
+        }
+        runStage();
+    }
 
+    if (analyzeForm) {
+        analyzeForm.addEventListener('submit', function (event) {
+            // Client-side validation
+            if (!tickerInput.value.trim()) {
+                event.preventDefault(); 
+                const tempErrorMsg = document.createElement('p');
+                tempErrorMsg.textContent = 'Ticker symbol is required.';
+                tempErrorMsg.style.color = 'var(--danger, #e74c3c)';
+                tempErrorMsg.style.fontSize = '0.9em';
+                tempErrorMsg.style.textAlign = 'left';
+                tempErrorMsg.style.marginTop = '5px';
+                const existingError = analyzeForm.querySelector('.temp-input-error');
+                if (existingError) existingError.remove();
+                tempErrorMsg.classList.add('temp-input-error');
+                tickerInput.parentNode.appendChild(tempErrorMsg);
+                setTimeout(() => tempErrorMsg.remove(), 3000);
+                return;
+            }
+            const existingError = analyzeForm.querySelector('.temp-input-error');
+            if (existingError) existingError.remove();
 
-            if(progressIndicator) {
+            // Do NOT disable tickerInput, only the button
+            if (analyzeButton) analyzeButton.disabled = true;
+            
+            if (analyzerFormSection) analyzerFormSection.style.display = 'none';
+            
+            const flashMessages = document.querySelector('.flash-messages-container');
+            if (flashMessages) flashMessages.innerHTML = ''; 
+
+            if (errorMessageArea) errorMessageArea.style.display = 'none'; 
+            
+            if (progressIndicator) {
                 progressIndicator.style.display = 'block';
-                 // Scroll progress into view, ensuring it's not abrupt if hero was tall
-                if (heroSection) { // Scroll relative to where hero was
-                     heroSection.insertAdjacentElement('afterend', progressIndicator);
-                }
                 progressIndicator.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
             
             startTimer();
-            simulateProgress().catch(console.error);
+            simulateProgress();
+            // Standard form submission will proceed. Server will handle redirect.
         });
     }
 
-    window.addEventListener('beforeunload', () => {
-        stopTimer();
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted && progressIndicator && progressIndicator.style.display === 'block') {
+            resetProgress();
+        }
+        if (tickerInput && tickerInput.disabled) {
+            tickerInput.disabled = false;
+        }
+        if (analyzeButton && analyzeButton.disabled) {
+             analyzeButton.disabled = false;
+        }
     });
 
-    document.addEventListener('click', function (event) {
-        if (event.target.matches('.alert .btn-close')) {
-            const alertNode = event.target.closest('.alert');
-            if (alertNode) {
-                alertNode.style.transition = 'opacity 0.3s ease-out';
-                alertNode.style.opacity = '0';
-                setTimeout(() => {
-                    alertNode.style.display = 'none';
-                    alertNode.remove(); // Optional: remove from DOM after fade
-                }, 300);
-            }
+    const allAlerts = document.querySelectorAll('.flash-messages-container .alert');
+    allAlerts.forEach(function(alert) {
+        if (!alert.classList.contains('alert-danger')) {
+            setTimeout(function() {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Alert && bootstrap.Alert.getInstance(alert)) {
+                    bootstrap.Alert.getInstance(alert).close();
+                } else {
+                    alert.style.transition = 'opacity 0.5s ease-out';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
+                }
+            }, 7000);
         }
     });
 });

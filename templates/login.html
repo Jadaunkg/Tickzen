@@ -153,7 +153,6 @@
 {% endblock %}
 
 {% block scripts_extra %}
-<script src="{{ url_for('static', filename='js/firebase-init.js') }}"></script>
 <script>
     // Specific event listeners for login page
     const loginForm = document.getElementById('loginForm');
@@ -161,11 +160,6 @@
         loginForm.addEventListener('submit', handleLogin);
     }
 
-    const googleSignInButton = document.getElementById('googleSignInButton');
-    if (googleSignInButton) {
-        googleSignInButton.addEventListener('click', signInWithGoogle);
-    }
-    
     const forgotPasswordLink = document.getElementById('forgotPasswordLink');
     if (forgotPasswordLink) {
         forgotPasswordLink.addEventListener('click', handleForgotPassword);

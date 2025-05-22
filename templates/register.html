@@ -60,7 +60,6 @@
 {% endblock %}
 
 {% block scripts_extra %}
-<script src="{{ url_for('static', filename='js/firebase-init.js') }}"></script>
 <script>
     // Specific event listeners for register page
     const registerForm = document.getElementById('registerForm');
@@ -68,9 +67,5 @@
         registerForm.addEventListener('submit', handleRegister);
     }
 
-    const googleSignUpButton = document.getElementById('googleSignUpButton');
-    if (googleSignUpButton) {
-        googleSignUpButton.addEventListener('click', signInWithGoogle); // Re-use the same Google sign-in function
-    }
 </script>
 {% endblock %}
