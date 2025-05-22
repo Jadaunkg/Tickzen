@@ -222,23 +222,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function removeWriter(button) {
-        const writerEntry = button.closest('.writer-entry');
-        if (writerEntry) {
-            const container = writerEntry.parentElement;
-            writerEntry.remove();
-            if (container) { 
-                const remainingEntries = container.querySelectorAll('.writer-entry');
-                remainingEntries.forEach((entry, index) => {
-                    const heading = entry.querySelector('h4');
-                    if (heading) {
-                        const removeBtnHTML = heading.querySelector('.remove-writer-btn') ? heading.querySelector('.remove-writer-btn').outerHTML : '';
-                        heading.innerHTML = `Writer ${index + 1} ${removeBtnHTML}`;
-                    }
-                });
-            }
+function removeWriter(button) {
+    const writerEntry = button.closest('.writer-entry');
+    if (!writerEntry) return;
+
+    const container = writerEntry.parentElement;
+    writerEntry.remove();
+
+    // Re-index headings without touching the button elements
+    const remainingEntries = container.querySelectorAll('.writer-entry');
+    remainingEntries.forEach((entry, idx) => {
+        const heading = entry.querySelector('h4');
+        if (heading) {
+            // Assume structure: [TextNode, ButtonNode]
+            const btn = heading.querySelector('.remove-writer-btn');
+            heading.textContent = `Writer ${idx + 1} `;
+            heading.appendChild(btn);
         }
-    }
+    });
+}
+
 
     function initializeAuthorManagement(containerId, addButtonId, existingAuthorsData = [], formType = 'add') {
         const addAuthorBtn = document.getElementById(addButtonId);
