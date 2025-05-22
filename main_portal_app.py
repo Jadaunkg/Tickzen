@@ -941,7 +941,7 @@ def run_automation_now():
 @app.route('/wp-asset-generator')
 @login_required
 def wp_generator_page():
-    return render_template('wp_generator.html', title="WordPress Asset Generator - Tickzen")
+    return render_template('wp-asset.html', title="WordPress Asset Generator - Tickzen")
 
 @app.route('/generate-wp-assets', methods=['POST'])
 @login_required
