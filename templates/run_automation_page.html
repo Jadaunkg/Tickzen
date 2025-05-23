@@ -3,249 +3,82 @@
 {% block title %}Run Automation Dashboard{% endblock %}
 
 {% block head_extra %}
-    {# style.css is already linked in _base.html, ensure it contains common styles #}
     <style>
         /* Styles specific to run_automation_page.html */
-        .automation-dashboard-container {
-            max-width: 1300px;
-            margin: 1rem auto 2rem auto; /* Added top/bottom margin */
-            padding: 0 15px;
-        }
-
-        .page-header {
-            background-color: var(--light); /* Use theme light */
-            padding: 1.5rem 2rem; /* Increased padding */
-            border-radius: 8px; /* Softer radius */
-            margin-bottom: 2rem; /* Increased margin */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Softer shadow */
-            border-left: 5px solid var(--primary); /* THEME: Use project primary */
-        }
-        .page-header h1 {
-            font-size: 1.8em; /* Adjusted */
-            font-weight: 600;
-            margin-bottom: 0.25rem; /* Reduced gap */
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-        }
-        .page-header h1 i {
-            color: var(--primary); /* THEME: Use project primary */
-            font-size: 0.9em; /* Relative to h1 */
-            margin-right: 12px;
-        }
-        .page-header .text-muted {
-            margin: 0;
-            font-size: 0.95em; /* Adjusted */
-            color: #555;
-        }
-
-        .daily-cap-info-runner {
-            background-color: var(--info-bg, #e0f2f1); /* THEME: Use info or light primary */
-            border-left: 5px solid var(--info, var(--primary)); /* THEME: Use info or primary */
-            padding: 1rem 1.5rem; /* Adjusted */
-            margin-bottom: 2rem;
-            font-size: 0.9em; /* Adjusted */
-            color: var(--info-text, var(--dark)); /* THEME: Use info text or dark */
-            border-radius: 6px; /* Softer radius */
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-        }
-        .daily-cap-info-runner i {
-            margin-right: 8px;
-            color: var(--info, var(--primary));
-        }
-
-        .profile-run-card {
-            background-color: #ffffff;
-            border-radius: 10px; /* Softer radius */
-            box-shadow: 0 6px 20px rgba(0,0,0,0.07); /* Slightly more pronounced shadow */
-            margin-bottom: 2.5rem; /* Increased spacing */
-            overflow: hidden;
-            border: 1px solid #e0e0e0; /* Subtle border */
-        }
-
-        .profile-run-header {
-            background: var(--primary); /* THEME: Use project primary */
-            color: white;
-            padding: 1rem 1.5rem; /* Adjusted */
-            display: flex;
-            align-items: center;
-        }
-        .profile-run-header input[type="checkbox"] {
-            margin-right: 15px; /* Adjusted */
-            transform: scale(1.3); /* Slightly smaller */
-            cursor: pointer;
-            accent-color: white; /* Checkbox color against dark background */
-        }
-        .profile-run-header label {
-            font-weight: 600;
-            font-size: 1.2em; /* Adjusted */
-            color: white;
-            cursor: pointer;
-            margin-bottom: 0;
-            flex-grow: 1; /* Allow label to take space */
-        }
+        .automation-dashboard-container { max-width: 1300px; margin: 1rem auto 2rem auto; padding: 0 15px; }
+        .page-header { background-color: var(--light); padding: 1.5rem 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); border-left: 5px solid var(--primary); }
+        .page-header h1 { font-size: 1.8em; font-weight: 600; margin-bottom: 0.25rem; color: var(--dark); display: flex; align-items: center; }
+        .page-header h1 i { color: var(--primary); font-size: 0.9em; margin-right: 12px; }
+        .page-header .text-muted { margin: 0; font-size: 0.95em; color: #555; }
+        .daily-cap-info-runner { background-color: var(--info-bg, #e0f2f1); border-left: 5px solid var(--info, var(--primary)); padding: 1rem 1.5rem; margin-bottom: 2rem; font-size: 0.9em; color: var(--info-text, var(--dark)); border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .daily-cap-info-runner i { margin-right: 8px; color: var(--info, var(--primary)); }
+        .profile-run-card { background-color: #ffffff; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.07); margin-bottom: 2.5rem; overflow: hidden; border: 1px solid #e0e0e0; }
+        .profile-run-header { background: var(--primary); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; }
+        .profile-run-header input[type="checkbox"] { margin-right: 15px; transform: scale(1.3); cursor: pointer; accent-color: white; }
+        .profile-run-header label { font-weight: 600; font-size: 1.2em; color: white; cursor: pointer; margin-bottom: 0; flex-grow: 1; }
         .profile-run-header label i { margin-right: 10px; }
-
-        .profile-run-body {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 1.5rem; /* Adjusted */
-            gap: 2rem; /* Adjusted gap */
-        }
-
-        .profile-run-config, .profile-run-logs {
-            padding: 1rem;
-            background-color: var(--light); /* Light background for these sections */
-            border-radius: 6px;
-            border: 1px solid #e9ecef;
-        }
-        .profile-run-config { flex: 1; min-width: 320px; } /* Adjusted flex and min-width */
+        .profile-run-body { display: flex; flex-wrap: wrap; padding: 1.5rem; gap: 2rem; }
+        .profile-run-config, .profile-run-logs { padding: 1rem; background-color: var(--light); border-radius: 6px; border: 1px solid #e9ecef; }
+        .profile-run-config { flex: 1; min-width: 320px; } 
         .profile-run-logs { flex: 1.5; min-width: 380px; }
-
-
-        .profile-run-config h4, .profile-run-logs h4 {
-            font-size: 1.1em; /* Adjusted */
-            color: var(--dark);
-            margin-top: 0;
-            margin-bottom: 1rem; /* Adjusted */
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--primary); /* THEME: Use project primary */
-        }
-        .profile-run-config h4 i, .profile-run-logs h4 i {
-            margin-right: 8px;
-            color: var(--primary); /* THEME: Icon color */
-        }
-        .profile-run-config p {
-            font-size: 0.9em;
-            color: #555;
-        }
-        .profile-run-config p .detail-label {
-            font-weight: 600;
-            color: var(--dark);
-        }
-        .profile-run-config p a {
-            color: var(--primary);
-            text-decoration: none;
-        }
+        .profile-run-config h4, .profile-run-logs h4 { font-size: 1.1em; color: var(--dark); margin-top: 0; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary); }
+        .profile-run-config h4 i, .profile-run-logs h4 i { margin-right: 8px; color: var(--primary); }
+        .profile-run-config p { font-size: 0.9em; color: #555; }
+        .profile-run-config p .detail-label { font-weight: 600; color: var(--dark); }
+        .profile-run-config p a { color: var(--primary); text-decoration: none; }
         .profile-run-config p a:hover { text-decoration: underline; }
-
-
         .ticker-input-choice { margin-bottom: 1.5rem; }
         .ticker-input-choice strong { display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark); }
         .ticker-input-choice label { margin-right: 15px; font-size: 0.95em; cursor: pointer; color: #444;}
-        .ticker-input-choice input[type="radio"] {
-            margin-right: 5px;
-            vertical-align: middle;
-            accent-color: var(--primary); /* THEME: Radio button color */
-        }
-
-        .file-upload-section, .manual-ticker-section {
-            padding: 1rem; /* Adjusted */
-            background-color: #ffffff; /* White background for input areas */
-            border-radius: 6px;
-            border: 1px solid #ddd; /* Slightly softer border */
-            margin-top: 0.75rem;
-        }
-        .uploaded-file-info {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.5rem 0.75rem; /* Adjusted */
-            background-color: #e0f2f1; /* THEME: Light primary shade */
-            border-radius: 4px;
-            margin-bottom: 0.75rem;
-            font-size: 0.85em;
-        }
+        .ticker-input-choice input[type="radio"] { margin-right: 5px; vertical-align: middle; accent-color: var(--primary); }
+        .file-upload-section, .manual-ticker-section { padding: 1rem; background-color: #ffffff; border-radius: 6px; border: 1px solid #ddd; margin-top: 0.75rem; }
+        .uploaded-file-info { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; background-color: #e0f2f1; border-radius: 4px; margin-bottom: 0.75rem; font-size: 0.85em; }
         .uploaded-file-info .file-icon { color: var(--primary); margin-right: 8px;}
         .uploaded-file-info .file-name { color: var(--dark); font-weight: 500;}
         .uploaded-file-info .remove-file-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1em; }
-        
         .ticker-status-table-container { max-height: 180px; overflow-y: auto; margin-top: 0.75rem; border: 1px solid #dee2e6; border-radius: 4px; }
         .ticker-status-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
         .ticker-status-table th, .ticker-status-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #e9ecef; }
         .ticker-status-table th { background-color: #f1f3f5; font-weight: 600; color: #495057; }
         .ticker-status-table td.status-published { color: var(--success); font-weight: 500;}
         .ticker-status-table td.status-not-published { color: #6c757d; }
-
-        .log-console-output {
-            background-color: #263238; /* Darker, Material-like console */
-            color: #CFD8DC; /* Lighter text */
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; /* Common mono fonts */
-            font-size: 0.85em; /* Adjusted */
-            padding: 1rem; /* Adjusted */
-            border-radius: 6px;
-            height: 280px; /* Adjusted height */
-            overflow-y: auto;
-            border: 1px solid #37474F; /* Border matching dark theme */
-            line-height: 1.5;
-        }
+        .log-console-output { background-color: #263238; color: #CFD8DC; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.85em; padding: 1rem; border-radius: 6px; height: 280px; overflow-y: auto; border: 1px solid #37474F; line-height: 1.5; }
         .log-console-output .log-entry { margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #455A64; display: flex; align-items: flex-start; }
         .log-console-output .log-entry:last-child { border-bottom: none; }
         .log-entry .log-icon { margin-right: 10px; font-size: 1em; min-width: 18px; text-align: center; margin-top: 1px; }
-        .log-entry.log-success .log-icon { color: var(--success); }
-        .log-entry.log-failure .log-icon { color: var(--danger); }
-        .log-entry.log-skipped .log-icon { color: var(--info); }
-        .log-entry.log-unknown .log-icon { color: var(--warning); }
-        .log-entry .log-details .log-ticker { font-weight: bold; color: #82AAFF; } /* Brighter blue for ticker */
+        .log-entry.status-info .log-icon { color: #64B5F6; } 
+        .log-entry.status-success .log-icon { color: #81C784; } 
+        .log-entry.status-warning .log-icon { color: #FFD54F; } 
+        .log-entry.status-error .log-icon { color: #E57373; } 
+        .log-entry .log-details .log-ticker { font-weight: bold; color: #82AAFF; } 
+        .log-entry .log-details .log-phase-stage { font-weight: 500; color: #90CAF9; margin-right: 5px; } 
         .log-entry .log-details .log-message { color: #B0BEC5; display: block; margin-top: 1px;}
         .log-entry .log-details .log-timestamp { color: #A7ADBA; font-style: italic; font-size: 0.85em; margin-left: 5px; }
-
-        .btn-execute-runs {
-            background: var(--primary); /* THEME: Use project primary */
-            color: white;
-            padding: 12px 30px; /* Adjusted */
-            border: none;
-            border-radius: 25px; /* Softer radius */
-            font-size: 1.1em; /* Adjusted */
-            font-weight: 600;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.05em; /* Reduced spacing */
-            display: block;
-            width: fit-content;
-            margin: 2.5rem auto 2rem auto; /* Adjusted margins */
-            box-shadow: 0 4px 15px rgba(16, 172, 132, 0.25); /* Shadow with primary color */
-            transition: all 0.3s ease;
-        }
-        .btn-execute-runs:hover {
-            background: #0d8a6a; /* Darker shade of primary */
-            box-shadow: 0 6px 20px rgba(16, 172, 132, 0.35);
-            transform: translateY(-2px);
-        }
-        .btn-execute-runs i { margin-right: 10px; } /* Adjusted icon margin */
-        
-        /* Form group styling (already in style.css, ensure it's general enough or copy needed parts) */
+        .btn-execute-runs { background: var(--primary); color: white; padding: 12px 30px; border: none; border-radius: 25px; font-size: 1.1em; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; display: block; width: fit-content; margin: 2.5rem auto 2rem auto; box-shadow: 0 4px 15px rgba(16, 172, 132, 0.25); transition: all 0.3s ease; }
+        .btn-execute-runs:hover:not(:disabled) { background: #0d8a6a; box-shadow: 0 6px 20px rgba(16, 172, 132, 0.35); transform: translateY(-2px); }
+        .btn-execute-runs:disabled { background-color: #95a5a6; cursor: not-allowed; box-shadow: none; transform: none; }
+        .btn-execute-runs i { margin-right: 10px; } 
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; font-weight: 500; margin-bottom: 0.35rem; font-size: 0.9em; color: #333;}
-        .form-control-sm { /* From style.css, ensure it's suitable or override here */
-             height: calc(1.5em + .75rem + 2px); /* Bootstrap 5 like */
-             padding: .375rem .75rem;
-             font-size: .875rem;
-             border-radius: .25rem;
-        }
+        .form-control-sm { height: calc(1.5em + .75rem + 2px); padding: .375rem .75rem; font-size: .875rem; border-radius: .25rem; }
         .form-text { font-size: 0.8em; color: #6c757d; margin-top: 0.25rem; }
-        textarea.form-control-sm { min-height: 70px; /* Adjusted */ }
-        input[type="file"].form-control-sm { padding: 0.2rem 0.5rem; /* Adjust file input padding */ }
-
-        .no-profiles-message { /* Style for when no profiles exist */
-            text-align: center; padding: 2rem; background-color: #fff;
-            border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin-top: 2rem;
-        }
+        textarea.form-control-sm { min-height: 70px; } 
+        input[type="file"].form-control-sm { padding: 0.2rem 0.5rem; }
+        .no-profiles-message { text-align: center; padding: 2rem; background-color: #fff; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-top: 2rem; }
         .no-profiles-message p { font-size: 1.1em; color: #555; margin-bottom: 1.5rem;}
-        .no-profiles-message .btn-primary { /* Use the main .btn and .btn-primary styling */
-             font-size: 1em; padding: 10px 20px;
-        }
-
+        .no-profiles-message .btn-primary { font-size: 1em; padding: 10px 20px; }
+        /* Remove automation-status-bar styles as it's being eliminated */
     </style>
 {% endblock %}
 
 {% block content %}
-<div class="automation-dashboard-container"> {# Added container for overall padding #}
+<div class="automation-dashboard-container"> 
     <div class="page-header">
-        <h1><i class="fas fa-cogs"></i> Automation Run Control</h1>
+        <h1><i class="fas fa-robot"></i> Automation Run Control</h1>
         <p class="text-muted">Configure and launch automated tasks for your WordPress profiles.</p>
     </div>
+
+    {# Automation Status Bar Removed #}
 
     {% if user_site_profiles and user_site_profiles|length > 0 %}
         <div class="daily-cap-info-runner">
@@ -266,43 +99,24 @@
                 <div class="profile-run-body">
                     <div class="profile-run-config">
                         <h4><i class="fas fa-sliders-h"></i> Run Settings</h4>
-                        <p>
-                            Target Site: <a href="{{ profile.site_url }}" target="_blank" rel="noopener noreferrer">{{ profile.site_url }}</a>
-                        </p>
-                        <p>
-                            <span class="detail-label">Posts Today:</span> 
-                            <strong>{{ posts_today_by_profile.get(profile.profile_id, 0) }}</strong> / 
-                            {{ absolute_max_posts_cap if absolute_max_posts_cap is not none else 'N/A' }}
-                        </p>
+                        <p>Target Site: <a href="{{ profile.site_url }}" target="_blank" rel="noopener noreferrer">{{ profile.site_url }}</a></p>
+                        <p><span class="detail-label">Posts Today:</span> <strong>{{ posts_today_by_profile.get(profile.profile_id, 0) }}</strong> / {{ absolute_max_posts_cap if absolute_max_posts_cap is not none else 'N/A' }}</p>
                         <div class="form-group">
                             <label for="posts_{{ profile.profile_id }}">Posts for this Run:</label>
                             {% set current_posts = posts_today_by_profile.get(profile.profile_id, 0) | int(0) %}
                             {% set cap = absolute_max_posts_cap | int(-1) %}
                             {% set max_for_run = (cap - current_posts) if cap != -1 else 100 %}
-                            <input type="number" class="form-control form-control-sm" id="posts_{{ profile.profile_id }}" name="posts_for_profile_{{ profile.profile_id }}" value="1" min="0" 
-                                   max="{{ max_for_run if max_for_run > 0 else 0 }}">
+                            <input type="number" class="form-control form-control-sm" id="posts_{{ profile.profile_id }}" name="posts_for_profile_{{ profile.profile_id }}" value="1" min="0" max="{{ max_for_run if max_for_run > 0 else 0 }}">
                         </div>
-
                         <div class="ticker-input-choice">
                             <strong>Ticker Source:</strong>
-                            <label>
-                                <input type="radio" name="ticker_source_{{ profile.profile_id }}" value="file" checked 
-                                       onchange="toggleTickerInput('{{ profile.profile_id }}', 'file')"> Upload File
-                            </label>
-                            <label>
-                                <input type="radio" name="ticker_source_{{ profile.profile_id }}" value="manual"
-                                       onchange="toggleTickerInput('{{ profile.profile_id }}', 'manual')"> Enter Manually
-                            </label>
+                            <label><input type="radio" name="ticker_source_{{ profile.profile_id }}" value="file" checked onchange="toggleTickerInput('{{ profile.profile_id }}', 'file')"> Upload File</label>
+                            <label><input type="radio" name="ticker_source_{{ profile.profile_id }}" value="manual" onchange="toggleTickerInput('{{ profile.profile_id }}', 'manual')"> Enter Manually</label>
                         </div>
-
                         <div class="file-upload-section" id="file_upload_section_{{ profile.profile_id }}">
                             <div class="form-group">
                                 <label for="ticker_file_{{ profile.profile_id }}">Upload Ticker Sheet (Excel/CSV):</label>
-                                <input type="file" class="form-control form-control-sm ticker-file-input" 
-                                       id="ticker_file_{{ profile.profile_id }}" 
-                                       name="ticker_file_{{ profile.profile_id }}" 
-                                       accept=".xlsx,.xls,.csv"
-                                       data-profile-id="{{ profile.profile_id }}">
+                                <input type="file" class="form-control form-control-sm ticker-file-input" id="ticker_file_{{ profile.profile_id }}" name="ticker_file_{{ profile.profile_id }}" accept=".xlsx,.xls,.csv" data-profile-id="{{ profile.profile_id }}">
                             </div>
                             <div class="uploaded-file-info" id="uploaded_file_info_{{ profile.profile_id }}" style="display: none;">
                                 <span class="file-icon"><i class="fas fa-file-alt"></i></span>
@@ -310,13 +124,9 @@
                                 <button type="button" class="remove-file-btn" title="Remove file"><i class="fas fa-times-circle"></i></button>
                             </div>
                             <div class="ticker-status-table-container" id="ticker_table_container_{{ profile.profile_id }}" style="display:none;">
-                                <table class="ticker-status-table">
-                                    <thead><tr><th>Ticker</th><th>Status</th></tr></thead>
-                                    <tbody></tbody>
-                                </table>
+                                <table class="ticker-status-table"><thead><tr><th>Ticker</th><th>Status</th></tr></thead><tbody></tbody></table>
                             </div>
                         </div>
-
                         <div class="manual-ticker-section" id="manual_ticker_section_{{ profile.profile_id }}" style="display: none;">
                             <div class="form-group">
                                 <label for="custom_tickers_{{ profile.profile_id }}">Enter Tickers (comma-separated):</label>
@@ -325,52 +135,197 @@
                         </div>
                     </div>
                     <div class="profile-run-logs">
-                        <h4><i class="fas fa-history"></i> Recent Activity Log (Today)</h4>
+                        <h4><i class="fas fa-stream"></i> Automation Log (Today)</h4>
                         <div class="log-console-output" id="log_console_{{ profile.profile_id }}">
-                            {% set processed_log = processed_tickers_log_map.get(profile.profile_id, []) %}
-                            {% if processed_log and processed_log|length > 0 %}
-                                {% for log_entry in processed_log | reverse | list %}
-                                    <div class="log-entry log-{{ log_entry.status }}">
-                                        <span class="log-icon">
-                                            {% if log_entry.status == 'success' %}<i class="fas fa-check-circle"></i>
-                                            {% elif log_entry.status == 'failure' %}<i class="fas fa-times-circle"></i>
-                                            {% elif log_entry.status in ['skipped', 'skipped_setup', 'skipped_limit', 'skipped_no_tickers'] %}<i class="fas fa-info-circle"></i>
-                                            {% else %}<i class="fas fa-question-circle"></i>
-                                            {% endif %}
-                                        </span>
+                            {% set todays_logs = processed_tickers_log_map.get(profile.profile_id, []) %}
+                            {% if todays_logs and todays_logs|length > 0 %}
+                                {% for log_entry in todays_logs %}
+                                    {% set status_class = log_entry.status | lower if log_entry.status else 'info' %}
+                                    {% set icon_class = 'fa-info-circle' %}
+                                    {% if status_class == 'success' %}{% set icon_class = 'fa-check-circle' %}{% endif %}
+                                    {% if status_class == 'failure' %}{% set icon_class = 'fa-times-circle' %}{% endif %}
+                                    {% if status_class == 'skipped' or 'skipped_' in status_class %}{% set icon_class = 'fa-info-circle' %}{% endif %}
+                                    {% if status_class == 'warning' %}{% set icon_class = 'fa-exclamation-triangle' %}{% endif %}
+                                    <div class="log-entry status-{{ status_class }}">
+                                        <span class="log-icon"><i class="fas {{ icon_class }}"></i></span>
                                         <div class="log-details">
-                                            <span class="log-ticker">{{ log_entry.ticker }}</span>
-                                            <span class="log-message" title="{{ log_entry.message }}">{{ log_entry.message|truncate(80, True) }}</span>
-                                            <span class="log-timestamp">[{{ log_entry.timestamp.split(' ')[1].split('.')[0] if log_entry.timestamp and ' ' in log_entry.timestamp else log_entry.timestamp }}]</span>
+                                            {% if log_entry.phase and log_entry.stage %}<span class="log-phase-stage">[{{ log_entry.phase }}] {{ log_entry.stage }}</span>
+                                            {% elif log_entry.phase %}<span class="log-phase-stage">[{{ log_entry.phase }}]</span>
+                                            {% elif log_entry.stage %}<span class="log-phase-stage">{{ log_entry.stage }}</span>{% endif %}
+                                            {% if log_entry.ticker and log_entry.ticker != 'N/A' %}<span class="log-ticker">{{ log_entry.ticker }}</span>{% endif %}
+                                            <span class="log-message">{{ log_entry.message | truncate(120, True) }}</span>
+                                            <span class="log-timestamp">{{ log_entry.timestamp | format_datetime('%H:%M:%S') if log_entry.timestamp else '' }}</span>
                                         </div>
                                     </div>
                                 {% endfor %}
                             {% else %}
-                                <p class="no-log" style="text-align: center; padding-top: 20px; color: #6c757d;">No processing activity recorded today.</p>
+                                <p class="no-log initial-message" style="text-align: center; padding-top: 20px; color: #6c757d;">No automation activity logged for this profile today.</p>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
             {% endfor %}
-            <button type="submit" class="btn-execute-runs"><i class="fas fa-bolt"></i> Start Selected Automation Runs</button>
+            <button type="submit" class="btn-execute-runs" id="executeAutomationBtn"><i class="fas fa-bolt"></i> Start Selected Automation Runs</button>
         </form>
     {% else %}
-        <div class="no-profiles-message text-center"> {# Using class from style.css or define here #}
+        <div class="no-profiles-message text-center"> 
             <p style="font-size: 1.1em; color:#555;">You currently have no site profiles configured for automation.</p>
-            <a href="{{ url_for('manage_site_profiles') }}" class="btn btn-primary" style="font-size: 1em; padding: 10px 20px;">
-                <i class="fas fa-plus-circle"></i> Create Your First Site Profile
-            </a>
+            <a href="{{ url_for('manage_site_profiles') }}" class="btn btn-primary" style="font-size: 1em; padding: 10px 20px;"><i class="fas fa-plus-circle"></i> Create Your First Site Profile</a>
         </div>
     {% endif %}
 </div>
-
 {% endblock %}
 
 {% block scripts_extra %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("Automation Runner Page Script Initialized.");
+    // console.log("Automation Runner Page Script Initialized (No Status Bar V3)."); // Reduced print
+
+    const automationRunForm = document.getElementById('automationRunForm');
+    const executeAutomationBtn = document.getElementById('executeAutomationBtn');
+    // const statusBar = document.getElementById('automation-status-bar'); // Removed
+    // const statusMessage = document.getElementById('automation-status-message'); // Removed
+
+    if (typeof io === 'undefined') {
+        console.error("Socket.IO client library not loaded. Real-time updates will be disabled.");
+        alert("Real-time logging features are unavailable. Please check console.");
+        return; 
+    }
+    const socket = io();
+
+    socket.on('connect', function() {
+        console.log('Socket.IO connected for automation updates.');
+    });
+
+    socket.on('disconnect', function(reason) { 
+        console.warn('Socket.IO disconnected. Reason:', reason);
+        // Optionally inform user in a less intrusive way if needed, e.g. small icon change
+    });
+    
+    socket.on('connect_error', (error) => {
+        console.error('Socket.IO Connection Error:', error);
+        // Optionally inform user
+    });
+    
+    socket.on('error', (error) => {
+        console.error('Socket.IO general error:', error);
+    });
+
+    socket.on('reconnect_attempt', (attemptNumber) => {
+        console.log(`Socket.IO reconnect attempt ${attemptNumber}`);
+    });
+
+    socket.on('reconnect_error', (error) => {
+        console.error('Socket.IO reconnection error:', error);
+    });
+
+    socket.on('reconnect_failed', () => {
+        console.error('Socket.IO reconnection failed.');
+    });
+
+
+    socket.on('automation_update', function(data) {
+        // console.log('Automation Update Received:', data); // Reduced print
+        
+        const logConsole = document.getElementById(`log_console_${data.profile_id}`);
+        if (logConsole) {
+            const currentRunPlaceholder = logConsole.querySelector('.current-run-message');
+            if (currentRunPlaceholder) {
+                currentRunPlaceholder.remove();
+            }
+            const initialNoLogMsg = logConsole.querySelector('.initial-message');
+            if (initialNoLogMsg && logConsole.children.length === 1) {
+                initialNoLogMsg.remove();
+            }
+
+            const logEntryDiv = document.createElement('div');
+            logEntryDiv.classList.add('log-entry', `status-${data.status || 'info'}`); 
+
+            let iconClass = 'fa-info-circle'; 
+            if (data.status === 'success') iconClass = 'fa-check-circle';
+            else if (data.status === 'error') iconClass = 'fa-times-circle';
+            else if (data.status === 'warning') iconClass = 'fa-exclamation-triangle';
+            
+            let timestampShort = '';
+            if (data.timestamp) {
+                try { timestampShort = new Date(data.timestamp).toLocaleTimeString(); } 
+                catch (e) { /* console.warn("Could not parse timestamp:", data.timestamp); */ } // Reduced print
+            }
+            
+            let phaseStageHTML = '';
+            if (data.phase && data.stage) { phaseStageHTML = `<span class="log-phase-stage">[${data.phase}] ${data.stage}</span>`; }
+            else if (data.phase) { phaseStageHTML = `<span class="log-phase-stage">[${data.phase}]</span>`; }
+            else if (data.stage) { phaseStageHTML = `<span class="log-phase-stage">${data.stage}</span>`; }
+
+            logEntryDiv.innerHTML = `
+                <span class="log-icon"><i class="fas ${iconClass}"></i></span>
+                <div class="log-details">
+                    ${phaseStageHTML}
+                    ${data.ticker && data.ticker !== 'N/A' ? `<span class="log-ticker">${data.ticker}</span>` : ''}
+                    <span class="log-message">${data.message}</span>
+                    <span class="log-timestamp">${timestampShort}</span>
+                </div>
+            `;
+            logConsole.appendChild(logEntryDiv); 
+            logConsole.scrollTop = logConsole.scrollHeight; 
+        }
+        
+        // Re-enable button if it's an "Overall" completion or error message
+        if (data.profile_id === "Overall" && ((data.phase === "Completion" && data.stage === "Run Finished") || data.status === 'error')) {
+             if(executeAutomationBtn) executeAutomationBtn.disabled = false;
+        }
+    });
+    
+    // This event can be used for very high-level status if still needed,
+    // but primarily 'automation_update' with profile_id "Overall" handles this now.
+    socket.on('automation_status', function(data){ 
+        console.log("Overall Automation Status:", data.message); // Log for dev if needed
+        if (data.status === 'error' || data.message.toLowerCase().includes("finished") || data.message.toLowerCase().includes("completed")) {
+             if(executeAutomationBtn) executeAutomationBtn.disabled = false; 
+        }
+    });
+
+    if (automationRunForm) {
+        automationRunForm.addEventListener('submit', function() {
+            if(executeAutomationBtn) executeAutomationBtn.disabled = true;
+            
+            document.querySelectorAll('.profile-run-card input[type="checkbox"]:checked').forEach(checkbox => {
+                const profileId = checkbox.value;
+                const logConsole = document.getElementById(`log_console_${profileId}`);
+                if (logConsole) {
+                    const initialMsg = logConsole.querySelector('.initial-message');
+                    if (initialMsg) initialMsg.remove();
+                    
+                    const currentRunMsg = logConsole.querySelector('.current-run-message');
+                    if(currentRunMsg) currentRunMsg.remove();
+
+                    if (logConsole.children.length === 0 || !logConsole.querySelector('.current-run-message')) {
+                         const newRunPlaceholder = document.createElement('p');
+                         newRunPlaceholder.className = 'no-log current-run-message';
+                         newRunPlaceholder.style.textAlign = 'center';
+                         newRunPlaceholder.style.paddingTop = '5px';
+                         newRunPlaceholder.style.color = '#6c757d';
+                         newRunPlaceholder.style.fontStyle = 'italic';
+                         newRunPlaceholder.textContent = '--- New Run Initiated ---';
+                         logConsole.appendChild(newRunPlaceholder);
+                    } else if (logConsole.children.length > 0 && !logConsole.querySelector('.current-run-message')) {
+                        const separator = document.createElement('hr');
+                        separator.style.borderColor = '#455A64';
+                        logConsole.appendChild(separator);
+                         const newRunPlaceholder = document.createElement('p');
+                         newRunPlaceholder.className = 'no-log current-run-message';
+                         newRunPlaceholder.style.textAlign = 'center';
+                         newRunPlaceholder.style.paddingTop = '5px';
+                         newRunPlaceholder.style.color = '#6c757d';
+                         newRunPlaceholder.style.fontStyle = 'italic';
+                         newRunPlaceholder.textContent = '--- New Run Initiated ---';
+                         logConsole.appendChild(newRunPlaceholder);
+                    }
+                }
+            });
+        });
+    }
 
     window.toggleTickerInput = function(profileId, selectedMethod) {
         const fileSection = document.getElementById(`file_upload_section_${profileId}`);
@@ -378,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const fileInput = document.getElementById(`ticker_file_${profileId}`);
         const manualInput = document.getElementById(`custom_tickers_${profileId}`);
 
-        if (fileSection && manualSection) { // Ensure elements exist
+        if (fileSection && manualSection) { 
             if (selectedMethod === 'file') {
                 fileSection.style.display = 'block';
                 manualSection.style.display = 'none';
@@ -400,9 +355,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (profileId) {
             toggleTickerInput(profileId, 'file'); 
             const radios = document.getElementsByName(`ticker_source_${profileId}`);
-            radios.forEach(radio => {
-                if (radio.value === 'file') radio.checked = true;
-            });
+            radios.forEach(radio => { if (radio.value === 'file') radio.checked = true; });
+            
+            const logConsole = document.getElementById(`log_console_${profileId}`);
+            if (logConsole && logConsole.querySelector('.log-entry')) { 
+                const initialNoLogMsg = logConsole.querySelector('.initial-message');
+                if (initialNoLogMsg) initialNoLogMsg.remove();
+            }
         }
     });
 
@@ -419,7 +378,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const file = event.target.files[0];
                 if(fileNameSpan) fileNameSpan.textContent = file.name;
                 if(fileInfoDiv) fileInfoDiv.style.display = 'flex';
-                
                 if(removeFileBtn) {
                     removeFileBtn.onclick = function() {
                         input.value = ''; 

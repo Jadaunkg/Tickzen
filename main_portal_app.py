@@ -1,14 +1,14 @@
 # main_portal_app.py
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_from_directory
-from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_socketio import SocketIO, emit, join_room, leave_room # Ensure leave_room is imported
 import os
 import json
-import sys
+# import sys # Not strictly needed unless using sys.path manipulations
 import time
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
-import io
+import io # For file handling
 from functools import wraps
 import re # For basic URL validation
 import traceback
@@ -28,8 +28,8 @@ try:
 except ImportError as e_fb_admin:
     print(f"CRITICAL: Failed to import or initialize Firebase Admin from firebase_admin_setup: {e_fb_admin}")
     FIREBASE_INITIALIZED_SUCCESSFULLY = False
-    def verify_firebase_token(token): print("Firebase dummy: verify_firebase_token called"); return None
-    def get_firestore_client(): print("Firebase dummy: get_firestore_client called"); return None
+    def verify_firebase_token(token): print("Firebase dummy: verify_firebase_token called"); return None # Mock
+    def get_firestore_client(): print("Firebase dummy: get_firestore_client called"); return None # Mock
 
 try:
     import auto_publisher 
@@ -37,10 +37,22 @@ try:
 except ImportError as e_ap:
     print(f"CRITICAL: Failed to import auto_publisher.py: {e_ap}")
     AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = False
+    # Mock class for auto_publisher if import fails
     class MockAutoPublisher: 
-        ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP = 10
+        ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP = 10 # Example attribute
         def load_state(self, user_uid=None, current_profile_ids_from_run=None): return {}
-        def trigger_publishing_run(self, *args, **kwargs): print("MockAutoPublisher: trigger_publishing_run called"); return {}
+        # Ensure trigger_publishing_run mock accepts socketio_instance and user_room
+        def trigger_publishing_run(self, user_uid, profiles_to_process_data_list, articles_to_publish_per_profile_map, 
+                                   custom_tickers_by_profile_id=None, uploaded_file_details_by_profile_id=None,
+                                   socketio_instance=None, user_room=None): # Added new params
+            print("MockAutoPublisher: trigger_publishing_run called"); 
+            if socketio_instance and user_room:
+                 socketio_instance.emit('automation_update', {
+                    'profile_id': "MockProfile", 'ticker': "MOCK", 'phase': "Mocking", 
+                    'stage': "Called", 'message': "Automation service is mocked.", 'status': "warning",
+                    'timestamp': datetime.now(timezone.utc).isoformat()
+                }, room=user_room)
+            return {}
     auto_publisher = MockAutoPublisher()
 
 
@@ -76,12 +88,20 @@ app = Flask(__name__,
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "your_strong_default_secret_key_here_CHANGE_ME_TOO")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 # 5MB Limit
 ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # Disable caching for static files during dev
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7) # User sessions last 7 days
 
-socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
+# Increased timeouts and enabled logging for SocketIO
+socketio = SocketIO(app, 
+                    async_mode='eventlet', 
+                    cors_allowed_origins="*",
+                    ping_timeout=60,      # Increased from default 20s
+                    ping_interval=25,     # Increased from default 5s
+                    logger=True,          # Enable Socket.IO specific logging
+                    engineio_logger=True  # Enable Engine.IO (transport layer) logging
+                   )
 
 
 for folder_path in [UPLOAD_FOLDER, STATIC_FOLDER_PATH, STOCK_REPORTS_PATH]:
@@ -100,7 +120,7 @@ def inject_globals_and_helpers():
         'user_email': session.get('firebase_user_email'),
         'user_displayName': session.get('firebase_user_displayName'),
         'FIREBASE_INITIALIZED_SUCCESSFULLY': FIREBASE_INITIALIZED_SUCCESSFULLY,
-        'zip': zip 
+        'zip': zip # If you use zip in templates
     }
 
 @app.template_filter('format_datetime')
@@ -121,7 +141,7 @@ def format_datetime_filter(value, fmt="%Y-%m-%d %H:%M:%S"):
         else:
             return value 
         
-        if dt_obj.tzinfo is None:
+        if dt_obj.tzinfo is None: 
             dt_obj = dt_obj.replace(tzinfo=timezone.utc) 
         
         return dt_obj.strftime(fmt)
@@ -291,7 +311,6 @@ def start_stock_analysis():
         request_timestamp_for_report = int(time.time()) 
         app.logger.info(f"Running full stock analysis for ticker {ticker} (Timestamp: {request_timestamp_for_report}) for room {room_id}...")
         
-        # Run the pipeline. It will emit progress updates using socketio.
         pipeline_result = run_pipeline(ticker, str(request_timestamp_for_report), APP_ROOT, 
                                        socketio_instance=socketio, task_room=room_id)
         
@@ -417,11 +436,9 @@ def verify_token_route():
 
 @app.route('/logout')
 def logout():
-    user_uid = session.get('firebase_user_uid') # Get UID before clearing session
+    user_uid = session.get('firebase_user_uid') 
     if user_uid:
         app.logger.info(f"User {user_uid} logging out. Client {request.sid if hasattr(request, 'sid') else '(no socket SID in HTTP context)'} should handle disconnect.")
-        # No need to explicitly call leave_room here for HTTP route;
-        # SocketIO handles room cleanup on client disconnect.
     session.clear()
     flash("You have been successfully logged out.", "info")
     return redirect(url_for('stock_analysis_homepage_route')) 
@@ -898,17 +915,23 @@ def run_automation_now():
                 elif file_obj and file_obj.filename: 
                     flash(f"File type of '{file_obj.filename}' not allowed for profile '{profile_data_item.get('profile_name', pid)}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}", "warning")
 
-    flash(f"Initiating automation for {len(selected_profiles_data)} profile(s)... Check logs for details.", "info")
     try:
+        # Pass socketio_instance and user_room (user_uid)
         results = auto_publisher.trigger_publishing_run(
             user_uid,
             selected_profiles_data, 
             articles_map,
             custom_tickers_by_profile_id=custom_tickers_map,
             uploaded_file_details_by_profile_id=uploaded_files_map,
-            socketio_instance=socketio # Pass socketio instance
+            socketio_instance=socketio, 
+            user_room=user_uid 
         )
-        if results:
+        # This emit is useful for an immediate feedback if trigger_publishing_run is, for example,
+        # offloaded to a background thread/task queue and returns immediately.
+        # If trigger_publishing_run is synchronous and long, this message might appear late.
+        socketio.emit('automation_status', {'message': "Automation run processing started. Monitor individual profile logs for live updates.", 'status': 'info'}, room=user_uid)
+
+        if results: # Results from synchronous run or initial status if async
             for pid_res, res_data in results.items():
                 pname = res_data.get("profile_name", pid_res)
                 summary = res_data.get("status_summary", "No summary provided for this profile.")
@@ -927,10 +950,12 @@ def run_automation_now():
                     flash_message += f" Details: {'; '.join(errors_list[:2])}{'...' if len(errors_list) > 2 else ''}"
                 flash(flash_message, log_category)
         else:
-            flash("Automation run completed but returned no specific results. Check system logs.", "warning")
+            flash("Automation run processing initiated. Check live logs. No immediate results returned by trigger.", "info")
+
     except Exception as e:
-        flash(f"A critical error occurred during the automation run: {str(e)}", "danger")
-        app.logger.error(f"Automation run failed for user {user_uid}: {e}", exc_info=True)
+        flash(f"A critical error occurred initiating the automation run: {str(e)}", "danger")
+        app.logger.error(f"Automation run initiation failed for user {user_uid}: {e}", exc_info=True)
+        socketio.emit('automation_status', {'message': f"Automation run critically failed at initiation: {str(e)}", 'status': 'error'}, room=user_uid)
     return redirect(url_for('automation_runner_page'))
 
 
@@ -1000,38 +1025,40 @@ def generate_wp_assets():
 @socketio.on('connect')
 def handle_connect():
     user_uid = session.get('firebase_user_uid')
+    client_sid = request.sid 
+    
     if user_uid:
         join_room(user_uid) 
-        app.logger.info(f"Client {request.sid} connected and joined room: {user_uid}")
-        emit('status', {'message': f'Connected to real-time updates! Your room is {user_uid}.'}, room=request.sid)
+        app.logger.info(f"Client {client_sid} connected and joined user room: {user_uid}")
+        emit('status', {'message': f'Connected to real-time updates! User Room: {user_uid}. Your SID: {client_sid}'}, room=client_sid) 
     else:
-        app.logger.info(f"Client {request.sid} connected (anonymous or pre-login).")
-        emit('status', {'message': 'Connected! Please login to use personalized features.'}, room=request.sid)
+        app.logger.info(f"Client {client_sid} connected (anonymous or pre-login).")
+        emit('status', {'message': f'Connected! Your SID is {client_sid}. Login for personalized features.'}, room=client_sid)
 
 
 @socketio.on('disconnect')
 def handle_disconnect():
     user_uid = session.get('firebase_user_uid')
+    client_sid = request.sid
     if user_uid:
         leave_room(user_uid) 
-        app.logger.info(f"Client {request.sid} disconnected and left room: {user_uid}")
+        app.logger.info(f"Client {client_sid} disconnected and left user room: {user_uid}")
     else:
-        app.logger.info(f"Client {request.sid} disconnected (anonymous or pre-login).")
+        app.logger.info(f"Client {client_sid} disconnected (anonymous or pre-login).")
 
-# Example explicit room join from client (if needed for tasks not tied to user UID directly)
+
 @socketio.on('join_task_room')
 def handle_join_task_room(data):
     task_room_id = data.get('room_id')
+    client_sid = request.sid
     if task_room_id:
         join_room(task_room_id)
-        app.logger.info(f"Client {request.sid} explicitly joined task room: {task_room_id}")
-        emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=request.sid)
+        app.logger.info(f"Client {client_sid} explicitly joined task room: {task_room_id}")
+        emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=client_sid) 
 
 
 #--- Main Execution ---
 if __name__ == '__main__':
-    # Ensure app and socketio are defined before this block if they come from top-level
-    # This check is more for safety in case of partial script execution context
     try:
         app 
         socketio
@@ -1054,7 +1081,11 @@ if __name__ == '__main__':
     
     app.logger.info(f"Attempting to start Flask-SocketIO server on http://0.0.0.0:{port} (Debug: {debug_mode})")
     try:
-        socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=debug_mode, allow_unsafe_werkzeug=True if debug_mode else False)
+        # For development, use_reloader might be True. For production, it should be False.
+        # allow_unsafe_werkzeug is for development reloader with eventlet/gevent.
+        socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, 
+                     use_reloader=debug_mode, 
+                     allow_unsafe_werkzeug=True if debug_mode else False)
     except Exception as e_run:
         app.logger.error(f"CRITICAL: Failed to start Flask-SocketIO server: {e_run}", exc_info=True)
         print(f"CRITICAL: Server could not start. Check logs. Error: {e_run}")

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 TICKERS = ["PEP"]  # e.g., ["AAPL", "GOOGL", "MSFT"]
 
 # Date range for data collection
-START_DATE = "1900-01-01"  # Earliest practical date
+START_DATE = "2012-01-01"  # Earliest practical date
 END_DATE = datetime.today().strftime("%Y-%m-%d")  # Current date
 
 # --- Forecast Horizon Options ---
