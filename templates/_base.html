@@ -21,16 +21,20 @@
             --font-main: 'Poppins', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             --lp-primary: #2557a7; /* Landing page primary, used by new footer social icon hover */
             --lp-secondary: #1e3a8a;
-            /* --accent: #3b82f6; /* This was from landing-page.html, replaced by base.html --primary for footer h3::after */
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { height: 100%; scroll-behavior: smooth; }
         body {
             font-family: var(--font-main); margin: 0; background-color: var(--light);
             color: #333; line-height: 1.6; display: flex; flex-direction: column;
-            min-height: 100vh; font-size: 15px; overflow-x: hidden;
+            min-height: 100vh; font-size: 15px; overflow-x: hidden; /* Crucial for slide-out menus */
             -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+            transition: transform 0.3s ease-in-out;
         }
+        /* body.mobile-menu-open { */
+            /* Optional: If you want to push the body content slightly when menu opens (translateX for left menu) */
+            /* transform: translateX(280px); */ /* Adjust width to match menu */
+        /* } */
         .site-container { flex: 1; display: flex; flex-direction: column; }
         .container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 0 15px; }
 
@@ -39,12 +43,13 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.07); display: flex;
             justify-content: space-between; align-items: center;
             position: sticky; top: 0; z-index: 1000;
+            transition: transform 0.3s ease-in-out;
         }
         .navbar-brand { font-size: 1.8em; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
         .navbar-brand i { margin-right: 8px; }
-        .navbar-toggler { display: none; font-size: 1.5rem; background: none; border: none; color: #333; cursor: pointer; }
+        .navbar-toggler { display: none; font-size: 1.5rem; background: none; border: none; color: #333; cursor: pointer; z-index: 1002; }
         .navbar-nav { list-style: none; padding: 0; margin: 0; display: flex; align-items: center; }
-        .nav-item { margin-left: 15px; position: relative; /* For dropdown positioning */ }
+        .nav-item { margin-left: 15px; position: relative; }
         .nav-item:first-child { margin-left: 0; }
 
 
@@ -53,7 +58,7 @@
             padding: 8px 12px; border-radius: 6px;
             transition: background-color 0.3s ease, color 0.3s ease;
             display: flex; align-items: center; gap: 0.4rem;
-            white-space: nowrap; /* Prevent text wrapping in nav links */
+            white-space: nowrap;
         }
         .nav-link i { margin-right: 6px; }
         .nav-link:hover, .nav-link.active { background-color: var(--primary); color: #ffffff; }
@@ -63,26 +68,26 @@
         .nav-link.btn-login { background-color: var(--primary); color: white; padding: 8px 15px; border-radius: 20px; }
         .nav-link.btn-login:hover { background-color: var(--secondary); }
 
-        /* Dropdown Menu Styles */
+        /* Desktop Dropdown Menu Styles */
         .nav-item.dropdown .dropdown-menu {
             display: none;
             position: absolute;
-            top: 100%; /* Position below the nav item */
+            top: 100%;
             left: 0;
             background-color: white;
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
             border-radius: 0 0 4px 4px;
             z-index: 1001;
-            min-width: 200px; /* Adjust as needed */
+            min-width: 200px;
             padding: 0.5rem 0;
-            list-style: none; /* Remove bullets from ul */
+            list-style: none;
         }
         .nav-item.dropdown:hover .dropdown-menu,
-        .nav-item.dropdown .dropdown-toggle:focus + .dropdown-menu, /* For accessibility with keyboard nav */
-        .nav-item.dropdown .dropdown-menu:hover { /* Keep open when hovering menu */
+        .nav-item.dropdown .dropdown-toggle:focus + .dropdown-menu,
+        .nav-item.dropdown .dropdown-menu:hover {
             display: block;
         }
-        .dropdown-menu .nav-link { /* Style for links within dropdown */
+        .dropdown-menu .nav-link {
             color: #333;
             padding: 10px 20px;
             border-radius: 0;
@@ -90,18 +95,19 @@
             text-align: left;
         }
         .dropdown-menu .nav-link:hover {
-            background-color: var(--light); /* Lighter hover for dropdown */
+            background-color: var(--light);
             color: var(--primary);
         }
         .dropdown-menu .nav-link i {
-            margin-right: 10px; /* More space for icons in dropdown */
-            width: 1.2em; /* Align text if icons vary in width */
+            margin-right: 10px;
+            width: 1.2em;
         }
-        .dropdown-toggle::after { /* Basic dropdown arrow */
-            content: ' \25BC'; /* Down arrow */
+        .dropdown-toggle::after {
+            content: ' \25BC';
             font-size: 0.7em;
             margin-left: 0.5em;
             display: inline-block;
+            transition: transform 0.2s ease-in-out;
         }
 
 
@@ -113,12 +119,11 @@
         .alert-warning { background-color: #fff3cd; color: #664d03; border-color: #ffecb5; }
         .alert-info { background-color: #cff4fc; color: #055160; border-color: #b6effb; }
         
-        /* New Footer Styles from landing-page.html - Adapted */
         footer {
-            background-color: var(--dark); /* Uses base.html --dark */
+            background-color: var(--dark);
             color: white;
             padding: 4rem 0 2rem;
-            margin-top: auto; /* Ensures footer stays at bottom for flex column */
+            margin-top: auto;
         }
         .footer-content {
             display: grid;
@@ -130,7 +135,7 @@
             font-size: 1.25rem;
             margin-bottom: 1.5rem;
             position: relative;
-            color: white; /* Ensure h3 text is visible on dark background */
+            color: white;
         }
         .footer-column h3::after {
             content: '';
@@ -139,9 +144,9 @@
             left: 0;
             width: 50px;
             height: 2px;
-            background-color: var(--primary); /* Adapted to use base.html --primary */
+            background-color: var(--primary);
         }
-         .footer-column p { /* Ensure p text is visible */
+         .footer-column p {
             color: #d1d5db;
         }
         .footer-column ul {
@@ -168,7 +173,7 @@
         .social-icon {
             width: 40px;
             height: 40px;
-            background-color: #374151; /* A slightly lighter grey than typical footer dark */
+            background-color: #374151;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -176,65 +181,115 @@
             color: white;
             transition: all 0.3s ease;
         }
-        .social-icon svg { /* Ensure SVGs inside are styled correctly if not inheriting */
+        .social-icon svg {
             fill: currentColor;
         }
         .social-icon:hover {
-            background-color: var(--lp-primary); /* Adapted to use base.html --lp-primary for this specific hover */
+            background-color: var(--lp-primary);
         }
         .footer-bottom {
-            border-top: 1px solid #374151; /* Using a specific grey for the border */
+            border-top: 1px solid #374151;
             padding-top: 2rem;
             text-align: center;
-            color: #9ca3af; /* Light grey for copyright text */
-        }
-        /* End of New Footer Styles */
-
-        @media (max-width: 1024px) { /* Adjust breakpoint if menu still too wide */
-            .nav-item { margin-left: 10px; } /* Reduce space slightly */
+            color: #9ca3af;
         }
 
-        @media (max-width: 992px) { /* Existing breakpoint for mobile toggle */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999; 
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.35s ease-in-out, visibility 0.35s ease-in-out;
+        }
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+        @media (max-width: 1024px) {
+            .nav-item { margin-left: 10px; }
+        }
+
+        @media (max-width: 992px) {
             .navbar-toggler { display: block; }
             .navbar-nav {
-                display: none; flex-direction: column; width: 100%;
-                position: absolute; top: 100%; left: 0;
-                background-color: #ffffff; box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-                padding-bottom: 0; border-top: 1px solid #eee;
+                position: fixed;
+                top: 0;
+                left: 0; /* Anchor to the left edge */
+                width: 280px; /* Adjust width as desired */
+                max-width: 80%; /* Max width to not occupy full screen on smaller devices */
+                height: 100%;
+                background-color: #ffffff;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.15); /* Shadow on the right for left menu */
+                flex-direction: column;
+                padding-top: 60px; /* Space for close button or padding from top */
+                z-index: 1001;
+                overflow-y: auto;
+                display: flex;
+                transform: translateX(-100%); /* Initially off-screen to the left */
+                transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             }
-            .navbar-nav.active { display: flex; }
-            .nav-item { margin-left: 0; width: 100%; text-align: left; /* Align text left for mobile */ }
+            .navbar-nav.active {
+                transform: translateX(0%); /* Slide into view */
+            }
+            .nav-item { margin-left: 0; width: 100%; text-align: left; }
             .nav-item:not(:last-child) { border-bottom: 1px solid #f0f0f0; }
             .nav-link {
-                display: block; width: 100%; padding: 12px 20px;
-                margin: 0; border-radius: 0; justify-content: flex-start; /* Align icon+text left */
+                display: block; width: 100%; padding: 15px 25px;
+                margin: 0; border-radius: 0; justify-content: flex-start;
+                font-size: 1rem;
             }
-            .nav-link.btn-login { margin: 10px 20px; width: auto; border-radius: 20px; text-align: center; justify-content: center;}
+            .nav-link.btn-login {
+                 margin: 15px 25px; width: calc(100% - 50px);
+                 border-radius: 25px; text-align: center; justify-content: center;
+            }
 
-            /* Mobile Dropdown Behavior */
+            .nav-item.dropdown .dropdown-toggle::after {
+                content: ' \25B8'; 
+                position: absolute;
+                right: 25px;
+                top: 50%;
+                transform: translateY(-50%);
+                transition: transform 0.2s ease-in-out;
+            }
+            .nav-item.dropdown.open > .dropdown-toggle::after {
+                transform: translateY(-50%) rotate(90deg);
+            }
+
             .nav-item.dropdown .dropdown-menu {
-                position: static; /* Remove absolute positioning */
-                display: block; /* Always show content if parent is 'active' (JS toggled) */
+                position: static;
+                display: none; 
                 box-shadow: none;
                 border-radius: 0;
                 border-top: 1px solid #eee;
-                background-color: #f9f9f9; /* Slightly different bg for mobile dropdown */
-                padding-left: 20px; /* Indent dropdown items */
+                background-color: #f9f9f9;
+                padding-left: 0; 
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.4s ease-in-out, padding-top 0.4s ease-in-out, padding-bottom 0.4s ease-in-out;
             }
-            .nav-item.dropdown:hover .dropdown-menu { 
-                display: none; 
-            }
-            .navbar-nav.active .nav-item.dropdown .dropdown-menu {
-                display:block;
+             .nav-item.dropdown.open > .dropdown-menu {
+                display: block; 
+                max-height: 500px; 
+                padding-top: 0.5rem;
+                padding-bottom: 0.5rem;
             }
 
             .dropdown-menu .nav-link {
-                padding: 10px 20px 10px 10px; /* Adjust padding for indented items */
+                padding: 10px 25px 10px 35px; 
+                font-size: 0.95rem;
             }
-            .dropdown-toggle::after { display: none; } /* Hide desktop arrow on mobile */
+            .dropdown-menu .nav-link i {
+                margin-right: 8px;
+            }
         }
         
-        /* Custom Animations from landing-page.html */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -255,7 +310,7 @@
     <div class="site-container">
         <header class="navbar">
             {% if is_user_logged_in %}
-                <a href="{{ url_for('dashboard_page') }}" class="navbar-brand"> {# CORRECTED: Logged-in users go to dashboard #}
+                <a href="{{ url_for('dashboard_page') }}" class="navbar-brand">
                     <i class="fas fa-rocket"></i> Tickzen
                 </a>
             {% else %}
@@ -263,7 +318,7 @@
                     <i class="fas fa-rocket"></i> Tickzen
                 </a>
             {% endif %}
-            <button class="navbar-toggler" type="button" aria-label="Toggle navigation" onclick="toggleNavbar()">
+            <button class="navbar-toggler" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navbarNav">
                 <i class="fas fa-bars"></i>
             </button>
             <ul class="navbar-nav" id="navbarNav">
@@ -342,6 +397,8 @@
                 {% endif %}
             </ul>
         </header>
+        <div class="mobile-menu-overlay"></div>
+
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -423,22 +480,86 @@
     </footer>
 
     <script>
+        // Mobile Navbar Toggle
+        const navbarToggler = document.querySelector('.navbar-toggler');
+        const navbarNav = document.getElementById('navbarNav');
+        const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+        const body = document.body;
+
         function toggleNavbar() {
-            const navbarNav = document.getElementById('navbarNav');
-            if (navbarNav) {
-                navbarNav.classList.toggle('active');
+            const isActive = navbarNav.classList.contains('active');
+            navbarNav.classList.toggle('active');
+            mobileMenuOverlay.classList.toggle('active');
+            navbarToggler.setAttribute('aria-expanded', String(!isActive)); // Ensure string value
+            // body.classList.toggle('mobile-menu-open'); 
+
+            if (navbarNav.classList.contains('active')) {
+                navbarToggler.innerHTML = '<i class="fas fa-times"></i>'; 
+            } else {
+                navbarToggler.innerHTML = '<i class="fas fa-bars"></i>'; 
+                document.querySelectorAll('.navbar-nav .nav-item.dropdown.open').forEach(openDropdown => {
+                    openDropdown.classList.remove('open');
+                    const submenu = openDropdown.querySelector('.dropdown-menu');
+                    if (submenu) {
+                        submenu.style.maxHeight = null;
+                        submenu.style.paddingTop = null; 
+                        submenu.style.paddingBottom = null;
+                    }
+                });
             }
         }
+
+        if (navbarToggler) {
+            navbarToggler.addEventListener('click', toggleNavbar);
+        }
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', toggleNavbar); 
+        }
+
+        // Mobile Dropdown Toggle (Click-based)
+        document.querySelectorAll('.navbar-nav .nav-item.dropdown > .dropdown-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                if (window.innerWidth <= 992) { 
+                    e.preventDefault(); 
+                    const parentDropdown = this.closest('.nav-item.dropdown');
+                    const submenu = parentDropdown.querySelector('.dropdown-menu');
+
+                    document.querySelectorAll('.navbar-nav .nav-item.dropdown.open').forEach(openDropdown => {
+                        if (openDropdown !== parentDropdown) {
+                            openDropdown.classList.remove('open');
+                            const otherSubmenu = openDropdown.querySelector('.dropdown-menu');
+                             if (otherSubmenu) {
+                                otherSubmenu.style.maxHeight = null;
+                                otherSubmenu.style.paddingTop = null;
+                                otherSubmenu.style.paddingBottom = null;
+                            }
+                        }
+                    });
+
+                    parentDropdown.classList.toggle('open');
+                    if (parentDropdown.classList.contains('open')) {
+                        if (submenu) { // Check if submenu exists
+                            submenu.style.maxHeight = submenu.scrollHeight + "px";
+                            submenu.style.paddingTop = "0.5rem"; 
+                            submenu.style.paddingBottom = "0.5rem"; 
+                        }
+                    } else {
+                         if (submenu) { // Check if submenu exists
+                            submenu.style.maxHeight = null;
+                            submenu.style.paddingTop = null; 
+                            submenu.style.paddingBottom = null;
+                        }
+                    }
+                }
+            });
+        });
         
-        // Combined and refined smooth scroll logic
         document.addEventListener('DOMContentLoaded', function() {
-            // Smooth scroll for internal links (e.g. footer, navbar on homepage)
             document.querySelectorAll('a[href^="#"], .navbar-nav a[href*="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
                     let targetId = this.hash;
-                    let isCorrectPageForHash = true; // Assume true for simple hash links
+                    let isCorrectPageForHash = true; 
 
-                    // Special handling for navbar links pointing to homepage sections
                     if (this.closest('.navbar-nav')) {
                         const homepageUrl = "{{ url_for('stock_analysis_homepage_route') }}";
                         isCorrectPageForHash = (window.location.pathname === homepageUrl && targetId) || 
@@ -459,27 +580,25 @@
                             }
                             
                             window.scrollTo({
-                                top: targetElement.offsetTop - navbarHeight - 20, // Adjusted offset
+                                top: targetElement.offsetTop - navbarHeight - 20, 
                                 behavior: 'smooth'
                             });
 
-                            // Close mobile navbar if open
-                            const navbarNav = document.getElementById('navbarNav');
                             if (navbarNav && navbarNav.classList.contains('active')) {
-                                navbarNav.classList.remove('active');
+                                toggleNavbar(); 
                             }
                         }
                     } else if (targetId === '#' && isCorrectPageForHash) {
-                        e.preventDefault(); // Prevent jumping to top for href="#"
+                         e.preventDefault(); 
                     }
-                    // If not isCorrectPageForHash, let the default browser navigation handle it (e.g. to another page)
                 });
             });
 
-            // Prevent default for dropdown toggles if they are just href="#"
-            document.querySelectorAll('.dropdown-toggle[href="#"]').forEach(toggle => {
+            document.querySelectorAll('.nav-item.dropdown > .dropdown-toggle[href="#"]').forEach(toggle => {
                 toggle.addEventListener('click', function(e){
-                    e.preventDefault();
+                    if (window.innerWidth > 992) { 
+                        e.preventDefault();
+                    }
                 });
             });
         });
@@ -493,35 +612,24 @@
     {% block scripts_extra %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Animation script from landing-page.html
             const animateElements = document.querySelectorAll('.animate');
             
             function checkIfInView() {
                 const windowHeight = window.innerHeight || document.documentElement.clientHeight;
                 animateElements.forEach(element => {
                     const rect = element.getBoundingClientRect();
-                    
                     if (rect.top <= windowHeight * 0.85 && rect.bottom >= 0 && rect.left <= window.innerWidth && rect.right >=0) {
-                        
                         if (!element.classList.contains('animation-activated')) {
-                             
-                             element.classList.add('animation-activated'); // Mark as handled by JS scroll check
+                             element.classList.add('animation-activated'); 
                         }
                     }
                 });
             }
             
             if (animateElements.length > 0) {
-                // Set initial state for elements that will be animated on scroll,
-                // if they don't have the .animate class from the start.
-                // Or, if .animate sets opacity:0 initially.
-                // The current .animate has `animation: fadeIn ...` which starts from opacity 0.
                 window.addEventListener('scroll', checkIfInView);
-                checkIfInView(); // Initial check for elements already in view
+                checkIfInView(); 
             }
-
-            // Smooth scroll from landing-page.html (now integrated into the main DOMContentLoaded listener above)
-            // The combined scroll logic above is more robust for handling different types of hash links.
         });
     </script>
     {% endblock %}
