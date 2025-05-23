@@ -1,6 +1,7 @@
 # main_portal_app.py
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_from_directory
+from flask_socketio import SocketIO, emit, join_room, leave_room
 import os
 import json
 import sys
@@ -13,31 +14,30 @@ import re # For basic URL validation
 import traceback
 
 
-FIREBASE_INITIALIZED_SUCCESSFULLY = True # Placeholder
-AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True # Placeholder
-PIPELINE_IMPORTED_SUCCESSFULLY = True # Placeholder
+FIREBASE_INITIALIZED_SUCCESSFULLY = True 
+AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True 
+PIPELINE_IMPORTED_SUCCESSFULLY = True 
 
 try:
     from firebase_admin_setup import initialize_firebase_admin, verify_firebase_token, get_firestore_client
     initialize_firebase_admin()
-    from firebase_admin_setup import _firebase_app_initialized # Assuming this exposes the status
+    from firebase_admin_setup import _firebase_app_initialized 
     FIREBASE_INITIALIZED_SUCCESSFULLY = _firebase_app_initialized
     if not FIREBASE_INITIALIZED_SUCCESSFULLY:
         print("CRITICAL: Firebase Admin SDK initialized according to firebase_admin_setup, but _firebase_app_initialized is False.")
 except ImportError as e_fb_admin:
     print(f"CRITICAL: Failed to import or initialize Firebase Admin from firebase_admin_setup: {e_fb_admin}")
     FIREBASE_INITIALIZED_SUCCESSFULLY = False
-    # Dummy functions if firebase_admin_setup fails
     def verify_firebase_token(token): print("Firebase dummy: verify_firebase_token called"); return None
     def get_firestore_client(): print("Firebase dummy: get_firestore_client called"); return None
 
 try:
-    import auto_publisher # Your auto_publisher module
+    import auto_publisher 
     AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True
 except ImportError as e_ap:
     print(f"CRITICAL: Failed to import auto_publisher.py: {e_ap}")
     AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = False
-    class MockAutoPublisher: # Simplified mock
+    class MockAutoPublisher: 
         ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP = 10
         def load_state(self, user_uid=None, current_profile_ids_from_run=None): return {}
         def trigger_publishing_run(self, *args, **kwargs): print("MockAutoPublisher: trigger_publishing_run called"); return {}
@@ -45,13 +45,21 @@ except ImportError as e_ap:
 
 
 try:
-    from pipeline import run_pipeline, run_wp_pipeline # Your pipeline module
+    from pipeline import run_pipeline, run_wp_pipeline 
     PIPELINE_IMPORTED_SUCCESSFULLY = True
 except ImportError as e_pipeline:
     print(f"CRITICAL: Failed to import pipeline.py: {e_pipeline}")
     PIPELINE_IMPORTED_SUCCESSFULLY = False
-    def run_pipeline(*args, **kwargs): print("Mock Pipeline: run_pipeline called"); return None, None, "Error: Mock Stock Analysis Pipeline not available", None
-    def run_wp_pipeline(*args, **kwargs): print("Mock Pipeline: run_wp_pipeline called"); return None, None, "Error: Mock WordPress Asset Pipeline not available", {}
+    def run_pipeline(*args, socketio_instance=None, task_room=None, **kwargs): 
+        print("Mock Pipeline: run_pipeline called"); 
+        if socketio_instance and task_room:
+            socketio_instance.emit('analysis_error', {'message': 'Stock Analysis service is temporarily unavailable (mocked).', 'ticker': args[0] if args else 'N/A'}, room=task_room)
+        return None, None, "Error: Mock Stock Analysis Pipeline not available", None
+    def run_wp_pipeline(*args, socketio_instance=None, task_room=None, **kwargs): 
+        print("Mock Pipeline: run_wp_pipeline called"); 
+        if socketio_instance and task_room:
+            socketio_instance.emit('wp_asset_error', {'message': 'WordPress Asset service is temporarily unavailable (mocked).', 'ticker': args[0] if args else 'N/A'}, room=task_room)
+        return None, None, "Error: Mock WordPress Asset Pipeline not available", {}
 
 
 load_dotenv()
@@ -73,6 +81,9 @@ ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
+socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
+
+
 for folder_path in [UPLOAD_FOLDER, STATIC_FOLDER_PATH, STOCK_REPORTS_PATH]:
     if not os.path.exists(folder_path):
         try:
@@ -89,7 +100,7 @@ def inject_globals_and_helpers():
         'user_email': session.get('firebase_user_email'),
         'user_displayName': session.get('firebase_user_displayName'),
         'FIREBASE_INITIALIZED_SUCCESSFULLY': FIREBASE_INITIALIZED_SUCCESSFULLY,
-        'zip': zip # Adding zip for iterating multiple lists in templates if needed
+        'zip': zip 
     }
 
 @app.template_filter('format_datetime')
@@ -98,22 +109,20 @@ def format_datetime_filter(value, fmt="%Y-%m-%d %H:%M:%S"):
     try:
         if isinstance(value, str):
             dt_obj = datetime.fromisoformat(value.replace('Z', '+00:00')) if value.endswith('Z') else datetime.fromisoformat(value)
-        elif isinstance(value, (int, float)): # Handle timestamps
-            # Attempt to determine if it's seconds or milliseconds
-            if value > 10**10: # Likely milliseconds
+        elif isinstance(value, (int, float)): 
+            if value > 10**10: 
                  dt_obj = datetime.fromtimestamp(value / 1000, timezone.utc)
-            else: # Likely seconds
+            else: 
                  dt_obj = datetime.fromtimestamp(value, timezone.utc)
         elif isinstance(value, datetime):
             dt_obj = value
-        # Handling Firestore Timestamp (google.cloud.firestore_v1.base_timestamp.Timestamp)
-        elif hasattr(value, 'seconds') and hasattr(value, 'nanoseconds'): # Heuristic for Firestore Timestamp
+        elif hasattr(value, 'seconds') and hasattr(value, 'nanoseconds'): 
             dt_obj = datetime.fromtimestamp(value.seconds + value.nanoseconds / 1e9, timezone.utc)
         else:
-            return value # Fallback for unknown types
+            return value 
         
         if dt_obj.tzinfo is None:
-            dt_obj = dt_obj.replace(tzinfo=timezone.utc) # Assume UTC if naive
+            dt_obj = dt_obj.replace(tzinfo=timezone.utc) 
         
         return dt_obj.strftime(fmt)
     except (ValueError, AttributeError, TypeError) as e:
@@ -160,7 +169,6 @@ def get_user_site_profiles_from_firestore(user_uid):
         for profile_doc in profiles_ref:
             profile_data = profile_doc.to_dict()
             profile_data['profile_id'] = profile_doc.id
-            # Ensure authors is a list
             if 'authors' not in profile_data or not isinstance(profile_data['authors'], list):
                 profile_data['authors'] = []
             profiles.append(profile_data)
@@ -177,16 +185,15 @@ def save_user_site_profile_to_firestore(user_uid, profile_data):
         now_iso = datetime.now(timezone.utc).isoformat()
         profile_data['last_updated_at'] = now_iso
         if 'authors' not in profile_data or not isinstance(profile_data['authors'], list):
-            profile_data['authors'] = [] # Ensure authors is always a list
+            profile_data['authors'] = [] 
 
         if profile_id_to_save:
             doc_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').document(profile_id_to_save)
-            doc_ref.set(profile_data, merge=True) # Use set with merge=True for updates
+            doc_ref.set(profile_data, merge=True) 
             app.logger.info(f"Updated site profile {profile_id_to_save} for user {user_uid} in Firestore.")
             return profile_id_to_save
         else:
             profile_data['created_at'] = now_iso
-            # Generate a new document ID if not provided (Firestore handles this)
             new_doc_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').document()
             new_doc_ref.set(profile_data)
             profile_id_new = new_doc_ref.id
@@ -223,16 +230,12 @@ def get_automation_shared_context(user_uid, profiles_list):
     return context
 
 def is_valid_url(url_string):
-    if not url_string:
-        return False
-    if not (url_string.startswith('http://') or url_string.startswith('https://')):
-        return False
+    if not url_string: return False
+    if not (url_string.startswith('http://') or url_string.startswith('https://')): return False
     try:
         domain_part = url_string.split('//')[1].split('/')[0]
-        if '.' not in domain_part or len(domain_part) < 3:
-            return False
-    except IndexError:
-        return False
+        if '.' not in domain_part or len(domain_part) < 3: return False
+    except IndexError: return False
     return True
 
 # --- Core Application Routes ---
@@ -244,9 +247,9 @@ def stock_analysis_homepage_route():
 @login_required
 def dashboard_page():
     user_uid = session.get('firebase_user_uid')
-    report_history, total_reports = [], 0 # Default values
+    report_history, total_reports = [], 0 
     if user_uid:
-        report_history, total_reports = get_report_history_for_user(user_uid, display_limit=10) # Get last 10 reports
+        report_history, total_reports = get_report_history_for_user(user_uid, display_limit=10) 
     return render_template('dashboard.html',
                            title="Dashboard - Tickzen",
                            report_history=report_history,
@@ -257,25 +260,40 @@ def dashboard_page():
 def analyzer_input_page():
     return render_template('analyzer_input.html', title="Stock Analyzer Input")
 
-# === Modify the /start-analysis route ===
 @app.route('/start-analysis', methods=['POST'])
 def start_stock_analysis():
     ticker = request.form.get('ticker', '').strip().upper()
-    app.logger.info(f"\n--- Received /start-analysis for ticker: {ticker} ---")
-    valid_ticker_pattern = r'^[A-Z0-9\^.-]{1,10}$' # Regex for typical stock tickers
+    
+    room_id = session.get('firebase_user_uid') 
+    client_sid_from_form = request.form.get('client_sid') 
+
+    if not room_id and client_sid_from_form: 
+        room_id = client_sid_from_form
+        app.logger.info(f"Anonymous analysis task. Using client_sid {room_id} as room.")
+    elif not room_id and not client_sid_from_form: 
+        room_id = "task_room_" + str(int(time.time())) 
+        app.logger.warning(f"No user UID or client SID for analysis task. Generated room_id: {room_id}")
+    
+    app.logger.info(f"\n--- Received /start-analysis for ticker: {ticker} (Target Room: {room_id}) ---")
+    
+    valid_ticker_pattern = r'^[A-Z0-9\^.-]{1,10}$' 
     if not ticker or not re.match(valid_ticker_pattern, ticker):
         flash(f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, ^GSPC).", "danger")
-        return redirect(url_for('analyzer_input_page'))
+        socketio.emit('analysis_error', {'message': f"Invalid ticker format: '{ticker}'.", 'ticker': ticker}, room=room_id)
+        return redirect(url_for('analyzer_input_page')) 
 
     if not PIPELINE_IMPORTED_SUCCESSFULLY:
         flash("The Stock Analysis service is temporarily unavailable. Please try again later.", "danger")
+        socketio.emit('analysis_error', {'message': 'Stock Analysis service is temporarily unavailable.', 'ticker': ticker}, room=room_id)
         return redirect(url_for('analyzer_input_page'))
 
     try:
-        request_timestamp_for_report = int(time.time()) # Use this for report generation and history
-        app.logger.info(f"Running full stock analysis for ticker {ticker} with timestamp {request_timestamp_for_report}...")
-
-        pipeline_result = run_pipeline(ticker, str(request_timestamp_for_report), APP_ROOT)
+        request_timestamp_for_report = int(time.time()) 
+        app.logger.info(f"Running full stock analysis for ticker {ticker} (Timestamp: {request_timestamp_for_report}) for room {room_id}...")
+        
+        # Run the pipeline. It will emit progress updates using socketio.
+        pipeline_result = run_pipeline(ticker, str(request_timestamp_for_report), APP_ROOT, 
+                                       socketio_instance=socketio, task_room=room_id)
         
         report_html_content_from_pipeline = None
         path_info_from_pipeline = None
@@ -288,7 +306,6 @@ def start_stock_analysis():
             if isinstance(report_html_content_from_pipeline, str) and \
                "<html" in report_html_content_from_pipeline.lower() and \
                "Error Generating Report" not in report_html_content_from_pipeline:
-                
                 generated_filename = f"{ticker}_report_dynamic_{request_timestamp_for_report}.html"
                 absolute_report_filepath_on_disk = os.path.join(STOCK_REPORTS_PATH, generated_filename)
                 try:
@@ -297,61 +314,52 @@ def start_stock_analysis():
                     report_filename_for_url = generated_filename 
                     app.logger.info(f"HTML content from pipeline saved to: {absolute_report_filepath_on_disk}")
                 except Exception as e_save:
-                    app.logger.error(f"Could not save HTML content from pipeline for {ticker}: {e_save}. Will try path_info if available.")
+                    app.logger.error(f"Could not save HTML content for {ticker}: {e_save}. Will try path_info.")
             
             if not report_filename_for_url and isinstance(path_info_from_pipeline, str) and path_info_from_pipeline.endswith(".html"):
                 if os.path.isabs(path_info_from_pipeline) and path_info_from_pipeline.startswith(STOCK_REPORTS_PATH):
                     if os.path.exists(path_info_from_pipeline):
                         absolute_report_filepath_on_disk = path_info_from_pipeline
                         report_filename_for_url = os.path.relpath(absolute_report_filepath_on_disk, STOCK_REPORTS_PATH).replace(os.sep, '/')
-                        app.logger.info(f"Using existing absolute report file from pipeline: {absolute_report_filepath_on_disk}. Relative for URL: {report_filename_for_url}")
-                    else:
-                        app.logger.warning(f"Absolute path from pipeline {path_info_from_pipeline} does not exist.")
+                    else: app.logger.warning(f"Absolute path from pipeline {path_info_from_pipeline} does not exist.")
                 else:
                     potential_filename_for_url = path_info_from_pipeline.lstrip(os.sep).replace(os.sep, '/')
                     if potential_filename_for_url.startswith(STOCK_REPORTS_SUBDIR + '/'):
                         potential_filename_for_url = potential_filename_for_url[len(STOCK_REPORTS_SUBDIR)+1:]
                     potential_abs_path_in_reports_dir = os.path.join(STOCK_REPORTS_PATH, potential_filename_for_url)
-
                     if os.path.exists(potential_abs_path_in_reports_dir):
                         absolute_report_filepath_on_disk = potential_abs_path_in_reports_dir
-                        report_filename_for_url = potential_filename_for_url 
-                        app.logger.info(f"Using report file: {absolute_report_filepath_on_disk} (derived from path_info: '{path_info_from_pipeline}')")
-                    elif os.path.isabs(path_info_from_pipeline): 
-                         app.logger.warning(f"Absolute path_info {path_info_from_pipeline} not in STOCK_REPORTS_PATH and its interpretation as '{potential_filename_for_url}' not found in STOCK_REPORTS_PATH.")
-                    else: 
-                        app.logger.warning(f"Report file from relative path_info ('{path_info_from_pipeline}') interpreted as '{potential_filename_for_url}' not found in {STOCK_REPORTS_PATH}.")
+                        report_filename_for_url = potential_filename_for_url
+                    else: app.logger.warning(f"Report file from path_info '{path_info_from_pipeline}' as '{potential_filename_for_url}' not found.")
 
             if not report_filename_for_url:
-                error_detail = f"Pipeline output was unclear or report file could not be located/processed. Path: '{path_info_from_pipeline}', HTML content (start): '{str(report_html_content_from_pipeline)[:100]}...'"
-                app.logger.error(error_detail)
-                raise ValueError("Stock analysis report generation failed: " + error_detail)
-        
+                error_detail = f"Pipeline output unclear or report file missing. Path: '{path_info_from_pipeline}'"
+                socketio.emit('analysis_error', {'message': "Report generation failed (file path issue).", 'ticker': ticker}, room=room_id)
+                raise ValueError("Stock analysis report path issue: " + error_detail)
         else: 
-            app.logger.error(f"Unexpected or empty result structure from run_pipeline: {pipeline_result}")
+            socketio.emit('analysis_error', {'message': "Pipeline did not return expected result.", 'ticker': ticker}, room=room_id)
             raise ValueError("Stock analysis pipeline did not return the expected result.")
 
         if not (report_filename_for_url and absolute_report_filepath_on_disk and os.path.exists(absolute_report_filepath_on_disk)):
-            app.logger.error(f"Post-processing: Report filename for URL or absolute disk path is invalid or file does not exist. URL Filename: '{report_filename_for_url}', Disk Path: '{absolute_report_filepath_on_disk}'")
-            raise ValueError("Report generation was unsuccessful or the final report path is invalid.")
+            socketio.emit('analysis_error', {'message': "Report file invalid post-generation.", 'ticker': ticker}, room=room_id)
+            raise ValueError("Report generation unsuccessful or final report path invalid.")
 
-        # --- SAVE TO HISTORY ---
-        if 'firebase_user_uid' in session and report_filename_for_url:
-            user_uid = session['firebase_user_uid']
-            # Use the same timestamp that was used for the report filename for consistency
+        user_uid_for_history = session.get('firebase_user_uid')
+        if user_uid_for_history and report_filename_for_url:
             generated_at_dt = datetime.fromtimestamp(request_timestamp_for_report, timezone.utc)
-            save_report_to_history(user_uid, ticker, report_filename_for_url, generated_at_dt)
-            app.logger.info(f"Attempted to save report to history for user {user_uid}, ticker {ticker}, filename {report_filename_for_url}")
-        # --- END SAVE TO HISTORY ---
+            save_report_to_history(user_uid_for_history, ticker, report_filename_for_url, generated_at_dt)
 
         view_report_url = url_for('view_generated_report', ticker=ticker, filename=report_filename_for_url)
-        app.logger.info(f"Redirecting to new report viewer for {ticker}. Filename: '{report_filename_for_url}'. Viewer URL: {view_report_url}")
-        return redirect(view_report_url)
+        app.logger.info(f"Analysis for {ticker} complete. Signaling client in room {room_id} to redirect to: {view_report_url}")
+        socketio.emit('analysis_complete', {'report_url': view_report_url, 'ticker': ticker}, room=room_id)
+        
+        return jsonify({'status': 'analysis_completed_redirect_via_socket', 'ticker': ticker, 'report_url': view_report_url}), 200
 
     except Exception as e:
         app.logger.error(f"Error during stock analysis for {ticker}: {e}", exc_info=True)
-        flash(f"An error occurred while analyzing {ticker}: {str(e)[:150]}...", "danger")
-        return redirect(url_for('analyzer_input_page'))
+        socketio.emit('analysis_error', {'message': str(e)[:150] + "...", 'ticker': ticker}, room=room_id)
+        flash(f"An error occurred while analyzing {ticker}: {str(e)[:150]}...", "danger") 
+        return jsonify({'status': 'error', 'message': f"Error analyzing {ticker}: {str(e)[:150]}..."}), 500
 
 
 # --- REPORT VIEWING ROUTES ---
@@ -409,6 +417,11 @@ def verify_token_route():
 
 @app.route('/logout')
 def logout():
+    user_uid = session.get('firebase_user_uid') # Get UID before clearing session
+    if user_uid:
+        app.logger.info(f"User {user_uid} logging out. Client {request.sid if hasattr(request, 'sid') else '(no socket SID in HTTP context)'} should handle disconnect.")
+        # No need to explicitly call leave_room here for HTTP route;
+        # SocketIO handles room cleanup on client disconnect.
     session.clear()
     flash("You have been successfully logged out.", "info")
     return redirect(url_for('stock_analysis_homepage_route')) 
@@ -743,7 +756,6 @@ def delete_site_profile(profile_id_to_delete):
 
 # --- REPORT HISTORY MANAGEMENT ---
 def save_report_to_history(user_uid, ticker, filename, generated_at_dt):
-    """Saves a record of a generated report to Firestore."""
     if not FIREBASE_INITIALIZED_SUCCESSFULLY:
         app.logger.error("Firestore not available for saving report history.")
         return False
@@ -753,13 +765,12 @@ def save_report_to_history(user_uid, ticker, filename, generated_at_dt):
         return False
     try:
         reports_history_collection = db.collection(u'userGeneratedReports')
-        # Ensure generated_at_dt is timezone-aware (UTC) before saving
         if generated_at_dt.tzinfo is None:
             generated_at_dt = generated_at_dt.replace(tzinfo=timezone.utc)
 
         reports_history_collection.add({
             u'user_uid': user_uid,
-            u'ticker': ticker.upper(), # Store ticker in uppercase for consistency
+            u'ticker': ticker.upper(), 
             u'filename': filename,
             u'generated_at': generated_at_dt 
         })
@@ -770,7 +781,6 @@ def save_report_to_history(user_uid, ticker, filename, generated_at_dt):
         return False
 
 def get_report_history_for_user(user_uid, display_limit=10):
-    """Fetches report history for a user and the total count of their reports."""
     if not FIREBASE_INITIALIZED_SUCCESSFULLY:
         app.logger.error(f"Firestore not available for fetching report history for user {user_uid}.")
         return [], 0
@@ -784,48 +794,33 @@ def get_report_history_for_user(user_uid, display_limit=10):
     
     try:
         base_query = db.collection(u'userGeneratedReports').where(u'user_uid', u'==', user_uid)
-        
-        # Efficiently count documents (if supported by Firestore client library version for direct count)
-        # Otherwise, streaming all and counting is a fallback.
-        # For very large collections, consider maintaining a counter in a separate document.
         try:
-            count_query = base_query.count() # Attempt to use aggregate count
+            count_query = base_query.count() 
             count_result = count_query.get()
             total_user_reports_count = count_result[0][0].value if count_result else 0
-        except AttributeError: # Fallback if .count() is not available or behaves differently
-            app.logger.warning("Firestore count() aggregate not available or failed, falling back to streaming for count.")
+        except AttributeError: 
+            app.logger.warning("Firestore count() aggregate not available, falling back to streaming for count.")
             all_user_reports_stream = base_query.stream()
-            all_user_reports_docs = list(all_user_reports_stream) # Consume stream to count
+            all_user_reports_docs = list(all_user_reports_stream) 
             total_user_reports_count = len(all_user_reports_docs)
-            # If we fell back, we already have the docs, so we can sort these instead of re-querying
-            # However, the original logic sorted after fetching with limit, which is more efficient.
-            # To maintain that, we will re-query with ordering and limit if we used the fallback.
-            # For simplicity here, if fallback used, we sort 'all_user_reports_docs' if display_limit is large.
-            # But ideally, we always use a query with orderBy and limit for display.
 
-        # Query for display with ordering and limit
         display_query = base_query.order_by(u'generated_at', direction='DESCENDING').limit(display_limit)
         docs_for_display_stream = display_query.stream()
 
         for doc_snapshot in docs_for_display_stream:
             report_data = doc_snapshot.to_dict()
             report_data['id'] = doc_snapshot.id 
-            
-            # Ensure 'generated_at' is a datetime object for the template filter
             generated_at_val = report_data.get('generated_at')
-            if hasattr(generated_at_val, 'seconds'): # Firestore Timestamp
+            if hasattr(generated_at_val, 'seconds'): 
                  report_data['generated_at'] = datetime.fromtimestamp(generated_at_val.seconds + generated_at_val.nanoseconds / 1e9, timezone.utc)
-            elif isinstance(generated_at_val, (int, float)): # Unix timestamp (seconds or ms)
-                if generated_at_val > 10**10: # Likely ms
+            elif isinstance(generated_at_val, (int, float)): 
+                if generated_at_val > 10**10: 
                     report_data['generated_at'] = datetime.fromtimestamp(generated_at_val / 1000, timezone.utc)
-                else: # Likely s
+                else: 
                     report_data['generated_at'] = datetime.fromtimestamp(generated_at_val, timezone.utc)
-
             reports_for_display.append(report_data)
-                
-        app.logger.info(f"Fetched {len(reports_for_display)} report history items for user {user_uid} (Display Limit: {display_limit}, Total Found: {total_user_reports_count}).")
+        app.logger.info(f"Fetched {len(reports_for_display)} reports for user {user_uid} (Limit: {display_limit}, Total: {total_user_reports_count}).")
         return reports_for_display, total_user_reports_count
-        
     except Exception as e:
         app.logger.error(f"Error fetching report history for user {user_uid}: {e}", exc_info=True)
         return [], 0
@@ -910,7 +905,8 @@ def run_automation_now():
             selected_profiles_data, 
             articles_map,
             custom_tickers_by_profile_id=custom_tickers_map,
-            uploaded_file_details_by_profile_id=uploaded_files_map
+            uploaded_file_details_by_profile_id=uploaded_files_map,
+            socketio_instance=socketio # Pass socketio instance
         )
         if results:
             for pid_res, res_data in results.items():
@@ -941,7 +937,7 @@ def run_automation_now():
 @app.route('/wp-asset-generator')
 @login_required
 def wp_generator_page():
-    return render_template('wp-asset.html', title="WordPress Asset Generator - Tickzen")
+    return render_template('wp_generator.html', title="WordPress Asset Generator - Tickzen")
 
 @app.route('/generate-wp-assets', methods=['POST'])
 @login_required
@@ -952,47 +948,97 @@ def generate_wp_assets():
 
     data = request.get_json()
     ticker = data.get('ticker', '').strip().upper()
+    
+    room_id = session.get('firebase_user_uid', data.get('client_sid')) 
+    if not room_id: room_id = "wp_asset_task_" + str(int(time.time()))
+    app.logger.info(f"WP Asset request for {ticker} (Room: {room_id})")
+
 
     valid_ticker_pattern = r'^[A-Z0-9\^.-]{1,10}$'
     if not ticker or not re.match(valid_ticker_pattern, ticker):
+        socketio.emit('wp_asset_error', {'message': f"Invalid ticker: '{ticker}'.", 'ticker': ticker}, room=room_id)
         return jsonify({'status': 'error', 'message': f"Invalid ticker symbol: '{ticker}'. Please use standard symbols."}), 400
 
     if not PIPELINE_IMPORTED_SUCCESSFULLY:
+        socketio.emit('wp_asset_error', {'message': 'WP Asset service unavailable.', 'ticker': ticker}, room=room_id)
         return jsonify({'status': 'error', 'message': 'WordPress Asset generation service is temporarily unavailable.'}), 503
 
     try:
         timestamp = str(int(time.time()))
         app.logger.info(f"Running WordPress asset pipeline for ticker: {ticker} (Timestamp: {timestamp})...")
 
-        model_obj, forecast_obj, html_report_fragment, img_urls_dict = run_wp_pipeline(ticker, timestamp, APP_ROOT)
+        model_obj, forecast_obj, html_report_fragment, img_urls_dict = run_wp_pipeline(
+            ticker, timestamp, APP_ROOT, socketio_instance=socketio, task_room=room_id
+        )
 
         if not isinstance(img_urls_dict, dict):
-            app.logger.warning(f"run_wp_pipeline for {ticker} returned img_urls not as dict: {type(img_urls_dict)}. Defaulting to empty.")
+            app.logger.warning(f"run_wp_pipeline for {ticker} returned img_urls not as dict: {type(img_urls_dict)}. Defaulting.")
             img_urls_dict = {} 
 
         if html_report_fragment and "Error Generating Report" not in html_report_fragment:
             duration = time.time() - start_time
             app.logger.info(f"WordPress asset pipeline for {ticker} completed in {duration:.2f}s.")
-            
-            return jsonify({
-                'status': 'success',
-                'ticker': ticker,
-                'report_html': html_report_fragment,
-                'chart_urls': img_urls_dict, 
+            result_payload = {
+                'status': 'success', 'ticker': ticker,
+                'report_html': html_report_fragment, 'chart_urls': img_urls_dict, 
                 'duration': f"{duration:.2f}s"
-            })
+            }
+            socketio.emit('wp_asset_complete', result_payload, room=room_id)
+            return jsonify(result_payload)
         else:
-            error_detail = f"WordPress Asset HTML generation failed or returned error. Detail: {str(html_report_fragment)[:200]}"
-            app.logger.error(error_detail)
+            error_detail = f"WP Asset HTML generation failed. Detail: {str(html_report_fragment)[:200]}"
+            socketio.emit('wp_asset_error', {'message': error_detail, 'ticker': ticker}, room=room_id)
             raise ValueError(error_detail)
 
     except Exception as e:
         app.logger.error(f"Error in /generate-wp-assets for ticker {ticker}: {e}", exc_info=True)
+        socketio.emit('wp_asset_error', {'message': f"Server error for {ticker}.", 'ticker': ticker}, room=room_id)
         return jsonify({'status': 'error', 'message': f"A server error occurred while generating assets for {ticker}."}), 500
+
+
+# --- WebSocket Event Handlers ---
+@socketio.on('connect')
+def handle_connect():
+    user_uid = session.get('firebase_user_uid')
+    if user_uid:
+        join_room(user_uid) 
+        app.logger.info(f"Client {request.sid} connected and joined room: {user_uid}")
+        emit('status', {'message': f'Connected to real-time updates! Your room is {user_uid}.'}, room=request.sid)
+    else:
+        app.logger.info(f"Client {request.sid} connected (anonymous or pre-login).")
+        emit('status', {'message': 'Connected! Please login to use personalized features.'}, room=request.sid)
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    user_uid = session.get('firebase_user_uid')
+    if user_uid:
+        leave_room(user_uid) 
+        app.logger.info(f"Client {request.sid} disconnected and left room: {user_uid}")
+    else:
+        app.logger.info(f"Client {request.sid} disconnected (anonymous or pre-login).")
+
+# Example explicit room join from client (if needed for tasks not tied to user UID directly)
+@socketio.on('join_task_room')
+def handle_join_task_room(data):
+    task_room_id = data.get('room_id')
+    if task_room_id:
+        join_room(task_room_id)
+        app.logger.info(f"Client {request.sid} explicitly joined task room: {task_room_id}")
+        emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=request.sid)
 
 
 #--- Main Execution ---
 if __name__ == '__main__':
+    # Ensure app and socketio are defined before this block if they come from top-level
+    # This check is more for safety in case of partial script execution context
+    try:
+        app 
+        socketio
+    except NameError:
+        print("CRITICAL: Flask app or SocketIO instance not defined before __main__ block. Exiting.")
+        exit(1)
+        
     app.logger.info(f"Current CWD: {os.getcwd()}")
     app.logger.info(f"APP_ROOT: {APP_ROOT}, Static: {app.static_folder}, Templates: {app.template_folder}")
     app.logger.info(f"Stock reports save path: {STOCK_REPORTS_PATH}")
@@ -1006,5 +1052,9 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000)) 
     debug_mode = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
     
-    app.run(debug=debug_mode, host='0.0.0.0', port=port, threaded=True, use_reloader=debug_mode)
-
+    app.logger.info(f"Attempting to start Flask-SocketIO server on http://0.0.0.0:{port} (Debug: {debug_mode})")
+    try:
+        socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=debug_mode, allow_unsafe_werkzeug=True if debug_mode else False)
+    except Exception as e_run:
+        app.logger.error(f"CRITICAL: Failed to start Flask-SocketIO server: {e_run}", exc_info=True)
+        print(f"CRITICAL: Server could not start. Check logs. Error: {e_run}")

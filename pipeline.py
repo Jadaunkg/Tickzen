@@ -1,323 +1,264 @@
-# pipeline.py (This version is compatible with main_portal_app.py's expectations)
+# pipeline.py
 import os
 import time
 import traceback
 import re
-import logging # Added for logging within pipeline if needed
-from datetime import datetime, date # Added for daily cache management
+import logging 
+from datetime import datetime, date 
 
 import pandas as pd
 import yfinance as yf
 
-# Assuming config.py and other local modules are in the correct path
-from config import TICKERS # Used for standalone testing in __main__
+from config import TICKERS 
 from data_collection import fetch_stock_data
 from macro_data import fetch_macro_indicators
 from data_preprocessing import preprocess_data
 from prophet_model import train_prophet_model
-# Ensure this import matches your report generator module and function name
 from report_generator import create_full_report, create_wordpress_report_assets
 
-# Configure logging if needed within the pipeline itself
-# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-# logger = logging.getLogger(__name__)
+pipeline_logger = logging.getLogger(__name__)
+if not pipeline_logger.handlers: 
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - PIPELINE - %(levelname)s - %(message)s')
 
-# Helper function for processed data file paths
+
 def _get_processed_data_filepath(ticker, app_root):
-    """Constructs the daily-stamped path for processed data CSV in data_cache."""
     today_str = date.today().strftime('%Y-%m-%d')
     cache_dir = os.path.join(app_root, 'data_cache')
     os.makedirs(cache_dir, exist_ok=True)
     return os.path.join(cache_dir, f"{ticker}_processed_data_{today_str}.csv")
 
-# --- Original pipeline function (for full HTML reports) ---
-def run_pipeline(ticker, ts, app_root):
-    """
-    Runs the full analysis pipeline for a given stock ticker.
-    Relies on fetch functions for caching, passing app_root for path consistency.
-    """
-    # reports_dir_path = os.path.join(app_root, 'static', 'stock_reports')
-    # os.makedirs(reports_dir_path, exist_ok=True) # Directory created by report_generator
+def _emit_progress(socketio_instance, task_room, progress, message, stage_detail="", ticker="N/A", event_name='analysis_progress'):
+    if socketio_instance and task_room:
+        payload = {'progress': progress, 'message': message, 'stage': stage_detail, 'ticker': ticker}
+        pipeline_logger.info(f"Emitting to room '{task_room}' (Event: {event_name}): {payload}")
+        socketio_instance.emit(event_name, payload, room=task_room)
+        socketio_instance.sleep(0.05) 
+    elif socketio_instance: 
+        pipeline_logger.warning(f"Task room not specified for {event_name}, emitting globally for ticker {ticker}: {message}")
+        socketio_instance.emit(event_name, {'progress': progress, 'message': message, 'stage': stage_detail, 'ticker': ticker})
+        socketio_instance.sleep(0.05)
+    else:
+        pipeline_logger.info(f"Progress for {ticker} (No SocketIO - Event: {event_name}): {progress}% - {message} ({stage_detail})")
 
-    processed_filepath = None # Will store the path to the processed CSV for potential cleanup
+
+def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
+    processed_filepath = None
     model = forecast = None
     report_path = report_html = None
+    event_name_progress = 'analysis_progress' 
+    event_name_error = 'analysis_error'     
 
     try:
-        print(f"\n----- Starting ORIGINAL pipeline for {ticker} -----")
+        pipeline_logger.info(f"\n----- Starting ORIGINAL pipeline for {ticker} (Room: {task_room}) -----")
+        _emit_progress(socketio_instance, task_room, 0, f"Initiating analysis for {ticker}...", "Initialization", ticker, event_name_progress)
+        
         valid_ticker_pattern = r'^[A-Z0-9\^.-]+$'
         if not ticker or not re.match(valid_ticker_pattern, ticker):
-            raise ValueError(f"[Original Pipeline] Invalid ticker format: {ticker}.")
+            raise ValueError(f"Invalid ticker format: {ticker}.")
 
-        # --- 1. Data Collection (Pass app_root) ---
-        # This function should handle its own caching based on current day
-        print("Step 1: Fetching stock data (checking cache)...")
-        stock_data = fetch_stock_data(ticker, app_root=app_root) # Pass app_root
+        _emit_progress(socketio_instance, task_room, 5, "Fetching stock data...", "Data Collection", ticker, event_name_progress)
+        stock_data = fetch_stock_data(ticker, app_root=app_root)
         if stock_data is None or stock_data.empty:
-            raise RuntimeError(f"Failed to fetch or load stock data for ticker: {ticker}.")
+            raise RuntimeError(f"Failed to fetch/load stock data for {ticker}.")
 
-        print("Step 1b: Fetching macroeconomic data (checking cache)...")
-        macro_data = fetch_macro_indicators(app_root=app_root) # Pass app_root
+        _emit_progress(socketio_instance, task_room, 10, "Fetching macroeconomic data...", "Data Collection", ticker, event_name_progress)
+        macro_data = fetch_macro_indicators(app_root=app_root)
         if macro_data is None or macro_data.empty:
-            print(f"Warning: Failed to fetch or load macroeconomic data for {ticker}. Proceeding without it.")
+            pipeline_logger.warning(f"Macro data fetch failed for {ticker}. Proceeding.")
 
-        # --- 2. Data Preprocessing (with caching for processed data) ---
+        _emit_progress(socketio_instance, task_room, 20, "Preprocessing data...", "Preprocessing", ticker, event_name_progress)
         processed_filepath = _get_processed_data_filepath(ticker, app_root)
         processed_data = None
-
         if os.path.exists(processed_filepath):
-            print(f"Step 2: Loading processed data for {ticker} from today's cache: {os.path.basename(processed_filepath)}")
+            pipeline_logger.info(f"Loading processed data for {ticker} from cache...")
             processed_data = pd.read_csv(processed_filepath)
-            # Ensure 'Date' column is datetime if loaded from CSV
             if 'Date' in processed_data.columns:
                 processed_data['Date'] = pd.to_datetime(processed_data['Date'])
-            # Additional check to ensure it's not empty after loading
-            if processed_data.empty:
-                 print(f"Warning: Cached processed data for {ticker} is empty. Reprocessing.")
-                 processed_data = None # Force reprocessing
+            if processed_data.empty: processed_data = None
         
-        if processed_data is None: # If not loaded from cache or cache was empty
-            print("Step 2: Preprocessing data...")
+        if processed_data is None:
+            pipeline_logger.info(f"Preprocessing data for {ticker}...")
             processed_data = preprocess_data(stock_data, macro_data if macro_data is not None else None)
             if processed_data is None or processed_data.empty:
                 raise RuntimeError(f"Preprocessing resulted in empty dataset for {ticker}.")
-            
-            # Save the newly processed data to cache
             processed_data.to_csv(processed_filepath, index=False)
-            print(f"   Saved new processed data -> {os.path.basename(processed_filepath)}")
+            pipeline_logger.info(f"Saved new processed data for {ticker}.")
 
-        # --- 3. Prophet Model Training & Aggregation ---
-        print("Step 3: Training Prophet model & predicting...")
+        _emit_progress(socketio_instance, task_room, 40, "Training predictive model...", "Model Training", ticker, event_name_progress)
         model, forecast, actual_df, forecast_df = train_prophet_model(
-            processed_data, ticker, forecast_horizon='1y', timestamp=ts
+            processed_data.copy(), ticker, forecast_horizon='1y', timestamp=ts
         )
         if model is None or forecast is None or actual_df is None or forecast_df is None:
             raise RuntimeError(f"Prophet model training or forecasting failed for {ticker}.")
-        print(f"   Model trained. Forecast generated for {len(forecast_df)} periods.")
+        pipeline_logger.info(f"Model trained for {ticker}. Forecast generated.")
 
-        # --- 4. Fetch Fundamentals ---
-        print("Step 4: Fetching fundamentals via yfinance...")
+        _emit_progress(socketio_instance, task_room, 60, "Fetching fundamental data...", "Fundamentals", ticker, event_name_progress)
         try:
             yf_ticker_obj = yf.Ticker(ticker)
-            info_data = {}
-            recs_data = pd.DataFrame()
-            news_data = []
-            try: info_data = yf_ticker_obj.info or {}
-            except Exception as info_err: print(f"   Warning: Could not fetch .info for {ticker}: {info_err}")
-            try: recs_data = yf_ticker_obj.recommendations if hasattr(yf_ticker_obj, 'recommendations') and yf_ticker_obj.recommendations is not None else pd.DataFrame()
-            except Exception as rec_err: print(f"   Warning: Could not fetch .recommendations for {ticker}: {rec_err}")
-            try: news_data = yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news is not None else []
-            except Exception as news_err: print(f"   Warning: Could not fetch .news for {ticker}: {news_err}")
-            
-            fundamentals = {
-                'info': info_data,
-                'recommendations': recs_data,
-                'news': news_data
-            }
-            if not fundamentals['info'].get('symbol'):
-                print(f"Warning: Could not fetch detailed info symbol for {ticker} via yfinance.")
+            info_data = yf_ticker_obj.info or {}
+            recs_data = yf_ticker_obj.recommendations if hasattr(yf_ticker_obj, 'recommendations') and yf_ticker_obj.recommendations is not None else pd.DataFrame()
+            news_data = yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news is not None else []
+            fundamentals = {'info': info_data, 'recommendations': recs_data, 'news': news_data}
         except Exception as yf_err:
-            print(f"Warning: Error fetching yfinance fundamentals object for {ticker}: {yf_err}.")
+            pipeline_logger.warning(f"yfinance fundamentals error for {ticker}: {yf_err}.")
             fundamentals = {'info': {}, 'recommendations': pd.DataFrame(), 'news': []}
 
-
-        # --- 5. Generate FULL HTML Report ---
-        print("Step 5: Generating FULL HTML report...")
+        _emit_progress(socketio_instance, task_room, 80, "Generating report components...", "Report Generation", ticker, event_name_progress)
         report_path, report_html = create_full_report(
             ticker=ticker, actual_data=actual_df, forecast_data=forecast_df,
-            historical_data=processed_data, fundamentals=fundamentals, ts=ts,
-            app_root=app_root # report_generator will save to static/stock_reports based on this
+            historical_data=processed_data.copy(), fundamentals=fundamentals, ts=ts,
+            app_root=app_root
         )
         if report_html is None or "Error Generating Report" in report_html:
-            raise RuntimeError(f"Original report generator failed or returned error HTML for {ticker}")
-        if report_path:
-            print(f"   Report saved -> {os.path.basename(report_path)}")
-        else:
-            print(f"   Report HTML generated, but failed to save file.")
+            raise RuntimeError(f"Report generator failed for {ticker}")
+        if report_path: pipeline_logger.info(f"Report saved for {ticker} -> {os.path.basename(report_path)}")
+        else: pipeline_logger.warning(f"Report HTML for {ticker} generated, but save failed.")
 
-        print(f"----- ORIGINAL Pipeline successful for {ticker} -----")
+        _emit_progress(socketio_instance, task_room, 100, "Analysis complete! Redirecting soon...", "Complete", ticker, event_name_progress)
+        pipeline_logger.info(f"----- ORIGINAL Pipeline successful for {ticker} -----")
         return model, forecast, report_path, report_html
 
-    except (ValueError, RuntimeError) as err:
-        print(f"----- ORIGINAL Pipeline Error for {ticker} -----")
-        print(f"Error: {err}")
-        return None, None, None, None # Return four values on error
-    except Exception as e:
-        print(f"----- ORIGINAL Pipeline failure for {ticker} -----")
-        print(f"Unexpected Error: {e}")
-        traceback.print_exc()
-        # No need to remove processed_csv here, as it's intended to be cached
-        return None, None, None, None # Return four values on error
+    except Exception as err:
+        pipeline_logger.error(f"----- ORIGINAL Pipeline Error for {ticker}: {err} -----", exc_info=True)
+        if socketio_instance and task_room:
+             socketio_instance.emit(event_name_error, {'message': str(err)[:150] + "...", 'ticker': ticker}, room=task_room)
+        return None, None, None, None 
 
 
-# --- WordPress Pipeline Function (Optimized for main_portal_app.py) ---
-def run_wp_pipeline(ticker, ts, app_root):
-    """
-    Runs the analysis pipeline specifically to generate WordPress assets.
-    Returns model, forecast, HTML content, and a dictionary of image URLs.
-    """
-    # static_dir_path = os.path.join(app_root, 'static')
-    # os.makedirs(static_dir_path, exist_ok=True) # No longer directly saving to static_dir_path here
+def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
+    pipeline_logger.info(f"\n>>>>> Starting WORDPRESS pipeline for {ticker} (Room: {task_room}) <<<<<")
+    event_name_progress = 'wp_asset_progress' 
+    event_name_error = 'wp_asset_error'     
 
-    processed_filepath = None # Will store the path to the processed CSV for potential cleanup
+    _emit_progress(socketio_instance, task_room, 0, f"Initiating WP asset generation for {ticker}", "WP Init", ticker, event_name_progress)
+    
+    processed_filepath = None
     text_report_html = None
-    image_urls = {} # Expecting a dictionary
+    image_urls_dict = {} 
     model = forecast = None
 
     try:
-        print(f"\n>>>>> Starting WORDPRESS pipeline for {ticker} <<<<<")
         valid_ticker_pattern = r'^[A-Z0-9\^.-]+$'
         if not ticker or not re.match(valid_ticker_pattern, ticker):
-            raise ValueError(f"[WP Pipeline] Invalid ticker format: {ticker}.")
+            raise ValueError(f"Invalid ticker format: {ticker}.")
 
-        # --- Steps 1-4: Data Fetching, Preprocessing, Model Training, Fundamentals ---
-        # (These steps are largely the same as the original pipeline, with caching)
-        print("WP Step 1: Fetching stock data (checking cache)...")
+        _emit_progress(socketio_instance, task_room, 5, "Fetching stock data for WP...", "WP Data Collection", ticker, event_name_progress)
         stock_data = fetch_stock_data(ticker, app_root=app_root)
         if stock_data is None or stock_data.empty: raise RuntimeError(f"Failed to fetch/load stock data for {ticker}.")
 
-        print("WP Step 1b: Fetching macroeconomic data (checking cache)...")
+        _emit_progress(socketio_instance, task_room, 10, "Fetching macro data for WP...", "WP Data Collection", ticker, event_name_progress)
         macro_data = fetch_macro_indicators(app_root=app_root)
-        if macro_data is None or macro_data.empty: print(f"Warning: Failed to fetch/load macro data for {ticker}.")
+        if macro_data is None or macro_data.empty: pipeline_logger.warning(f"WP Macro data fetch failed for {ticker}.")
 
-        # WP Step 2: Preprocessing data (with caching for processed data)
+        _emit_progress(socketio_instance, task_room, 20, "Preprocessing data for WP...", "WP Preprocessing", ticker, event_name_progress)
         processed_filepath = _get_processed_data_filepath(ticker, app_root)
         processed_data = None
-
         if os.path.exists(processed_filepath):
-            print(f"WP Step 2: Loading processed data for {ticker} from today's cache: {os.path.basename(processed_filepath)}")
+            pipeline_logger.info(f"Loading processed WP data for {ticker} from cache...")
             processed_data = pd.read_csv(processed_filepath)
-            if 'Date' in processed_data.columns:
-                processed_data['Date'] = pd.to_datetime(processed_data['Date'])
-            if processed_data.empty:
-                 print(f"Warning: Cached WP processed data for {ticker} is empty. Reprocessing.")
-                 processed_data = None
+            if 'Date' in processed_data.columns: processed_data['Date'] = pd.to_datetime(processed_data['Date'])
+            if processed_data.empty: processed_data = None
         
-        if processed_data is None: # If not loaded from cache or cache was empty
-            print("WP Step 2: Preprocessing data...")
+        if processed_data is None:
+            pipeline_logger.info(f"Preprocessing WP data for {ticker}...")
             processed_data = preprocess_data(stock_data, macro_data if macro_data is not None else None)
-            if processed_data is None or processed_data.empty: raise RuntimeError(f"Preprocessing resulted in empty dataset for {ticker}.")
-            
-            # Save the newly processed data to cache
+            if processed_data is None or processed_data.empty: raise RuntimeError(f"WP Preprocessing failed for {ticker}.")
             processed_data.to_csv(processed_filepath, index=False)
-            print(f"   Saved new WP processed data -> {os.path.basename(processed_filepath)}")
+            pipeline_logger.info(f"Saved new processed WP data for {ticker}.")
 
-        print("WP Step 3: Training Prophet model & predicting...")
-        model, forecast, actual_df, forecast_df = train_prophet_model(
-            processed_data, ticker, forecast_horizon='1y', timestamp=ts
-        )
+        _emit_progress(socketio_instance, task_room, 40, "Training model for WP assets...", "WP Model Training", ticker, event_name_progress)
+        model, forecast, actual_df, forecast_df = train_prophet_model(processed_data.copy(), ticker, forecast_horizon='1y', timestamp=ts)
         if model is None or forecast is None or actual_df is None or forecast_df is None:
-            raise RuntimeError(f"Prophet model training or forecasting failed for {ticker}.")
-        print(f"   WP Model trained for {ticker}.")
-
-        print(f"WP Step 4: Fetching fundamentals for {ticker}...")
+            raise RuntimeError(f"WP Prophet model training failed for {ticker}.")
+        pipeline_logger.info(f"WP Model trained for {ticker}.")
+        
+        _emit_progress(socketio_instance, task_room, 60, "Fetching fundamentals for WP assets...", "WP Fundamentals", ticker, event_name_progress)
         try:
-            yf_ticker_obj = yf.Ticker(ticker)
-            info_data = {}
-            recs_data = pd.DataFrame()
-            news_data = []
-            try: info_data = yf_ticker_obj.info or {}
-            except Exception as info_err: print(f"   Warning: Could not fetch .info for {ticker}: {info_err}")
-            try: recs_data = yf_ticker_obj.recommendations if hasattr(yf_ticker_obj, 'recommendations') and yf_ticker_obj.recommendations is not None else pd.DataFrame()
-            except Exception as rec_err: print(f"   Warning: Could not fetch .recommendations for {ticker}: {rec_err}")
-            try: news_data = yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news is not None else []
-            except Exception as news_err: print(f"   Warning: Could not fetch .news for {ticker}: {news_err}")
-            
-            fundamentals = {
-                'info': info_data,
-                'recommendations': recs_data,
-                'news': news_data
-            }
-            if not fundamentals['info'].get('symbol'): print(f"Warning: Could not fetch detailed info symbol for {ticker}.")
-        except Exception as yf_err:
-            print(f"Warning: Error fetching yfinance fundamentals object for {ticker}: {yf_err}.")
-            fundamentals = {'info': {}, 'recommendations': pd.DataFrame(), 'news': []}
+            yf_ticker_obj = yf.Ticker(ticker); info_data = yf_ticker_obj.info or {}; recs_data = yf_ticker_obj.recommendations if hasattr(yf_ticker_obj, 'recommendations') and yf_ticker_obj.recommendations is not None else pd.DataFrame(); news_data = yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news is not None else []
+            fundamentals = {'info': info_data, 'recommendations': recs_data, 'news': news_data}
+        except Exception as e: fundamentals = {'info': {}, 'recommendations': pd.DataFrame(), 'news': []}; pipeline_logger.warning(f"WP Fundamentals Warning for {ticker}: {e}")
 
-
-        # --- Step 5: Generate WORDPRESS Assets (text HTML + Image URLs) ---
-        print(f"WP Step 5: Generating WordPress assets for {ticker} (Text HTML + Image URLs)...")
-        # This assumes create_wordpress_report_assets returns (html_string, image_urls_dictionary)
-        text_report_html, image_urls = create_wordpress_report_assets(
+        _emit_progress(socketio_instance, task_room, 75, "Generating HTML and chart assets...", "WP Asset Generation", ticker, event_name_progress)
+        text_report_html, img_urls_dict_or_path = create_wordpress_report_assets(
             ticker=ticker, actual_data=actual_df, forecast_data=forecast_df,
-            historical_data=processed_data, fundamentals=fundamentals, ts=ts,
-            app_root=app_root
+            historical_data=processed_data.copy(), fundamentals=fundamentals, ts=ts, app_root=app_root
         )
+        if isinstance(img_urls_dict_or_path, str): 
+            image_urls_dict = {"featured_image_path": img_urls_dict_or_path}
+        elif isinstance(img_urls_dict_or_path, dict):
+            image_urls_dict = img_urls_dict_or_path
+        else:
+            image_urls_dict = {} 
+            pipeline_logger.warning(f"Unexpected return type for image_urls from create_wordpress_report_assets for {ticker}: {type(img_urls_dict_or_path)}")
+
+
         if text_report_html is None or "Error Generating Report" in text_report_html:
-            print(f"Error HTML from report generator for {ticker}: {text_report_html}")
-            raise RuntimeError(f"WordPress asset generator failed or returned error HTML for {ticker}")
+             raise RuntimeError(f"WordPress asset HTML generation failed for {ticker}")
+        
+        pipeline_logger.info(f"   Text HTML for WP generated for {ticker}.")
+        if image_urls_dict: pipeline_logger.info(f"   Chart image assets processed for {ticker}: {len(image_urls_dict)} items.")
+        else: pipeline_logger.warning(f"   No chart image assets dictionary returned for WP {ticker}.")
 
-        print(f"   Text HTML generated for {ticker}.")
-        if isinstance(image_urls, dict) and image_urls:
-            print(f"   Chart image URLs generated: {len(image_urls)} URLs returned.")
-        elif image_urls: # If it's not a dict but has a value, log a warning
-            print(f"   WARNING: Chart image URLs for {ticker} were returned but not as a dictionary: {type(image_urls)}")
-        else: # If it's None or empty dict
-            print(f"   WARNING: No chart image URLs were generated or returned for {ticker}.")
+        _emit_progress(socketio_instance, task_room, 100, "WP assets ready!", "WP Complete", ticker, event_name_progress)
+        pipeline_logger.info(f">>>>> WORDPRESS Pipeline successful for {ticker} <<<<<")
+        return model, forecast, text_report_html, image_urls_dict
 
-
-        print(f">>>>> WORDPRESS Pipeline successful for {ticker} <<<<<")
-        return model, forecast, text_report_html, image_urls # image_urls should be a dict
-
-    except (ValueError, RuntimeError) as err:
-        print(f">>>>> WORDPRESS Pipeline Error for {ticker} <<<<<")
-        print(f"Error: {err}")
-        return None, None, None, {} # Return empty dict for image_urls on error
-    except Exception as e:
-        print(f">>>>> WORDPRESS Pipeline failure for {ticker} <<<<<")
-        print(f"Unexpected Error: {e}")
-        traceback.print_exc()
-        # No need to remove processed_csv here, as it's intended to be cached
-        return None, None, None, {} # Return empty dict for image_urls on error
+    except Exception as err:
+        pipeline_logger.error(f">>>>> WORDPRESS Pipeline Error for {ticker}: {err} <<<<<", exc_info=True)
+        if socketio_instance and task_room: 
+            socketio_instance.emit(event_name_error, {'message': str(err)[:150] + "...", 'ticker': ticker}, room=task_room)
+        return None, None, None, {}
 
 
-# --- Main execution block (for standalone testing) ---
 if __name__ == "__main__":
-    print("Starting batch pipeline execution (with Caching)...")
+    pipeline_logger.info("Starting batch pipeline execution (with Caching)...")
     APP_ROOT_STANDALONE = os.path.dirname(os.path.abspath(__file__))
-    print(f"Running standalone from: {APP_ROOT_STANDALONE}")
+    pipeline_logger.info(f"Running standalone from: {APP_ROOT_STANDALONE}")
+
+    class MockSocketIO:
+        def emit(self, event, data, room=None):
+            pipeline_logger.info(f"MOCK EMIT to room '{room}': Event='{event}', Data='{data}'")
+        def sleep(self, duration):
+            time.sleep(duration) 
+
+    mock_socket_io_instance = MockSocketIO()
+    test_room_id_prefix = "test_pipeline_room"
 
     successful_orig, failed_orig = [], []
     successful_wp, failed_wp = [], []
 
-    print("\n--- Running Original Pipeline Batch ---")
-    for ticker_item in TICKERS:
+    pipeline_logger.info("\n--- Running Original Pipeline Batch (with mock SocketIO) ---")
+    for ticker_item in TICKERS: 
         ts = str(int(time.time()))
-        model, forecast, report_path, report_html_content = run_pipeline(ticker_item, ts, APP_ROOT_STANDALONE)
+        model, forecast, report_path, report_html_content = run_pipeline(
+            ticker_item, ts, APP_ROOT_STANDALONE,
+            socketio_instance=mock_socket_io_instance, task_room=f"{test_room_id_prefix}_{ticker_item}_orig"
+        )
         if report_path and report_html_content and "Error Generating Report" not in report_html_content:
             successful_orig.append(ticker_item)
-            print(f"[✔ Orig] {ticker_item} - Report HTML generated and saved.")
-        elif report_html_content and "Error Generating Report" not in report_html_content:
-            successful_orig.append(f"{ticker_item} (HTML Only)")
-            print(f"[✔ Orig] {ticker_item} - Report HTML generated (Save Failed).")
         else:
             failed_orig.append(ticker_item)
-            print(f"[✖ Orig] {ticker_item} - Failed.")
-        time.sleep(1)
+        time.sleep(0.1) 
 
-    print("\nBatch Summary (Original Reports):")
-    print(f"   Successful: {', '.join(successful_orig) or 'None'}")
-    print(f"   Failed:     {', '.join(failed_orig) or 'None'}")
+    pipeline_logger.info("\nBatch Summary (Original Reports):")
+    pipeline_logger.info(f"   Successful: {', '.join(successful_orig) or 'None'}")
+    pipeline_logger.info(f"   Failed:     {', '.join(failed_orig) or 'None'}")
 
-    print("\n--- Running WP Asset Pipeline Batch ---")
+    pipeline_logger.info("\n--- Running WP Asset Pipeline Batch (with mock SocketIO) ---")
     for ticker_item in TICKERS:
         ts_wp = str(int(time.time()))
-        # Expecting 4 values: model, forecast, html_text, image_urls_dict
-        model_wp, forecast_wp, text_html_wp, img_urls_dict_wp = run_wp_pipeline(ticker_item, ts_wp, APP_ROOT_STANDALONE)
-        
+        model_wp, forecast_wp, text_html_wp, img_urls_dict_wp = run_wp_pipeline(
+            ticker_item, ts_wp, APP_ROOT_STANDALONE,
+            socketio_instance=mock_socket_io_instance, task_room=f"{test_room_id_prefix}_{ticker_item}_wp"
+        )
         if text_html_wp and "Error Generating Report" not in text_html_wp and isinstance(img_urls_dict_wp, dict):
             successful_wp.append(ticker_item)
-            print(f"[✔ WP] {ticker_item} - Text HTML generated.")
-            if img_urls_dict_wp:
-                print(f"[✔ WP] {ticker_item} - Image URLs generated: {len(img_urls_dict_wp)} URLs")
-            else:
-                print(f"[✔ WP] {ticker_item} - Image URLs dictionary is empty.")
         else:
             failed_wp.append(ticker_item)
-            print(f"[✖ WP] {ticker_item} - Failed. HTML: {'OK' if text_html_wp and 'Error' not in text_html_wp else 'Fail/Error'}, Img URLs Dict: {isinstance(img_urls_dict_wp, dict)}")
-        time.sleep(1)
+        time.sleep(0.1)
 
-    print("\nBatch Summary (WordPress Assets):")
-    print(f"   Successful: {', '.join(successful_wp) or 'None'}")
-    print(f"   Failed:     {', '.join(failed_wp) or 'None'}")
+    pipeline_logger.info("\nBatch Summary (WordPress Assets):")
+    pipeline_logger.info(f"   Successful: {', '.join(successful_wp) or 'None'}")
+    pipeline_logger.info(f"   Failed:     {', '.join(failed_wp) or 'None'}")
 
-    print("\nBatch pipeline execution completed.")
+    pipeline_logger.info("\nBatch pipeline execution completed.")
