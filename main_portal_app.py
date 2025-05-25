@@ -12,6 +12,10 @@ import io # For file handling
 from functools import wraps
 import re # For basic URL validation
 import traceback
+from werkzeug.utils import secure_filename
+import firebase_admin
+from firebase_admin import firestore
+from firebase_admin import storage
 
 
 FIREBASE_INITIALIZED_SUCCESSFULLY = True 
@@ -296,11 +300,12 @@ def start_stock_analysis():
     
     app.logger.info(f"\n--- Received /start-analysis for ticker: {ticker} (Target Room: {room_id}) ---")
     
-    valid_ticker_pattern = r'^[A-Z0-9\^.-]{1,10}$' 
+    # Updated pattern to handle exchange suffixes
+    valid_ticker_pattern = r'^[A-Z0-9\^.-]+(\.[A-Z]{1,2})?$'
     if not ticker or not re.match(valid_ticker_pattern, ticker):
-        flash(f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, ^GSPC).", "danger")
+        flash(f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, ADANIPOWER.NS).", "danger")
         socketio.emit('analysis_error', {'message': f"Invalid ticker format: '{ticker}'.", 'ticker': ticker}, room=room_id)
-        return redirect(url_for('analyzer_input_page')) 
+        return redirect(url_for('analyzer_input_page'))
 
     if not PIPELINE_IMPORTED_SUCCESSFULLY:
         flash("The Stock Analysis service is temporarily unavailable. Please try again later.", "danger")
@@ -447,7 +452,57 @@ def logout():
 @app.route('/user-profile')
 @login_required
 def user_profile_page():
-    return render_template('user_profile.html', title="Your Profile - Tickzen")
+    user_uid = session['firebase_user_uid']
+    db = get_firestore_client()
+    
+    # Default values
+    user_profile_data = {
+        'display_name': session.get('user_displayName', ''),
+        'bio': '',
+        'profile_picture': session.get('user_profile_picture', ''),
+        'notifications': {
+            'email': False,
+            'automation': False
+        },
+        'created_at': None,
+        'total_automations': 0,
+        'active_profiles': 0
+    }
+    
+    if db:
+        try:
+            # Get user profile from Firestore
+            profile_doc = db.collection('userProfiles').document(user_uid).get()
+            if profile_doc.exists:
+                profile_data = profile_doc.to_dict()
+                user_profile_data.update({
+                    'display_name': profile_data.get('display_name', user_profile_data['display_name']),
+                    'bio': profile_data.get('bio', ''),
+                    'profile_picture': profile_data.get('profile_picture', user_profile_data['profile_picture']),
+                    'notifications': profile_data.get('notifications', user_profile_data['notifications']),
+                    'created_at': profile_data.get('created_at', None)
+                })
+            
+            # Get total automations count
+            automations_query = db.collection('userGeneratedReports').where('user_uid', '==', user_uid).count()
+            user_profile_data['total_automations'] = automations_query.get()[0][0].value
+            
+            # Get active profiles count
+            profiles_query = db.collection('userSiteProfiles').document(user_uid).collection('profiles').count()
+            user_profile_data['active_profiles'] = profiles_query.get()[0][0].value
+            
+        except Exception as e:
+            app.logger.error(f"Error fetching user profile data: {str(e)}")
+    
+    return render_template('user_profile.html',
+                         title="Your Profile - Tickzen",
+                         user_profile_picture=user_profile_data['profile_picture'],
+                         user_displayName=user_profile_data['display_name'],
+                         user_bio=user_profile_data['bio'],
+                         user_notifications=user_profile_data['notifications'],
+                         user_created_at=user_profile_data['created_at'],
+                         total_automations=user_profile_data['total_automations'],
+                         active_profiles=user_profile_data['active_profiles'])
 
 @app.route('/site-profiles')
 @login_required
@@ -460,7 +515,7 @@ def manage_site_profiles():
     errors_add_repopulate = session.pop('errors_add_repopulate', None)
 
     return render_template('manage_profiles.html',
-                           title="Site Profiles - Tickzen",
+                           title="Publishing Profiles - Tickzen",
                            profiles=profiles,
                            all_report_sections=ALL_SECTIONS,
                            form_data_add=form_data_add,
@@ -573,7 +628,7 @@ def add_site_profile():
         }
         session['errors_add_repopulate'] = errors
         session['show_add_form_on_load_flag'] = True
-        flash("Please correct the errors in the 'Add New Profile' form.", "danger")
+        flash("Please correct the errors in the 'Add New Publishing Profile' form.", "danger")
         return redirect(url_for('manage_site_profiles'))
 
     new_profile_data = {
@@ -585,9 +640,9 @@ def add_site_profile():
     }
 
     if save_user_site_profile_to_firestore(user_uid, new_profile_data):
-        flash(f"Profile '{new_profile_data['profile_name']}' added successfully!", "success")
+        flash(f"Publishing Profile '{new_profile_data['profile_name']}' added successfully!", "success")
     else:
-        flash(f"Failed to add profile '{new_profile_data['profile_name']}'. An unexpected error occurred.", "danger")
+        flash(f"Failed to add publishing profile '{new_profile_data['profile_name']}'. An unexpected error occurred.", "danger")
     return redirect(url_for('manage_site_profiles'))
 
 
@@ -604,7 +659,7 @@ def edit_site_profile(profile_id_from_firestore):
     profile_snap = profile_doc_ref.get()
 
     if not profile_snap.exists:
-        flash(f"Profile ID '{profile_id_from_firestore}' not found.", "error")
+        flash(f"Publishing Profile ID '{profile_id_from_firestore}' not found.", "error")
         return redirect(url_for('manage_site_profiles'))
 
     profile_data_original = profile_snap.to_dict()
@@ -749,9 +804,9 @@ def edit_site_profile(profile_id_from_firestore):
         }
 
         if save_user_site_profile_to_firestore(user_uid, profile_data_to_save):
-            flash(f"Profile '{profile_data_to_save['profile_name']}' updated successfully!", "success")
+            flash(f"Publishing Profile '{profile_data_to_save['profile_name']}' updated successfully!", "success")
         else:
-            flash(f"Failed to update profile '{profile_data_to_save['profile_name']}'.", "danger")
+            flash(f"Failed to update publishing profile '{profile_data_to_save['profile_name']}'.", "danger")
         return redirect(url_for('manage_site_profiles'))
 
     return render_template('edit_profile.html',
@@ -766,9 +821,9 @@ def edit_site_profile(profile_id_from_firestore):
 def delete_site_profile(profile_id_to_delete):
     user_uid = session['firebase_user_uid']
     if delete_user_site_profile_from_firestore(user_uid, profile_id_to_delete):
-        flash(f"Profile ID '{profile_id_to_delete}' deleted successfully.", "success")
+        flash(f"Publishing Profile ID '{profile_id_to_delete}' deleted successfully.", "success")
     else:
-        flash(f"Failed to delete profile ID '{profile_id_to_delete}'.", "error")
+        flash(f"Failed to delete publishing profile ID '{profile_id_to_delete}'.", "error")
     return redirect(url_for('manage_site_profiles'))
 
 # --- REPORT HISTORY MANAGEMENT ---
@@ -903,14 +958,12 @@ def run_automation_now():
             if file_field_name in request.files:
                 file_obj = request.files[file_field_name]
                 if file_obj and file_obj.filename and allowed_file(file_obj.filename):
-                    from werkzeug.utils import secure_filename
-                    s_filename = secure_filename(file_obj.filename)
                     try:
                         file_content_bytes = file_obj.read()
-                        uploaded_files_map[pid] = {"original_filename": s_filename, "content_bytes": file_content_bytes}
-                        app.logger.info(f"File '{s_filename}' queued for profile {pid}.")
+                        uploaded_files_map[pid] = {"original_filename": file_obj.filename, "content_bytes": file_content_bytes}
+                        app.logger.info(f"File '{file_obj.filename}' queued for profile {pid}.")
                     except Exception as e_file_read:
-                        app.logger.error(f"Error reading uploaded file '{s_filename}' for profile {pid}: {e_file_read}")
+                        app.logger.error(f"Error reading uploaded file '{file_obj.filename}' for profile {pid}: {e_file_read}")
                         flash(f"Error processing file for '{profile_data_item.get('profile_name', pid)}'.", "danger")
                 elif file_obj and file_obj.filename: 
                     flash(f"File type of '{file_obj.filename}' not allowed for profile '{profile_data_item.get('profile_name', pid)}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}", "warning")
@@ -962,7 +1015,7 @@ def run_automation_now():
 @app.route('/wp-asset-generator')
 @login_required
 def wp_generator_page():
-    return render_template('wp_generator.html', title="WordPress Asset Generator - Tickzen")
+    return render_template('wp-asset.html', title="WordPress Asset Generator - Tickzen")
 
 @app.route('/generate-wp-assets', methods=['POST'])
 @login_required
@@ -1056,6 +1109,126 @@ def handle_join_task_room(data):
         app.logger.info(f"Client {client_sid} explicitly joined task room: {task_room_id}")
         emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=client_sid) 
 
+
+@app.route('/update-user-profile', methods=['POST'])
+@login_required
+def update_user_profile():
+    try:
+        user_uid = session['firebase_user_uid']
+        db = get_firestore_client()
+        
+        if not db:
+            return jsonify({'success': False, 'message': 'Database service unavailable'}), 503
+
+        # Get form data
+        display_name = request.form.get('display_name', '').strip()
+        email_notifications = request.form.get('email_notifications') == 'on'
+        automation_alerts = request.form.get('automation_alerts') == 'on'
+
+        # Update user profile in Firestore
+        user_profile_ref = db.collection('userProfiles').document(user_uid)
+        
+        update_data = {
+            'display_name': display_name,
+            'notifications': {
+                'email': email_notifications,
+                'automation': automation_alerts
+            },
+            'updated_at': firestore.SERVER_TIMESTAMP
+        }
+
+        user_profile_ref.set(update_data, merge=True)
+
+        # Update session data
+        session['user_displayName'] = display_name
+
+        return jsonify({
+            'success': True,
+            'message': 'Profile updated successfully',
+            'data': {
+                'display_name': display_name
+            }
+        })
+
+    except Exception as e:
+        app.logger.error(f"Error updating user profile: {str(e)}")
+        return jsonify({'success': False, 'message': 'Failed to update profile'}), 500
+
+@app.route('/change-password')
+@login_required
+def change_password():
+    return render_template('change_password.html', title="Change Password - Tickzen")
+
+@app.route('/activity-log')
+@login_required
+def view_activity_log():
+    user_uid = session['firebase_user_uid']
+    db = get_firestore_client()
+    
+    activity_log = []
+    member_since = None
+    
+    if db:
+        try:
+            # Get user profile for member since date
+            profile_doc = db.collection('userProfiles').document(user_uid).get()
+            if profile_doc.exists:
+                profile_data = profile_doc.to_dict()
+                member_since = profile_data.get('created_at')
+            
+            # Get recent automations
+            automations_query = db.collection('userGeneratedReports')\
+                .where('user_uid', '==', user_uid)\
+                .order_by('generated_at', direction='DESCENDING')\
+                .limit(50)
+            
+            for doc in automations_query.stream():
+                data = doc.to_dict()
+                generated_at = data.get('generated_at')
+                if hasattr(generated_at, 'timestamp'):
+                    timestamp = generated_at.timestamp()
+                else:
+                    timestamp = 0
+                
+                activity_log.append({
+                    'type': 'automation',
+                    'ticker': data.get('ticker', 'N/A'),
+                    'timestamp': timestamp,
+                    'details': f"Generated stock analysis report for {data.get('ticker', 'N/A')}"
+                })
+            
+            # Get recent profile updates
+            profiles_query = db.collection('userSiteProfiles')\
+                .document(user_uid)\
+                .collection('profiles')\
+                .order_by('last_updated_at', direction='DESCENDING')\
+                .limit(20)
+            
+            for doc in profiles_query.stream():
+                data = doc.to_dict()
+                last_updated = data.get('last_updated_at')
+                if hasattr(last_updated, 'timestamp'):
+                    timestamp = last_updated.timestamp()
+                else:
+                    timestamp = 0
+                
+                activity_log.append({
+                    'type': 'profile_update',
+                    'timestamp': timestamp,
+                    'details': f"Updated profile: {data.get('profile_name', 'N/A')}"
+                })
+            
+            # Sort all activities by timestamp
+            activity_log.sort(key=lambda x: x['timestamp'], reverse=True)
+            
+        except Exception as e:
+            app.logger.error(f"Error fetching activity log: {str(e)}")
+            flash("Error loading activity log. Please try again later.", "error")
+    
+    return render_template('activity_log.html',
+                         title="Activity Log - Tickzen",
+                         activity_log=activity_log,
+                         member_since=member_since)
 
 #--- Main Execution ---
 if __name__ == '__main__':

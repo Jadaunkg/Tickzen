@@ -1,4 +1,3 @@
-
 import os
 import time
 import traceback
@@ -111,6 +110,39 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
             print(f"Warning: Failed to fetch yfinance fundamentals for {ticker}: {e_fund}")
             fundamentals = {'info': {}, 'recommendations': pd.DataFrame(), 'news': []}
 
+        # --- Currency symbol mapping and extraction ---
+        CURRENCY_SYMBOLS = {
+            'USD': '$', 'INR': '₹', 'EUR': '€', 'GBP': '£', 'JPY': '¥', 'CNY': '¥', 'CAD': 'C$', 'AUD': 'A$', 'HKD': 'HK$', 'SGD': 'S$', 'CHF': 'Fr', 'SEK': 'kr', 'NOK': 'kr', 'DKK': 'kr', 'NZD': 'NZ$', 'ZAR': 'R', 'BRL': 'R$', 'MXN': 'Mex$', 'RUB': '₽', 'KRW': '₩', 'TWD': 'NT$', 'THB': '฿', 'MYR': 'RM', 'IDR': 'Rp', 'PHP': '₱', 'ILS': '₪', 'SAR': '﷼', 'AED': 'د.إ', 'TRY': '₺', 'PLN': 'zł', 'CZK': 'Kč', 'HUF': 'Ft', 'RON': 'lei', 'BGN': 'лв', 'HRK': 'kn', 'RSD': 'дин.', 'UAH': '₴', 'EGP': 'E£', 'PKR': '₨', 'BDT': '৳', 'LKR': 'Rs', 'VND': '₫'
+        }
+        EXCHANGE_CURRENCIES = {
+            '.US': 'USD', '.N': 'USD', '.A': 'USD', '.Q': 'USD', '.OQ': 'USD', '.PK': 'USD',
+            '.NS': 'INR', '.BO': 'INR',
+            '.L': 'GBP', '.PA': 'EUR', '.DE': 'EUR', '.F': 'EUR', '.MI': 'EUR', '.AS': 'EUR', '.BR': 'EUR', '.MC': 'EUR', '.VI': 'EUR', '.ST': 'SEK', '.OL': 'NOK', '.CO': 'DKK', '.HE': 'EUR', '.IR': 'EUR', '.AT': 'EUR', '.LS': 'EUR',
+            '.HK': 'HKD', '.SS': 'CNY', '.SZ': 'CNY', '.T': 'JPY', '.KS': 'KRW', '.TW': 'TWD', '.SI': 'SGD', '.KL': 'MYR', '.JK': 'IDR', '.BK': 'THB', '.PS': 'PHP', '.IS': 'ILS', '.SA': 'SAR', '.AD': 'AED', '.DU': 'AED',
+            '.TO': 'CAD', '.V': 'CAD', '.AX': 'AUD', '.NZ': 'NZD', '.JO': 'ZAR', '.SA': 'BRL', '.MX': 'MXN', '.ME': 'RUB', '.VN': 'VND', '.HA': 'EGP', '.KAR': 'PKR', '.DH': 'BDT', '.CM': 'LKR'
+        }
+        # --- Determine currency code and symbol robustly ---
+        currency_code = 'USD'  # Default
+        # 1. Check Indian exchanges first
+        if ticker.endswith('.NS') or ticker.endswith('.BO'):
+            currency_code = 'INR'
+            print(f"DEBUG: Indian stock detected ({ticker}), setting currency to INR")
+        else:
+            # 2. Check other exchanges
+            for suffix, code in EXCHANGE_CURRENCIES.items():
+                if ticker.endswith(suffix):
+                    currency_code = code
+                    print(f"DEBUG: Exchange suffix {suffix} detected, setting currency to {code}")
+                    break
+            # 3. Use yfinance info if available and valid
+            yf_currency = fundamentals['info'].get('currency')
+            if yf_currency and yf_currency in CURRENCY_SYMBOLS:
+                currency_code = yf_currency
+                print(f"DEBUG: Using yfinance currency: {yf_currency}")
+        currency_symbol = CURRENCY_SYMBOLS.get(currency_code, '$')
+        print(f"DEBUG: Final currency symbol for {ticker}: {currency_symbol}")
+        rdata['currency_symbol'] = currency_symbol
+        print(f"DEBUG: rdata['currency_symbol'] set to: {rdata.get('currency_symbol')}")
 
         # --- 5. Prepare Data Dictionary (rdata) (Same as before) ---
         print("Step 5: Preparing data for report components...")
@@ -163,15 +195,15 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
 
         current_price_for_fa = rdata.get('current_price')
         rdata['profile_data'] = fa.extract_company_profile(fundamentals)
-        rdata['valuation_data'] = fa.extract_valuation_metrics(fundamentals)
-        rdata['total_valuation_data'] = fa.extract_total_valuation_data(fundamentals, current_price_for_fa)
-        rdata['share_statistics_data'] = fa.extract_share_statistics_data(fundamentals, current_price_for_fa)
+        rdata['valuation_data'] = fa.extract_valuation_metrics(fundamentals, currency=currency_symbol)
+        rdata['total_valuation_data'] = fa.extract_total_valuation_data(fundamentals, current_price_for_fa, currency=currency_symbol)
+        rdata['share_statistics_data'] = fa.extract_share_statistics_data(fundamentals, current_price_for_fa, currency=currency_symbol)
         rdata['financial_health_data'] = fa.extract_financial_health(fundamentals)
         rdata['financial_efficiency_data'] = fa.extract_financial_efficiency_data(fundamentals)
         rdata['profitability_data'] = fa.extract_profitability(fundamentals)
-        rdata['dividends_data'] = fa.extract_dividends_splits(fundamentals)
+        rdata['dividends_data'] = fa.extract_dividends_splits(fundamentals, currency=currency_symbol)
         rdata['analyst_info_data'] = fa.extract_analyst_info(fundamentals)
-        rdata['stock_price_stats_data'] = fa.extract_stock_price_stats_data(fundamentals)
+        rdata['stock_price_stats_data'] = fa.extract_stock_price_stats_data(fundamentals, currency=currency_symbol)
         rdata['short_selling_data'] = fa.extract_short_selling_data(fundamentals)
         rdata['industry'] = fundamentals.get('info', {}).get('industry', 'N/A')
         rdata['sector'] = fundamentals.get('info', {}).get('sector', 'N/A')
