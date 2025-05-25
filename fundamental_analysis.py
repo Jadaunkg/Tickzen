@@ -91,7 +91,7 @@ def extract_company_profile(fundamentals: dict):
     }
     return profile
 
-def extract_valuation_metrics(fundamentals: dict):
+def extract_valuation_metrics(fundamentals: dict, currency='$'):
     """Extracts key valuation metrics."""
     info = fundamentals.get('info', {})
 
@@ -117,11 +117,11 @@ def extract_valuation_metrics(fundamentals: dict):
         "Trailing P/E": format_value(safe_get(info, 'trailingPE'), 'ratio'),
         "Forward P/E": format_value(safe_get(info, 'forwardPE'), 'ratio'),
         "Price/Sales (TTM)": format_value(safe_get(info, 'priceToSalesTrailing12Months'), 'ratio'),
-        "Price/Book (MRQ)": format_value(safe_get(info, 'priceToBook'), 'ratio'), # MRQ = Most Recent Quarter
+        "Price/Book (MRQ)": format_value(safe_get(info, 'priceToBook'), 'ratio'),
         "PEG Ratio": format_value(safe_get(info, 'pegRatio'), 'ratio'),
-        "EV/Revenue (TTM)": format_value(safe_get(info, 'enterpriseToRevenue'), 'ratio'), # Often in info
-        "EV/EBITDA (TTM)": format_value(safe_get(info, 'enterpriseToEbitda'), 'ratio'), # Often in info
-        "Price/FCF (TTM)": p_fcf # Calculated Price to Free Cash Flow
+        "EV/Revenue (TTM)": format_value(safe_get(info, 'enterpriseToRevenue'), 'ratio'),
+        "EV/EBITDA (TTM)": format_value(safe_get(info, 'enterpriseToEbitda'), 'ratio'),
+        "Price/FCF (TTM)": format_value(safe_get(info, 'priceToFreeCashFlow'), 'ratio')
     }
     return metrics
 
@@ -166,7 +166,7 @@ def extract_profitability(fundamentals: dict):
 
     return metrics
 
-def extract_dividends_splits(fundamentals: dict):
+def extract_dividends_splits(fundamentals: dict, currency='$'):
     """Extracts dividend and stock split information."""
     info = fundamentals.get('info', {})
     # Calculate Buyback Yield estimate if possible (Requires Shares Outstanding change)
@@ -174,12 +174,14 @@ def extract_dividends_splits(fundamentals: dict):
     buyback_yield_estimate = "N/A"
 
     metrics = {
-        "Dividend Rate (Fwd)": format_value(safe_get(info, 'dividendRate'), 'currency'), # Forward annual rate
-        "Dividend Yield (Fwd)": format_value(safe_get(info, 'dividendYield'), 'percent'), # Forward yield
+        "Dividend Rate": format_value(safe_get(info, 'dividendRate'), 'currency', currency=currency),
+        "Dividend Yield": format_value(safe_get(info, 'dividendYield'), 'percent'),
+        "Payout Ratio": format_value(safe_get(info, 'payoutRatio'), 'percent'),
+        "5 Year Average Dividend Yield": format_value(safe_get(info, 'fiveYearAvgDividendYield'), 'percent'),
+        "Forward Annual Dividend Rate": format_value(safe_get(info, 'forwardDividendRate'), 'currency', currency=currency),
+        "Forward Annual Dividend Yield": format_value(safe_get(info, 'forwardDividendYield'), 'percent'),
         "Trailing Dividend Rate": format_value(safe_get(info, 'trailingAnnualDividendRate'), 'currency'),
         "Trailing Dividend Yield": format_value(safe_get(info, 'trailingAnnualDividendYield'), 'percent'),
-        "5 Year Avg Dividend Yield": format_value(safe_get(info, 'fiveYearAvgDividendYield'), 'percent_direct', 1), # Comes as %
-        "Payout Ratio": format_value(safe_get(info, 'payoutRatio'), 'percent'),
         "Ex-Dividend Date": format_value(safe_get(info, 'exDividendDate'), 'date'),
         "Buyback Yield (Est.)": buyback_yield_estimate, # Placeholder
         "Last Split Date": format_value(safe_get(info, 'lastSplitDate'), 'date'),
@@ -258,13 +260,13 @@ def extract_news(fundamentals: dict):
 
 # --- NEW Extraction Functions ---
 
-def extract_total_valuation_data(fundamentals: dict, current_price=None):
+def extract_total_valuation_data(fundamentals: dict, current_price=None, currency='$'):
     """Extracts/Calculates data for the Total Valuation section."""
     info = fundamentals.get('info', {})
     market_cap = safe_get(info, 'marketCap')
     total_debt = safe_get(info, 'totalDebt')
     total_cash = safe_get(info, 'totalCash')
-    enterprise_value = "N/A"
+    enterprise_value = safe_get(info, 'enterpriseValue')
     ev_revenue = safe_get(info, 'enterpriseToRevenue', "N/A") # Check if direct value exists
     ev_ebitda = safe_get(info, 'enterpriseToEbitda', "N/A") # Check if direct value exists
 
@@ -272,7 +274,7 @@ def extract_total_valuation_data(fundamentals: dict, current_price=None):
     if market_cap != "N/A" and total_debt != "N/A" and total_cash != "N/A":
         try:
             ev = float(market_cap) + float(total_debt) - float(total_cash)
-            enterprise_value = format_value(ev, 'large_number')
+            enterprise_value = format_value(ev, 'large_number', currency=currency)
         except (ValueError, TypeError):
             enterprise_value = "N/A (Calc Error)"
 
@@ -297,8 +299,8 @@ def extract_total_valuation_data(fundamentals: dict, current_price=None):
 
 
     metrics = {
-        "Market Cap": format_value(market_cap, 'large_number'),
-        "Enterprise Value (EV TTM)": enterprise_value,
+        "Market Cap": format_value(market_cap, 'large_number', currency=currency),
+        "Enterprise Value": format_value(enterprise_value, 'large_number', currency=currency),
         "EV/Revenue (TTM)": format_value(ev_revenue, 'ratio') if ev_revenue != "N/A" else "N/A",
         "EV/EBITDA (TTM)": format_value(ev_ebitda, 'ratio') if ev_ebitda != "N/A" else "N/A",
         "Next Earnings Date": format_value(safe_get(info, 'earningsTimestamp'), 'date'), # Approximation
@@ -306,7 +308,7 @@ def extract_total_valuation_data(fundamentals: dict, current_price=None):
     }
     return metrics
 
-def extract_share_statistics_data(fundamentals: dict, current_price=None):
+def extract_share_statistics_data(fundamentals: dict, current_price=None, currency='$'):
     """Extracts/Calculates data for the Share Statistics section."""
     info = fundamentals.get('info', {})
     shares_outstanding = safe_get(info, 'sharesOutstanding')
@@ -322,7 +324,7 @@ def extract_share_statistics_data(fundamentals: dict, current_price=None):
     metrics = {
         "Shares Outstanding": format_value(shares_outstanding, 'large_number', 0),
         "Implied Shares Outstanding": format_value(safe_get(info, 'impliedSharesOutstanding'), 'large_number', 0), # Sometimes available
-        "Float": format_value(safe_get(info, 'floatShares'), 'large_number', 0),
+        "Shares Float": format_value(safe_get(info, 'floatShares'), 'large_number', 0),
         "Insider Ownership": format_value(safe_get(info, 'heldPercentInsiders'), 'percent'),
         "Institutional Ownership": format_value(safe_get(info, 'heldPercentInstitutions'), 'percent'),
         "Shares Short": format_value(safe_get(info, 'sharesShort'), 'large_number', 0), # Part of short info, but fits here too
@@ -358,19 +360,17 @@ def extract_financial_efficiency_data(fundamentals: dict):
     return metrics
 
 
-def extract_stock_price_stats_data(fundamentals: dict):
+def extract_stock_price_stats_data(fundamentals: dict, currency='$'):
     """Extracts data for the Stock Price Statistics section."""
     info = fundamentals.get('info', {})
     metrics = {
-        "Beta": format_value(safe_get(info, 'beta'), 'ratio', 2), # Beta often has 2 decimals
-        "52 Week Change": format_value(safe_get(info, '52WeekChange'), 'percent'),
-        "S&P500 52-Week Change": format_value(safe_get(info, 'SandP52WeekChange'), 'percent'),
-        "52 Week High": format_value(safe_get(info, 'fiftyTwoWeekHigh'), 'currency'),
-        "52 Week Low": format_value(safe_get(info, 'fiftyTwoWeekLow'), 'currency'),
-        "50-Day Moving Average": format_value(safe_get(info, 'fiftyDayAverage'), 'currency'),
-        "200-Day Moving Average": format_value(safe_get(info, 'twoHundredDayAverage'), 'currency'),
-        "Average Volume (10 day)": format_value(safe_get(info, 'averageVolume10days'), 'integer'),
-        "Average Volume (3 month)": format_value(safe_get(info, 'averageVolume'), 'integer'),
+        "52 Week High": format_value(safe_get(info, 'fiftyTwoWeekHigh'), 'currency', currency=currency),
+        "52 Week Low": format_value(safe_get(info, 'fiftyTwoWeekLow'), 'currency', currency=currency),
+        "50 Day MA": format_value(safe_get(info, 'fiftyDayAverage'), 'currency', currency=currency),
+        "200 Day MA": format_value(safe_get(info, 'twoHundredDayAverage'), 'currency', currency=currency),
+        "52 Week Change": format_value(safe_get(info, 'fiftyTwoWeekChange'), 'percent_direct'),
+        "Beta": format_value(safe_get(info, 'beta'), 'ratio'),
+        "Average Volume (3 month)": format_value(safe_get(info, 'averageVolume3Month'), 'integer')
     }
     return metrics
 

@@ -52,7 +52,7 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
         pipeline_logger.info(f"\n----- Starting ORIGINAL pipeline for {ticker} (Room: {task_room}) -----")
         _emit_progress(socketio_instance, task_room, 0, f"Initiating analysis for {ticker}...", "Initialization", ticker, event_name_progress)
         
-        valid_ticker_pattern = r'^[A-Z0-9\^.-]+$'
+        valid_ticker_pattern = r'^[A-Z0-9\^.-]+(\.[A-Z]{1,2})?$'
         if not ticker or not re.match(valid_ticker_pattern, ticker):
             raise ValueError(f"Invalid ticker format: {ticker}.")
 

@@ -1,10 +1,18 @@
 {% extends "_base.html" %}
 
-{% block title %}Site Profile Dashboard{% endblock %}
+{% block title %}Publishing Profile Dashboard{% endblock %}
 
 {% block head_extra %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
+        :root {
+            --primary: #0d8a6a; /* Site's green accent */
+            --success: #28a745;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #222;
+        }
         /* Overall page container for consistent padding */
         .profile-dashboard-container {
             max-width: 1200px;
@@ -64,7 +72,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .btn-toggle-add-form:hover {
-            background-color: #0d8a6a; /* Darker shade of primary */
+            background-color: #0b6e55; /* Darker shade of green */
             box-shadow: 0 6px 18px rgba(0,0,0,0.15);
             transform: translateY(-2px);
         }
@@ -270,7 +278,7 @@
             letter-spacing: 0.05em; transition: all 0.25s ease; margin-top: 1.5rem;
         }
         .btn-submit-profile:hover {
-            background-color: #0d8a6a;
+            background-color: #0b6e55;
             box-shadow: 0 5px 15px rgba(0,0,0,0.15);
         }
          .guidelines-card {
@@ -300,14 +308,31 @@
         .error-summary h5 { margin-top: 0; color: var(--danger-text); font-size: 1.1em; margin-bottom: 0.5rem;}
         .error-summary ul { list-style: disc; margin-left: 1.5rem; padding-left: 0.5rem; margin-bottom: 0;}
         .error-summary ul li { font-size: 0.9em; }
+        .alert-info {
+            background: #e6f9f2 !important;
+            color: #0d8a6a !important;
+            border: 1px solid #b3e0d3 !important;
+        }
+        .alert-info i {
+            color: #0d8a6a !important;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
 <div class="profile-dashboard-container">
     <div class="page-header">
-        <h1><i class="fas fa-sitemap"></i> Site Profile Dashboard</h1>
-        <p class="text-muted">Welcome, {{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'User') }}! Manage your WordPress site configurations.</p>
+        <h1><i class="fas fa-sitemap"></i> Publishing Profile Dashboard</h1>
+        <p class="text-muted mb-2">Welcome, {{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'User') }}! Manage your WordPress publishing configurations.</p>
+        <div class="alert alert-info" style="font-size:1em; background:#e9f5fd; color:#1976D2; border:1px solid #b3e0fc;">
+            <i class="fas fa-info-circle" title="What is a Publishing Profile?"></i>
+            <strong>What is a Publishing Profile?</strong> <br>
+            <span>
+                <b>User Profile</b> contains your personal account information and notification preferences.<br>
+                <b>Publishing Profiles</b> are used to configure and automate publishing to your connected websites (e.g., WordPress blogs). Each publishing profile stores the settings, writers, and sections for a specific destination site.<br>
+                <span style="font-size:0.95em; color:#1976D2;">Tip: You can have multiple publishing profiles for different sites or publishing strategies.</span>
+            </span>
+        </div>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -331,16 +356,16 @@
     {% endwith %}
 
     <div class="profile-dashboard-header">
-        <h1 id="dashboard-title"><i class="fas fa-stream"></i> Your Site Profiles</h1>
+        <h1 id="dashboard-title"><i class="fas fa-stream"></i> Your Publishing Profiles</h1>
         <button id="toggleAddProfileFormBtn" class="btn-toggle-add-form">
             <i class="fas {{ 'fa-minus-circle' if show_add_form_on_load else 'fa-plus-circle' }}"></i>
-            {{ 'Hide Add Profile Form' if show_add_form_on_load else 'Add New Site Profile' }}
+            {{ 'Hide Add Profile Form' if show_add_form_on_load else 'Add New Publishing Profile' }}
         </button>
     </div>
 
     <div id="addProfileFormContainer" {% if show_add_form_on_load %}style="display: block;"{% else %}style="display: none;"{% endif %}>
         <section class="form-section-card">
-            <h2><i class="fas fa-plus-circle"></i> Add New Site Profile</h2>
+            <h2><i class="fas fa-plus-circle"></i> Add New Publishing Profile</h2>
 
             {% if errors_add and errors_add is mapping and errors_add|length > 0 %}
             <div class="error-summary">
@@ -531,8 +556,8 @@
     {% else %}
         <div class="no-profiles-message">
             <p><i class="fas fa-folder-open"></i></p>
-            <p>No site profiles configured yet.</p>
-            <p>Click "Add New Site Profile" to create one!</p>
+            <p>No publishing profiles configured yet.</p>
+            <p>Click "Add New Publishing Profile" to create one!</p>
         </div>
     {% endif %}
 

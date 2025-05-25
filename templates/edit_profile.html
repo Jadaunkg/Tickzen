@@ -1,13 +1,13 @@
 {% extends "_base.html" %}
 
-{% block title %}Edit Profile - {{ profile.profile_name }}{% endblock %}
+{% block title %}Edit Publishing Profile - {{ profile.profile_name }}{% endblock %}
 
 {% block content %}
 <section class="profile-card-form">
-    <h2><i class="fas fa-edit"></i> Edit Profile: {{ profile.profile_name }}</h2>
+    <h2><i class="fas fa-edit"></i> Edit Publishing Profile: {{ profile.profile_name }}</h2>
     <form id="editProfileForm" action="{{ url_for('edit_site_profile', profile_id_from_firestore=profile.profile_id) }}" method="POST">
         <div class="form-group">
-            <label for="profile_name">Profile Name:</label>
+            <label for="profile_name">Publishing Profile Name:</label>
             <input type="text" id="profile_name" name="profile_name" value="{{ profile.profile_name }}" required>
         </div>
 

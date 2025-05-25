@@ -218,9 +218,9 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const ticker = input.value.trim().toUpperCase();
-    const valid = /^[A-Z0-9\^.\-]+$/.test(ticker);
+    const valid = /^[A-Z0-9\^.-]+(\.[A-Z]{1,2})?$/.test(ticker);
     if (!ticker || !valid) {
-      errorBox.innerHTML = '<strong>Input Error:</strong> Invalid ticker format.';
+      errorBox.innerHTML = '<strong>Input Error:</strong> Invalid ticker format. Please use standard stock symbols (e.g., AAPL, ADANIPOWER.NS).';
       errorBox.style.display = 'block';
       area.style.display = 'block';
       content.style.display = 'none';
