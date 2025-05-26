@@ -144,12 +144,12 @@ Desktop.ini
 auto_publisher.log
 
 # Data cache
-data_cache/
+generated_data/data_cache/
 *.csv
 
 # Reports
 reports/
-static/stock_reports/
+generated_data/stock_reports/
 *.html  # Be cautious with this if you have essential HTML files not in templates
 
 # Configuration files containing secrets
