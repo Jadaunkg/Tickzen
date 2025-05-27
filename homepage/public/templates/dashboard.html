@@ -1,0 +1,324 @@
+{% extends "_base.html" %}
+
+{% block title %}Dashboard - Tickzen{% endblock %}
+
+{% block head_extra %}
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .dashboard-header {
+        padding: 2rem 0;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 2rem;
+    }
+    .dashboard-header h1 {
+        font-size: 2.5em;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+    .dashboard-header p {
+        font-size: 1.1em;
+        color: #555;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .dashboard-section {
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .dashboard-section h2 {
+        font-size: 1.8em;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary);
+        display: inline-block;
+    }
+     .dashboard-section h2 .badge { /* For total reports count */
+        font-size: 0.6em;
+        vertical-align: middle;
+        margin-left: 10px;
+        background-color: var(--secondary); /* Or your preferred color */
+        color: white;
+        padding: 5px 10px;
+        border-radius: 12px;
+    }
+    .dashboard-section p, .dashboard-section ul {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #444;
+    }
+    .dashboard-section ul {
+        list-style: disc;
+        padding-left: 20px;
+        margin-top: 1rem;
+    }
+    .dashboard-section ul li {
+        margin-bottom: 0.5rem;
+    }
+
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .tool-card {
+        background-color: var(--light, #f5f6fa);
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+    }
+    .tool-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .tool-card-icon {
+        font-size: 2.5em;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    .tool-card h3 {
+        font-size: 1.4em;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+        text-align: center;
+    }
+    .tool-card p.tool-description {
+        font-size: 0.95em;
+        color: #555;
+        flex-grow: 1;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .tool-card .btn-launch-tool {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 10px 15px;
+        margin-top: auto;
+    }
+    
+    /* Report History Styles */
+    .report-history-list {
+        list-style: none;
+        padding: 0;
+    }
+    .report-history-item {
+        background-color: #f9f9f9;
+        border: 1px solid #e9e9e9;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.2s ease;
+    }
+    .report-history-item:hover {
+        background-color: #f0f0f0;
+    }
+    .report-info {
+        flex-grow: 1;
+    }
+    .report-info .ticker {
+        font-weight: bold;
+        font-size: 1.2em;
+        color: var(--primary);
+    }
+    .report-info .filename {
+        font-size: 0.9em;
+        color: #555;
+        display: block; /* Ensure it takes its own line if long */
+        word-break: break-all; /* Break long filenames */
+        margin: 4px 0;
+    }
+    .report-info .date {
+        font-size: 0.85em;
+        color: #777;
+    }
+    .report-actions .btn-view-report {
+        padding: 8px 15px;
+        font-size: 0.9em;
+        text-decoration: none;
+    }
+    .no-reports-message {
+        text-align: center;
+        color: #777;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 6px;
+    }
+
+
+    @media (max-width: 768px) {
+        .dashboard-header h1 {
+            font-size: 2em;
+        }
+        .dashboard-section h2 {
+            font-size: 1.5em;
+        }
+        .tools-grid {
+            grid-template-columns: 1fr;
+        }
+        .report-history-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .report-actions {
+            margin-top: 10px;
+            width: 100%;
+        }
+        .report-actions .btn-view-report {
+            display: block; /* Make button full width on mobile */
+            text-align: center;
+        }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <h1>Welcome to Your Tickzen Dashboard, {{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'User') }}!</h1>
+        <p>Access your powerful AI-driven tools for stock analysis and WordPress automation, all in one place.</p>
+    </header>
+
+    <section class="dashboard-section" id="recent-reports">
+        <h2>
+            <i class="fas fa-history"></i> Recent Reports
+            {% if total_reports > 0 %}
+                <span class="badge">{{ total_reports }} Total</span>
+            {% endif %}
+        </h2>
+        {% if report_history %}
+            <ul class="report-history-list">
+                {% for report in report_history %}
+                <li class="report-history-item">
+                    <div class="report-info">
+                        <span class="ticker">{{ report.ticker.upper() if report.ticker else 'N/A' }}</span>
+                        <span class="filename" title="{{ report.filename }}">{{ report.filename | truncate(60) if report.filename else 'N/A' }}</span>
+                        <span class="date">Generated: {{ report.generated_at | format_datetime('%Y-%m-%d %I:%M %p UTC') if report.generated_at else 'N/A' }}</span>
+                    </div>
+                    <div class="report-actions">
+                        <a href="{{ url_for('view_generated_report', ticker=report.ticker, filename=report.filename) }}" class="btn btn-secondary btn-view-report" target="_blank">
+                            <i class="fas fa-eye"></i> View Report
+                        </a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if report_history|length < total_reports %}
+            <p style="text-align: center; margin-top: 1rem; font-size:0.9em; color: #555;">
+                Showing latest {{ report_history|length }} of {{ total_reports }} reports. 
+                </p>
+            {% endif %}
+        {% else %}
+            <div class="no-reports-message">
+                <p><i class="fas fa-folder-open fa-2x" style="margin-bottom:10px;"></i></p>
+                <p>You haven't generated any reports yet.</p>
+                <p>Go to the <a href="{{ url_for('analyzer_input_page') }}">Stock Analyzer</a> to create your first report!</p>
+            </div>
+        {% endif %}
+    </section>
+    <section class="dashboard-section" id="our-approach">
+        <h2><i class="fas fa-microchip"></i> Our Tools & Techniques</h2>
+        <p>
+            At Tickzen, we leverage a combination of sophisticated AI models, comprehensive data sources, and robust analytical techniques to provide you with actionable insights. Our goal is to empower your investment decisions and streamline your content generation workflows.
+        </p>
+        <ul>
+            <li>
+                <strong>AI-Powered Predictions:</strong> We primarily use time-series forecasting models like Facebook Prophet, enhanced with machine learning techniques (e.g., LSTM networks where applicable) to predict stock price movements. These models are trained on extensive historical price data.
+            </li>
+            <li>
+                <strong>Comprehensive Data Analysis:</strong>
+                <ul>
+                    <li><strong>Technical Analysis:</strong> Calculation and visualization of key indicators such as RSI, MACD, Bollinger Bands, Moving Averages, and identification of support/resistance levels.</li>
+                    <li><strong>Fundamental Analysis:</strong> Retrieval and presentation of company profiles, financial statements, key ratios, and valuation metrics from reliable sources like Yahoo Finance.</li>
+                    <li><strong>Macroeconomic Context:</strong> Incorporation of relevant macroeconomic data (e.g., interest rates, inflation) from sources like FRED to understand broader market influences.
+                </ul>
+            </li>
+            <li>
+                <strong>Interactive Reporting:</strong> Generated reports are presented in a clear, interactive HTML format, allowing you to explore data and charts dynamically.
+            </li>
+            <li>
+                <strong>WordPress Automation:</strong> Seamless integration with WordPress for automated content generation and publishing, featuring customizable scheduling, author rotation, and adherence to your site's specific category and formatting requirements.
+            </li>
+        </ul>
+        <p style="margin-top: 1rem;">
+            Our platform continuously evolves as we refine our models and incorporate new data sources to enhance accuracy and utility.
+        </p>
+    </section>
+    
+    
+    <section class="dashboard-section" id="all-tools">
+        <h2><i class="fas fa-toolbox"></i> Your Toolkit</h2>
+        <div class="tools-grid">
+            <div class="tool-card">
+                <div class="tool-card-icon"><i class="fas fa-search-dollar"></i></div>
+                <h3>Stock Analyzer</h3>
+                <p class="tool-description">Generate in-depth AI-powered analysis reports and price predictions for any stock ticker. Includes technical, fundamental, and risk assessment.</p>
+                <a href="{{ url_for('analyzer_input_page') }}" class="btn btn-primary btn-launch-tool">Launch Analyzer</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-card-icon"><i class="fas fa-file-alt"></i></div>
+                <h3>WP Asset Generator</h3>
+                <p class="tool-description">Create ready-to-use HTML content and static chart image URLs for your WordPress posts based on stock ticker analysis.</p>
+                <a href="{{ url_for('wp_generator_page') }}" class="btn btn-primary btn-launch-tool">Generate WP Assets</a>
+            </div>
+            
+            <div class="tool-card">
+                <div class="tool-card-icon"><i class="fas fa-robot"></i></div>
+                <h3>WP Automation Portal</h3>
+                <p class="tool-description">Access the main portal for WordPress automation tasks, including an overview of automation capabilities (content for this page TBD).</p>
+                <a href="{{ url_for('wordpress_automation_portal_route') }}" class="btn btn-primary btn-launch-tool">Go to WP Automation</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-card-icon"><i class="fas fa-sitemap"></i></div>
+                <h3>Manage Site Profiles</h3>
+                <p class="tool-description">Configure and manage your WordPress site profiles for automated content posting, including authors and scheduling preferences.</p>
+                <a href="{{ url_for('manage_site_profiles') }}" class="btn btn-primary btn-launch-tool">Manage Profiles</a>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-card-icon"><i class="fas fa-play-circle"></i></div>
+                <h3>Run Automation</h3>
+                <p class="tool-description">Execute automated posting tasks for your configured WordPress site profiles using ticker lists or uploaded files.</p>
+                <a href="{{ url_for('automation_runner_page') }}" class="btn btn-primary btn-launch-tool">Run Automation</a>
+            </div>
+            
+            <div class="tool-card">
+                <div class="tool-card-icon"><i class="fas fa-user-cog"></i></div>
+                <h3>My Profile</h3>
+                <p class="tool-description">View your account details and manage your user-specific settings and preferences within Tickzen.</p>
+                <a href="{{ url_for('user_profile_page') }}" class="btn btn-primary btn-launch-tool">View My Profile</a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    // Any dashboard-specific JS can go here if needed in the future.
+    console.log("Dashboard page loaded. Reports available: {{ report_history|length }}");
+</script>
+{% endblock %}

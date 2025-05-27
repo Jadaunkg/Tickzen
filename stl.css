@@ -1,0 +1,43 @@
+.container { /* Generic container for content sections */
+    width: 90%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 0;
+    padding-right: 0;
+    /* Or use shorthand: padding: 20px 0; */
+}
+
+/* If you have sections directly in main-content that need centering: */
+.main-content > .container {
+    padding-left: 0; /* Avoid double padding if .container is direct child */
+    padding-right: 0;
+}
+body {
+    font-family: var(--font-main);
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--light);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-size: 15px; /* Base font size */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overflow-x: hidden;
+}
+
+/* --- Layout Containers --- */
+.site-container { /* From _base.html for overall page structure */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}

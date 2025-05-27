@@ -1,3 +1,9 @@
+/*
+ALL CSS BELOW IS COMMENTED OUT TO PREVENT INTERFERENCE WITH THE NEW HOMEPAGE DESIGN.
+The homepage (stock-analysis-homepage.html) uses its own CSS in a <style> tag. This file is preserved for other pages that may still use it.
+To re-enable for non-homepage pages, uncomment as needed.
+*/
+
 /* static/css/style.css - Merged and Refactored */
 
 /* --- CSS Variables (Theme Definition) --- */
@@ -5,45 +11,41 @@
     /* Primary theme from stock-analysis project */
     --primary: #10ac84;
     --secondary: #2e86de;
-    --dark: #2d3436;    /* For headers, footers, dark text */
-    --light: #f5f6fa;   /* Main light background */
-    --font-main: 'Poppins', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; /* Poppins prioritized */
-
-    /* Status colors */
-    --danger: #e74c3c;
-    --danger-text: #721c24; /* For text on light danger bg */
-    --danger-bg: #f8d7da;   /* For background of danger alerts */
-    --success: #27ae60;
-    --success-text: #155724;
-    --success-bg: #d4edda;
-    --warning: #f39c12;
-    --warning-text: #856404; /* or #664d03 */
-    --warning-bg: #fff3cd;
-    --info: #3498db;
-    --info-text: #0c5460;   /* or #055160 */
-    --info-bg: #d1ecf1;     /* or #cff4fc */
-
-    /* Text & UI Colors */
-    --text-primary: #333;       /* Main text color */
-    --text-secondary: #555;     /* Slightly lighter text */
-    --text-muted: #6c757d;      /* Muted text */
-    --text-light: #adb5bd;      /* Text on dark backgrounds */
-    --text-white: #ffffff;
-    --border-color: #ced4da;    /* Default border color for inputs, cards */
-    --border-light: #e0e0e0;    /* Lighter border */
-    --border-focus: #6e8efb;    /* Focus color for inputs (can be var(--secondary) or var(--primary)) */
-    --link-color: #6e8efb;      /* General link color (can be var(--primary) or var(--secondary)) */
-
-    /* Backgrounds */
-    --bg-white: #ffffff;
-    --bg-light-gray: #f8f9fa;   /* Light gray for card headers, etc. */
-    --bg-accent-light: rgba(110, 142, 251, 0.1); /* Light accent for highlights */
-
-    /* Shadows */
-    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-    --shadow-md: 0 5px 15px rgba(0,0,0,0.08);
-    --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
-}
+    --dark: #111111; /* Much darker for headings and main text */
+    --light: #fafbfc; /* Slightly lighter than white for subtle contrast */
+    --background: 0 0% 100%;
+            --foreground: 0 0% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 0 0% 3.9%;
+            --primary: 0 0% 9%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 0 0% 96.1%;
+            --secondary-foreground: 0 0% 9%;
+            --muted: 0 0% 96.1%;
+            --muted-foreground: 0 0% 45.1%;
+            --accent: 0 0% 96.1%;
+            --accent-foreground: 0 0% 9%;
+            --border: 0 0% 89.8%;
+            --input: 0 0% 89.8%;
+            --ring: 0 0% 3.9%;
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --green-800: #166534;
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --purple-50: #faf5ff;
+            --purple-100: #f3e8ff;
+            --purple-600: #9333ea;
+            --purple-700: #7c3aed;
+            --orange-50: #fff7ed;
+            --orange-100: #ffedd5;
+            --orange-600: #ea580c;
+            --orange-700: #c2410c;
+        }
 
 /* --- Global Resets & Base HTML/Body Styles --- */
 * {
@@ -57,58 +59,6 @@ html {
     scroll-behavior: smooth;
 }
 
-body {
-    font-family: var(--font-main);
-    line-height: 1.6;
-    color: var(--text-primary);
-    background-color: var(--light);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    font-size: 15px; /* Base font size */
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-    overflow-x: hidden;
-}
-
-/* --- Layout Containers --- */
-.site-container { /* From _base.html for overall page structure */
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.container { /* Generic container for content sections */
-    width: 90%;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
-.main-content {
-    flex-grow: 1;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    padding-left: 0;
-    padding-right: 0;
-    /* Or use shorthand: padding: 20px 0; */
-}
-
-/* If you have sections directly in main-content that need centering: */
-.main-content > .container {
-    padding-left: 0; /* Avoid double padding if .container is direct child */
-    padding-right: 0;
-}
-
-
-/* --- Typography --- */
-h1, h2, h3, h4, h5, h6 {
-    color: var(--dark);
-    margin-bottom: 0.75rem; /* Basic margin */
-    font-weight: 600; /* Default weight */
-}
 
 h1 { font-size: 2.5rem; }
 h2 {
@@ -123,8 +73,12 @@ h2:first-child { margin-top: 0; }
 h3 { font-size: 1.75rem; }
 h4 { font-size: 1.5rem; }
 
-p {
-    margin-bottom: 1rem;
+p, .main-content, .container, .profile-card, .form-section, .footer-about p, .footer-links a, .form-text, .text-muted {
+    color: var(--text-secondary);
+}
+
+.text-muted, .form-text, .footer-about p, .footer-links a {
+    color: var(--text-muted);
 }
 
 a {
@@ -133,7 +87,7 @@ a {
     transition: color 0.2s ease;
 }
 a:hover {
-    color: var(--primary);
+    color: var(--secondary);
     text-decoration: underline;
 }
 

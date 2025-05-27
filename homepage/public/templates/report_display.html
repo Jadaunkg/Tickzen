@@ -1,0 +1,130 @@
+{% extends "_base.html" %}
+
+{% block title %}Report for {{ ticker | upper }}{% endblock %}
+
+{% block head_scripts %}
+    <style>
+        .report-viewer-container {
+            /* --- Applied container-like properties for centering and max-width --- */
+            width: 90%; /* Standard content width percentage */
+            max-width: 1200px; /* Standard max-width for centered content */
+            margin-left: auto;
+            margin-right: auto;
+            
+            /* --- Horizontal padding like a .container, plus original vertical padding --- */
+            padding-left: 15px;  /* Standard container horizontal padding */
+            padding-right: 15px; /* Standard container horizontal padding */
+            padding-top: 1rem;   /* Your original vertical padding */
+            padding-bottom: 1rem;/* Your original vertical padding */
+            
+            background-color: #ffffff; 
+            overflow-x: auto; /* Allows horizontal scrolling if iframe content itself is wider */
+            box-sizing: border-box; /* Crucial for width/padding calculations */
+        }
+        .report-controls {
+            /* Adjusted to work within the new .report-viewer-container constraints */
+            width: 100%; /* Takes full width of its now padded parent */
+            margin-bottom: 1.5rem; 
+            padding: 0.5rem 0; /* Vertical padding; horizontal is handled by parent */
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem; 
+            box-sizing: border-box;
+        }
+        .report-controls h2 {
+            margin: 0;
+            font-size: 1.6rem; 
+            color: #34495e;
+            flex-grow: 1; 
+        }
+        .btn-back {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #fff;
+            background-color: #6c757d; 
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            white-space: nowrap; 
+        }
+        .btn-back:hover {
+            background-color: #5a6268;
+            color: #fff;
+            text-decoration: none;
+        }
+        .loading-message {
+            text-align: center;
+            padding: 4rem 1rem;
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+        .error-message {
+            text-align: center;
+            padding: 4rem 1rem;
+            font-size: 1.1rem;
+            color: #dc3545;
+            font-weight: 500;
+        }
+        #report-content-area {
+            width: 100%; /* Takes full width of the now constrained .report-viewer-container */
+            overflow-x: auto; /* Allow horizontal scroll if iframe content is wider */
+            overflow-y: hidden; /* Explicitly hide vertical scroll; JS handles height */
+            box-sizing: border-box; 
+        }
+        #report-iframe {
+            display: block;
+            width: 100%;
+            min-width: 0; /* Helps iframe shrink correctly */
+            height: 0; /* JS will set this */
+            border: none;
+            visibility: hidden; 
+            transition: height 0.1s ease-out; 
+            box-sizing: border-box; 
+        }
+        @media (max-width: 768px) {
+            .report-viewer-container {
+                width: 95%; /* Adjust for smaller screens if needed */
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            .report-controls h2 {
+                font-size: 1.4rem;
+                text-align: center;
+                width: 100%; 
+                margin-bottom: 0.5rem;
+            }
+             .report-controls {
+                justify-content: center; 
+             }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="report-viewer-container">
+    <div class="report-controls">
+        <h2>Analysis Report: {{ ticker | upper }}</h2>
+        <a href="{{ url_for('analyzer_input_page') }}" class="btn-back">Analyze Another Stock</a>
+    </div>
+
+    <div id="report-content-area">
+        <p class="loading-message">Loading report content...</p>
+        <iframe id="report-iframe" 
+                data-report-url="{{ report_url | safe }}" 
+                title="Stock Analysis Report for {{ ticker | upper }}">
+            Your browser does not support iframes. Please <a href="{{ report_url | safe }}">click here to view the report directly</a>.
+        </iframe>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+    {# This block remains empty as main.js should handle the iframe logic via data-report-url #}
+{% endblock %}
