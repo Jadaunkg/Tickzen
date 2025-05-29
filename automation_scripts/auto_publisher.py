@@ -410,13 +410,65 @@ def load_tickers_from_uploaded_file(content_bytes, filename):
     except Exception as e: app_logger.error(f"Uploaded file error '{filename}': {e}", exc_info=True); return []
 
 def generate_dynamic_headline(ticker, profile_name):
-    yr = f"{datetime.now(timezone.utc).year}-{datetime.now(timezone.utc).year+1}"
-    templates = [f"{ticker} Stock Forecast: Price Prediction for {profile_name} ({yr})", f"Outlook for {ticker}: {profile_name}'s Analysis & {yr} Forecast"]
-    return random.choice(templates)
+    headline_templates = [f"Is {ticker} a Good Buy Now?", f"Analyzing {ticker} Stock", f"{ticker} Stock Analysis", f"{ticker} Stock Prediction"]
+    return random.choice(headline_templates)
+
+# Active runs tracking dictionary - maps user_uid -> {profile_id -> {"active": bool, "stop_requested": bool}}
+_active_runs = {}
+
+def stop_publishing_run(user_uid, profile_id):
+    """
+    Signals a request to stop an active publishing run for a specific profile.
+    Returns a dictionary with status information.
+    
+    Args:
+        user_uid (str): User ID of the owner of the profile
+        profile_id (str): ID of the profile to stop processing
+        
+    Returns:
+        dict: Status information with keys 'success' and 'message'
+    """
+    global _active_runs
+    
+    if user_uid not in _active_runs or profile_id not in _active_runs.get(user_uid, {}):
+        app_logger.warning(f"Stop request for inactive run (User: {user_uid}, Profile: {profile_id})")
+        return {
+            'success': False,
+            'message': 'No active automation run found for this profile.'
+        }
+    
+    run_info = _active_runs[user_uid][profile_id]
+    
+    if not run_info.get('active', False):
+        app_logger.warning(f"Stop request for already inactive run (User: {user_uid}, Profile: {profile_id})")
+        return {
+            'success': False,
+            'message': 'This profile is not currently running.'
+        }
+    
+    run_info['stop_requested'] = True
+    app_logger.info(f"Stop request registered for profile {profile_id} (User: {user_uid})")
+    
+    return {
+        'success': True,
+        'message': 'Stop request received. The automation will halt after completing the current operation.'
+    }
 
 def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_publish_per_profile_map, 
                            custom_tickers_by_profile_id=None, uploaded_file_details_by_profile_id=None,
                            socketio_instance=None, user_room=None): 
+    global _active_runs
+    
+    # Initialize the active runs tracking for this user
+    if user_uid not in _active_runs:
+        _active_runs[user_uid] = {}
+    
+    # Set all profiles to active and clear any previous stop requests
+    for profile_config in profiles_to_process_data_list:
+        profile_id = profile_config.get("profile_id")
+        if profile_id:
+            _active_runs[user_uid][profile_id] = {"active": True, "stop_requested": False}
+    
     _emit_automation_progress(socketio_instance, user_room, "Overall", "N/A", "Initialization", "Run Started", f"Processing {len(profiles_to_process_data_list)} profiles.", "info")
 
     profile_ids_for_run = [p.get("profile_id") for p in profiles_to_process_data_list if p.get("profile_id")]
@@ -430,6 +482,19 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
         _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Profile Processing", "Starting", f"Processing profile: {profile_name}", "info")
 
         if not profile_id: continue
+        
+        # Check if a stop has been requested before processing this profile
+        if user_uid in _active_runs and profile_id in _active_runs[user_uid] and _active_runs[user_uid][profile_id].get("stop_requested", False):
+            msg = f"Processing halted by user request before starting profile: {profile_name}"
+            _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Processing", "Halted", msg, "warning")
+            current_run_profile_log_details.append({"ticker": "N/A", "phase": "Processing", "stage": "Halted", "status": "halted", "timestamp": datetime.now(timezone.utc).isoformat(), "message": msg})
+            state.setdefault('processed_tickers_detailed_log_by_profile', {}).setdefault(profile_id, []).extend(current_run_profile_log_details)
+            run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": msg, "tickers_processed": current_run_profile_log_details}
+            
+            # Mark as no longer active
+            if user_uid in _active_runs and profile_id in _active_runs[user_uid]:
+                _active_runs[user_uid][profile_id]["active"] = False
+            continue
             
         authors = profile_config.get('authors', [])
         if not authors:
@@ -438,6 +503,10 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
             current_run_profile_log_details.append({"ticker": "N/A", "status": "skipped_setup", "timestamp": datetime.now(timezone.utc).isoformat(),"message": msg})
             state.setdefault('processed_tickers_detailed_log_by_profile', {}).setdefault(profile_id, []).extend(current_run_profile_log_details)
             run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": msg, "tickers_processed": current_run_profile_log_details}
+            
+            # Mark as no longer active
+            if user_uid in _active_runs and profile_id in _active_runs[user_uid]:
+                _active_runs[user_uid][profile_id]["active"] = False
             continue
 
         posts_today = state['posts_today_by_profile'].get(profile_id, 0)
@@ -451,6 +520,10 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
             current_run_profile_log_details.append({"ticker": "N/A", "status": "skipped_limit", "timestamp": datetime.now(timezone.utc).isoformat(),"message": msg})
             state.setdefault('processed_tickers_detailed_log_by_profile', {}).setdefault(profile_id, []).extend(current_run_profile_log_details)
             run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": msg, "tickers_processed": current_run_profile_log_details}
+            
+            # Mark as no longer active
+            if user_uid in _active_runs and profile_id in _active_runs[user_uid]:
+                _active_runs[user_uid][profile_id]["active"] = False
             continue
         
         _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Setup", "Post Count", f"Attempting {to_attempt} posts.", "info")
@@ -482,6 +555,10 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
             current_run_profile_log_details.append({"ticker": "N/A", "status": "skipped_no_tickers", "timestamp": datetime.now(timezone.utc).isoformat(),"message": msg})
             state.setdefault('processed_tickers_detailed_log_by_profile', {}).setdefault(profile_id, []).extend(current_run_profile_log_details)
             run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": msg, "tickers_processed": current_run_profile_log_details}
+            
+            # Mark as no longer active
+            if user_uid in _active_runs and profile_id in _active_runs[user_uid]:
+                _active_runs[user_uid][profile_id]["active"] = False
             continue
 
         last_sched_iso = state.get('last_successful_schedule_time_by_profile', {}).get(profile_id)
@@ -495,6 +572,13 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
         processed_tickers_this_run_list = []
 
         for ticker in tickers_for_profile:
+            # Check if a stop has been requested during ticker processing
+            if user_uid in _active_runs and profile_id in _active_runs[user_uid] and _active_runs[user_uid][profile_id].get("stop_requested", False):
+                msg = f"Processing halted by user request during ticker processing: {ticker}"
+                _emit_automation_progress(socketio_instance, user_room, profile_id, ticker, "Processing", "Halted", msg, "warning")
+                current_run_profile_log_details.append({"ticker": ticker, "phase": "Processing", "stage": "Halted", "status": "halted", "timestamp": datetime.now(timezone.utc).isoformat(), "message": msg})
+                break
+                
             processed_tickers_this_run_list.append(ticker)
             if published_this_run >= to_attempt or state['posts_today_by_profile'].get(profile_id, 0) >= ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP: break
             if ticker in state.get('published_tickers_log_by_profile', {}).get(profile_id, set()):
@@ -514,6 +598,13 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                 continue
             _emit_automation_progress(socketio_instance, user_room, profile_id, ticker, "Report Gen", "Done", "Report generated.", "success")
 
+            # Check if a stop has been requested after report generation
+            if user_uid in _active_runs and profile_id in _active_runs[user_uid] and _active_runs[user_uid][profile_id].get("stop_requested", False):
+                msg = f"Processing halted by user request after report generation: {ticker}"
+                _emit_automation_progress(socketio_instance, user_room, profile_id, ticker, "Processing", "Halted", msg, "warning")
+                current_run_profile_log_details.append({"ticker": ticker, "phase": "Processing", "stage": "Halted", "status": "halted", "timestamp": datetime.now(timezone.utc).isoformat(), "message": msg})
+                break
+            
             title = generate_dynamic_headline(ticker, profile_name)
             img_dir = os.path.join(APP_ROOT, "..", "generated_data", "temp_images", profile_id)
             os.makedirs(img_dir, exist_ok=True)
@@ -531,6 +622,13 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                 except: pass
             else: _emit_automation_progress(socketio_instance, user_room, profile_id, ticker, "Publishing", "Image Fail", "Image gen failed.", "warning")
 
+            # Check if a stop has been requested after image processing
+            if user_uid in _active_runs and profile_id in _active_runs[user_uid] and _active_runs[user_uid][profile_id].get("stop_requested", False):
+                msg = f"Processing halted by user request after image processing: {ticker}"
+                _emit_automation_progress(socketio_instance, user_room, profile_id, ticker, "Processing", "Halted", msg, "warning")
+                current_run_profile_log_details.append({"ticker": ticker, "phase": "Processing", "stage": "Halted", "status": "halted", "timestamp": datetime.now(timezone.utc).isoformat(), "message": msg})
+                break
+            
             if published_this_run > 0: sched_time += timedelta(minutes=random.randint(profile_config.get("min_scheduling_gap_minutes",45), profile_config.get("max_scheduling_gap_minutes",68)))
             if sched_time < datetime.now(timezone.utc): sched_time = datetime.now(timezone.utc) + timedelta(minutes=random.randint(2,5))
             
@@ -557,9 +655,21 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
         
         state.setdefault('processed_tickers_detailed_log_by_profile', {}).setdefault(profile_id, []).extend(current_run_profile_log_details)
         
-        summary = f"Successfully Published article {published_this_run}. Total published article for today: {state['posts_today_by_profile'].get(profile_id,0)}."
-        _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Profile Processing", "Complete", summary, "success" if published_this_run > 0 else "info")
+        # Check if the process was halted by user request
+        was_halted = user_uid in _active_runs and profile_id in _active_runs[user_uid] and _active_runs[user_uid][profile_id].get("stop_requested", False)
+        
+        if was_halted:
+            summary = f"Halted by user request. Published {published_this_run} articles before stopping."
+            _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Profile Processing", "Complete", summary, "warning")
+        else:
+            summary = f"Successfully Published article {published_this_run}. Total published article for today: {state['posts_today_by_profile'].get(profile_id,0)}."
+            _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Profile Processing", "Complete", summary, "success" if published_this_run > 0 else "info")
+        
         run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": summary, "tickers_processed": current_run_profile_log_details}
+        
+        # Mark as no longer active
+        if user_uid in _active_runs and profile_id in _active_runs[user_uid]:
+            _active_runs[user_uid][profile_id]["active"] = False
     
     save_state(state)
     _emit_automation_progress(socketio_instance, user_room, "Overall", "N/A", "Completion", "Run Finished", "All selected profiles processed.", "success")

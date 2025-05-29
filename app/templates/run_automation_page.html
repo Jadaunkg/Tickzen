@@ -3,87 +3,625 @@
 {% block title %}Run Automation Dashboard{% endblock %}
 
 {% block head_extra %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Styles specific to run_automation_page.html */
-        .automation-dashboard-container { max-width: 1300px; margin: 1rem auto 2rem auto; padding: 0 15px; }
-        .page-header { background-color: var(--light); padding: 1.5rem 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); border-left: 5px solid var(--primary); }
-        .page-header h1 { font-size: 1.8em; font-weight: 600; margin-bottom: 0.25rem; color: var(--dark); display: flex; align-items: center; }
-        .page-header h1 i { color: var(--primary); font-size: 0.9em; margin-right: 12px; }
-        .page-header .text-muted { margin: 0; font-size: 0.95em; color: #555; }
-        .daily-cap-info-runner { background-color: var(--info-bg, #e0f2f1); border-left: 5px solid var(--info, var(--primary)); padding: 1rem 1.5rem; margin-bottom: 2rem; font-size: 0.9em; color: var(--info-text, var(--dark)); border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
-        .daily-cap-info-runner i { margin-right: 8px; color: var(--info, var(--primary)); }
-        .profile-run-card { background-color: #ffffff; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.07); margin-bottom: 2.5rem; overflow: hidden; border: 1px solid #e0e0e0; }
-        .profile-run-header { background: var(--primary); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; }
-        .profile-run-header input[type="checkbox"] { margin-right: 15px; transform: scale(1.3); cursor: pointer; accent-color: white; }
-        .profile-run-header label { font-weight: 600; font-size: 1.2em; color: white; cursor: pointer; margin-bottom: 0; flex-grow: 1; }
-        .profile-run-header label i { margin-right: 10px; }
-        .profile-run-body { display: flex; flex-wrap: wrap; padding: 1.5rem; gap: 2rem; }
-        .profile-run-config, .profile-run-logs { padding: 1rem; background-color: var(--light); border-radius: 6px; border: 1px solid #e9ecef; }
-        .profile-run-config { flex: 1; min-width: 320px; } 
-        .profile-run-logs { flex: 1.5; min-width: 380px; }
-        .profile-run-config h4, .profile-run-logs h4 { font-size: 1.1em; color: var(--dark); margin-top: 0; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary); }
-        .profile-run-config h4 i, .profile-run-logs h4 i { margin-right: 8px; color: var(--primary); }
-        .profile-run-config p { font-size: 0.9em; color: #555; }
-        .profile-run-config p .detail-label { font-weight: 600; color: var(--dark); }
-        .profile-run-config p a { color: var(--primary); text-decoration: none; }
-        .profile-run-config p a:hover { text-decoration: underline; }
-        .ticker-input-choice { margin-bottom: 1.5rem; }
-        .ticker-input-choice strong { display: block; margin-bottom: 0.75rem; font-weight: 600; color: var(--dark); }
-        .ticker-input-choice label { margin-right: 15px; font-size: 0.95em; cursor: pointer; color: #444;}
-        .ticker-input-choice input[type="radio"] { margin-right: 5px; vertical-align: middle; accent-color: var(--primary); }
-        .file-upload-section, .manual-ticker-section { padding: 1rem; background-color: #ffffff; border-radius: 6px; border: 1px solid #ddd; margin-top: 0.75rem; }
-        .uploaded-file-info { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; background-color: #e0f2f1; border-radius: 4px; margin-bottom: 0.75rem; font-size: 0.85em; }
-        .uploaded-file-info .file-icon { color: var(--primary); margin-right: 8px;}
-        .uploaded-file-info .file-name { color: var(--dark); font-weight: 500;}
-        .uploaded-file-info .remove-file-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1em; }
-        .ticker-status-table-container { max-height: 180px; overflow-y: auto; margin-top: 0.75rem; border: 1px solid #dee2e6; border-radius: 4px; }
-        .ticker-status-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
-        .ticker-status-table th, .ticker-status-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #e9ecef; }
-        .ticker-status-table th { background-color: #f1f3f5; font-weight: 600; color: #495057; }
-        .ticker-status-table td.status-published { color: var(--success); font-weight: 500;}
-        .ticker-status-table td.status-not-published { color: #6c757d; }
-        .log-console-output { background-color: #263238; color: #CFD8DC; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.85em; padding: 1rem; border-radius: 6px; height: 280px; overflow-y: auto; border: 1px solid #37474F; line-height: 1.5; }
-        .log-console-output .log-entry { margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #455A64; display: flex; align-items: flex-start; }
-        .log-console-output .log-entry:last-child { border-bottom: none; }
-        .log-entry .log-icon { margin-right: 10px; font-size: 1em; min-width: 18px; text-align: center; margin-top: 1px; }
-        .log-entry.status-info .log-icon { color: #64B5F6; } 
-        .log-entry.status-success .log-icon { color: #81C784; } 
-        .log-entry.status-warning .log-icon { color: #FFD54F; } 
-        .log-entry.status-error .log-icon { color: #E57373; } 
-        .log-entry .log-details .log-ticker { font-weight: bold; color: #82AAFF; } 
-        .log-entry .log-details .log-phase-stage { font-weight: 500; color: #90CAF9; margin-right: 5px; } 
-        .log-entry .log-details .log-message { color: #B0BEC5; display: block; margin-top: 1px;}
-        .log-entry .log-details .log-timestamp { color: #A7ADBA; font-style: italic; font-size: 0.85em; margin-left: 5px; }
-        .btn-execute-runs { background: var(--primary); color: white; padding: 12px 30px; border: none; border-radius: 25px; font-size: 1.1em; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; display: block; width: fit-content; margin: 2.5rem auto 2rem auto; box-shadow: 0 4px 15px rgba(16, 172, 132, 0.25); transition: all 0.3s ease; }
-        .btn-execute-runs:hover:not(:disabled) { background: #0d8a6a; box-shadow: 0 6px 20px rgba(16, 172, 132, 0.35); transform: translateY(-2px); }
-        .btn-execute-runs:disabled { background-color: #95a5a6; cursor: not-allowed; box-shadow: none; transform: none; }
-        .btn-execute-runs i { margin-right: 10px; } 
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; font-weight: 500; margin-bottom: 0.35rem; font-size: 0.9em; color: #333;}
-        .form-control-sm { height: calc(1.5em + .75rem + 2px); padding: .375rem .75rem; font-size: .875rem; border-radius: .25rem; }
-        .form-text { font-size: 0.8em; color: #6c757d; margin-top: 0.25rem; }
-        textarea.form-control-sm { min-height: 70px; } 
-        input[type="file"].form-control-sm { padding: 0.2rem 0.5rem; }
-        .no-profiles-message { text-align: center; padding: 2rem; background-color: #fff; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-top: 2rem; }
-        .no-profiles-message p { font-size: 1.1em; color: #555; margin-bottom: 1.5rem;}
-        .no-profiles-message .btn-primary { font-size: 1em; padding: 10px 20px; }
-        /* Remove automation-status-bar styles as it's being eliminated */
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 0 0% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 0 0% 3.9%;
+            --primary: 0 0% 9%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 0 0% 96.1%;
+            --secondary-foreground: 0 0% 9%;
+            --muted: 0 0% 96.1%;
+            --muted-foreground: 0 0% 45.1%;
+            --accent: 0 0% 96.1%;
+            --accent-foreground: 0 0% 9%;
+            --border: 0 0% 89.8%;
+            --input: 0 0% 89.8%;
+            --ring: 0 0% 3.9%;
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --green-800: #166534;
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --orange-50: #fff7ed;
+            --orange-100: #ffedd5;
+            --orange-600: #ea580c;
+            --red-50: #fef2f2;
+            --red-100: #fee2e2;
+            --red-600: #dc2626;
+            --red-700: #b91c1c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: hsl(var(--foreground));
+            background: hsl(var(--background));
+            font-size: 14px;
+        }
+
+        .automation-dashboard-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 1rem;
+        }
+        
+        .page-header { 
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            margin-bottom: 1.5rem; 
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .page-header h1 { 
+            font-size: 1.5rem; 
+            font-weight: 600; 
+            margin-bottom: 0.5rem; 
+            color: hsl(var(--foreground));
+            display: flex; 
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .page-header h1 i { 
+            color: var(--green-600); 
+            font-size: 1.25rem;
+        }
+        
+        .page-header .text-muted { 
+            margin: 0; 
+            font-size: 0.875rem; 
+            color: hsl(var(--muted-foreground));
+        }
+        
+        .daily-cap-info-runner { 
+            background: var(--blue-50);
+            border: 1px solid var(--blue-100);
+            border-radius: 8px;
+            padding: 0.875rem; 
+            margin-bottom: 1.5rem; 
+            font-size: 0.8rem; 
+            color: var(--blue-700);
+        }
+        
+        .daily-cap-info-runner i { 
+            margin-right: 0.5rem; 
+            color: var(--blue-600);
+        }
+        
+        .profile-run-card { 
+            background: white; 
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px; 
+            margin-bottom: 1.5rem; 
+            overflow: hidden; 
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .profile-run-card:hover {
+            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+        }
+        
+        .profile-run-header { 
+            background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
+            color: white; 
+            padding: 1rem; 
+            display: flex; 
+            align-items: center;
+        }
+        
+        .profile-run-header input[type="checkbox"] { 
+            margin-right: 0.75rem; 
+            transform: scale(1.1); 
+            cursor: pointer; 
+            accent-color: white;
+        }
+        
+        .profile-run-header label { 
+            font-weight: 500; 
+            font-size: 1rem; 
+            color: white; 
+            cursor: pointer; 
+            margin-bottom: 0; 
+            flex-grow: 1;
+        }
+        
+        .profile-run-header label i { 
+            margin-right: 0.5rem;
+        }
+        
+        .profile-run-body { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            background: hsl(var(--muted));
+        }
+        
+        .profile-run-config, .profile-run-logs { 
+            padding: 1rem; 
+            background: white; 
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+        }
+        
+        .profile-run-config h4, .profile-run-logs h4 { 
+            font-size: 0.875rem; 
+            color: hsl(var(--foreground)); 
+            margin: 0 0 0.75rem 0; 
+            padding-bottom: 0.5rem; 
+            border-bottom: 2px solid var(--green-600);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .profile-run-config h4 i, .profile-run-logs h4 i { 
+            color: var(--green-600);
+            font-size: 0.875rem;
+        }
+        
+        .profile-run-config p { 
+            font-size: 0.75rem; 
+            color: hsl(var(--muted-foreground)); 
+            margin-bottom: 0.75rem;
+        }
+        
+        .profile-run-config p .detail-label { 
+            font-weight: 500; 
+            color: hsl(var(--foreground)); 
+        }
+        
+        .profile-run-config p a { 
+            color: var(--green-600); 
+            text-decoration: none;
+        }
+        
+        .profile-run-config p a:hover { 
+            text-decoration: underline; 
+        }
+        
+        .ticker-input-choice { 
+            margin-bottom: 1rem;
+            background: hsl(var(--muted));
+            padding: 0.75rem;
+            border-radius: 6px;
+        }
+        
+        .ticker-input-choice strong { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            font-weight: 500; 
+            color: hsl(var(--foreground));
+            font-size: 0.75rem;
+        }
+        
+        .ticker-input-choice label { 
+            margin-right: 1rem; 
+            font-size: 0.75rem; 
+            cursor: pointer; 
+            color: hsl(var(--muted-foreground));
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .ticker-input-choice input[type="radio"] { 
+            margin-right: 0.375rem; 
+            accent-color: var(--green-600);
+        }
+        
+        .file-upload-section, .manual-ticker-section { 
+            padding: 0.75rem; 
+            background: hsl(var(--muted)); 
+            border-radius: 6px; 
+            border: 1px dashed hsl(var(--border)); 
+            margin-top: 0.5rem;
+        }
+        
+        .uploaded-file-info { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0.5rem; 
+            background: var(--green-50);
+            border-radius: 6px; 
+            margin-bottom: 0.5rem; 
+            font-size: 0.75rem;
+            border: 1px solid var(--green-100);
+        }
+        
+        .uploaded-file-info .file-icon { 
+            color: var(--green-600); 
+            margin-right: 0.5rem;
+        }
+        
+        .uploaded-file-info .file-name { 
+            color: hsl(var(--foreground)); 
+            font-weight: 500;
+        }
+        
+        .uploaded-file-info .remove-file-btn { 
+            background: none; 
+            border: none; 
+            color: var(--red-600); 
+            cursor: pointer; 
+            font-size: 1rem;
+            padding: 0.125rem;
+        }
+        
+        .ticker-status-table-container { 
+            max-height: 120px; 
+            overflow-y: auto; 
+            margin-top: 0.5rem; 
+            border: 1px solid hsl(var(--border)); 
+            border-radius: 6px;
+            background: white;
+        }
+        
+        .ticker-status-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 0.7rem;
+        }
+        
+        .ticker-status-table th, .ticker-status-table td { 
+            padding: 0.375rem 0.5rem; 
+            text-align: left; 
+            border-bottom: 1px solid hsl(var(--border));
+        }
+        
+        .ticker-status-table th { 
+            background: hsl(var(--muted));
+            font-weight: 500; 
+            color: hsl(var(--foreground));
+        }
+        
+        .ticker-status-table td.status-published { 
+            color: var(--green-600); 
+            font-weight: 500;
+        }
+        
+        .ticker-status-table td.status-not-published { 
+            color: hsl(var(--muted-foreground)); 
+        }
+        
+        .log-console-output { 
+            background: #1a1a1a;
+            color: #e5e5e5; 
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; 
+            font-size: 0.7rem; 
+            padding: 0.75rem; 
+            border-radius: 6px; 
+            height: 200px; 
+            overflow-y: auto; 
+            border: 1px solid #333;
+            line-height: 1.4;
+        }
+        
+        .log-console-output .log-entry { 
+            margin-bottom: 0.375rem; 
+            padding-bottom: 0.375rem; 
+            border-bottom: 1px dashed #333;
+            display: flex; 
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .log-console-output .log-entry:last-child { 
+            border-bottom: none; 
+        }
+        
+        .log-entry .log-icon { 
+            font-size: 0.75rem; 
+            min-width: 12px; 
+            text-align: center; 
+            margin-top: 1px;
+        }
+        
+        .log-entry.status-info .log-icon { color: #60a5fa; } 
+        .log-entry.status-success .log-icon { color: #34d399; } 
+        .log-entry.status-warning .log-icon { color: #fbbf24; } 
+        .log-entry.status-error .log-icon { color: #f87171; } 
+        
+        .log-entry .log-details .log-ticker { 
+            font-weight: 600; 
+            color: #60a5fa;
+            margin-right: 0.25rem;
+        } 
+        
+        .log-entry .log-details .log-phase-stage { 
+            font-weight: 500; 
+            color: #a78bfa; 
+            margin-right: 0.25rem;
+        } 
+        
+        .log-entry .log-details .log-message { 
+            color: #d1d5db; 
+            display: block; 
+            margin-top: 1px;
+        }
+        
+        .log-entry .log-details .log-timestamp { 
+            color: #9ca3af; 
+            font-style: italic; 
+            font-size: 0.65rem; 
+            margin-left: 0.25rem;
+        }
+        
+        .stop-automation-button {
+            background: linear-gradient(135deg, var(--red-600) 0%, var(--red-700) 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 0.75rem;
+            display: block;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        
+        .stop-automation-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--red-700) 0%, #991b1b 100%);
+            transform: translateY(-1px);
+        }
+        
+        .stop-automation-button.stopping {
+            background: #6b7280;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        
+        .stop-automation-button .icon { 
+            margin-right: 0.375rem;
+        }
+        
+        .btn-execute-runs { 
+            background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
+            color: white; 
+            padding: 0.875rem 2rem; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 0.875rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            letter-spacing: 0.025em; 
+            display: block; 
+            width: fit-content; 
+            margin: 2rem auto; 
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-execute-runs:hover:not(:disabled) { 
+            background: linear-gradient(135deg, var(--green-700) 0%, #15803d 100%);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .btn-execute-runs:disabled { 
+            background: #9ca3af;
+            cursor: not-allowed; 
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .btn-execute-runs i { 
+            margin-right: 0.5rem;
+        } 
+        
+        .form-group { 
+            margin-bottom: 0.75rem; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            font-weight: 500; 
+            margin-bottom: 0.25rem; 
+            font-size: 0.75rem; 
+            color: hsl(var(--foreground));
+        }
+        
+        .form-control-sm { 
+            height: 2rem; 
+            padding: 0.375rem 0.5rem; 
+            font-size: 0.75rem; 
+            border-radius: 4px;
+            border: 1px solid hsl(var(--border));
+            transition: border-color 0.2s ease;
+        }
+        
+        .form-control-sm:focus {
+            outline: none;
+            border-color: var(--green-600);
+            box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1);
+        }
+        
+        .form-text { 
+            font-size: 0.65rem; 
+            color: hsl(var(--muted-foreground)); 
+            margin-top: 0.25rem; 
+        }
+        
+        textarea.form-control-sm { 
+            min-height: 3rem;
+            resize: vertical;
+        } 
+        
+        input[type="file"].form-control-sm { 
+            padding: 0.25rem; 
+        }
+        
+        .no-profiles-message { 
+            text-align: center; 
+            padding: 2rem; 
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px; 
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            margin-top: 1.5rem;
+        }
+        
+        .no-profiles-message p { 
+            font-size: 0.875rem; 
+            color: hsl(var(--muted-foreground)); 
+            margin-bottom: 1rem;
+        }
+        
+        .no-profiles-message .btn-primary { 
+            font-size: 0.875rem; 
+            padding: 0.5rem 1rem;
+            background: var(--green-600);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .no-profiles-message .btn-primary:hover {
+            background: var(--green-700);
+            transform: translateY(-1px);
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .toast {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            transform: translateX(320px);
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success { border-left: 3px solid var(--green-600); }
+        .toast.error { border-left: 3px solid var(--red-600); }
+        .toast.warning { border-left: 3px solid var(--orange-600); }
+        .toast.info { border-left: 3px solid var(--blue-600); }
+        
+        .toast-icon {
+            font-size: 1rem;
+            margin-top: 1px;
+        }
+        
+        .toast-icon.success { color: var(--green-600); }
+        .toast-icon.error { color: var(--red-600); }
+        .toast-icon.warning { color: var(--orange-600); }
+        .toast-icon.info { color: var(--blue-600); }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.125rem;
+            color: hsl(var(--foreground));
+            font-size: 0.75rem;
+        }
+        
+        .toast-message {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.7rem;
+            line-height: 1.3;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            cursor: pointer;
+            padding: 0;
+            margin-left: 0.5rem;
+        }
+        
+        .toast-close:hover {
+            color: hsl(var(--foreground));
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .automation-dashboard-container {
+                padding: 0.75rem;
+            }
+            
+            .page-header {
+                padding: 1rem;
+            }
+            
+            .page-header h1 {
+                font-size: 1.25rem;
+            }
+            
+            .profile-run-body {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .btn-execute-runs {
+                font-size: 0.75rem;
+                padding: 0.75rem 1.5rem;
+            }
+        }
+        
+        .log-console-output .log-entry.status-error strong { color: #f87171; }
+        .log-console-output .log-entry.status-warning strong { color: #fbbf24; }
+        .log-console-output .log-entry.status-success strong { color: #34d399; }
+        .log-console-output .log-entry.status-info strong { color: #60a5fa; }
     </style>
 {% endblock %}
 
 {% block content %}
 <div class="automation-dashboard-container"> 
     <div class="page-header">
-        <h1><i class="fas fa-robot"></i> Automation Run Control</h1>
+        <h1><i class="fas fa-robot"></i> Automation Control</h1>
         <p class="text-muted">Configure and launch automated tasks for your WordPress profiles.</p>
     </div>
 
-    {# Automation Status Bar Removed #}
-
     {% if user_site_profiles and user_site_profiles|length > 0 %}
         <div class="daily-cap-info-runner">
-            <i class="fas fa-tachometer-alt"></i> Global Daily Post Cap (per site): 
-            <strong>{{ absolute_max_posts_cap if absolute_max_posts_cap is not none else 'N/A' }}</strong>.
+            <i class="fas fa-tachometer-alt"></i> Daily Post Cap: 
+            <strong>{{ absolute_max_posts_cap if absolute_max_posts_cap is not none else 'N/A' }}</strong> per site.
             Today's Counts ({{ last_run_date_for_counts if last_run_date_for_counts else 'N/A' }}).
         </div>
 
@@ -98,11 +636,11 @@
                 </div>
                 <div class="profile-run-body">
                     <div class="profile-run-config">
-                        <h4><i class="fas fa-sliders-h"></i> Run Settings</h4>
-                        <p>Target Site: <a href="{{ profile.site_url }}" target="_blank" rel="noopener noreferrer">{{ profile.site_url }}</a></p>
-                        <p><span class="detail-label">Posts Today:</span> <strong>{{ posts_today_by_profile.get(profile.profile_id, 0) }}</strong> / {{ absolute_max_posts_cap if absolute_max_posts_cap is not none else 'N/A' }}</p>
+                        <h4><i class="fas fa-sliders-h"></i> Settings</h4>
+                        <p>Site: <a href="{{ profile.site_url }}" target="_blank" rel="noopener noreferrer">{{ profile.site_url }}</a></p>
+                        <p><span class="detail-label">Today:</span> <strong>{{ posts_today_by_profile.get(profile.profile_id, 0) }}</strong> / {{ absolute_max_posts_cap if absolute_max_posts_cap is not none else 'N/A' }}</p>
                         <div class="form-group">
-                            <label for="posts_{{ profile.profile_id }}">Posts for this Run:</label>
+                            <label for="posts_{{ profile.profile_id }}">Posts for this run:</label>
                             {% set current_posts = posts_today_by_profile.get(profile.profile_id, 0) | int(0) %}
                             {% set cap = absolute_max_posts_cap | int(-1) %}
                             {% set max_for_run = (cap - current_posts) if cap != -1 else 100 %}
@@ -111,11 +649,11 @@
                         <div class="ticker-input-choice">
                             <strong>Ticker Source:</strong>
                             <label><input type="radio" name="ticker_source_{{ profile.profile_id }}" value="file" checked onchange="toggleTickerInput('{{ profile.profile_id }}', 'file')"> Upload File</label>
-                            <label><input type="radio" name="ticker_source_{{ profile.profile_id }}" value="manual" onchange="toggleTickerInput('{{ profile.profile_id }}', 'manual')"> Enter Manually</label>
+                            <label><input type="radio" name="ticker_source_{{ profile.profile_id }}" value="manual" onchange="toggleTickerInput('{{ profile.profile_id }}', 'manual')"> Manual Entry</label>
                         </div>
                         <div class="file-upload-section" id="file_upload_section_{{ profile.profile_id }}">
                             <div class="form-group">
-                                <label for="ticker_file_{{ profile.profile_id }}">Upload Ticker Sheet (Excel/CSV):</label>
+                                <label for="ticker_file_{{ profile.profile_id }}">Upload Ticker File:</label>
                                 <input type="file" class="form-control form-control-sm ticker-file-input" id="ticker_file_{{ profile.profile_id }}" name="ticker_file_{{ profile.profile_id }}" accept=".xlsx,.xls,.csv" data-profile-id="{{ profile.profile_id }}">
                             </div>
                             <div class="uploaded-file-info" id="uploaded_file_info_{{ profile.profile_id }}" style="display: none;">
@@ -129,13 +667,13 @@
                         </div>
                         <div class="manual-ticker-section" id="manual_ticker_section_{{ profile.profile_id }}" style="display: none;">
                             <div class="form-group">
-                                <label for="custom_tickers_{{ profile.profile_id }}">Enter Tickers (comma-separated):</label>
-                                <textarea class="form-control form-control-sm" id="custom_tickers_{{ profile.profile_id }}" name="custom_tickers_{{ profile.profile_id }}" rows="3" placeholder="e.g., AAPL, MSFT, GOOGL"></textarea>
+                                <label for="custom_tickers_{{ profile.profile_id }}">Enter Tickers:</label>
+                                <textarea class="form-control form-control-sm" id="custom_tickers_{{ profile.profile_id }}" name="custom_tickers_{{ profile.profile_id }}" rows="2" placeholder="AAPL, MSFT, GOOGL"></textarea>
                             </div>
                         </div>
                     </div>
                     <div class="profile-run-logs">
-                        <h4><i class="fas fa-stream"></i> Automation Log (Today)</h4>
+                        <h4><i class="fas fa-stream"></i> Activity Log</h4>
                         <div class="log-console-output" id="log_console_{{ profile.profile_id }}">
                             {% set todays_logs = processed_tickers_log_map.get(profile.profile_id, []) %}
                             {% if todays_logs and todays_logs|length > 0 %}
@@ -143,7 +681,7 @@
                                     {% set status_class = log_entry.status | lower if log_entry.status else 'info' %}
                                     {% set icon_class = 'fa-info-circle' %}
                                     {% if status_class == 'success' %}{% set icon_class = 'fa-check-circle' %}{% endif %}
-                                    {% if status_class == 'failure' %}{% set icon_class = 'fa-times-circle' %}{% endif %}
+                                    {% if status_class == 'failure' or status_class == 'error' %}{% set icon_class = 'fa-times-circle' %}{% endif %}
                                     {% if status_class == 'skipped' or 'skipped_' in status_class %}{% set icon_class = 'fa-info-circle' %}{% endif %}
                                     {% if status_class == 'warning' %}{% set icon_class = 'fa-exclamation-triangle' %}{% endif %}
                                     <div class="log-entry status-{{ status_class }}">
@@ -153,104 +691,121 @@
                                             {% elif log_entry.phase %}<span class="log-phase-stage">[{{ log_entry.phase }}]</span>
                                             {% elif log_entry.stage %}<span class="log-phase-stage">{{ log_entry.stage }}</span>{% endif %}
                                             {% if log_entry.ticker and log_entry.ticker != 'N/A' %}<span class="log-ticker">{{ log_entry.ticker }}</span>{% endif %}
-                                            <span class="log-message">{{ log_entry.message | truncate(120, True) }}</span>
+                                            <span class="log-message">{{ log_entry.message | truncate(80, True) }}</span>
                                             <span class="log-timestamp">{{ log_entry.timestamp | format_datetime('%H:%M:%S') if log_entry.timestamp else '' }}</span>
                                         </div>
                                     </div>
                                 {% endfor %}
                             {% else %}
-                                <p class="no-log initial-message" style="text-align: center; padding-top: 20px; color: #6c757d;">No automation activity logged for this profile today.</p>
+                                <p class="no-log initial-message" style="text-align: center; padding: 1rem 0; color: #9ca3af; font-style: italic;">No activity logged today.</p>
                             {% endif %}
                         </div>
+                        <button type="button" class="stop-automation-button" data-profile-id="{{ profile.profile_id }}" style="display:none;">
+                            <span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation
+                        </button>
                     </div>
                 </div>
             </div>
             {% endfor %}
-            <button type="submit" class="btn-execute-runs" id="executeAutomationBtn"><i class="fas fa-bolt"></i> Start Selected Automation Runs</button>
+            <button type="submit" class="btn-execute-runs" id="executeAutomationBtn"><i class="fas fa-bolt"></i> Start Selected Runs</button>
         </form>
     {% else %}
-        <div class="no-profiles-message text-center"> 
-            <p style="font-size: 1.1em; color:#555;">You currently have no site profiles configured for automation.</p>
-            <a href="{{ url_for('manage_site_profiles') }}" class="btn btn-primary" style="font-size: 1em; padding: 10px 20px;"><i class="fas fa-plus-circle"></i> Create Your First Site Profile</a>
+        <div class="no-profiles-message"> 
+            <p>No site profiles configured for automation.</p>
+            <a href="{{ url_for('manage_site_profiles') }}" class="btn-primary"><i class="fas fa-plus-circle"></i> Create Site Profile</a>
         </div>
     {% endif %}
 </div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
 {% endblock %}
 
 {% block scripts_extra %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // console.log("Automation Runner Page Script Initialized (No Status Bar V3)."); // Reduced print
-
     const automationRunForm = document.getElementById('automationRunForm');
     const executeAutomationBtn = document.getElementById('executeAutomationBtn');
-    // const statusBar = document.getElementById('automation-status-bar'); // Removed
-    // const statusMessage = document.getElementById('automation-status-message'); // Removed
-
+    
     if (typeof io === 'undefined') {
         console.error("Socket.IO client library not loaded. Real-time updates will be disabled.");
-        alert("Real-time logging features are unavailable. Please check console.");
         return; 
     }
     const socket = io();
 
-    socket.on('connect', function() {
-        console.log('Socket.IO connected for automation updates.');
-    });
+    socket.on('connect', function() { console.log('Socket.IO connected for automation updates.'); });
+    socket.on('disconnect', function(reason) { console.warn('Socket.IO disconnected. Reason:', reason); });
+    socket.on('connect_error', (error) => { console.error('Socket.IO Connection Error:', error); });
+    socket.on('error', (error) => { console.error('Socket.IO general error:', error); });
+    socket.on('reconnect_attempt', (attemptNumber) => { console.log(`Socket.IO reconnect attempt ${attemptNumber}`); });
+    socket.on('reconnect_error', (error) => { console.error('Socket.IO reconnection error:', error); });
+    socket.on('reconnect_failed', () => { console.error('Socket.IO reconnection failed.'); });
 
-    socket.on('disconnect', function(reason) { 
-        console.warn('Socket.IO disconnected. Reason:', reason);
-        // Optionally inform user in a less intrusive way if needed, e.g. small icon change
-    });
-    
-    socket.on('connect_error', (error) => {
-        console.error('Socket.IO Connection Error:', error);
-        // Optionally inform user
-    });
-    
-    socket.on('error', (error) => {
-        console.error('Socket.IO general error:', error);
-    });
-
-    socket.on('reconnect_attempt', (attemptNumber) => {
-        console.log(`Socket.IO reconnect attempt ${attemptNumber}`);
-    });
-
-    socket.on('reconnect_error', (error) => {
-        console.error('Socket.IO reconnection error:', error);
-    });
-
-    socket.on('reconnect_failed', () => {
-        console.error('Socket.IO reconnection failed.');
-    });
-
+    // Toast notification function
+    function showToast(type, title, message, duration = 4000) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-times-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        
+        toast.innerHTML = `
+            <div class="toast-icon ${type}">
+                <i class="fas ${icons[type] || icons.info}"></i>
+            </div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Show toast
+        setTimeout(() => toast.classList.add('show'), 100);
+        
+        // Auto remove
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
 
     socket.on('automation_update', function(data) {
-        // console.log('Automation Update Received:', data); // Reduced print
-        
-        const logConsole = document.getElementById(`log_console_${data.profile_id}`);
+        const profileId = data.profile_id;
+        const logConsole = document.getElementById(`log_console_${profileId}`);
+        const stopButton = document.querySelector(`.stop-automation-button[data-profile-id="${profileId}"]`);
+
         if (logConsole) {
             const currentRunPlaceholder = logConsole.querySelector('.current-run-message');
-            if (currentRunPlaceholder) {
-                currentRunPlaceholder.remove();
-            }
+            if (currentRunPlaceholder) currentRunPlaceholder.remove();
+            
             const initialNoLogMsg = logConsole.querySelector('.initial-message');
-            if (initialNoLogMsg && logConsole.children.length === 1) {
-                initialNoLogMsg.remove();
+            if (initialNoLogMsg && logConsole.children.length === 1 && (logConsole.firstElementChild === initialNoLogMsg)) {
+                 initialNoLogMsg.style.display = 'none';
             }
 
             const logEntryDiv = document.createElement('div');
-            logEntryDiv.classList.add('log-entry', `status-${data.status || 'info'}`); 
+            const statusClass = (data.status || 'info').toLowerCase();
+            logEntryDiv.classList.add('log-entry', `status-${statusClass}`); 
 
             let iconClass = 'fa-info-circle'; 
-            if (data.status === 'success') iconClass = 'fa-check-circle';
-            else if (data.status === 'error') iconClass = 'fa-times-circle';
-            else if (data.status === 'warning') iconClass = 'fa-exclamation-triangle';
+            if (statusClass === 'success') iconClass = 'fa-check-circle';
+            else if (statusClass === 'error' || statusClass === 'failure') iconClass = 'fa-times-circle';
+            else if (statusClass === 'warning') iconClass = 'fa-exclamation-triangle';
             
             let timestampShort = '';
             if (data.timestamp) {
                 try { timestampShort = new Date(data.timestamp).toLocaleTimeString(); } 
-                catch (e) { /* console.warn("Could not parse timestamp:", data.timestamp); */ } // Reduced print
+                catch (e) { /* console.warn("Could not parse timestamp") */ }
             }
             
             let phaseStageHTML = '';
@@ -271,18 +826,94 @@ document.addEventListener('DOMContentLoaded', function() {
             logConsole.scrollTop = logConsole.scrollHeight; 
         }
         
-        // Re-enable button if it's an "Overall" completion or error message
+        if (stopButton) {
+            const profileNameForButton = stopButton.dataset.profileName || profileId;
+
+            const isProfileProcessingStart = data.phase === 'Profile Processing' && data.stage === 'Starting';
+            const isProfileSetupPostCount = data.phase === 'Setup' && data.stage === 'Post Count';
+            const isProfileTickerLoadingActive = data.phase === 'Ticker Loading' && (data.stage === 'Custom' || data.stage === 'File');
+            const isProfileReportGenActive = data.phase === 'Report Gen' && (data.stage === 'Starting' || data.stage === 'Done');
+            const isProfilePublishingActive = data.phase === 'Publishing' && 
+                (data.stage === 'Image Gen' || data.stage === 'Image Upload' || data.stage === 'Image OK' || data.stage === 'Scheduling' || data.stage === 'Scheduled');
+
+            const isActiveRunPhase = isProfileProcessingStart || isProfileSetupPostCount || isProfileTickerLoadingActive || isProfileReportGenActive || isProfilePublishingActive;
+            
+            // Explicit halt signal from backend during ticker processing
+            const isProcessingHalted = data.phase === 'Processing' && data.stage === 'Halted';
+            // Profile completion message indicates it was stopped by user
+            const isProfileCompletedAsHalted = data.phase === 'Profile Processing' && data.stage === 'Complete' && data.message && data.message.toLowerCase().includes('halted by user request');
+            // Server acknowledges the stop request has been received
+            const isStopSignalAcknowledged = data.phase === 'Control' && data.stage === 'Stop Requested';
+
+            const isConfirmedHaltEvent = isProcessingHalted || isProfileCompletedAsHalted;
+            const isStopInProgressEvent = isStopSignalAcknowledged;
+
+            const isProfileCompletedNormally = data.phase === 'Profile Processing' && data.stage === 'Complete' && !isProfileCompletedAsHalted;
+            const isOverallCompletion = data.profile_id === "Overall" && data.phase === "Completion" && data.stage === "Run Finished";
+            const isSkippedOrFailedEarly = 
+                ((data.phase === 'Setup' || data.phase === 'Ticker Loading') && data.stage && data.stage.toLowerCase().includes('skipped')) ||
+                (data.phase === 'Report Gen' && data.stage === 'Failed') ||
+                (data.phase === 'Publishing' && data.stage === 'Failed') ||
+                (data.phase === 'Article' && data.stage === 'Skipped');
+
+            if (isConfirmedHaltEvent) {
+                stopButton.disabled = true;
+                stopButton.classList.add('stopping');
+                stopButton.innerHTML = `<span class="icon"><i class="fas fa-check-circle"></i></span> Stopped`;
+                
+                // Show success notification
+                showToast('success', 'Automation Stopped', `Successfully halted automation.`);
+                
+                setTimeout(() => {
+                    stopButton.style.display = 'none';
+                    stopButton.disabled = false;
+                    stopButton.classList.remove('stopping');
+                    stopButton.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
+                }, 2000);
+            } else if (isStopInProgressEvent) {
+                stopButton.style.display = 'block';
+                stopButton.disabled = true;
+                stopButton.classList.add('stopping');
+                stopButton.innerHTML = `<span class="icon"><i class="fas fa-spinner fa-spin"></i></span> Stopping...`;
+                
+                // Show info notification
+                showToast('info', 'Stop Request Sent', `Processing stop request...`);
+            } else if (isActiveRunPhase && !isSkippedOrFailedEarly) {
+                // Show normal stop button if active and not already dealing with a stop
+                stopButton.style.display = 'block';
+                stopButton.disabled = false;
+                stopButton.classList.remove('stopping');
+                stopButton.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
+            } else if (isProfileCompletedNormally || isOverallCompletion || isSkippedOrFailedEarly) {
+                // Hide button if profile completed normally, overall run finished, or skipped/failed early
+                stopButton.style.display = 'none';
+                stopButton.disabled = false;
+                stopButton.classList.remove('stopping');
+                stopButton.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
+                
+                if (isProfileCompletedNormally) {
+                    showToast('success', 'Automation Complete', `Profile automation completed successfully.`);
+                }
+            }
+        }
+        
         if (data.profile_id === "Overall" && ((data.phase === "Completion" && data.stage === "Run Finished") || data.status === 'error')) {
              if(executeAutomationBtn) executeAutomationBtn.disabled = false;
+             
+             if (data.phase === "Completion" && data.stage === "Run Finished") {
+                 showToast('success', 'All Complete', 'All automation runs finished successfully.');
+             }
         }
     });
     
-    // This event can be used for very high-level status if still needed,
-    // but primarily 'automation_update' with profile_id "Overall" handles this now.
     socket.on('automation_status', function(data){ 
-        console.log("Overall Automation Status:", data.message); // Log for dev if needed
+        console.log("Overall Automation Status:", data.message);
         if (data.status === 'error' || data.message.toLowerCase().includes("finished") || data.message.toLowerCase().includes("completed")) {
              if(executeAutomationBtn) executeAutomationBtn.disabled = false; 
+             
+             if (data.status === 'error') {
+                 showToast('error', 'Automation Error', data.message || 'An error occurred during automation.');
+             }
         }
     });
 
@@ -290,42 +921,101 @@ document.addEventListener('DOMContentLoaded', function() {
         automationRunForm.addEventListener('submit', function() {
             if(executeAutomationBtn) executeAutomationBtn.disabled = true;
             
+            const selectedProfiles = [];
+            
             document.querySelectorAll('.profile-run-card input[type="checkbox"]:checked').forEach(checkbox => {
                 const profileId = checkbox.value;
+                const profileCard = checkbox.closest('.profile-run-card');
+                const stopButton = profileCard ? profileCard.querySelector('.stop-automation-button') : null;
+                const profileNameLabel = checkbox.nextElementSibling;
+                const profileName = profileNameLabel ? profileNameLabel.textContent.trim() : profileId;
+                
+                selectedProfiles.push(profileName);
+                
+                if (stopButton) {
+                    stopButton.style.display = 'block'; 
+                    stopButton.disabled = false;
+                    stopButton.classList.remove('stopping');
+                    stopButton.dataset.profileName = profileName; 
+                    stopButton.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
+                }
+
                 const logConsole = document.getElementById(`log_console_${profileId}`);
                 if (logConsole) {
                     const initialMsg = logConsole.querySelector('.initial-message');
-                    if (initialMsg) initialMsg.remove();
+                    if (initialMsg) initialMsg.style.display = 'none';
                     
                     const currentRunMsg = logConsole.querySelector('.current-run-message');
                     if(currentRunMsg) currentRunMsg.remove();
 
-                    if (logConsole.children.length === 0 || !logConsole.querySelector('.current-run-message')) {
-                         const newRunPlaceholder = document.createElement('p');
-                         newRunPlaceholder.className = 'no-log current-run-message';
-                         newRunPlaceholder.style.textAlign = 'center';
-                         newRunPlaceholder.style.paddingTop = '5px';
-                         newRunPlaceholder.style.color = '#6c757d';
-                         newRunPlaceholder.style.fontStyle = 'italic';
-                         newRunPlaceholder.textContent = '--- New Run Initiated ---';
-                         logConsole.appendChild(newRunPlaceholder);
-                    } else if (logConsole.children.length > 0 && !logConsole.querySelector('.current-run-message')) {
+                    let newRunPlaceholder = document.createElement('p');
+                    newRunPlaceholder.className = 'no-log current-run-message';
+                    newRunPlaceholder.style.textAlign = 'center';
+                    newRunPlaceholder.style.padding = '0.5rem 0';
+                    newRunPlaceholder.style.color = '#9ca3af';
+                    newRunPlaceholder.style.fontStyle = 'italic';
+                    newRunPlaceholder.style.fontSize = '0.7rem';
+                    newRunPlaceholder.textContent = '--- New Run Started ---';
+                    
+                    if (logConsole.children.length > 0 && logConsole.firstElementChild && !logConsole.firstElementChild.classList.contains('initial-message')) {
                         const separator = document.createElement('hr');
-                        separator.style.borderColor = '#455A64';
+                        separator.style.borderColor = '#333';
+                        separator.style.margin = '0.5rem 0';
                         logConsole.appendChild(separator);
-                         const newRunPlaceholder = document.createElement('p');
-                         newRunPlaceholder.className = 'no-log current-run-message';
-                         newRunPlaceholder.style.textAlign = 'center';
-                         newRunPlaceholder.style.paddingTop = '5px';
-                         newRunPlaceholder.style.color = '#6c757d';
-                         newRunPlaceholder.style.fontStyle = 'italic';
-                         newRunPlaceholder.textContent = '--- New Run Initiated ---';
-                         logConsole.appendChild(newRunPlaceholder);
                     }
+                    logConsole.appendChild(newRunPlaceholder);
                 }
             });
+            
+            if (selectedProfiles.length > 0) {
+                showToast('info', 'Automation Started', `Starting automation for ${selectedProfiles.length} profile(s).`);
+            }
         });
     }
+
+    document.querySelectorAll('.stop-automation-button').forEach(button => {
+        button.addEventListener('click', function () {
+            const profileId = this.dataset.profileId;
+            const profileName = this.dataset.profileName || profileId;
+            if (!profileId) {
+                console.error('Profile ID not found for stop button.');
+                return;
+            }
+
+            if (confirm(`Stop automation for this profile?`)) {
+                this.disabled = true;
+                this.classList.add('stopping');
+                this.innerHTML = `<span class="icon"><i class="fas fa-spinner fa-spin"></i></span> Stopping...`;
+
+                fetch(`/stop_automation_run/${profileId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        console.log(`Stop request for profile ${profileId} successful:`, data.message);
+                        showToast('success', 'Stop Request Sent', `Stop request sent successfully.`);
+                    } else {
+                        console.error(`Failed to stop automation for profile ${profileId}:`, data.message);
+                        showToast('error', 'Stop Failed', `Error: ${data.message}`);
+                        this.disabled = false;
+                        this.classList.remove('stopping');
+                        this.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending stop request:', error);
+                    showToast('error', 'Network Error', 'Failed to send stop request.');
+                    this.disabled = false;
+                    this.classList.remove('stopping');
+                    this.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
+                });
+            }
+        });
+    });
 
     window.toggleTickerInput = function(profileId, selectedMethod) {
         const fileSection = document.getElementById(`file_upload_section_${profileId}`);
@@ -360,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const logConsole = document.getElementById(`log_console_${profileId}`);
             if (logConsole && logConsole.querySelector('.log-entry')) { 
                 const initialNoLogMsg = logConsole.querySelector('.initial-message');
-                if (initialNoLogMsg) initialNoLogMsg.remove();
+                if (initialNoLogMsg) initialNoLogMsg.style.display = 'none';
             }
         }
     });
@@ -387,11 +1077,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                 }
                 if (tickerTableContainer && tickerTableBody) {
-                    tickerTableBody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#6c757d; padding:10px;"><i>Ticker status preview requires backend processing.</i></td></tr>'; 
+                    tickerTableBody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#9ca3af; padding:0.5rem;"><i>Processing file...</i></td></tr>'; 
                     tickerTableContainer.style.display = 'block';
                 }
                 const manualInput = document.getElementById(`custom_tickers_${profileId}`);
                 if(manualInput) manualInput.value = '';
+                
+                showToast('success', 'File Uploaded', `"${file.name}" uploaded successfully.`);
             } else {
                 if(fileInfoDiv) fileInfoDiv.style.display = 'none';
                 if(tickerTableContainer) tickerTableContainer.style.display = 'none';
