@@ -9,7 +9,10 @@ from datetime import datetime, date
 import pandas as pd
 import yfinance as yf
 
-from config.config import TICKERS 
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+
+from config.config import TICKERS
 from data_processing_scripts.data_collection import fetch_stock_data
 from data_processing_scripts.macro_data import fetch_macro_indicators
 from data_processing_scripts.data_preprocessing import preprocess_data

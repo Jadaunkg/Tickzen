@@ -88,19 +88,8 @@ def fetch_stock_data(
     exchange_suffix, exchange_name = get_exchange_info(ticker)
     logger.info(f"Processing {exchange_name} ticker: {ticker}")
 
-    # app_root is tempautomate/app/ OR tempautomate/automation_scripts/ OR tempautomate/data_processing_scripts/ (if __main__)
-    # We want tempautomate/generated_data/data_cache/
     cache_dir = os.path.join(app_root, '..', 'generated_data', 'data_cache')
-    # For example, if app_root is .../app/, then ../../generated_data/data_cache if data_processing_scripts is sibling to app.
-    # Correcting based on app_root being the *caller's* root, which is one level up from data_processing_scripts in the case of pipeline.py
-    # Or two levels up if data_collection is called directly from main_portal_app (unlikely)
-    # Simpler: if app_root itself is .../app or .../automation_scripts, it needs one .. to get to project root, then generated_data/data_cache
-    # If app_root is .../data_processing_scripts (from __main__), it also needs one .. to get to project root.
-    # So os.path.join(app_root, '..', 'generated_data', 'data_cache') seems robust if app_root is always one level below project root or is project_root itself.
-    # The `app_root` passed from pipeline.py is either `tempautomate/app` or `tempautomate/automation_scripts`.
-    # So, from there, `../generated_data/data_cache` is correct.
-    # If this script is run directly, its `app_root` is `tempautomate/data_processing_scripts`.
-    # Then `../generated_data/data_cache` is also correct.
+  
 
     os.makedirs(cache_dir, exist_ok=True)
 
@@ -154,7 +143,7 @@ def fetch_stock_data(
             try:
                 yf_ticker = yf.Ticker(ticker)
                 info = yf_ticker.info
-                if not info or 'regularMarketPrice' not in info:
+                if not info or 'regularMarketPrice' not in info: # This check remains as is
                     logger.warning(f"Ticker {ticker} appears to be invalid or has no data.")
                     return None
             except Exception as e:
@@ -168,14 +157,15 @@ def fetch_stock_data(
                 period=period,
                 auto_adjust=True,
                 progress=False,
-                threads=False
+                threads=False,
+                timeout=timeout  # Corrected: Added timeout parameter usage
             )
             
             if data.empty:
                 logger.warning(f"No data found for ticker: {ticker} via yfinance.")
-                data = None
-                break
-            break
+                data = None # Ensure data is None if empty to avoid processing below
+                break 
+            break # Successful download
         except Exception as e:
             msg = str(e).lower()
             if "rate limit" in msg or "too many requests" in msg:
@@ -185,13 +175,26 @@ def fetch_stock_data(
                 time.sleep(wait)
                 continue
             logger.error(f"Error fetching '{ticker}': {e}")
-            raise
-    else:
-        logger.error(f"Failed to download '{ticker}' after {max_retries} retries.")
-        return None
+            
+            # So, re-inserting the original `raise` for non-rate-limit errors:
+            if "rate limit" not in msg and "too many requests" not in msg:
+                 logger.error(f"Error fetching '{ticker}' (attempt {attempt+1}/{max_retries}): {e}")
+            attempt += 1
+            if attempt < max_retries:
+                wait = pause_secs * attempt # For progressive backoff
+                logger.warning(f"Error fetching '{ticker}', retry {attempt}/{max_retries} in {wait}s: {e}")
+                time.sleep(wait)
+            else:
+                logger.error(f"Failed to download '{ticker}' after {max_retries} retries due to: {e}")
+                return None # Explicitly return None after all retries failed.
+            continue # Continue to next attempt
+    else: # This 'else' belongs to the 'while' loop, executed if the loop terminates normally (not by 'break')
+        if data is None : # If loop finished due to max_retries without successful download
+            logger.error(f"Failed to download '{ticker}' after {max_retries} retries.")
+            return None
 
-    if data is None or data.empty:
-         logger.error(f"Data for {ticker} could not be retrieved.")
+    if data is None or data.empty: # This check is after the loop, in case break occurred with empty data or retries exhausted
+         logger.warning(f"Data for {ticker} could not be retrieved or is empty after attempts.") # Changed from error to warning as it might be valid (no data)
          return None
 
     # --- Process Downloaded Data ---
@@ -201,6 +204,7 @@ def fetch_stock_data(
     if isinstance(data.columns[0], tuple):
         data.columns = [col[0] for col in data.columns]
     else:
+        # This column cleaning logic remains as per user request not to remove anything
         data.columns = [col.split('_')[0] if isinstance(col, str) and '_' in col else col for col in data.columns]
 
     date_cols = [c for c in data.columns if 'date' in c.lower()]
@@ -209,18 +213,18 @@ def fetch_stock_data(
     try:
         data['Date'] = pd.to_datetime(data['Date'], errors='coerce', utc=True).dt.tz_localize(None)
     except Exception as e:
-        logger.error(f"Error processing dates after download: {e}")
+        logger.error(f"Error processing dates after download for {ticker}: {e}")
         return None
 
     invalid_dates = data['Date'].isna().sum()
     if invalid_dates > 0:
-        logger.warning(f"Found {invalid_dates} invalid dates post-download; dropping them.")
+        logger.warning(f"Found {invalid_dates} invalid dates post-download for {ticker}; dropping them.")
     data = data.dropna(subset=['Date']).sort_values('Date')
 
     required = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
     missing = [col for col in required if col not in data.columns]
     if missing:
-        logger.error(f"Downloaded data missing required columns: {missing}. Available: {list(data.columns)}")
+        logger.error(f"Downloaded data for {ticker} missing required columns: {missing}. Available: {list(data.columns)}")
         return None
 
     data['Volume'] = pd.to_numeric(data['Volume'], errors='coerce')
@@ -263,7 +267,8 @@ if __name__ == "__main__":
         
         for ticker in test_tickers:
             logger.info(f"\nTesting ticker: {ticker}")
-            df = fetch_stock_data(ticker, app_root=current_app_root)
+            # Pass the timeout to the function if you want to override the default
+            df = fetch_stock_data(ticker, app_root=current_app_root, timeout=45) # Example: using a 45s timeout
             if df is not None:
                 logger.info(f"Successfully fetched {len(df)} rows for {ticker}")
                 print(df.head())
@@ -271,4 +276,4 @@ if __name__ == "__main__":
                 logger.error(f"Failed to fetch data for {ticker}")
                 
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"An error occurred in main: {e}")
