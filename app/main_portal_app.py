@@ -1064,6 +1064,52 @@ def run_automation_now():
     return redirect(url_for('automation_runner_page'))
 
 
+@app.route('/stop_automation_run/<profile_id>', methods=['POST'])
+@login_required
+def stop_automation_run(profile_id):
+    user_uid = session['firebase_user_uid']
+    if not AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY:
+        app.logger.error(f"Stop automation request failed: Auto publisher module not available (User: {user_uid}, Profile: {profile_id})")
+        return jsonify({'status': 'error', 'message': 'Automation service is currently unavailable.'}), 503
+    
+    try:
+        # Check if auto_publisher has a method to stop automation
+        if hasattr(auto_publisher, 'stop_publishing_run'):
+            result = auto_publisher.stop_publishing_run(user_uid, profile_id)
+            if result and isinstance(result, dict):
+                was_successful = result.get('success', False)
+                message = result.get('message', 'Stop request processed.')
+                
+                if was_successful:
+                    app.logger.info(f"Stop request successful for profile {profile_id} (User: {user_uid}): {message}")
+                    return jsonify({'status': 'success', 'message': message})
+                else:
+                    app.logger.warning(f"Stop request unsuccessful for profile {profile_id} (User: {user_uid}): {message}")
+                    return jsonify({'status': 'error', 'message': message}), 400
+            else:
+                # If result is not a dict or is None, assume it worked but with no details
+                app.logger.info(f"Stop request sent for profile {profile_id} (User: {user_uid}) - no detailed response")
+                return jsonify({'status': 'success', 'message': 'Stop request sent.'})
+        else:
+            # Fallback for mock auto_publisher or incomplete implementation
+            # Emit a socket.io event that the client will interpret as a stop signal
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'phase': 'Control',
+                'stage': 'Stop Requested',
+                'message': 'Stop request received. Processing.',
+                'status': 'info',
+                'timestamp': datetime.now(timezone.utc).isoformat()
+            }, room=user_uid)
+            
+            app.logger.warning(f"Using fallback stop method for profile {profile_id} (User: {user_uid}) - auto_publisher lacks stop_publishing_run")
+            return jsonify({'status': 'success', 'message': 'Stop request acknowledged using fallback method.'})
+    
+    except Exception as e:
+        app.logger.error(f"Error in stop_automation_run for profile {profile_id} (User: {user_uid}): {e}", exc_info=True)
+        return jsonify({'status': 'error', 'message': f'An error occurred while processing the stop request: {str(e)[:100]}...'}), 500
+
+
 @app.route('/wp-asset-generator')
 @login_required
 def wp_generator_page():
