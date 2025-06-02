@@ -191,9 +191,7 @@ def extract_dividends_splits(fundamentals: dict, currency='$'):
 
 def extract_analyst_info(fundamentals: dict):
     """Extracts analyst recommendation and target price info."""
-    # --- This function remains largely the same as before ---
-    # --- It already handles DataFrame/list/dict formats for recommendations ---
-    # --- We'll ensure the keys match what's used in html_components ---
+    
     info = fundamentals.get('info', {})
     recommendations_data = fundamentals.get('recommendations')
     recommendation_summary = "N/A"
