@@ -656,6 +656,79 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
     data_out['sector'] = data_out['profile_data'].get('Sector', 'N/A')
     data_out['industry'] = data_out['profile_data'].get('Industry', 'N/A')
 
+    # --- Generate Data-Driven Observations / "Best Possible Tactics" ---
+    print("Generating data-driven observations...")
+    observations = []
+    
+    # Heuristic 1: Undervalued based on P/E, Earnings Growth, and Debt/Equity
+    try:
+        valuation_metrics = data_out.get('valuation_data', {})
+        profitability_metrics = data_out.get('profitability_data', {})
+        health_metrics = data_out.get('financial_health_data', {})
+
+        # Get P/E (Forward or Trailing, prefer Forward)
+        pe_value_str = valuation_metrics.get('Forward P/E')
+        if pe_value_str is None or pe_value_str == "N/A":
+            pe_value_str = valuation_metrics.get('Trailing P/E')
+        
+        pe_value = None
+        if pe_value_str and pe_value_str != "N/A":
+            pe_value = float(str(pe_value_str).replace('x', ''))
+
+        earnings_growth_str = profitability_metrics.get('Earnings Growth (YoY)')
+        earnings_growth_value = None
+        if earnings_growth_str and earnings_growth_str != "N/A":
+            earnings_growth_value = float(str(earnings_growth_str).replace('%', ''))
+
+        debt_equity_str = health_metrics.get('Debt/Equity (MRQ)')
+        debt_equity_value = None
+        if debt_equity_str and debt_equity_str != "N/A":
+            debt_equity_value = float(str(debt_equity_str).replace('x', ''))
+
+        # Define thresholds for the heuristic (these can be fine-tuned)
+        pe_threshold_low = 15  # Example: P/E below 15 is considered low
+        earnings_growth_threshold_strong = 10  # Example: YoY Earnings growth above 10% is strong
+        debt_equity_threshold_manageable = 1.5  # Example: D/E below 1.5 is manageable
+
+        if pe_value is not None and earnings_growth_value is not None and debt_equity_value is not None:
+            if (pe_value < pe_threshold_low and 
+                earnings_growth_value > earnings_growth_threshold_strong and 
+                debt_equity_value < debt_equity_threshold_manageable):
+                observation = (
+                    f"Data-Driven Observation: The combination of a relatively low P/E ratio ({pe_value_str}), "
+                    f"strong recent earnings growth ({earnings_growth_str} YoY), and manageable debt levels "
+                    f"(Debt/Equity: {debt_equity_str}) suggests the company might be currently undervalued "
+                    f"relative to its performance and financial stability. This pattern often interests value-oriented "
+                    f"investors looking for growth potential."
+                )
+                observations.append(observation)
+    except Exception as e:
+        print(f"Warning: Could not generate heuristic 1 for data-driven observations: {e}")
+
+    # Heuristic 2: Technical Pattern - Approaching Resistance + Overbought RSI (Example)
+    try:
+        detailed_ta = data_out.get('detailed_ta_data', {})
+        current_price = data_out.get('current_price')
+        rsi_value = detailed_ta.get('RSI_14')
+        # Note: 'resistance_price' would need to be calculated and added to rdata, perhaps in calculate_detailed_ta
+        # For this example, let's assume it could be fetched or is a placeholder concept
+        resistance_price = detailed_ta.get('Recent_High') # Using Recent_High as a proxy for a resistance level
+
+        if current_price is not None and rsi_value is not None and resistance_price is not None:
+            if (abs(current_price - resistance_price) / resistance_price < 0.05 and # Within 5% of resistance
+                rsi_value > 70): # RSI is overbought
+                observation = (
+                    f"Technical Pattern to Watch: The stock price ({data_out.get('currency_symbol', '$')}{current_price:.2f}) is currently approaching a significant short-term resistance level "
+                    f"(around {data_out.get('currency_symbol', '$')}{resistance_price:.2f}) while the RSI ({rsi_value:.1f}) is nearing overbought territory. "
+                    f"This convergence warrants attention, as it could signal a potential pause or pullback in the uptrend unless a decisive breakout occurs on strong volume."
+                )
+                observations.append(observation)
+    except Exception as e:
+        print(f"Warning: Could not generate heuristic 2 for data-driven observations: {e}")
+
+
+    data_out['data_driven_observations'] = observations
+
     return data_out
 
 

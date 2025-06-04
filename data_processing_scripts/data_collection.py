@@ -1,4 +1,4 @@
-# data_collection.py (MODIFIED with improved caching path and logging)
+# data_collection.py
 
 import time
 import logging
@@ -7,10 +7,13 @@ import pandas as pd
 from datetime import datetime
 import os
 import re
+import requests
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Basic config for direct script run, real app might have this in __init__ or main.
+if not logging.getLogger().hasHandlers():
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__) # Use module-specific logger
 
 # Define supported exchange suffixes
 SUPPORTED_EXCHANGES = {
@@ -62,7 +65,7 @@ def get_exchange_info(ticker):
     for suffix, exchange_name in SUPPORTED_EXCHANGES.items():
         if ticker.endswith(suffix):
             return suffix, exchange_name
-    return None, 'US Stock Exchange'  # Default to US exchange if no suffix found
+    return None, 'US Stock Exchange'
 
 def fetch_stock_data(
     ticker,
@@ -72,32 +75,22 @@ def fetch_stock_data(
     max_retries=3,
     pause_secs=2,
     throttle_secs=0.3,
-    timeout=30  
+    timeout=30
 ):
-    """
-    Fetch and process historical stock data for a single ticker,
-    checking local cache first. Uses app_root for consistent cache path.
-    Handles all stock exchanges supported by yfinance.
-    """
-    # Construct cache path using app_root
     if not app_root:
         logger.error("app_root not provided to fetch_stock_data. Cannot determine cache directory.")
         raise ValueError("app_root is required for cache path construction.")
 
-    # Get exchange information
     exchange_suffix, exchange_name = get_exchange_info(ticker)
     logger.info(f"Processing {exchange_name} ticker: {ticker}")
 
     cache_dir = os.path.join(app_root, '..', 'generated_data', 'data_cache')
-  
-
     os.makedirs(cache_dir, exist_ok=True)
 
-    cache_filename = f"{ticker}_stock_data.csv"
+    cache_filename = f"{ticker.replace(':', '_').replace('^', '_')}_stock_data.csv" # Sanitize ticker for filename
     cache_filepath = os.path.join(cache_dir, cache_filename)
     logger.info(f"Checking cache for {ticker} at: {cache_filepath}")
 
-    # --- Check Cache First ---
     cache_exists = os.path.exists(cache_filepath)
     logger.info(f"Cache file exists: {cache_exists}")
 
@@ -120,12 +113,12 @@ def fetch_stock_data(
         except Exception as e:
             logger.warning(f"Failed to load or validate cached file {cache_filename}: {e}. Re-downloading.")
 
-    # --- Download Logic (If Cache Miss or Invalid) ---
     logger.info(f"Cache miss or invalid for {ticker}. Proceeding to download.")
 
     if start_date and end_date:
         if pd.to_datetime(start_date) > pd.to_datetime(end_date):
-            raise ValueError("start_date must be before end_date")
+            logger.error("start_date must be before end_date") # Log error, don't raise here directly
+            return None # Return None if date range is invalid
 
     period = "10y" if (start_date is None and end_date is None) else None
 
@@ -139,17 +132,15 @@ def fetch_stock_data(
     while attempt < max_retries:
         try:
             time.sleep(throttle_secs)
-            # Verify the ticker exists before downloading
-            try:
-                yf_ticker = yf.Ticker(ticker)
-                info = yf_ticker.info
-                if not info or 'regularMarketPrice' not in info: # This check remains as is
-                    logger.warning(f"Ticker {ticker} appears to be invalid or has no data.")
-                    return None
-            except Exception as e:
-                logger.error(f"Error verifying ticker {ticker}: {e}")
-                return None
-
+            yf_ticker = yf.Ticker(ticker)
+            info = yf_ticker.info # Attempt to get info first
+            
+            # A more robust check for valid ticker info.
+            # 'regularMarketPrice' is a common field. 'symbol' should also exist.
+            if not info or not info.get('symbol') or info.get('regularMarketPrice') is None :
+                logger.error(f"Ticker {ticker} appears to be invalid or delisted. yf.Ticker.info was empty or lacked key fields (e.g. regularMarketPrice). Please check the ticker symbol.")
+                return None # Critical: If info suggests invalid ticker, stop.
+            
             data = yf.download(
                 tickers=ticker,
                 start=start_date,
@@ -158,62 +149,62 @@ def fetch_stock_data(
                 auto_adjust=True,
                 progress=False,
                 threads=False,
-                timeout=timeout  # Corrected: Added timeout parameter usage
+                timeout=timeout
             )
             
             if data.empty:
-                logger.warning(f"No data found for ticker: {ticker} via yfinance.")
-                data = None # Ensure data is None if empty to avoid processing below
-                break 
-            break # Successful download
+                logger.warning(f"No data returned by yfinance.download for ticker: {ticker}. It might be delisted or no data for the period.")
+                return None # If download returns empty, it's a failure for this ticker.
+            
+            logger.info(f"Successfully downloaded data for {ticker} on attempt {attempt + 1}.")
+            break 
+        except requests.exceptions.HTTPError as http_err: # Catch HTTP errors specifically
+            if http_err.response.status_code == 404:
+                logger.error(f"HTTP Error 404 (Not Found) for ticker {ticker}. This often means the ticker symbol is incorrect or not available on Yahoo Finance. Please verify the symbol (e.g., Nike is NKE, not NIKE STOCK).")
+            else:
+                logger.error(f"HTTP Error during yfinance operation for {ticker} (attempt {attempt+1}/{max_retries}): {http_err}")
+            return None # Stop on 404 or other critical HTTP errors for this ticker
         except Exception as e:
             msg = str(e).lower()
-            if "rate limit" in msg or "too many requests" in msg:
-                attempt += 1
-                wait = pause_secs * attempt
-                logger.warning(f"Rate limit on '{ticker}', retry {attempt}/{max_retries} in {wait}s: {e}")
-                time.sleep(wait)
-                continue
-            logger.error(f"Error fetching '{ticker}': {e}")
-            
-            # So, re-inserting the original `raise` for non-rate-limit errors:
-            if "rate limit" not in msg and "too many requests" not in msg:
-                 logger.error(f"Error fetching '{ticker}' (attempt {attempt+1}/{max_retries}): {e}")
+            logger.warning(f"Error fetching '{ticker}' (attempt {attempt+1}/{max_retries}): {e}")
             attempt += 1
             if attempt < max_retries:
-                wait = pause_secs * attempt # For progressive backoff
-                logger.warning(f"Error fetching '{ticker}', retry {attempt}/{max_retries} in {wait}s: {e}")
+                wait = pause_secs * attempt
+                logger.info(f"Retrying in {wait}s...")
                 time.sleep(wait)
             else:
                 logger.error(f"Failed to download '{ticker}' after {max_retries} retries due to: {e}")
-                return None # Explicitly return None after all retries failed.
-            continue # Continue to next attempt
-    else: # This 'else' belongs to the 'while' loop, executed if the loop terminates normally (not by 'break')
-        if data is None : # If loop finished due to max_retries without successful download
-            logger.error(f"Failed to download '{ticker}' after {max_retries} retries.")
+                return None
+            continue 
+    else: 
+        if data is None or data.empty : 
+            logger.error(f"Failed to download '{ticker}' after {max_retries} retries (loop completed without break).")
             return None
 
-    if data is None or data.empty: # This check is after the loop, in case break occurred with empty data or retries exhausted
-         logger.warning(f"Data for {ticker} could not be retrieved or is empty after attempts.") # Changed from error to warning as it might be valid (no data)
+    if data is None or data.empty:
+         logger.warning(f"Data for {ticker} could not be retrieved or is empty after attempts.")
          return None
 
-    # --- Process Downloaded Data ---
     data = data.reset_index()
-    logger.info(f"Fetched columns: {list(data.columns)}")
+    # logger.info(f"Fetched columns for {ticker}: {list(data.columns)}") # Already logged by yf.download if progress=True
 
-    if isinstance(data.columns[0], tuple):
+    if isinstance(data.columns[0], tuple): # Handles MultiIndex columns if any
         data.columns = [col[0] for col in data.columns]
-    else:
-        # This column cleaning logic remains as per user request not to remove anything
-        data.columns = [col.split('_')[0] if isinstance(col, str) and '_' in col else col for col in data.columns]
+    
+    # Standardize column names - less aggressive, targets 'Date' specifically.
+    # Assumes OHLCV are already correctly named by yf.download with auto_adjust=True
+    date_cols = [c for c in data.columns if 'date' in str(c).lower()]
+    if date_cols:
+        data = data.rename(columns={date_cols[0]: 'Date'})
+    elif 'Date' not in data.columns:
+        logger.error(f"Could not identify 'Date' column for {ticker}. Columns: {list(data.columns)}")
+        return None
 
-    date_cols = [c for c in data.columns if 'date' in c.lower()]
-    if date_cols: data = data.rename(columns={date_cols[0]: 'Date'})
 
     try:
         data['Date'] = pd.to_datetime(data['Date'], errors='coerce', utc=True).dt.tz_localize(None)
     except Exception as e:
-        logger.error(f"Error processing dates after download for {ticker}: {e}")
+        logger.error(f"Error processing 'Date' column after download for {ticker}: {e}")
         return None
 
     invalid_dates = data['Date'].isna().sum()
@@ -227,9 +218,21 @@ def fetch_stock_data(
         logger.error(f"Downloaded data for {ticker} missing required columns: {missing}. Available: {list(data.columns)}")
         return None
 
-    data['Volume'] = pd.to_numeric(data['Volume'], errors='coerce')
+    # Ensure numeric types for OHLCV, coercing errors.
+    for col in ['Open', 'High', 'Low', 'Close', 'Volume']:
+        data[col] = pd.to_numeric(data[col], errors='coerce')
+    
+    # Drop rows where any of the essential OHLC columns became NaN after coercion
+    data.dropna(subset=['Open', 'High', 'Low', 'Close'], inplace=True)
+    # Fill NaN in Volume with 0 after attempting numeric conversion, as Volume can sometimes be 0.
+    if 'Volume' in data.columns:
+        data['Volume'].fillna(0, inplace=True)
 
-    # --- Save to Cache ---
+
+    if data.empty:
+        logger.warning(f"Data for {ticker} became empty after cleaning and type conversion.")
+        return None
+
     try:
         data_to_save = data[required]
         data_to_save.to_csv(cache_filepath, index=False)
@@ -241,39 +244,31 @@ def fetch_stock_data(
     return data[required]
 
 
-# Example usage (if run directly, needs a placeholder app_root)
 if __name__ == "__main__":
     try:
-        # Test with different exchanges
         test_tickers = [
-            "TSLA",           # US
-            "ADANIPOWER.NS",  # India NSE
-            "RELIANCE.BO",    # India BSE
-            "HSBA.L",         # London
-            "BMW.DE",         # XETRA
-            "AIR.PA",         # Paris
-            "RY.TO",          # Toronto
-            "DBS.SI",         # Singapore
-            "BHP.AX",         # Australia
-            "FPH.NZ",         # New Zealand
-            "0700.HK",        # Hong Kong
-            "005930.KS",      # Korea
-            "7203.T",         # Tokyo
-            "600519.SS",      # Shanghai
-            "000001.SZ"       # Shenzhen
+            "NKE",        # Valid (Nike)
+            "SAVE",       # Valid (Spirit Airlines)
+            "NIKE STOCK", # Invalid
+            "SAVE STOCK", # Invalid
+            "ADANIPOWER.NS"
         ]
         
-        current_app_root = os.path.dirname(os.path.abspath(__file__))
+        # Determine a suitable app_root for standalone script execution
+        # This assumes data_collection.py is in data_processing_scripts
+        current_script_dir = os.path.dirname(os.path.abspath(__file__))
+        app_level_root = os.path.join(current_script_dir, '..', 'app') # Assuming 'app' is one level up from 'data_processing_scripts' directory
         
-        for ticker in test_tickers:
-            logger.info(f"\nTesting ticker: {ticker}")
-            # Pass the timeout to the function if you want to override the default
-            df = fetch_stock_data(ticker, app_root=current_app_root, timeout=45) # Example: using a 45s timeout
-            if df is not None:
-                logger.info(f"Successfully fetched {len(df)} rows for {ticker}")
-                print(df.head())
+        logger.info(f"Standalone Test: Using app_root='{app_level_root}' for cache paths.")
+
+        for ticker_symbol in test_tickers:
+            logger.info(f"\n--- Testing ticker: {ticker_symbol} ---")
+            df_data = fetch_stock_data(ticker_symbol, app_root=app_level_root, timeout=45)
+            if df_data is not None and not df_data.empty:
+                logger.info(f"Successfully fetched {len(df_data)} rows for {ticker_symbol}")
+                print(df_data.head())
             else:
-                logger.error(f"Failed to fetch data for {ticker}")
+                logger.error(f"Failed to fetch data for {ticker_symbol} or data was empty.")
                 
-    except Exception as e:
-        logger.error(f"An error occurred in main: {e}")
+    except Exception as main_e:
+        logger.error(f"An error occurred in main execution: {main_e}", exc_info=True)

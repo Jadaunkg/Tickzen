@@ -4,25 +4,18 @@ function initializeReportDisplay(reportUrlData) {
     const reportArea = document.getElementById('report-content-area');
     const reportUrl = reportUrlData; // reportUrlData is passed from the template
 
-    // Ensure necessary elements are present on the page
     if (!iframe || !reportArea) {
-        // console.log("Report display iframe or content area not found. Skipping iframe initialization.");
         return;
     }
-    // loadingMessage is optional, so we'll check for its existence before using
     if (loadingMessage) {
         // console.log("Loading message element found.");
     }
 
-
-    // --- Start of functions taken from your provided report_display.html script ---
-    let resizeTimer; // This was in your script, kept for consistency if used by your logic
+    let resizeTimer; 
 
     function resizePlotlyPlots() {
         try {
-            // Check if iframe and its contentWindow are accessible and Plotly exists
             if (!iframe.contentWindow || !iframe.contentWindow.document || !iframe.contentWindow.Plotly) {
-                // console.warn("Iframe content or Plotly not ready for Plotly resize.");
                 return;
             }
             const plotlyInstance = iframe.contentWindow.Plotly;
@@ -31,7 +24,7 @@ function initializeReportDisplay(reportUrlData) {
                 if (plotDivs.length > 0) {
                     plotDivs.forEach(div => {
                         try {
-                            if (div.offsetParent !== null) { // Check if element is visible
+                            if (div.offsetParent !== null) { 
                                 plotlyInstance.Plots.resize(div);
                             }
                         } catch (resizeError) {
@@ -51,7 +44,7 @@ function initializeReportDisplay(reportUrlData) {
          try {
             if (!iframe.contentWindow || !iframe.contentWindow.document || !iframe.contentWindow.document.body) {
                 console.warn("Iframe content not fully accessible yet for height adjustment.");
-                iframe.style.height = '100vh'; // Fallback
+                iframe.style.height = '100vh'; 
                 return;
             }
             const iframeDoc = iframe.contentWindow.document;
@@ -66,42 +59,36 @@ function initializeReportDisplay(reportUrlData) {
              if (error.name !== 'SecurityError') {
                  console.warn('Could not adjust iframe height:', error);
              }
-             iframe.style.height = '120vh'; // Fallback height on error
+             iframe.style.height = '120vh'; 
          }
     }
-    // --- End of functions taken from your provided report_display.html script ---
-
 
     if (reportUrl && reportUrl !== 'None' && reportUrl.trim() !== '' && reportUrl.trim() !== '#') {
         iframe.src = reportUrl;
 
         iframe.onload = function() {
-            if (loadingMessage) { // Check if element exists
+            if (loadingMessage) { 
                 loadingMessage.style.display = 'none';
             }
             iframe.style.visibility = 'visible';
 
             let attempts = 0;
-            const maxAttempts = 5; // From your script
+            const maxAttempts = 5; 
             function attemptAdjustments() {
-                // Check if iframe contentWindow and body are ready before proceeding
                 if (!iframe.contentWindow || !iframe.contentWindow.document || !iframe.contentWindow.document.body || iframe.contentWindow.document.readyState !== 'complete') {
                     if (attempts < maxAttempts) {
                         attempts++;
-                        setTimeout(attemptAdjustments, 250 + (attempts * 50)); // Give a bit more time
+                        setTimeout(attemptAdjustments, 250 + (attempts * 50)); 
                         return;
                     } else {
                         console.warn("Max attempts for iframe readiness reached. Trying final adjustment.");
-                        // Proceed with adjustment even if not "fully complete" according to readyState,
-                        // as scrollHeight might still be measurable.
                     }
                 }
 
                 resizePlotlyPlots();
                 adjustIframeHeight();
                 
-                // This part of your logic for retrying if clientHeight is small:
-                attempts++; // Ensure attempts is incremented for this path as well
+                attempts++; 
                 if (iframe.clientHeight < 200 && attempts < maxAttempts) {
                     setTimeout(attemptAdjustments, 300); 
                 } else {
@@ -117,7 +104,7 @@ function initializeReportDisplay(reportUrlData) {
                                });
                            }
                        };
-                       if(iframe.contentWindow) { // Check again before adding listener
+                       if(iframe.contentWindow) { 
                            iframe.contentWindow.addEventListener('resize', debouncedResize);
                        }
                        window.addEventListener('resize', debouncedResize);
@@ -128,36 +115,31 @@ function initializeReportDisplay(reportUrlData) {
                     }
                 }
             }
-            // Start first attempt after a short delay for initial content rendering in iframe
             setTimeout(attemptAdjustments, 250); 
         };
 
         iframe.onerror = function() {
-            if (reportArea) { // Check if element exists
+            if (reportArea) { 
                 reportArea.innerHTML = '<p class="error-message">Error: Failed to load report content. The file might be missing or inaccessible.</p>';
             }
-            if (loadingMessage) { // Check if element exists
-                loading_message.style.display = 'none';
+            if (loadingMessage) { 
+                loadingMessage.style.display = 'none';
             }
         };
     } else {
-        if (reportArea) { // Check if element exists
+        if (reportArea) { 
             reportArea.innerHTML = '<p class="error-message">Error: Invalid or missing report URL.</p>';
         }
-        if (loadingMessage) { // Check if element exists
+        if (loadingMessage) { 
             loadingMessage.style.display = 'none';
         }
     }
 }
 
 
-// (Ensure this is the only top-level DOMContentLoaded listener in main.js)
 document.addEventListener('DOMContentLoaded', function() {
-    // Your existing console.log from main.js or a new one:
-    console.log("Main JavaScript Initializing (with report display logic)..."); 
+    console.log("Main JavaScript Initializing (with report display and automation runner logic)..."); 
 
-    // --- START: Conditional initialization for report display iframe ---
-    // This part checks if we are on the report_display.html page and calls the new function.
     const reportIframeElement = document.getElementById('report-iframe');
     if (reportIframeElement && reportIframeElement.hasAttribute('data-report-url')) {
         const reportUrlForDisplay = reportIframeElement.getAttribute('data-report-url');
@@ -168,33 +150,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-
-
-    /**
-     * Adds a set of input fields for a new writer to the specified container.
-     * @param {string} containerId - The ID of the div element to append writer fields to.
-     * @param {object|null} existingAuthor - Optional. Data for an existing author to pre-fill fields.
-     * @param {string} formType - 'add' or 'edit', used to prefix IDs for uniqueness.
-     */
     function addWriterFields(containerId, existingAuthor = null, formType = 'add') {
         const container = document.getElementById(containerId);
         if (!container) {
             console.error(`Writer fields container with ID '${containerId}' not found.`);
             return;
         }
-
         const writerCount = container.querySelectorAll('.writer-entry').length;
         const writerEntry = document.createElement('div');
         writerEntry.classList.add('writer-entry');
-        
         const idPrefix = formType + '_'; 
-
         const authorId = (existingAuthor && existingAuthor.id) ? existingAuthor.id : `new_${Date.now()}_${writerCount}`;
         const wpUsername = (existingAuthor && existingAuthor.wp_username) ? existingAuthor.wp_username : '';
         const wpUserId = (existingAuthor && existingAuthor.wp_user_id) ? existingAuthor.wp_user_id : '';
         const appPassword = (formType === 'add' && existingAuthor && existingAuthor.app_password) ? existingAuthor.app_password : '';
-
-
         writerEntry.innerHTML = `
             <h4>Writer ${writerCount + 1} <button type="button" class="remove-writer-btn" title="Remove this writer"><i class="fas fa-trash-alt"></i> Remove</button></h4>
             <input type="hidden" name="author_id_${writerCount}" value="${authorId}">
@@ -213,7 +182,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         container.appendChild(writerEntry);
-
         const newRemoveButton = writerEntry.querySelector('.remove-writer-btn');
         if (newRemoveButton) {
             newRemoveButton.addEventListener('click', function() {
@@ -222,54 +190,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-function removeWriter(button) {
-    const writerEntry = button.closest('.writer-entry');
-    if (!writerEntry) return;
-
-    const container = writerEntry.parentElement;
-    writerEntry.remove();
-
-    // Re-index headings without touching the button elements
-    const remainingEntries = container.querySelectorAll('.writer-entry');
-    remainingEntries.forEach((entry, idx) => {
-        const heading = entry.querySelector('h4');
-        if (heading) {
-            // Assume structure: [TextNode, ButtonNode]
-            const btn = heading.querySelector('.remove-writer-btn');
-            heading.textContent = `Writer ${idx + 1} `;
-            heading.appendChild(btn);
-        }
-    });
-}
-
+    function removeWriter(button) {
+        const writerEntry = button.closest('.writer-entry');
+        if (!writerEntry) return;
+        const container = writerEntry.parentElement;
+        writerEntry.remove();
+        const remainingEntries = container.querySelectorAll('.writer-entry');
+        remainingEntries.forEach((entry, idx) => {
+            const heading = entry.querySelector('h4');
+            if (heading) {
+                const btn = heading.querySelector('.remove-writer-btn');
+                heading.textContent = `Writer ${idx + 1} `;
+                if (btn) heading.appendChild(btn);
+            }
+        });
+    }
 
     function initializeAuthorManagement(containerId, addButtonId, existingAuthorsData = [], formType = 'add') {
         const addAuthorBtn = document.getElementById(addButtonId);
         const container = document.getElementById(containerId);
-
-        if (!addAuthorBtn || !container) {
-            return;
-        }
+        if (!addAuthorBtn || !container) return;
         container.querySelectorAll('.writer-entry').forEach(entry => entry.remove());
-
         if (existingAuthorsData && existingAuthorsData.length > 0) {
             existingAuthorsData.forEach(author => addWriterFields(containerId, author, formType));
         } else {
-            if (formType === 'add') { 
-                 addWriterFields(containerId, null, formType);
-            }
+            if (formType === 'add') addWriterFields(containerId, null, formType);
         }
-
-        addAuthorBtn.onclick = function() {
-            addWriterFields(containerId, null, formType);
-        };
+        addAuthorBtn.onclick = function() { addWriterFields(containerId, null, formType); };
     }
     
     function setupReportSectionControls(formPrefix) { 
         const selectAllBtn = document.getElementById('selectAllSections' + formPrefix);
         const unselectAllBtn = document.getElementById('unselectAllSections' + formPrefix);
         const checkboxesContainer = document.getElementById('reportSections' + formPrefix + 'Container');
-
         if(selectAllBtn && unselectAllBtn && checkboxesContainer) {
             const checkboxes = checkboxesContainer.querySelectorAll('input[type="checkbox"]');
             if (checkboxes.length > 0) {
@@ -279,22 +232,15 @@ function removeWriter(button) {
         }
     }
 
-    // --- Toggle Add Profile Form Visibility on manage_profiles.html ---
     const toggleBtn = document.getElementById('toggleAddProfileFormBtn');
     const addProfileFormContainer = document.getElementById('addProfileFormContainer');
     const cancelAddProfileBtn = document.getElementById('cancelAddProfileBtn');
-
     if (toggleBtn && addProfileFormContainer) {
         toggleBtn.addEventListener('click', function() {
             const isHidden = addProfileFormContainer.style.display === 'none' || addProfileFormContainer.style.display === '';
-            if (isHidden) {
-                addProfileFormContainer.style.display = 'block';
-                this.innerHTML = '<i class="fas fa-minus-circle"></i> Hide Add Profile Form';
-                addProfileFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                addProfileFormContainer.style.display = 'none';
-                this.innerHTML = '<i class="fas fa-plus-circle"></i> Add New Profile';
-            }
+            addProfileFormContainer.style.display = isHidden ? 'block' : 'none';
+            this.innerHTML = isHidden ? '<i class="fas fa-minus-circle"></i> Hide Add Profile Form' : '<i class="fas fa-plus-circle"></i> Add New Profile';
+            if (isHidden) addProfileFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     }
     if (cancelAddProfileBtn && addProfileFormContainer && toggleBtn) {
@@ -304,11 +250,9 @@ function removeWriter(button) {
         });
     }
 
-    // --- Initialize Author Fields Management ---
     if (document.getElementById('authorsContainerAdd') && document.getElementById('addAuthorBtn')) {
         initializeAuthorManagement('authorsContainerAdd', 'addAuthorBtn', [], 'add');
     }
-
     const editAuthorsContainer = document.getElementById('authorsContainerEdit');
     if (editAuthorsContainer && document.getElementById('addAuthorBtnEdit')) {
         try {
@@ -317,24 +261,20 @@ function removeWriter(button) {
             initializeAuthorManagement('authorsContainerEdit', 'addAuthorBtnEdit', existingAuthors, 'edit');
         } catch (e) {
             console.error("Error parsing existing authors data for edit form:", e, editAuthorsContainer ? editAuthorsContainer.dataset.existingAuthors : 'Container not found');
-            initializeAuthorManagement('authorsContainerEdit', 'addAuthorBtnEdit', [], 'edit'); // Fallback
+            initializeAuthorManagement('authorsContainerEdit', 'addAuthorBtnEdit', [], 'edit'); 
         }
     }
     
-    // --- Report Section Checkbox Controls ---
     setupReportSectionControls('Add');
     setupReportSectionControls('Edit');
 
-    // --- Smooth Scroll for Internal Page Links ---
     document.querySelectorAll('.smooth-scroll').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const targetId = this.getAttribute('href');
             if (targetId && targetId.startsWith('#')) {
                 const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
+                if (targetElement) targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         });
     });
@@ -342,6 +282,67 @@ function removeWriter(button) {
     // --- Automation Runner Page Specific JS ---
     if (document.getElementById('automationRunForm')) {
         console.log("Main JS loaded for Automation Runner Page specific enhancements.");
+
+        // Helper function to get the correct prefix for element IDs based on ticker source
+        function getElementPrefixForProfile(profileId) {
+            const selectedMethodInput = document.querySelector(`input[name="ticker_source_${profileId}"]:checked`);
+            return (selectedMethodInput && selectedMethodInput.value === 'manual') ? 'manual_' : '';
+        }
+
+        // Helper function to reset progress and table for a profile
+        function resetProfileRunUI(profileId) {
+            ['', 'manual_'].forEach(prefix => {
+                const progressDisplay = document.getElementById(`${prefix}progress_display_${profileId}`);
+                if (progressDisplay) progressDisplay.style.display = 'none';
+                const processedCount = document.getElementById(`${prefix}processed_count_${profileId}`);
+                if (processedCount) processedCount.textContent = '0';
+                const totalCount = document.getElementById(`${prefix}total_count_${profileId}`);
+                if (totalCount) totalCount.textContent = '0';
+                const progressBar = document.getElementById(`${prefix}ticker_progress_bar_${profileId}`);
+                if (progressBar) { progressBar.style.width = '0%'; progressBar.textContent = '0%'; progressBar.setAttribute('aria-valuenow', '0'); }
+                const tableContainer = document.getElementById(`${prefix}ticker_table_container_${profileId}`);
+                if (tableContainer) tableContainer.style.display = 'none';
+                const tableBody = document.querySelector(`#${prefix}status_table_for_${profileId} tbody`);
+                if (tableBody) tableBody.innerHTML = '';
+            });
+        }
+        
+        // Helper function to update ticker status table (NEW from previous discussion)
+        function updateTickerStatusTable(profileId, tickerData) {
+            const methodPrefix = getElementPrefixForProfile(profileId);
+            const tableBodyId = `${methodPrefix}status_table_for_${profileId}`;
+            const tableBody = document.querySelector(`#${tableBodyId} tbody`);
+            
+            if (tableBody) {
+                let row = tableBody.querySelector(`tr[data-ticker="${tickerData.ticker}"]`);
+                if (!row) {
+                    row = tableBody.insertRow(0); // Insert new tickers at the top
+                    row.setAttribute('data-ticker', tickerData.ticker);
+                    row.innerHTML = `
+                        <td>${tickerData.ticker}</td>
+                        <td class="generation-time">Pending</td>
+                        <td class="publish-time">Pending</td>
+                        <td class="writer-username">N/A</td>
+                        <td class="status">Processing</td>
+                    `;
+                }
+                
+                row.querySelector('.generation-time').textContent = tickerData.generation_time ? new Date(tickerData.generation_time).toLocaleString() : 'Pending';
+                row.querySelector('.publish-time').textContent = tickerData.publish_time ? new Date(tickerData.publish_time).toLocaleString() : 'Pending';
+                row.querySelector('.writer-username').textContent = tickerData.writer_username || 'N/A';
+                const statusCell = row.querySelector('.status');
+                statusCell.textContent = tickerData.status || 'Processing';
+                statusCell.className = `status status-${(tickerData.status || 'processing').toLowerCase().replace(/[^a-z0-9-]+/g, '-')}`;
+
+                // Make table visible if it was hidden
+                const tableContainer = document.getElementById(`${methodPrefix}ticker_table_container_${profileId}`);
+                if(tableContainer) tableContainer.style.display = 'block';
+
+            } else {
+                console.warn(`Table body not found for profile ${profileId} with prefix '${methodPrefix}' (ID: ${tableBodyId})`);
+            }
+        }
+
 
         window.toggleTickerInput = function(profileId, selectedMethod) {
             const fileSection = document.getElementById(`file_upload_section_${profileId}`);
@@ -354,6 +355,13 @@ function removeWriter(button) {
                 return;
             }
 
+            // Reset UI for both sections before showing the selected one
+            resetProfileRunUI(profileId); 
+            // If file was selected, clear its info too
+            const fileInfoDiv = document.getElementById(`uploaded_file_info_${profileId}`);
+            if (fileInfoDiv) fileInfoDiv.style.display = 'none';
+
+
             if (selectedMethod === 'file') {
                 fileSection.style.display = 'block';
                 manualSection.style.display = 'none';
@@ -362,21 +370,16 @@ function removeWriter(button) {
                 fileSection.style.display = 'none';
                 manualSection.style.display = 'block';
                 if (fileInput) fileInput.value = '';
-
-                const fileInfoDiv = document.getElementById(`uploaded_file_info_${profileId}`);
-                const tickerTableContainer = document.getElementById(`ticker_table_container_${profileId}`);
-                if (fileInfoDiv) fileInfoDiv.style.display = 'none';
-                if (tickerTableContainer) tickerTableContainer.style.display = 'none';
+                // if (fileInfoDiv) fileInfoDiv.style.display = 'none'; // Already handled by resetProfileRunUI indirectly
             }
         };
 
         document.querySelectorAll('.profile-run-card').forEach(card => {
             const profileId = card.dataset.profileId;
             if (profileId) {
-                // Default to 'file' or check radio buttons
-                const selectedMethodInput = card.querySelector(`input[name="ticker_input_method_${profileId}"]:checked`);
+                const selectedMethodInput = card.querySelector(`input[name="ticker_source_${profileId}"]:checked`);
                 const defaultMethod = selectedMethodInput ? selectedMethodInput.value : 'file';
-                toggleTickerInput(profileId, defaultMethod);
+                toggleTickerInput(profileId, defaultMethod); // Initialize display based on checked radio or default
             }
         });
 
@@ -386,8 +389,12 @@ function removeWriter(button) {
                 const fileInfoDiv = document.getElementById(`uploaded_file_info_${profileId}`);
                 const fileNameSpan = fileInfoDiv ? fileInfoDiv.querySelector('.file-name') : null;
                 const removeFileBtn = fileInfoDiv ? fileInfoDiv.querySelector('.remove-file-btn') : null;
+                
+                // For file uploads, use the non-prefixed table and progress
                 const tickerTableContainer = document.getElementById(`ticker_table_container_${profileId}`);
                 const tickerTableBody = tickerTableContainer ? tickerTableContainer.querySelector('tbody') : null;
+                const progressDisplay = document.getElementById(`progress_display_${profileId}`);
+
 
                 if (event.target.files && event.target.files[0]) {
                     const file = event.target.files[0];
@@ -397,30 +404,127 @@ function removeWriter(button) {
                     if (removeFileBtn) {
                         removeFileBtn.style.display = 'inline-block';
                         removeFileBtn.onclick = function() {
-                            input.value = ''; // Clear the file input
+                            input.value = ''; 
                             if (fileInfoDiv) fileInfoDiv.style.display = 'none';
                             if (fileNameSpan) fileNameSpan.textContent = '';
                             if (tickerTableContainer) tickerTableContainer.style.display = 'none';
                             if (tickerTableBody) tickerTableBody.innerHTML = '';
+                            if (progressDisplay) progressDisplay.style.display = 'none';
+                            // Also reset counts if file is removed
+                            const processedCountEl = document.getElementById(`processed_count_${profileId}`);
+                            const totalCountEl = document.getElementById(`total_count_${profileId}`);
+                            const progressBarEl = document.getElementById(`ticker_progress_bar_${profileId}`);
+                            if(processedCountEl) processedCountEl.textContent = '0';
+                            if(totalCountEl) totalCountEl.textContent = '0';
+                            if(progressBarEl) {progressBarEl.style.width = '0%'; progressBarEl.textContent = '0%';}
                             removeFileBtn.style.display = 'none';
                         };
                     }
-
-                    if (tickerTableContainer && tickerTableBody) {
-                        tickerTableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#6c757d; padding:10px;"><i>Preview tickers from '${file.name}'. Status lookup requires backend processing.</i></td></tr>`;
-                        tickerTableContainer.style.display = 'block';
+                    // Initial message in the table body for file uploads
+                    if (tickerTableBody) {
+                        tickerTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6c757d; padding:0.75rem;"><i>Tickers from '${file.name}' will appear here once processing starts.</i></td></tr>`;
                     }
+                    // Table container visibility will be handled by socket updates
+                    if (tickerTableContainer) tickerTableContainer.style.display = 'none'; 
+                    if (progressDisplay) progressDisplay.style.display = 'none'; // Hide progress until total count known
+
                     const manualTextarea = document.getElementById(`custom_tickers_${profileId}`);
-                    if (manualTextarea) manualTextarea.value = ''; // Clear manual input if file is chosen
-                } else { // No file selected
+                    if (manualTextarea) manualTextarea.value = ''; 
+                } else { 
                     if (fileInfoDiv) fileInfoDiv.style.display = 'none';
                     if (fileNameSpan) fileNameSpan.textContent = '';
                     if (tickerTableContainer) tickerTableContainer.style.display = 'none';
                     if (tickerTableBody) tickerTableBody.innerHTML = '';
+                    if (progressDisplay) progressDisplay.style.display = 'none';
                     if (removeFileBtn) removeFileBtn.style.display = 'none';
                 }
             });
         });
-    }
-    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        // SocketIO Listeners Specific to Automation Runner Page
+        if (typeof io !== 'undefined') {
+            const socket = io(); // Assuming socket is connected as per firebase-init.js or _base.html
+
+            socket.on('automation_update', function(data) {
+                if (data.profile_id && data.profile_id !== "Overall") {
+                    const methodPrefix = getElementPrefixForProfile(data.profile_id);
+                    
+                    // Handle total ticker count updates
+                    if (data.phase === "Ticker Loading" && (data.stage === "File" || data.stage === "Custom")) {
+                        let totalTickers = 0;
+                        if (data.stage === "File" && data.message && data.message.startsWith("Found ")) {
+                            const match = data.message.match(/Found (\d+) tickers/);
+                            if (match) totalTickers = parseInt(match[1]);
+                        } else if (data.stage === "Custom" && data.message && data.message.startsWith("Processing ")) {
+                            const match = data.message.match(/Processing (\d+) custom tickers/);
+                            if (match) totalTickers = parseInt(match[1]);
+                        }
+
+                        const totalCountEl = document.getElementById(`${methodPrefix}total_count_${data.profile_id}`);
+                        const processedCountEl = document.getElementById(`${methodPrefix}processed_count_${data.profile_id}`);
+                        const progressBarEl = document.getElementById(`${methodPrefix}ticker_progress_bar_${data.profile_id}`);
+                        const progressDisplayEl = document.getElementById(`${methodPrefix}progress_display_${data.profile_id}`);
+                        const tableContainerEl = document.getElementById(`${methodPrefix}ticker_table_container_${data.profile_id}`);
+                        const tableBodyEl = document.querySelector(`#${methodPrefix}status_table_for_${data.profile_id} tbody`);
+
+
+                        if (totalCountEl) totalCountEl.textContent = totalTickers;
+                        if (processedCountEl) processedCountEl.textContent = '0';
+                        if (progressBarEl) { progressBarEl.style.width = '0%'; progressBarEl.textContent = '0%'; progressBarEl.setAttribute('aria-valuenow', '0');}
+                        if (progressDisplayEl) progressDisplayEl.style.display = (totalTickers > 0) ? 'block' : 'none';
+                        if (tableBodyEl) tableBodyEl.innerHTML = ''; // Clear previous table entries
+                        if (tableContainerEl) tableContainerEl.style.display = (totalTickers > 0) ? 'block' : 'none';
+                    }
+                }
+            });
+
+            socket.on('ticker_processed_update', function(data) {
+                if (data.profile_id && data.ticker) {
+                    updateTickerStatusTable(data.profile_id, data); // Use the helper function
+                    
+                    const methodPrefix = getElementPrefixForProfile(data.profile_id);
+                    const processedCountEl = document.getElementById(`${methodPrefix}processed_count_${data.profile_id}`);
+                    const totalCountEl = document.getElementById(`${methodPrefix}total_count_${data.profile_id}`);
+                    const progressBarEl = document.getElementById(`${methodPrefix}ticker_progress_bar_${data.profile_id}`);
+
+                    if (processedCountEl && totalCountEl && progressBarEl) {
+                        // Increment processed count only for final states
+                        let isFinalState = ['Published', 'Skipped'].includes(data.status) || 
+                                           (typeof data.status === 'string' && (data.status.startsWith("Failed") || data.status.startsWith("Halted")));
+                        
+                        const tableBody = document.querySelector(`#${methodPrefix}status_table_for_${data.profile_id} tbody`);
+                        const tickerRow = tableBody ? tableBody.querySelector(`tr[data-ticker="${data.ticker}"]`) : null;
+
+                        if (isFinalState && tickerRow && !tickerRow.dataset.countedAsProcessed) {
+                            let currentProcessed = parseInt(processedCountEl.textContent) || 0;
+                            processedCountEl.textContent = currentProcessed + 1;
+                            tickerRow.dataset.countedAsProcessed = "true"; // Mark as counted
+                        }
+                        
+                        let total = parseInt(totalCountEl.textContent) || 0;
+                        let finalProcessedCount = parseInt(processedCountEl.textContent) || 0;
+
+                        if (total > 0) {
+                            const progressPercent = Math.min(100, (finalProcessedCount / total) * 100);
+                            progressBarEl.style.width = `${progressPercent}%`;
+                            progressBarEl.textContent = `${Math.round(progressPercent)}%`;
+                            progressBarEl.setAttribute('aria-valuenow', progressPercent);
+                        }
+                    }
+                }
+            });
+             // Reset UI elements for selected profiles when form is submitted
+            const form = document.getElementById('automationRunForm');
+            if(form){
+                form.addEventListener('submit', function() {
+                    document.querySelectorAll('.profile-run-card input[type="checkbox"]:checked').forEach(checkbox => {
+                        const profileId = checkbox.value;
+                        resetProfileRunUI(profileId); // Reset UI for the selected profile
+                    });
+                });
+            }
+        } else {
+            console.warn("Socket.IO not loaded, real-time updates on Automation Runner page will not work.");
+        }
+    } // End of Automation Runner Page Specific JS
 }); // End of main DOMContentLoaded

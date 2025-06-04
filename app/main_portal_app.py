@@ -21,15 +21,15 @@ import traceback
 from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import firestore
-from firebase_admin import storage
+from firebase_admin import storage  # <-- Add this import to fix "storage is not defined"
+import pandas as pd # <-- For parsing ticker file for metadata
 
-
-FIREBASE_INITIALIZED_SUCCESSFULLY = True 
-AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True 
-PIPELINE_IMPORTED_SUCCESSFULLY = True 
+FIREBASE_INITIALIZED_SUCCESSFULLY = True
+AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True
+PIPELINE_IMPORTED_SUCCESSFULLY = True
 
 try:
-    from config.firebase_admin_setup import initialize_firebase_admin, verify_firebase_token, get_firestore_client
+    from config.firebase_admin_setup import initialize_firebase_admin, verify_firebase_token, get_firestore_client, get_storage_bucket # <-- ADDED get_storage_bucket
     initialize_firebase_admin()
     from config.firebase_admin_setup import _firebase_app_initialized
     FIREBASE_INITIALIZED_SUCCESSFULLY = _firebase_app_initialized
@@ -40,6 +40,7 @@ except ImportError as e_fb_admin:
     FIREBASE_INITIALIZED_SUCCESSFULLY = False
     def verify_firebase_token(token): print("Firebase dummy: verify_firebase_token called"); return None # Mock
     def get_firestore_client(): print("Firebase dummy: get_firestore_client called"); return None # Mock
+    # def get_storage_bucket(): print("Firebase dummy: get_storage_bucket called"); return None # Mock
 
 try:
     from automation_scripts import auto_publisher
@@ -47,18 +48,16 @@ try:
 except ImportError as e_ap:
     print(f"CRITICAL: Failed to import auto_publisher.py: {e_ap}")
     AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = False
-    # Mock class for auto_publisher if import fails
-    class MockAutoPublisher: 
-        ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP = 10 # Example attribute
+    class MockAutoPublisher:
+        ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP = 10
         def load_state(self, user_uid=None, current_profile_ids_from_run=None): return {}
-        # Ensure trigger_publishing_run mock accepts socketio_instance and user_room
-        def trigger_publishing_run(self, user_uid, profiles_to_process_data_list, articles_to_publish_per_profile_map, 
-                                   custom_tickers_by_profile_id=None, uploaded_file_details_by_profile_id=None,
-                                   socketio_instance=None, user_room=None): # Added new params
-            print("MockAutoPublisher: trigger_publishing_run called"); 
+        def trigger_publishing_run(self, user_uid, profiles_to_process_data_list, articles_to_publish_per_profile_map,
+                                   custom_tickers_by_profile_id=None, uploaded_file_details_by_profile_id=None, # MODIFIED: uploaded_file_details
+                                   socketio_instance=None, user_room=None):
+            print("MockAutoPublisher: trigger_publishing_run called");
             if socketio_instance and user_room:
                  socketio_instance.emit('automation_update', {
-                    'profile_id': "MockProfile", 'ticker': "MOCK", 'phase': "Mocking", 
+                    'profile_id': "MockProfile", 'ticker': "MOCK", 'phase': "Mocking",
                     'stage': "Called", 'message': "Automation service is mocked.", 'status': "warning",
                     'timestamp': datetime.now(timezone.utc).isoformat()
                 }, room=user_room)
@@ -72,13 +71,13 @@ try:
 except ImportError as e_pipeline:
     print(f"CRITICAL: Failed to import pipeline.py: {e_pipeline}")
     PIPELINE_IMPORTED_SUCCESSFULLY = False
-    def run_pipeline(*args, socketio_instance=None, task_room=None, **kwargs): 
-        print("Mock Pipeline: run_pipeline called"); 
+    def run_pipeline(*args, socketio_instance=None, task_room=None, **kwargs):
+        print("Mock Pipeline: run_pipeline called");
         if socketio_instance and task_room:
             socketio_instance.emit('analysis_error', {'message': 'Stock Analysis service is temporarily unavailable (mocked).', 'ticker': args[0] if args else 'N/A'}, room=task_room)
         return None, None, "Error: Mock Stock Analysis Pipeline not available", None
-    def run_wp_pipeline(*args, socketio_instance=None, task_room=None, **kwargs): 
-        print("Mock Pipeline: run_wp_pipeline called"); 
+    def run_wp_pipeline(*args, socketio_instance=None, task_room=None, **kwargs):
+        print("Mock Pipeline: run_wp_pipeline called");
         if socketio_instance and task_room:
             socketio_instance.emit('wp_asset_error', {'message': 'WordPress Asset service is temporarily unavailable (mocked).', 'ticker': args[0] if args else 'N/A'}, room=task_room)
         return None, None, "Error: Mock WordPress Asset Pipeline not available", {}
@@ -88,7 +87,7 @@ load_dotenv()
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_FOLDER_PATH = os.path.join(APP_ROOT, 'static')
 TEMPLATE_FOLDER_PATH = os.path.join(APP_ROOT, 'templates')
-UPLOAD_FOLDER = os.path.join(APP_ROOT, '..', 'generated_data', 'temp_uploads')
+UPLOAD_FOLDER = os.path.join(APP_ROOT, '..', 'generated_data', 'temp_uploads') # Still used for temp before cloud
 STOCK_REPORTS_SUBDIR = 'stock_reports'
 STOCK_REPORTS_PATH = os.path.join(APP_ROOT, '..', 'generated_data', 'stock_reports')
 
@@ -100,17 +99,16 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "your_strong_default_secret_key_h
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 # 5MB Limit
 ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # Disable caching for static files during dev
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7) # User sessions last 7 days
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
-# Increased timeouts and enabled logging for SocketIO
-socketio = SocketIO(app, 
-                    async_mode='eventlet', 
+socketio = SocketIO(app,
+                    async_mode='eventlet',
                     cors_allowed_origins="*",
-                    ping_timeout=60,      # Increased from default 20s
-                    ping_interval=25,     # Increased from default 5s
-                    logger=True,          # Enable Socket.IO specific logging
-                    engineio_logger=True  # Enable Engine.IO (transport layer) logging
+                    ping_timeout=60,
+                    ping_interval=25,
+                    logger=True,
+                    engineio_logger=True
                    )
 
 
@@ -122,6 +120,107 @@ for folder_path in [UPLOAD_FOLDER, STATIC_FOLDER_PATH, STOCK_REPORTS_PATH]:
         except OSError as e:
             app.logger.error(f"Could not create directory {folder_path}: {e}")
 
+# --- START: New Helper Functions for Firebase Storage and Ticker Parsing ---
+def get_storage_bucket(): # Renamed for clarity
+    """Conceptual: Gets a Firebase Storage bucket instance."""
+    if not FIREBASE_INITIALIZED_SUCCESSFULLY:
+        app.logger.error("Firebase not initialized. Cannot get storage bucket.")
+        return None
+    try:
+        # This assumes your firebase_admin_setup.py initializes storage correctly
+        # and you have a way to get the default bucket.
+        # For example, if firebase_admin.storage.bucket() gives the default bucket:
+        bucket_name = os.getenv('FIREBASE_STORAGE_BUCKET')
+        if not bucket_name:
+            app.logger.warning("FIREBASE_STORAGE_BUCKET env variable not set. Attempting to use default bucket if configured with service account.")
+            return storage.bucket() # Tries to get default bucket
+        return storage.bucket(bucket_name)
+    except Exception as e:
+        app.logger.error(f"Error getting Firebase Storage bucket: {e}")
+        return None
+
+def upload_file_to_storage(user_uid, profile_id, file_object, original_filename):
+    """Uploads a file to Firebase Storage and returns its path."""
+    bucket = get_storage_bucket() # Use the function from firebase_admin_setup
+    if not bucket:
+        app.logger.error(f"Storage bucket not available for upload. Profile: {profile_id}, User: {user_uid}")
+        return None
+    if file_object and original_filename:
+        filename = secure_filename(original_filename)
+        # Ensure a unique path, perhaps by including a timestamp or UUID if overwrites are not desired for same filename
+        storage_path = f"user_ticker_files/{user_uid}/{profile_id}/{filename}"
+        app.logger.info(f"Attempting to upload to: {storage_path}")
+        try:
+            blob = bucket.blob(storage_path)
+            file_object.seek(0)
+            blob.upload_from_file(file_object, content_type=file_object.content_type)
+            app.logger.info(f"File {filename} uploaded to {storage_path} for profile {profile_id}.")
+            return storage_path
+        except Exception as e:
+            app.logger.error(f"Error uploading '{filename}' to Firebase Storage path '{storage_path}': {e}", exc_info=True)
+            return None
+    app.logger.warning(f"Upload skipped: file_object or original_filename missing for profile {profile_id}")
+    return None
+
+def delete_file_from_storage(storage_path):
+    """Deletes a file from Firebase Storage."""
+    if not storage_path:
+        app.logger.info("Delete from storage skipped: No storage_path provided.")
+        return True # Nothing to delete
+    bucket = get_storage_bucket()
+    if not bucket:
+        app.logger.error(f"Storage bucket not available for deletion of {storage_path}.")
+        return False
+    try:
+        blob = bucket.blob(storage_path)
+        if blob.exists():
+            blob.delete()
+            app.logger.info(f"File {storage_path} deleted from Firebase Storage.")
+        else:
+            app.logger.info(f"File {storage_path} not found in Firebase Storage for deletion.")
+        return True
+    except Exception as e:
+        app.logger.error(f"Error deleting {storage_path} from Firebase Storage: {e}", exc_info=True)
+        return False
+
+def extract_ticker_metadata_from_file_content(content_bytes, original_filename):
+    """
+    Parses file content (bytes) to extract ticker count and a preview.
+    Similar to auto_publisher.load_tickers_from_uploaded_file but lighter.
+    """
+    tickers = []
+    common_ticker_column_names = ["Ticker", "Tickers", "Symbol", "Symbols", "Stock", "Stocks", "Keyword", "Keywords"]
+    try:
+        if original_filename.lower().endswith('.csv'):
+            try: content_str = content_bytes.decode('utf-8')
+            except UnicodeDecodeError: content_str = content_bytes.decode('latin1')
+            df = pd.read_csv(io.StringIO(content_str))
+        elif original_filename.lower().endswith(('.xls', '.xlsx')):
+            df = pd.read_excel(io.BytesIO(content_bytes))
+        else:
+            return {'count': 0, 'preview': [], 'error': 'Unsupported file type'}
+
+        if df.empty:
+            return {'count': 0, 'preview': [], 'error': 'File is empty or unparsable'}
+
+        ticker_col_found = None
+        for col_name_option in common_ticker_column_names:
+            if col_name_option in df.columns:
+                ticker_col_found = col_name_option
+                break
+        if not ticker_col_found: ticker_col_found = df.columns[0]
+
+        tickers = df[ticker_col_found].dropna().astype(str).str.strip().str.upper().tolist()
+        return {
+            'count': len(tickers),
+            'preview': tickers[:5] # Preview first 5 tickers
+        }
+    except Exception as e:
+        app.logger.error(f"Error extracting ticker metadata from {original_filename}: {e}")
+        return {'count': 0, 'preview': [], 'error': str(e)}
+
+# --- END: New Helper Functions ---
+
 @app.context_processor
 def inject_globals_and_helpers():
     return {
@@ -130,7 +229,7 @@ def inject_globals_and_helpers():
         'user_email': session.get('firebase_user_email'),
         'user_displayName': session.get('firebase_user_displayName'),
         'FIREBASE_INITIALIZED_SUCCESSFULLY': FIREBASE_INITIALIZED_SUCCESSFULLY,
-        'zip': zip # If you use zip in templates
+        'zip': zip
     }
 
 @app.template_filter('format_datetime')
@@ -139,21 +238,21 @@ def format_datetime_filter(value, fmt="%Y-%m-%d %H:%M:%S"):
     try:
         if isinstance(value, str):
             dt_obj = datetime.fromisoformat(value.replace('Z', '+00:00')) if value.endswith('Z') else datetime.fromisoformat(value)
-        elif isinstance(value, (int, float)): 
-            if value > 10**10: 
+        elif isinstance(value, (int, float)):
+            if value > 10**10:
                  dt_obj = datetime.fromtimestamp(value / 1000, timezone.utc)
-            else: 
+            else:
                  dt_obj = datetime.fromtimestamp(value, timezone.utc)
         elif isinstance(value, datetime):
             dt_obj = value
-        elif hasattr(value, 'seconds') and hasattr(value, 'nanoseconds'): 
+        elif hasattr(value, 'seconds') and hasattr(value, 'nanoseconds'):
             dt_obj = datetime.fromtimestamp(value.seconds + value.nanoseconds / 1e9, timezone.utc)
         else:
-            return value 
-        
-        if dt_obj.tzinfo is None: 
-            dt_obj = dt_obj.replace(tzinfo=timezone.utc) 
-        
+            return value
+
+        if dt_obj.tzinfo is None:
+            dt_obj = dt_obj.replace(tzinfo=timezone.utc)
+
         return dt_obj.strftime(fmt)
     except (ValueError, AttributeError, TypeError) as e:
         app.logger.warning(f"Could not format datetime value '{value}' (type: {type(value)}): {e}")
@@ -201,6 +300,12 @@ def get_user_site_profiles_from_firestore(user_uid):
             profile_data['profile_id'] = profile_doc.id
             if 'authors' not in profile_data or not isinstance(profile_data['authors'], list):
                 profile_data['authors'] = []
+            # Ensure new file metadata fields have defaults if not present
+            profile_data.setdefault('uploaded_ticker_file_name', None)
+            profile_data.setdefault('ticker_file_storage_path', None)
+            profile_data.setdefault('ticker_file_uploaded_at', None)
+            profile_data.setdefault('ticker_count_from_file', None)
+            profile_data.setdefault('ticker_preview_from_file', [])
             profiles.append(profile_data)
     except Exception as e:
         app.logger.error(f"Error fetching site profiles for user {user_uid} from Firestore: {e}", exc_info=True)
@@ -215,11 +320,19 @@ def save_user_site_profile_to_firestore(user_uid, profile_data):
         now_iso = datetime.now(timezone.utc).isoformat()
         profile_data['last_updated_at'] = now_iso
         if 'authors' not in profile_data or not isinstance(profile_data['authors'], list):
-            profile_data['authors'] = [] 
+            profile_data['authors'] = []
+
+        # Ensure file metadata fields are present, even if None initially
+        profile_data.setdefault('uploaded_ticker_file_name', None)
+        profile_data.setdefault('ticker_file_storage_path', None)
+        profile_data.setdefault('ticker_file_uploaded_at', None)
+        profile_data.setdefault('ticker_count_from_file', None)
+        profile_data.setdefault('ticker_preview_from_file', [])
+
 
         if profile_id_to_save:
             doc_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').document(profile_id_to_save)
-            doc_ref.set(profile_data, merge=True) 
+            doc_ref.set(profile_data, merge=True)
             app.logger.info(f"Updated site profile {profile_id_to_save} for user {user_uid} in Firestore.")
             return profile_id_to_save
         else:
@@ -238,8 +351,16 @@ def delete_user_site_profile_from_firestore(user_uid, profile_id_to_delete):
     db = get_firestore_client()
     if not db: app.logger.error(f"Firestore client not available for delete_user_site_profile_from_firestore (user: {user_uid})."); return False
     try:
-        db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').document(profile_id_to_delete).delete()
-        app.logger.info(f"Deleted site profile {profile_id_to_delete} for user {user_uid}.")
+        profile_doc_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').document(profile_id_to_delete)
+        profile_snapshot = profile_doc_ref.get()
+        if profile_snapshot.exists:
+            profile_data = profile_snapshot.to_dict()
+            old_storage_path = profile_data.get('ticker_file_storage_path')
+            if old_storage_path:
+                delete_file_from_storage(old_storage_path) # Delete associated file from Storage
+
+        profile_doc_ref.delete()
+        app.logger.info(f"Deleted site profile {profile_id_to_delete} and any associated ticker file for user {user_uid}.")
         return True
     except Exception as e:
         app.logger.error(f"Error deleting site profile {profile_id_to_delete} for user {user_uid}: {e}", exc_info=True)
@@ -254,9 +375,24 @@ def get_automation_shared_context(user_uid, profiles_list):
         context['last_run_date_for_counts'] = state.get('last_run_date', 'N/A')
         context['processed_tickers_log_map'] = state.get('processed_tickers_detailed_log_by_profile', {})
         context['absolute_max_posts_cap'] = getattr(auto_publisher, 'ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP', 10)
+
+        # Add persisted file info to context for each profile
+        for profile in profiles_list:
+            pid = profile.get('profile_id')
+            if pid:
+                context.setdefault('persisted_file_info', {})[pid] = {
+                    'name': profile.get('uploaded_ticker_file_name'),
+                    'path': profile.get('ticker_file_storage_path'), # For internal use if needed
+                    'uploaded_at': profile.get('ticker_file_uploaded_at'),
+                    'count': profile.get('ticker_count_from_file'),
+                    'preview': profile.get('ticker_preview_from_file')
+                }
+
     except Exception as e:
         app.logger.error(f"Error loading publisher state for shared_context (user: {user_uid}): {e}", exc_info=True)
-        context.update({'posts_today_by_profile': {}, 'last_run_date_for_counts': "Error", 'processed_tickers_log_map': {}, 'absolute_max_posts_cap': 10})
+        context.update({'posts_today_by_profile': {}, 'last_run_date_for_counts': "Error",
+                        'processed_tickers_log_map': {}, 'absolute_max_posts_cap': 10,
+                        'persisted_file_info': {}})
     return context
 
 def is_valid_url(url_string):
@@ -277,9 +413,9 @@ def stock_analysis_homepage_route():
 @login_required
 def dashboard_page():
     user_uid = session.get('firebase_user_uid')
-    report_history, total_reports = [], 0 
+    report_history, total_reports = [], 0
     if user_uid:
-        report_history, total_reports = get_report_history_for_user(user_uid, display_limit=10) 
+        report_history, total_reports = get_report_history_for_user(user_uid, display_limit=10)
     return render_template('dashboard.html',
                            title="Dashboard - Tickzen",
                            report_history=report_history,
@@ -293,20 +429,19 @@ def analyzer_input_page():
 @app.route('/start-analysis', methods=['POST'])
 def start_stock_analysis():
     ticker = request.form.get('ticker', '').strip().upper()
-    
-    room_id = session.get('firebase_user_uid') 
-    client_sid_from_form = request.form.get('client_sid') 
 
-    if not room_id and client_sid_from_form: 
+    room_id = session.get('firebase_user_uid')
+    client_sid_from_form = request.form.get('client_sid')
+
+    if not room_id and client_sid_from_form:
         room_id = client_sid_from_form
         app.logger.info(f"Anonymous analysis task. Using client_sid {room_id} as room.")
-    elif not room_id and not client_sid_from_form: 
-        room_id = "task_room_" + str(int(time.time())) 
+    elif not room_id and not client_sid_from_form:
+        room_id = "task_room_" + str(int(time.time()))
         app.logger.warning(f"No user UID or client SID for analysis task. Generated room_id: {room_id}")
-    
+
     app.logger.info(f"\n--- Received /start-analysis for ticker: {ticker} (Target Room: {room_id}) ---")
-    
-    # Updated pattern to handle exchange suffixes
+
     valid_ticker_pattern = r'^[A-Z0-9\^.-]+(\.[A-Z]{1,2})?$'
     if not ticker or not re.match(valid_ticker_pattern, ticker):
         flash(f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, ADANIPOWER.NS).", "danger")
@@ -319,12 +454,12 @@ def start_stock_analysis():
         return redirect(url_for('analyzer_input_page'))
 
     try:
-        request_timestamp_for_report = int(time.time()) 
+        request_timestamp_for_report = int(time.time())
         app.logger.info(f"Running full stock analysis for ticker {ticker} (Timestamp: {request_timestamp_for_report}) for room {room_id}...")
-        
-        pipeline_result = run_pipeline(ticker, str(request_timestamp_for_report), APP_ROOT, 
+
+        pipeline_result = run_pipeline(ticker, str(request_timestamp_for_report), APP_ROOT,
                                        socketio_instance=socketio, task_room=room_id)
-        
+
         report_html_content_from_pipeline = None
         path_info_from_pipeline = None
         report_filename_for_url = None
@@ -332,7 +467,7 @@ def start_stock_analysis():
 
         if pipeline_result and isinstance(pipeline_result, tuple) and len(pipeline_result) >= 4:
             model_obj, forecast_obj, path_info_from_pipeline, report_html_content_from_pipeline = pipeline_result[:4]
-            
+
             if isinstance(report_html_content_from_pipeline, str) and \
                "<html" in report_html_content_from_pipeline.lower() and \
                "Error Generating Report" not in report_html_content_from_pipeline:
@@ -341,11 +476,11 @@ def start_stock_analysis():
                 try:
                     with open(absolute_report_filepath_on_disk, 'w', encoding='utf-8') as f:
                         f.write(report_html_content_from_pipeline)
-                    report_filename_for_url = generated_filename 
+                    report_filename_for_url = generated_filename
                     app.logger.info(f"HTML content from pipeline saved to: {absolute_report_filepath_on_disk}")
                 except Exception as e_save:
                     app.logger.error(f"Could not save HTML content for {ticker}: {e_save}. Will try path_info.")
-            
+
             if not report_filename_for_url and isinstance(path_info_from_pipeline, str) and path_info_from_pipeline.endswith(".html"):
                 if os.path.isabs(path_info_from_pipeline) and path_info_from_pipeline.startswith(STOCK_REPORTS_PATH):
                     if os.path.exists(path_info_from_pipeline):
@@ -366,7 +501,7 @@ def start_stock_analysis():
                 error_detail = f"Pipeline output unclear or report file missing. Path: '{path_info_from_pipeline}'"
                 socketio.emit('analysis_error', {'message': "Report generation failed (file path issue).", 'ticker': ticker}, room=room_id)
                 raise ValueError("Stock analysis report path issue: " + error_detail)
-        else: 
+        else:
             socketio.emit('analysis_error', {'message': "Pipeline did not return expected result.", 'ticker': ticker}, room=room_id)
             raise ValueError("Stock analysis pipeline did not return the expected result.")
 
@@ -382,26 +517,26 @@ def start_stock_analysis():
         view_report_url = url_for('view_generated_report', ticker=ticker, filename=report_filename_for_url)
         app.logger.info(f"Analysis for {ticker} complete. Signaling client in room {room_id} to redirect to: {view_report_url}")
         socketio.emit('analysis_complete', {'report_url': view_report_url, 'ticker': ticker}, room=room_id)
-        
+
         return jsonify({'status': 'analysis_completed_redirect_via_socket', 'ticker': ticker, 'report_url': view_report_url}), 200
 
     except Exception as e:
         app.logger.error(f"Error during stock analysis for {ticker}: {e}", exc_info=True)
         socketio.emit('analysis_error', {'message': str(e)[:150] + "...", 'ticker': ticker}, room=room_id)
-        flash(f"An error occurred while analyzing {ticker}: {str(e)[:150]}...", "danger") 
+        flash(f"An error occurred while analyzing {ticker}: {str(e)[:150]}...", "danger")
         return jsonify({'status': 'error', 'message': f"Error analyzing {ticker}: {str(e)[:150]}..."}), 500
 
 
 # --- REPORT VIEWING ROUTES ---
 @app.route('/view-report/<ticker>/<path:filename>')
-@login_required 
+@login_required
 def view_generated_report(ticker, filename):
     report_url = url_for('serve_generated_report', filename=filename)
     return render_template('view_report_page.html',
                            title=f"Analysis Report: {ticker.upper()}",
                            ticker=ticker.upper(),
                            report_url=report_url,
-                           download_filename=filename) 
+                           download_filename=filename)
 
 
 @app.route('/generated_reports/<path:filename>')
@@ -409,7 +544,7 @@ def serve_generated_report(filename):
     return send_from_directory(STOCK_REPORTS_PATH, filename)
 
 @app.route('/static/<path:filename>')
-def serve_static_general(filename): 
+def serve_static_general(filename):
     return send_from_directory(app.static_folder, filename)
 
 
@@ -437,11 +572,10 @@ def verify_token_route():
     if decoded_token and 'uid' in decoded_token:
         session['firebase_user_uid'] = decoded_token['uid']
         session['firebase_user_email'] = decoded_token.get('email')
-        session['firebase_user_displayName'] = decoded_token.get('name', '') 
-        session.permanent = True 
+        session['firebase_user_displayName'] = decoded_token.get('name', '')
+        session.permanent = True
         app.logger.info(f"User {decoded_token['uid']} logged in. Email: {decoded_token.get('email')}, Name: {decoded_token.get('name')}")
 
-        # --- BEGIN ADDITION: Ensure user profile exists in Firestore ---
         try:
             db = get_firestore_client()
             if db:
@@ -450,45 +584,28 @@ def verify_token_route():
                 profile_doc = user_profile_ref.get()
 
                 if not profile_doc.exists:
-                    # User profile does not exist, create it
                     user_data_for_firestore = {
                         u'display_name': decoded_token.get('name', ''),
                         u'email': decoded_token.get('email'),
-                        u'created_at': firestore.SERVER_TIMESTAMP, # Use server timestamp
+                        u'created_at': firestore.SERVER_TIMESTAMP,
                         u'notifications': {
-                            u'email': False, # Default notification settings
+                            u'email': False,
                             u'automation': False
                         }
-                        # Add any other default fields you want for a new user profile
                     }
                     user_profile_ref.set(user_data_for_firestore)
                     app.logger.info(f"Created Firestore profile for new user {user_uid}.")
                 else:
-                    # Optionally, update display_name or email if they changed in Firebase Auth
-                    # This is often handled in a separate profile update mechanism
                     firestore_profile_data = profile_doc.to_dict()
                     auth_display_name = decoded_token.get('name', '')
-                    auth_email = decoded_token.get('email')
-                    update_needed = False
                     update_payload = {}
-
                     if firestore_profile_data.get('display_name') != auth_display_name:
                         update_payload['display_name'] = auth_display_name
-                        update_needed = True
-                    
-                    if firestore_profile_data.get('email') != auth_email:
-                        # Generally, email is not changed this way post-creation, but if needed:
-                        # update_payload['email'] = auth_email 
-                        # update_needed = True 
-                        pass # Decide if email updates are allowed/handled here
-
-                    if update_needed:
+                    if update_payload:
                         user_profile_ref.update(update_payload)
                         app.logger.info(f"Synced display_name for user {user_uid} from Auth to Firestore.")
-
         except Exception as e_firestore:
             app.logger.error(f"Error ensuring user profile in Firestore for {decoded_token.get('uid')}: {e_firestore}", exc_info=True)
-        # --- END ADDITION ---
 
         return jsonify({"status": "success", "uid": decoded_token['uid'], "next_url": url_for('dashboard_page')}), 200
     else:
@@ -497,12 +614,12 @@ def verify_token_route():
 
 @app.route('/logout')
 def logout():
-    user_uid = session.get('firebase_user_uid') 
+    user_uid = session.get('firebase_user_uid')
     if user_uid:
         app.logger.info(f"User {user_uid} logging out. Client {request.sid if hasattr(request, 'sid') else '(no socket SID in HTTP context)'} should handle disconnect.")
     session.clear()
     flash("You have been successfully logged out.", "info")
-    return redirect(url_for('stock_analysis_homepage_route')) 
+    return redirect(url_for('stock_analysis_homepage_route'))
 
 # --- USER & PROFILE MANAGEMENT ---
 @app.route('/user-profile')
@@ -510,24 +627,17 @@ def logout():
 def user_profile_page():
     user_uid = session['firebase_user_uid']
     db = get_firestore_client()
-    
-    # Default values
+
     user_profile_data = {
         'display_name': session.get('user_displayName', ''),
         'bio': '',
         'profile_picture': session.get('user_profile_picture', ''),
-        'notifications': {
-            'email': False,
-            'automation': False
-        },
-        'created_at': None,
-        'total_automations': 0,
-        'active_profiles': 0
+        'notifications': { 'email': False, 'automation': False },
+        'created_at': None, 'total_automations': 0, 'active_profiles': 0
     }
-    
+
     if db:
         try:
-            # Get user profile from Firestore
             profile_doc = db.collection('userProfiles').document(user_uid).get()
             if profile_doc.exists:
                 profile_data = profile_doc.to_dict()
@@ -538,18 +648,16 @@ def user_profile_page():
                     'notifications': profile_data.get('notifications', user_profile_data['notifications']),
                     'created_at': profile_data.get('created_at', None)
                 })
-            
-            # Get total automations count
+
             automations_query = db.collection('userGeneratedReports').where('user_uid', '==', user_uid).count()
             user_profile_data['total_automations'] = automations_query.get()[0][0].value
-            
-            # Get active profiles count
+
             profiles_query = db.collection('userSiteProfiles').document(user_uid).collection('profiles').count()
             user_profile_data['active_profiles'] = profiles_query.get()[0][0].value
-            
+
         except Exception as e:
             app.logger.error(f"Error fetching user profile data: {str(e)}")
-    
+
     return render_template('user_profile.html',
                          title="Your Profile - Tickzen",
                          user_profile_picture=user_profile_data['profile_picture'],
@@ -641,7 +749,7 @@ def add_site_profile():
         app_password = request.form.get(app_password_field_key, '')
 
         if wp_username or wp_user_id_str or app_password: has_any_author_input = True
-        
+
         submitted_authors_raw_for_repopulation.append({"wp_username": wp_username, "wp_user_id": wp_user_id_str})
 
         if wp_username or wp_user_id_str or app_password:
@@ -654,21 +762,21 @@ def add_site_profile():
                 try: wp_user_id_int = int(wp_user_id_str)
                 except ValueError: current_author_errors.append("User ID must be a number.")
             if not app_password: current_author_errors.append("Application Password required.")
-            
+
             if current_author_errors: errors[f'{author_error_key_prefix}_general'] = f"Author {author_idx + 1} incomplete: {' '.join(current_author_errors)}"
             elif wp_user_id_int is not None:
                 authors_data.append({"id": f"author_{int(time.time())}_{author_idx}", "wp_username": wp_username, "wp_user_id": str(wp_user_id_int), "app_password": app_password})
-        
+
         if not request.form.get(username_field_key) and not request.form.get(userid_field_key) and not request.form.get(app_password_field_key) and author_idx == 0 and not has_any_author_input:
-             break 
-        if not request.form.get(username_field_key) and author_idx > 0 : 
+             break
+        if not request.form.get(username_field_key) and author_idx > 0 :
              break
 
         author_idx += 1
-        
+
     if not authors_data:
         if has_any_author_input:
-            if not any(key.startswith('author_') and '_general' in key for key in errors): 
+            if not any(key.startswith('author_') and '_general' in key for key in errors):
                 errors['authors_general'] = "Ensure all fields (Username, User ID, App Password) are filled for each writer."
         else: errors['authors_general'] = "At least one complete writer is required."
 
@@ -746,7 +854,7 @@ def edit_site_profile(profile_id_from_firestore):
                 min_sched_gap = int(min_scheduling_gap_minutes_str)
                 if min_sched_gap <= 0: errors['min_scheduling_gap_minutes'] = "Min Gap must be positive."
             except ValueError: errors['min_scheduling_gap_minutes'] = "Min Gap must be a number."
-        
+
         max_sched_gap = 0
         if not max_scheduling_gap_minutes_str: errors['max_scheduling_gap_minutes'] = "Max Scheduling Gap is required."
         else:
@@ -762,7 +870,7 @@ def edit_site_profile(profile_id_from_firestore):
         if stockforecast_category_id_str:
             try: stockforecast_category_id = int(stockforecast_category_id_str)
             except ValueError: errors['stockforecast_category_id'] = "Category ID must be a number."
-        
+
         if not report_sections: report_sections = ALL_SECTIONS
 
         updated_authors = []
@@ -773,7 +881,7 @@ def edit_site_profile(profile_id_from_firestore):
 
 
         while True:
-            author_internal_id_field = f'author_id_{author_idx}' 
+            author_internal_id_field = f'author_id_{author_idx}'
             username_field_key = f'author_wp_username_{author_idx}'
             userid_field_key = f'author_wp_user_id_{author_idx}'
             app_password_field_key = f'author_app_password_{author_idx}'
@@ -784,17 +892,17 @@ def edit_site_profile(profile_id_from_firestore):
             author_internal_id = request.form.get(author_internal_id_field, '').strip()
             wp_username = request.form.get(username_field_key, '').strip()
             wp_user_id_str = request.form.get(userid_field_key, '').strip()
-            app_password_new = request.form.get(app_password_field_key, '') 
+            app_password_new = request.form.get(app_password_field_key, '')
 
             if wp_username or wp_user_id_str or app_password_new: has_any_author_input_edit = True
-            
+
             submitted_authors_raw_for_repopulation.append({
-                "id": author_internal_id, 
+                "id": author_internal_id,
                 "wp_username": wp_username,
                 "wp_user_id": wp_user_id_str,
             })
 
-            if wp_username or wp_user_id_str or app_password_new: 
+            if wp_username or wp_user_id_str or app_password_new:
                 author_error_key_prefix = f'author_{author_idx}'
                 current_author_errors = []
                 final_app_password = app_password_new
@@ -805,14 +913,14 @@ def edit_site_profile(profile_id_from_firestore):
                 else:
                     try: wp_user_id_int = int(wp_user_id_str)
                     except ValueError: current_author_errors.append("User ID must be a number.")
-                
+
                 if not app_password_new:
                     original_author_details = original_authors_map_by_id.get(author_internal_id)
                     if original_author_details and original_author_details.get('app_password'):
-                        final_app_password = original_author_details['app_password'] 
-                    else: 
+                        final_app_password = original_author_details['app_password']
+                    else:
                         current_author_errors.append("App Password required for new/updated writer.")
-                
+
                 if current_author_errors: errors[f'{author_error_key_prefix}_general'] = f"Author {author_idx + 1} error: {' '.join(current_author_errors)}"
                 elif wp_user_id_int is not None:
                      updated_authors.append({
@@ -821,7 +929,7 @@ def edit_site_profile(profile_id_from_firestore):
                         "wp_user_id": str(wp_user_id_int),
                         "app_password": final_app_password
                     })
-            
+
             if not request.form.get(username_field_key) and author_idx == 0 and not has_any_author_input_edit: break
             if not request.form.get(username_field_key) and author_idx > 0 : break
             author_idx += 1
@@ -830,27 +938,27 @@ def edit_site_profile(profile_id_from_firestore):
         if not updated_authors:
             if has_any_author_input_edit: errors['authors_general'] = "Ensure all fields are filled for each writer."
             else: errors['authors_general'] = "At least one writer is required."
-        
+
         if errors:
             flash("Please correct the errors in the form.", "danger")
             profile_data_repopulate = {
-                "profile_id": profile_id_from_firestore, 
+                "profile_id": profile_id_from_firestore,
                 "profile_name": profile_name, "site_url": site_url, "sheet_name": sheet_name,
                 "stockforecast_category_id": stockforecast_category_id_str,
                 "min_scheduling_gap_minutes": min_scheduling_gap_minutes_str,
                 "max_scheduling_gap_minutes": max_scheduling_gap_minutes_str,
                 "env_prefix_for_feature_image_colors": env_prefix,
                 "report_sections_to_include": report_sections,
-                "authors": submitted_authors_raw_for_repopulation 
+                "authors": submitted_authors_raw_for_repopulation
             }
             return render_template('edit_profile.html',
                                    title=f"Edit {profile_data_original.get('profile_name')}",
-                                   profile=profile_data_repopulate, 
+                                   profile=profile_data_repopulate,
                                    all_report_sections=ALL_SECTIONS,
-                                   errors=errors) 
+                                   errors=errors)
 
         profile_data_to_save = {
-            "profile_id": profile_id_from_firestore, 
+            "profile_id": profile_id_from_firestore,
             'profile_name': profile_name, 'site_url': site_url, 'sheet_name': sheet_name,
             'stockforecast_category_id': str(stockforecast_category_id) if stockforecast_category_id is not None else "",
             'min_scheduling_gap_minutes': min_sched_gap, 'max_scheduling_gap_minutes': max_sched_gap,
@@ -858,6 +966,13 @@ def edit_site_profile(profile_id_from_firestore):
             'authors': updated_authors,
             'report_sections_to_include': report_sections
         }
+        # Preserve existing file metadata if not changed by this edit form
+        profile_data_to_save['uploaded_ticker_file_name'] = profile_data_original.get('uploaded_ticker_file_name')
+        profile_data_to_save['ticker_file_storage_path'] = profile_data_original.get('ticker_file_storage_path')
+        profile_data_to_save['ticker_file_uploaded_at'] = profile_data_original.get('ticker_file_uploaded_at')
+        profile_data_to_save['ticker_count_from_file'] = profile_data_original.get('ticker_count_from_file')
+        profile_data_to_save['ticker_preview_from_file'] = profile_data_original.get('ticker_preview_from_file', [])
+
 
         if save_user_site_profile_to_firestore(user_uid, profile_data_to_save):
             flash(f"Publishing Profile '{profile_data_to_save['profile_name']}' updated successfully!", "success")
@@ -869,7 +984,7 @@ def edit_site_profile(profile_id_from_firestore):
                            title=f"Edit {profile_data_original.get('profile_name')}",
                            profile=profile_data_original,
                            all_report_sections=ALL_SECTIONS,
-                           errors=None) 
+                           errors=None)
 
 
 @app.route('/site-profiles/delete/<profile_id_to_delete>', methods=['POST'])
@@ -898,9 +1013,9 @@ def save_report_to_history(user_uid, ticker, filename, generated_at_dt):
 
         reports_history_collection.add({
             u'user_uid': user_uid,
-            u'ticker': ticker.upper(), 
+            u'ticker': ticker.upper(),
             u'filename': filename,
-            u'generated_at': generated_at_dt 
+            u'generated_at': generated_at_dt
         })
         app.logger.info(f"Report history saved for user {user_uid}, ticker {ticker}, filename {filename}.")
         return True
@@ -916,20 +1031,20 @@ def get_report_history_for_user(user_uid, display_limit=10):
     if not db:
         app.logger.error(f"Firestore client not available for fetching report history for user {user_uid}.")
         return [], 0
-    
+
     reports_for_display = []
     total_user_reports_count = 0
-    
+
     try:
         base_query = db.collection(u'userGeneratedReports').where(u'user_uid', u'==', user_uid)
         try:
-            count_query = base_query.count() 
+            count_query = base_query.count()
             count_result = count_query.get()
             total_user_reports_count = count_result[0][0].value if count_result else 0
-        except AttributeError: 
+        except AttributeError:
             app.logger.warning("Firestore count() aggregate not available, falling back to streaming for count.")
             all_user_reports_stream = base_query.stream()
-            all_user_reports_docs = list(all_user_reports_stream) 
+            all_user_reports_docs = list(all_user_reports_stream)
             total_user_reports_count = len(all_user_reports_docs)
 
         display_query = base_query.order_by(u'generated_at', direction='DESCENDING').limit(display_limit)
@@ -937,14 +1052,14 @@ def get_report_history_for_user(user_uid, display_limit=10):
 
         for doc_snapshot in docs_for_display_stream:
             report_data = doc_snapshot.to_dict()
-            report_data['id'] = doc_snapshot.id 
+            report_data['id'] = doc_snapshot.id
             generated_at_val = report_data.get('generated_at')
-            if hasattr(generated_at_val, 'seconds'): 
+            if hasattr(generated_at_val, 'seconds'):
                  report_data['generated_at'] = datetime.fromtimestamp(generated_at_val.seconds + generated_at_val.nanoseconds / 1e9, timezone.utc)
-            elif isinstance(generated_at_val, (int, float)): 
-                if generated_at_val > 10**10: 
+            elif isinstance(generated_at_val, (int, float)):
+                if generated_at_val > 10**10:
                     report_data['generated_at'] = datetime.fromtimestamp(generated_at_val / 1000, timezone.utc)
-                else: 
+                else:
                     report_data['generated_at'] = datetime.fromtimestamp(generated_at_val, timezone.utc)
             reports_for_display.append(report_data)
         app.logger.info(f"Fetched {len(reports_for_display)} reports for user {user_uid} (Limit: {display_limit}, Total: {total_user_reports_count}).")
@@ -964,11 +1079,11 @@ def wordpress_automation_portal_route():
 @login_required
 def automation_runner_page():
     user_uid = session['firebase_user_uid']
-    user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
+    user_site_profiles = get_user_site_profiles_from_firestore(user_uid) # This now fetches file metadata too
     shared_context = get_automation_shared_context(user_uid, user_site_profiles)
     return render_template('run_automation_page.html',
                            title="Run Automation - Tickzen",
-                           user_site_profiles=user_site_profiles,
+                           user_site_profiles=user_site_profiles, # Pass enhanced profiles
                            **shared_context)
 
 @app.route('/run-automation-now', methods=['POST'])
@@ -984,55 +1099,189 @@ def run_automation_now():
         flash("No profiles selected to run automation.", "info")
         return redirect(url_for('automation_runner_page'))
 
-    all_user_profiles = get_user_site_profiles_from_firestore(user_uid)
-    selected_profiles_data = [p for p in all_user_profiles if p.get("profile_id") in profile_ids_to_run]
+    all_user_profiles_from_db = get_user_site_profiles_from_firestore(user_uid)
+    selected_profiles_data_for_run = []
+    # Create a map for easy lookup of full profile data from DB
+    profiles_db_map = {p.get("profile_id"): p for p in all_user_profiles_from_db}
 
-    if not selected_profiles_data:
-        flash("Selected profiles could not be found. Please try again.", "warning")
-        return redirect(url_for('automation_runner_page'))
 
     articles_map = {}
-    custom_tickers_map = {}
-    uploaded_files_map = {}
+    # MODIFIED: This will hold storage_path if file source, or ticker list if manual
+    automation_input_source_map = {}
 
-    for profile_data_item in selected_profiles_data:
-        pid = profile_data_item["profile_id"]
+
+    for profile_id_from_form in profile_ids_to_run:
+        profile_data_from_db = profiles_db_map.get(profile_id_from_form)
+        if not profile_data_from_db:
+            flash(f"Profile ID {profile_id_from_form} not found for user. Skipping.", "warning")
+            continue
+        selected_profiles_data_for_run.append(profile_data_from_db) # Add full profile data for the run
+
+        pid = profile_id_from_form # Use the ID from the form as key
         try:
             articles_map[pid] = max(0, int(request.form.get(f'posts_for_profile_{pid}', 0)))
         except ValueError:
             articles_map[pid] = 0
-            flash(f"Invalid number of posts for '{profile_data_item.get('profile_name', pid)}', defaulting to 0.", "warning")
+            flash(f"Invalid number of posts for '{profile_data_from_db.get('profile_name', pid)}', defaulting to 0.", "warning")
 
-        ticker_source_method = request.form.get(f'ticker_source_{pid}', 'file') 
+        ticker_source_method = request.form.get(f'ticker_source_{pid}', 'file') # Default to 'file' if not specified
 
         if ticker_source_method == 'manual':
             custom_tickers_str = request.form.get(f'custom_tickers_{pid}', '').strip()
             if custom_tickers_str:
-                custom_tickers_map[pid] = [t.strip().upper() for t in custom_tickers_str.split(',') if t.strip()]
+                automation_input_source_map[pid] = {
+                    "source_type": "manual",
+                    "tickers": [t.strip().upper() for t in custom_tickers_str.split(',') if t.strip()]
+                }
+                # If manual entry is used, clear any persisted file info for this profile
+                if profile_data_from_db.get('ticker_file_storage_path'):
+                    app.logger.info(f"Manual ticker entry for profile {pid}. Attempting to delete old file: {profile_data_from_db['ticker_file_storage_path']}")
+                    delete_file_from_storage(profile_data_from_db['ticker_file_storage_path'])
+                    # Update the profile data in memory before saving to Firestore
+                    profile_data_from_db.update({
+                        'profile_id': pid, # Ensure profile_id is part of the update payload
+                        'uploaded_ticker_file_name': None,
+                        'ticker_file_storage_path': None,
+                        'ticker_file_uploaded_at': None,
+                        'ticker_count_from_file': None,
+                        'ticker_preview_from_file': []
+                    })
+                    # Save the updated profile data (with cleared file info) to Firestore
+                    save_user_site_profile_to_firestore(user_uid, profile_data_from_db)
+                    app.logger.info(f"Cleared persisted file metadata for profile {pid} from Firestore due to manual ticker entry.")
+            else:
+                 flash(f"Manual ticker entry selected for '{profile_data_from_db.get('profile_name', pid)}' but no tickers provided. Will attempt to use existing ticker source if available or default.", "warning")
+                 # Decide if we default to excel_or_persisted or if we check for an existing file first
+                 if profile_data_from_db.get('ticker_file_storage_path'):
+                     automation_input_source_map[pid] = {
+                        "source_type": "persisted_file",
+                        "storage_path": profile_data_from_db.get('ticker_file_storage_path'),
+                        "original_filename": profile_data_from_db.get('uploaded_ticker_file_name')
+                    }
+                     app.logger.info(f"No manual tickers for {pid}, but a persisted file exists. Using persisted file.")
+                 else:
+                    automation_input_source_map[pid] = {"source_type": "excel_or_persisted"}
+                    app.logger.info(f"No manual tickers for {pid} and no persisted file. Defaulting to Excel/State.")
+
+
         elif ticker_source_method == 'file':
-            file_field_name = f'ticker_file_{pid}'
-            if file_field_name in request.files:
-                file_obj = request.files[file_field_name]
-                if file_obj and file_obj.filename and allowed_file(file_obj.filename):
-                    try:
-                        file_content_bytes = file_obj.read()
-                        uploaded_files_map[pid] = {"original_filename": file_obj.filename, "content_bytes": file_content_bytes}
-                        app.logger.info(f"File '{file_obj.filename}' queued for profile {pid}.")
-                    except Exception as e_file_read:
-                        app.logger.error(f"Error reading uploaded file '{file_obj.filename}' for profile {pid}: {e_file_read}")
-                        flash(f"Error processing file for '{profile_data_item.get('profile_name', pid)}'.", "danger")
-                elif file_obj and file_obj.filename: 
-                    flash(f"File type of '{file_obj.filename}' not allowed for profile '{profile_data_item.get('profile_name', pid)}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}", "warning")
+            file_obj = request.files.get(f'ticker_file_{pid}')
+            if file_obj and file_obj.filename and allowed_file(file_obj.filename):
+                app.logger.info(f"New file '{file_obj.filename}' uploaded for profile {pid}.")
+                old_storage_path = profile_data_from_db.get('ticker_file_storage_path')
+                if old_storage_path:
+                    app.logger.info(f"Deleting old file from {old_storage_path} for profile {pid}.")
+                    delete_file_from_storage(old_storage_path)
+
+                uploaded_storage_path = upload_file_to_storage(user_uid, pid, file_obj, file_obj.filename)
+                if uploaded_storage_path:
+                    file_obj.seek(0) # Reset stream position before reading for metadata
+                    file_content_bytes_for_meta = file_obj.read()
+                    file_obj.seek(0) # Reset again in case file_obj is used later, though usually not needed after .read()
+                    ticker_meta = extract_ticker_metadata_from_file_content(file_content_bytes_for_meta, file_obj.filename)
+
+                    # Prepare data to update Firestore for this profile
+                    profile_update_payload = {
+                        'profile_id': pid, # Crucial for save_user_site_profile_to_firestore
+                        'uploaded_ticker_file_name': file_obj.filename,
+                        'ticker_file_storage_path': uploaded_storage_path,
+                        'ticker_file_uploaded_at': datetime.now(timezone.utc).isoformat(),
+                        'ticker_count_from_file': ticker_meta.get('count', 0),
+                        'ticker_preview_from_file': ticker_meta.get('preview', [])
+                    }
+                    # Merge with existing non-file related data before saving
+                    # This ensures other profile settings are not lost
+                    current_profile_full_data = profiles_db_map.get(pid, {})
+                    for key_original, val_original in current_profile_full_data.items():
+                        if key_original not in profile_update_payload: # Don't overwrite profile_id if already set
+                            profile_update_payload[key_original] = val_original
+                    
+                    save_user_site_profile_to_firestore(user_uid, profile_update_payload)
+                    app.logger.info(f"Persisted new file '{file_obj.filename}' and metadata for profile {pid}.")
+                    automation_input_source_map[pid] = {
+                        "source_type": "uploaded_file",
+                        "storage_path": uploaded_storage_path,
+                        "original_filename": file_obj.filename
+                    }
+                    flash(f"File '{file_obj.filename}' uploaded and saved for profile '{profile_data_from_db.get('profile_name', pid)}'. {ticker_meta.get('count', 0)} tickers found.", "success")
+                else:
+                    flash(f"Error uploading new file for '{profile_data_from_db.get('profile_name', pid)}'. Check logs. Will use previous file if any, or Excel/State.", "danger")
+                    app.logger.error(f"Upload failed for profile {pid}, file '{file_obj.filename}'. Fallback logic will apply.")
+                    # Fallback logic if new upload fails but an old one might exist
+                    if profile_data_from_db.get('ticker_file_storage_path'):
+                         automation_input_source_map[pid] = {
+                            "source_type": "persisted_file",
+                            "storage_path": profile_data_from_db.get('ticker_file_storage_path'),
+                            "original_filename": profile_data_from_db.get('uploaded_ticker_file_name')
+                        }
+                         app.logger.info(f"Using previously persisted file for profile {pid} after new upload failed.")
+                    else:
+                         automation_input_source_map[pid] = {"source_type": "excel_or_persisted"}
+                         app.logger.info(f"No new or persisted file for profile {pid} after upload failure. Defaulting to Excel/State.")
+
+            elif file_obj and file_obj.filename: # File provided but type not allowed
+                flash(f"File type of '{file_obj.filename}' not allowed for profile '{profile_data_from_db.get('profile_name', pid)}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}. Using existing file or Excel/State.", "warning")
+                app.logger.warning(f"File type not allowed for '{file_obj.filename}' (profile {pid}). Using fallback.")
+                if profile_data_from_db.get('ticker_file_storage_path'):
+                    automation_input_source_map[pid] = {
+                        "source_type": "persisted_file",
+                        "storage_path": profile_data_from_db.get('ticker_file_storage_path'),
+                        "original_filename": profile_data_from_db.get('uploaded_ticker_file_name')
+                    }
+                    app.logger.info(f"Using persisted file for profile {pid} due to disallowed new file type.")
+                else:
+                    automation_input_source_map[pid] = {"source_type": "excel_or_persisted"}
+                    app.logger.info(f"No persisted file for profile {pid} after disallowed new file type. Defaulting to Excel/State.")
+            else: # No new file uploaded, use persisted file if it exists
+                db_profile_data_check = profiles_db_map.get(pid, {})
+                if db_profile_data_check.get('ticker_file_storage_path'):
+                    automation_input_source_map[pid] = {
+                        "source_type": "persisted_file",
+                        "storage_path": db_profile_data_check.get('ticker_file_storage_path'),
+                        "original_filename": db_profile_data_check.get('uploaded_ticker_file_name')
+                    }
+                    app.logger.info(f"No new file uploaded for profile {pid}. Using persisted file: {db_profile_data_check.get('uploaded_ticker_file_name')}")
+                else:
+                    automation_input_source_map[pid] = {"source_type": "excel_or_persisted"}
+                    app.logger.info(f"No new or persisted file for profile {pid}. Defaulting to Excel/State.")
+        else: # Default case (e.g. if ticker_source_method is neither 'manual' nor 'file', or some other unexpected value)
+            app.logger.info(f"Ticker source method for profile {pid} is '{ticker_source_method}'. Defaulting to Excel/State or persisted file if available.")
+            if profile_data_from_db.get('ticker_file_storage_path'):
+                automation_input_source_map[pid] = {
+                    "source_type": "persisted_file",
+                    "storage_path": profile_data_from_db.get('ticker_file_storage_path'),
+                    "original_filename": profile_data_from_db.get('uploaded_ticker_file_name')
+                }
+                app.logger.info(f"Using persisted file for profile {pid} as default fallback.")
+            else:
+                automation_input_source_map[pid] = {"source_type": "excel_or_persisted"}
+                app.logger.info(f"No persisted file for profile {pid}. Defaulting to Excel/State as ultimate fallback.")
+
 
     try:
+        # auto_publisher.trigger_publishing_run expects 'custom_tickers_by_profile_id' and 'uploaded_file_details_by_profile_id'
+        custom_tickers_for_run = {}
+        uploaded_file_details_for_run = {}
+
+        for pid, source_info in automation_input_source_map.items():
+            if source_info["source_type"] == "manual":
+                custom_tickers_for_run[pid] = source_info["tickers"]
+            elif source_info["source_type"] == "uploaded_file" or source_info["source_type"] == "persisted_file":
+                # auto_publisher will fetch content from storage_path
+                uploaded_file_details_for_run[pid] = {
+                    "storage_path": source_info["storage_path"],
+                    "original_filename": source_info["original_filename"]
+                }
+            # If "excel_or_persisted", auto_publisher's internal logic will handle it.
+
         results = auto_publisher.trigger_publishing_run(
             user_uid,
-            selected_profiles_data, 
+            selected_profiles_data_for_run, # Pass the list of full profile data dicts
             articles_map,
-            custom_tickers_by_profile_id=custom_tickers_map,
-            uploaded_file_details_by_profile_id=uploaded_files_map,
-            socketio_instance=socketio, 
-            user_room=user_uid 
+            custom_tickers_by_profile_id=custom_tickers_for_run,
+            uploaded_file_details_by_profile_id=uploaded_file_details_for_run, # Contains storage_path now
+            socketio_instance=socketio,
+            user_room=user_uid
         )
         socketio.emit('automation_status', {'message': "Automation run processing started. Monitor individual profile logs for live updates.", 'status': 'info'}, room=user_uid)
 
@@ -1040,8 +1289,8 @@ def run_automation_now():
             for pid_res, res_data in results.items():
                 pname = res_data.get("profile_name", pid_res)
                 summary = res_data.get("status_summary", "No summary provided for this profile.")
-                errors_list = res_data.get("errors", []) 
-                
+                errors_list = res_data.get("errors", [])
+
                 log_category = "success"
                 if errors_list or "failed" in summary.lower() or "error" in summary.lower():
                     log_category = "danger"
@@ -1071,15 +1320,14 @@ def stop_automation_run(profile_id):
     if not AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY:
         app.logger.error(f"Stop automation request failed: Auto publisher module not available (User: {user_uid}, Profile: {profile_id})")
         return jsonify({'status': 'error', 'message': 'Automation service is currently unavailable.'}), 503
-    
+
     try:
-        # Check if auto_publisher has a method to stop automation
         if hasattr(auto_publisher, 'stop_publishing_run'):
             result = auto_publisher.stop_publishing_run(user_uid, profile_id)
             if result and isinstance(result, dict):
                 was_successful = result.get('success', False)
                 message = result.get('message', 'Stop request processed.')
-                
+
                 if was_successful:
                     app.logger.info(f"Stop request successful for profile {profile_id} (User: {user_uid}): {message}")
                     return jsonify({'status': 'success', 'message': message})
@@ -1087,12 +1335,9 @@ def stop_automation_run(profile_id):
                     app.logger.warning(f"Stop request unsuccessful for profile {profile_id} (User: {user_uid}): {message}")
                     return jsonify({'status': 'error', 'message': message}), 400
             else:
-                # If result is not a dict or is None, assume it worked but with no details
                 app.logger.info(f"Stop request sent for profile {profile_id} (User: {user_uid}) - no detailed response")
                 return jsonify({'status': 'success', 'message': 'Stop request sent.'})
         else:
-            # Fallback for mock auto_publisher or incomplete implementation
-            # Emit a socket.io event that the client will interpret as a stop signal
             socketio.emit('automation_update', {
                 'profile_id': profile_id,
                 'phase': 'Control',
@@ -1101,10 +1346,10 @@ def stop_automation_run(profile_id):
                 'status': 'info',
                 'timestamp': datetime.now(timezone.utc).isoformat()
             }, room=user_uid)
-            
+
             app.logger.warning(f"Using fallback stop method for profile {profile_id} (User: {user_uid}) - auto_publisher lacks stop_publishing_run")
             return jsonify({'status': 'success', 'message': 'Stop request acknowledged using fallback method.'})
-    
+
     except Exception as e:
         app.logger.error(f"Error in stop_automation_run for profile {profile_id} (User: {user_uid}): {e}", exc_info=True)
         return jsonify({'status': 'error', 'message': f'An error occurred while processing the stop request: {str(e)[:100]}...'}), 500
@@ -1124,8 +1369,8 @@ def generate_wp_assets():
 
     data = request.get_json()
     ticker = data.get('ticker', '').strip().upper()
-    
-    room_id = session.get('firebase_user_uid', data.get('client_sid')) 
+
+    room_id = session.get('firebase_user_uid', data.get('client_sid'))
     if not room_id: room_id = "wp_asset_task_" + str(int(time.time()))
     app.logger.info(f"WP Asset request for {ticker} (Room: {room_id})")
 
@@ -1149,14 +1394,14 @@ def generate_wp_assets():
 
         if not isinstance(img_urls_dict, dict):
             app.logger.warning(f"run_wp_pipeline for {ticker} returned img_urls not as dict: {type(img_urls_dict)}. Defaulting.")
-            img_urls_dict = {} 
+            img_urls_dict = {}
 
         if html_report_fragment and "Error Generating Report" not in html_report_fragment:
             duration = time.time() - start_time
             app.logger.info(f"WordPress asset pipeline for {ticker} completed in {duration:.2f}s.")
             result_payload = {
                 'status': 'success', 'ticker': ticker,
-                'report_html': html_report_fragment, 'chart_urls': img_urls_dict, 
+                'report_html': html_report_fragment, 'chart_urls': img_urls_dict,
                 'duration': f"{duration:.2f}s"
             }
             socketio.emit('wp_asset_complete', result_payload, room=room_id)
@@ -1176,12 +1421,12 @@ def generate_wp_assets():
 @socketio.on('connect')
 def handle_connect():
     user_uid = session.get('firebase_user_uid')
-    client_sid = request.sid 
-    
+    client_sid = request.sid
+
     if user_uid:
-        join_room(user_uid) 
+        join_room(user_uid)
         app.logger.info(f"Client {client_sid} connected and joined user room: {user_uid}")
-        emit('status', {'message': f'Connected to real-time updates! User Room: {user_uid}. Your SID: {client_sid}'}, room=client_sid) 
+        emit('status', {'message': f'Connected to real-time updates! User Room: {user_uid}. Your SID: {client_sid}'}, room=client_sid)
     else:
         app.logger.info(f"Client {client_sid} connected (anonymous or pre-login).")
         emit('status', {'message': f'Connected! Your SID is {client_sid}. Login for personalized features.'}, room=client_sid)
@@ -1192,7 +1437,7 @@ def handle_disconnect():
     user_uid = session.get('firebase_user_uid')
     client_sid = request.sid
     if user_uid:
-        leave_room(user_uid) 
+        leave_room(user_uid)
         app.logger.info(f"Client {client_sid} disconnected and left user room: {user_uid}")
     else:
         app.logger.info(f"Client {client_sid} disconnected (anonymous or pre-login).")
@@ -1205,7 +1450,7 @@ def handle_join_task_room(data):
     if task_room_id:
         join_room(task_room_id)
         app.logger.info(f"Client {client_sid} explicitly joined task room: {task_room_id}")
-        emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=client_sid) 
+        emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=client_sid)
 
 
 @app.route('/update-user-profile', methods=['POST'])
@@ -1214,18 +1459,16 @@ def update_user_profile():
     try:
         user_uid = session['firebase_user_uid']
         db = get_firestore_client()
-        
+
         if not db:
             return jsonify({'success': False, 'message': 'Database service unavailable'}), 503
 
-        # Get form data
         display_name = request.form.get('display_name', '').strip()
         email_notifications = request.form.get('email_notifications') == 'on'
         automation_alerts = request.form.get('automation_alerts') == 'on'
 
-        # Update user profile in Firestore
         user_profile_ref = db.collection('userProfiles').document(user_uid)
-        
+
         update_data = {
             'display_name': display_name,
             'notifications': {
@@ -1236,16 +1479,12 @@ def update_user_profile():
         }
 
         user_profile_ref.set(update_data, merge=True)
-
-        # Update session data
         session['user_displayName'] = display_name
 
         return jsonify({
             'success': True,
             'message': 'Profile updated successfully',
-            'data': {
-                'display_name': display_name
-            }
+            'data': { 'display_name': display_name }
         })
 
     except Exception as e:
@@ -1262,67 +1501,57 @@ def change_password():
 def view_activity_log():
     user_uid = session['firebase_user_uid']
     db = get_firestore_client()
-    
+
     activity_log = []
     member_since = None
-    
+
     if db:
         try:
-            # Get user profile for member since date
             profile_doc = db.collection('userProfiles').document(user_uid).get()
             if profile_doc.exists:
                 profile_data = profile_doc.to_dict()
                 member_since = profile_data.get('created_at')
-            
-            # Get recent automations
+
             automations_query = db.collection('userGeneratedReports')\
                 .where('user_uid', '==', user_uid)\
                 .order_by('generated_at', direction='DESCENDING')\
                 .limit(50)
-            
+
             for doc in automations_query.stream():
                 data = doc.to_dict()
                 generated_at = data.get('generated_at')
-                if hasattr(generated_at, 'timestamp'):
-                    timestamp = generated_at.timestamp()
-                else:
-                    timestamp = 0
-                
+                if hasattr(generated_at, 'timestamp'): timestamp = generated_at.timestamp()
+                else: timestamp = 0
+
                 activity_log.append({
-                    'type': 'automation',
-                    'ticker': data.get('ticker', 'N/A'),
+                    'type': 'automation', 'ticker': data.get('ticker', 'N/A'),
                     'timestamp': timestamp,
                     'details': f"Generated stock analysis report for {data.get('ticker', 'N/A')}"
                 })
-            
-            # Get recent profile updates
+
             profiles_query = db.collection('userSiteProfiles')\
                 .document(user_uid)\
                 .collection('profiles')\
                 .order_by('last_updated_at', direction='DESCENDING')\
                 .limit(20)
-            
+
             for doc in profiles_query.stream():
                 data = doc.to_dict()
                 last_updated = data.get('last_updated_at')
-                if hasattr(last_updated, 'timestamp'):
-                    timestamp = last_updated.timestamp()
-                else:
-                    timestamp = 0
-                
+                if hasattr(last_updated, 'timestamp'): timestamp = last_updated.timestamp()
+                else: timestamp = 0
+
                 activity_log.append({
-                    'type': 'profile_update',
-                    'timestamp': timestamp,
+                    'type': 'profile_update', 'timestamp': timestamp,
                     'details': f"Updated profile: {data.get('profile_name', 'N/A')}"
                 })
-            
-            # Sort all activities by timestamp
+
             activity_log.sort(key=lambda x: x['timestamp'], reverse=True)
-            
+
         except Exception as e:
             app.logger.error(f"Error fetching activity log: {str(e)}")
             flash("Error loading activity log. Please try again later.", "error")
-    
+
     return render_template('activity_log.html',
                          title="Activity Log - Tickzen",
                          activity_log=activity_log,
@@ -1331,12 +1560,12 @@ def view_activity_log():
 #--- Main Execution ---
 if __name__ == '__main__':
     try:
-        app 
+        app
         socketio
     except NameError:
         print("CRITICAL: Flask app or SocketIO instance not defined before __main__ block. Exiting.")
         exit(1)
-        
+
     app.logger.info(f"Current CWD: {os.getcwd()}")
     app.logger.info(f"APP_ROOT: {APP_ROOT}, Static: {app.static_folder}, Templates: {app.template_folder}")
     app.logger.info(f"Stock reports save path: {STOCK_REPORTS_PATH}")
@@ -1347,15 +1576,13 @@ if __name__ == '__main__':
     if not PIPELINE_IMPORTED_SUCCESSFULLY: app.logger.warning("WARNING: MOCK pipeline in use or import failed.")
     else: app.logger.info("Pipeline Imported Successfully.")
 
-    port = int(os.environ.get("PORT", 5000)) 
+    port = int(os.environ.get("PORT", 5000))
     debug_mode = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
-    
+
     app.logger.info(f"Attempting to start Flask-SocketIO server on http://0.0.0.0:{port} (Debug: {debug_mode})")
     try:
-        # For development, use_reloader might be True. For production, it should be False.
-        # allow_unsafe_werkzeug is for development reloader with eventlet/gevent.
-        socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, 
-                     use_reloader=debug_mode, 
+        socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode,
+                     use_reloader=debug_mode,
                      allow_unsafe_werkzeug=True if debug_mode else False)
     except Exception as e_run:
         app.logger.error(f"CRITICAL: Failed to start Flask-SocketIO server: {e_run}", exc_info=True)

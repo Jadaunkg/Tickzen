@@ -598,6 +598,18 @@ def generate_conclusion_outlook_html(ticker, rdata):
             </div>
              """
 
+        # --- Add Data-Driven Observations --- 
+        observations_html = ""
+        data_driven_observations = rdata.get('data_driven_observations', [])
+        if data_driven_observations:
+            observations_html += "<div class=\"data-driven-observations\">"
+            observations_html += "<h4>Data-Driven Observations & Potential Tactics:</h4><ul>"
+            for obs in data_driven_observations:
+                observations_html += f"<li>{get_icon('info')} {obs}</li>"
+            observations_html += "</ul></div>"
+        
+        outlook_summary += observations_html # Append observations to the outlook summary
+
         # Default Overall Assessment
         phrase_link_tech_fund_options = [
             "Bridging the technical picture with the fundamental outlook,",
@@ -832,44 +844,120 @@ def generate_company_profile_html(ticker, rdata):
         return _generate_error_html("Company Profile", str(e))
 
 def generate_valuation_metrics_html(ticker, rdata):
-    """Generates Valuation Metrics with a default narrative focus."""
+    """Generates Valuation Metrics with enhanced narrative and explanations."""
     try:
         valuation_data = rdata.get('valuation_data')
         if not isinstance(valuation_data, dict):
              valuation_data = {}
              logging.warning("valuation_data not found or not a dict, using empty.")
 
-        content = generate_metrics_section_content(valuation_data)
         currency_symbol = rdata.get('currency_symbol', '$')
 
-        trailing_pe_fmt = format_html_value(valuation_data.get('Trailing P/E'), 'ratio')
+        # Extract and format specific valuation metrics
         forward_pe_fmt = format_html_value(valuation_data.get('Forward P/E'), 'ratio')
+        forward_pe_val = _safe_float(valuation_data.get('Forward P/E'))
         peg_ratio_fmt = format_html_value(valuation_data.get('PEG Ratio'), 'ratio')
+        peg_ratio_val = _safe_float(valuation_data.get('PEG Ratio'))
+        trailing_pe_fmt = format_html_value(valuation_data.get('Trailing P/E'), 'ratio')
         ps_ratio_fmt = format_html_value(valuation_data.get('Price/Sales (TTM)'), 'ratio')
         pb_ratio_fmt = format_html_value(valuation_data.get('Price/Book (MRQ)'), 'ratio')
         
-        peer_hist_prompt_options = [
-            f"Crucially, these ratios should be benchmarked against {ticker}'s own historical averages {get_icon('history')} and its industry peer group {get_icon('peer')} to determine relative attractiveness.",
-            f"Comparing these multiples to {ticker}'s past levels {get_icon('history')} and industry competitors {get_icon('peer')} is essential for proper valuation context.",
-            f"For meaningful assessment, these valuation metrics need comparison with {ticker}'s historical data {get_icon('history')} and relevant industry peers {get_icon('peer')}."
-        ]
-        peer_hist_prompt = random.choice(peer_hist_prompt_options)
+        # Attempt to get industry average P/E from rdata (needs to be added in report_generator.py)
+        industry_avg_pe = rdata.get('industry_avg_pe') 
+        industry_avg_pe_fmt = format_html_value(industry_avg_pe, 'ratio')
 
-        # Default Narrative
-        narrative_options = [
+        # Expanded Narrative Introduction
+        narrative_intro_options = [
             (
-                 f"Valuation metrics help assess whether {ticker}'s stock price is justified relative to its earnings, sales, book value, or growth prospects. Key ratios include Trailing P/E ({trailing_pe_fmt}), Forward P/E ({forward_pe_fmt}), Price/Sales ({ps_ratio_fmt}), Price/Book ({pb_ratio_fmt}), and PEG Ratio ({peg_ratio_fmt}). "
-                 f"{peer_hist_prompt}"
+                f"<p>Understanding {ticker}'s valuation is a cornerstone of investment analysis. This section delves into key ratios "
+                f"that analysts and investors use to assess whether the stock price is justified relative to its earnings, "
+                f"sales, book value, or growth prospects. It's important to remember that these metrics provide a snapshot "
+                f"and should ideally be compared against the company's historical levels {get_icon('history')}, its industry peers {get_icon('peer')}, and the broader market context "
+                f"to derive meaningful insights. No single ratio tells the whole story, but together they can paint a compelling picture "
+                f"of market perception and potential investment appeal.</p>"
             ),
             (
-            f"These ratios gauge {ticker}'s market price against its financial performance and assets. Notable figures are Trailing P/E ({trailing_pe_fmt}), Forward P/E ({forward_pe_fmt}), P/S ({ps_ratio_fmt}), P/B ({pb_ratio_fmt}), and PEG ({peg_ratio_fmt}). "
-            f"{peer_hist_prompt}"
+                f"<p>To gauge if {ticker}'s stock is fairly priced, investors often turn to valuation metrics. These ratios compare the company's stock price "
+                f"to its financial performance (like earnings or sales) or its intrinsic value (like book value). This section explores these critical indicators. "
+                f"Remember, a thorough analysis involves looking at these ratios in the context of {ticker}'s own past performance {get_icon('history')}, how it stacks up against competitors {get_icon('peer')}, "
+                f"and the overall market sentiment. One metric alone is rarely definitive, but collectively they offer valuable clues.</p>"
             )
         ]
-        narrative = random.choice(narrative_options)
+        html_content = f'<div class="narrative">{random.choice(narrative_intro_options)}</div>'
 
-        return f'<div class="narrative"><p>{narrative}</p></div>' + content
+        # Detailed explanation for Forward P/E
+        if forward_pe_fmt != "N/A":
+            pe_explanation_html = f"<h4>Forward P/E Ratio: {forward_pe_fmt}</h4>"
+            pe_para_options = [
+                (f"<p>The Forward Price-to-Earnings (P/E) ratio of <strong>{forward_pe_fmt}</strong> indicates how much investors are "
+                 f"willing to pay for each dollar of {ticker}'s anticipated earnings over the next fiscal period. "
+                 f"A lower Forward P/E can sometimes suggest that the stock is undervalued relative to its future earnings potential, "
+                 f"or it might reflect market expectations of slower growth. Conversely, a higher Forward P/E often implies that "
+                 f"investors have high growth expectations, or that the stock is perceived as a premium quality name. ")
+            ]
+            pe_paragraph = random.choice(pe_para_options)
+            
+            if forward_pe_val is not None and industry_avg_pe is not None and industry_avg_pe_fmt != "N/A": # Check if industry_avg_pe_fmt is not N/A
+                if forward_pe_val < industry_avg_pe:
+                    pe_paragraph += (f"Compared to an industry average P/E of {industry_avg_pe_fmt}, {ticker}'s Forward P/E suggests it might be relatively cheaper than its peers. ")
+                elif forward_pe_val > industry_avg_pe:
+                    pe_paragraph += (f"When seen against an industry average P/E of {industry_avg_pe_fmt}, {ticker}'s Forward P/E indicates it might be trading at a premium. ")
+            pe_paragraph += "It's a forward-looking measure, so the accuracy of the underlying earnings estimates is crucial.</p>"
+            pe_explanation_html += pe_paragraph
+            html_content += pe_explanation_html
+
+        # Detailed explanation for PEG Ratio
+        if peg_ratio_fmt != "N/A":
+            peg_explanation_html = f"<h4>PEG Ratio: {peg_ratio_fmt}</h4>"
+            peg_para_options = [
+                (f"<p>The Price/Earnings-to-Growth (PEG) ratio of <strong>{peg_ratio_fmt}</strong> offers a more nuanced view by "
+                 f"relating the P/E ratio to earnings growth expectations. It helps assess if the stock's P/E is justified by its anticipated growth. A common rule of thumb is that a PEG ratio around 1.0 "
+                 f"suggests a fair valuation relative to expected growth. ")
+            ]
+            peg_paragraph = random.choice(peg_para_options)
+
+            if peg_ratio_val is not None:
+                if peg_ratio_val < 0:
+                    peg_paragraph += ("A negative PEG ratio, like this one, typically arises when a company has negative earnings (a net loss) or if earnings growth expectations are negative. "
+                                      "In such cases, the PEG ratio is generally not considered a meaningful indicator for valuation and other metrics should be prioritized. ")
+                elif peg_ratio_val < 1.0 and peg_ratio_val >= 0:
+                    peg_paragraph += (f"A PEG below 1.0, like {ticker}'s current ratio, can indicate that the stock might be undervalued given its "
+                                      "earnings growth forecast. This can be particularly attractive for investors looking for growth at a reasonable price (GARP). ")
+                elif peg_ratio_val >= 1.0 and peg_ratio_val <= 1.5: # Adjusted to be inclusive of 1.0
+                    peg_paragraph += (f"This PEG ratio of {peg_ratio_fmt} suggests a reasonable balance between the stock's P/E and its expected growth. "
+                                      "It doesn't strongly signal over or undervaluation based on this metric alone. ")
+                elif peg_ratio_val > 1.5:
+                    peg_paragraph += (f"A PEG significantly above 1.0, such as {peg_ratio_fmt}, could suggest that the stock's price has outpaced its expected earnings growth, "
+                                      "or that investors are paying a premium for that growth. This warrants closer scrutiny of the growth assumptions and sustainability. ")
+                
+            peg_paragraph += "However, like all ratios, the PEG is best used in conjunction with other valuation metrics and a thorough understanding of the company's prospects and the industry it operates in.</p>"
+            peg_explanation_html += peg_paragraph
+            html_content += peg_explanation_html
+        
+        # You can add similar detailed explanations for Trailing P/E, P/S, P/B here
+        # For brevity in this example, I'm focusing on Forward P/E and PEG
+
+        # Displaying other key valuation metrics in a slightly more descriptive way
+        # This can be expanded similarly to P/E and PEG or use a condensed table.
+        
+        other_metrics_html = "<h4>Other Key Valuation Ratios:</h4><ul>"
+        if trailing_pe_fmt != "N/A":
+            other_metrics_html += f"<li><strong>Trailing P/E: {trailing_pe_fmt}</strong> - Reflects the company's stock price relative to its earnings per share over the past 12 months (TTM). It's a historical measure often used as a starting point for valuation.</li>"
+        if ps_ratio_fmt != "N/A":
+            other_metrics_html += f"<li><strong>Price/Sales (TTM): {ps_ratio_fmt}</strong> - Compares the company's stock price to its total sales per share over the past 12 months. This can be particularly useful for valuing companies that are not yet profitable or are in cyclical industries where earnings can be volatile.</li>"
+        if pb_ratio_fmt != "N/A":
+            other_metrics_html += f"<li><strong>Price/Book (MRQ): {pb_ratio_fmt}</strong> - Measures the market's valuation of a company compared to its book value (assets minus liabilities) on its most recent quarterly balance sheet. A lower P/B ratio could mean the stock is undervalued. It's often used for valuing financial institutions or capital-intensive businesses.</li>"
+        other_metrics_html += "</ul>"
+        
+        if other_metrics_html != "<h4>Other Key Valuation Ratios:</h4><ul></ul>": # Only add if there's content
+            html_content += other_metrics_html
+
+        # Optionally, add back the original table if you want a compact summary as well
+        # html_content += generate_metrics_section_content(valuation_data) 
+
+        return html_content
     except Exception as e:
+        logging.error(f"Error in generate_valuation_metrics_html for {ticker}: {e}", exc_info=True)
         return _generate_error_html("Valuation Metrics", str(e))
 
 def generate_financial_health_html(ticker, rdata):
