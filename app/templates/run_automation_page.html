@@ -38,6 +38,46 @@
             --red-600: #dc2626;
             --red-700: #b91c1c;
         }
+        .attractive-progress {
+            height: 22px;
+            background: #e9ecef;
+            border-radius: 11px;
+            overflow: hidden;
+            box-shadow: 0 1px 6px rgba(34,197,94,0.10);
+            margin-bottom: 0.5rem;
+        }
+        .attractive-progress-bar {
+            background: linear-gradient(90deg, var(--green-600) 0%, var(--blue-600) 100%);
+            color: #166534;
+            font-weight: 700;
+            font-size: 1em;
+            text-shadow: none;
+            transition: width 0.5s cubic-bezier(.4,2,.3,1), background 0.3s;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 18px;
+            position: relative;
+            background-size: 40px 40px;
+            background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.13) 0 10px, transparent 10px 20px);
+            animation: attractive-stripes 1.2s linear infinite;
+            border-radius: 11px;
+            letter-spacing: 0.02em;
+        }
+        .attractive-progress-bar::after {
+            content: '';
+            display: block;
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 100%;
+            border-radius: 11px;
+            pointer-events: none;
+        }
+        @keyframes attractive-stripes {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 0; }
+        }
 
         * {
             margin: 0;
@@ -148,11 +188,17 @@
         
         .profile-run-body { 
             display: grid; 
+            grid-template-areas: 
+                "config logs"
+                "persisted-tickers persisted-tickers"; /* Processed Ticker Info is now separate, below the form */
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
             padding: 1rem;
             background: hsl(var(--muted));
         }
+        
+        .profile-run-config { grid-area: config; }
+        .profile-run-logs { grid-area: logs; }
         
         .profile-run-config, .profile-run-logs { 
             padding: 1rem; 
@@ -161,7 +207,8 @@
             border-radius: 8px;
         }
         
-        .profile-run-config h4, .profile-run-logs h4 { 
+        /* Updated for the new "Processed Ticker Information" section title */
+        .profile-run-config h4, .profile-run-logs h4, .processed-ticker-information-section h4 { 
             font-size: 0.875rem; 
             color: hsl(var(--foreground)); 
             margin: 0 0 0.75rem 0; 
@@ -172,7 +219,7 @@
             gap: 0.5rem;
         }
         
-        .profile-run-config h4 i, .profile-run-logs h4 i { 
+        .profile-run-config h4 i, .profile-run-logs h4 i, .processed-ticker-information-section h4 i { 
             color: var(--green-600);
             font-size: 0.875rem;
         }
@@ -265,26 +312,25 @@
             padding: 0.125rem;
         }
 
-        /* START: Styles for persisted file info */
         .persisted-file-summary {
-            background-color: #f8f9fa; /* Light grey background */
-            border: 1px solid #e9ecef; /* Light border */
-            border-left: 3px solid var(--green-600); /* Accent color */
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-left: 3px solid var(--green-600);
             padding: 0.75rem;
-            margin-bottom: 1rem; /* Space below the summary */
+            margin-bottom: 1rem;
             border-radius: 4px;
-            font-size: 0.8rem; /* Smaller font size for the summary */
+            font-size: 0.8rem;
         }
         .persisted-file-summary p {
-            margin-bottom: 0.3rem; /* Tighter spacing for info lines */
-            color: #495057; /* Darker grey for text */
+            margin-bottom: 0.3rem;
+            color: #495057;
         }
         .persisted-file-summary .detail-label {
-            font-weight: 600; /* Make labels bold */
+            font-weight: 600;
             color: #343a40;
         }
         .persisted-file-summary .text-muted {
-            color: #6c757d; /* Standard muted text color */
+            color: #6c757d;
         }
         .persisted-file-summary .ticker-preview-list {
             list-style: none;
@@ -301,14 +347,13 @@
             border-radius: 3px;
             font-size: 0.7rem;
         }
-        /* END: Styles for persisted file info */
         
-        .automation-progress-display {
+        .automation-progress-display { 
             background-color: #f8f9fa;
             padding: 0.75rem;
             border-radius: 6px;
             border: 1px solid #e9ecef;
-            margin-bottom: 1rem;
+            margin-bottom: 1rem; /* Keep margin if it's the last item in its section */
         }
         .automation-progress-display p {
             font-size: 0.8rem;
@@ -332,14 +377,27 @@
             text-align: center;
         }
 
-        .ticker-status-table-container { 
-            max-height: 200px; 
-            overflow-y: auto; 
-            margin-top: 1rem; 
-            border: 1px solid hsl(var(--border)); 
-            border-radius: 8px; 
+        /* Styles for the new "Processed Ticker Information" section */
+        .processed-ticker-information-section {
+            /* This section is now outside the profile-run-body's main grid for profiles */
+            /* It will be placed after the form's main loop */
+            margin-top: 1.5rem; /* Space above this new section */
+            padding: 1rem;
             background: white;
-            display: none; 
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Container for the single table displaying persisted statuses */
+        .processed-ticker-information-section .ticker-status-table-container {
+            max-height: 300px; 
+            overflow-y: auto;
+            margin-top: 0.5rem; 
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            background: white;
+            display: block !important; /* Ensure it's always block */
         }
         
         .ticker-status-table { 
@@ -361,7 +419,6 @@
             word-break: break-all;
          }
 
-
         .ticker-status-table th { 
             background: hsl(var(--muted));
             font-weight: 600; 
@@ -376,13 +433,15 @@
         }
 
         .ticker-status-table .status-published { color: var(--green-700); font-weight: 500; }
+        .ticker-status-table .status-scheduled { color: var(--blue-600); font-weight: 500; }
         .ticker-status-table .status-generated { color: var(--blue-700); }
         .ticker-status-table .status-processing { color: #6c757d; font-style: italic; }
+        .ticker-status-table .status-pending, .ticker-status-table .status-unknown { color: #adb5bd; font-style: italic; }
         .ticker-status-table .status-failed { color: var(--red-700); font-weight: 500;}
         .ticker-status-table .status-skipped, 
         .ticker-status-table .status-skipped-already-published, 
         .ticker-status-table .status-skipped-daily-limit,
-        .ticker-status-table .status-skipped-no-tickers  { color: #fd7e14; } /* More specific skipped statuses */
+        .ticker-status-table .status-skipped-no-tickers  { color: #fd7e14; }
         
         .log-console-output { 
             background: #1a1a1a;
@@ -391,7 +450,7 @@
             font-size: 0.7rem; 
             padding: 0.75rem; 
             border-radius: 6px; 
-            height: 350px; /* MODIFIED: Increased height */
+            height: 350px; 
             overflow-y: auto; 
             border: 1px solid #333;
             line-height: 1.4;
@@ -421,7 +480,10 @@
         .log-entry.status-success .log-icon { color: #34d399; } 
         .log-entry.status-warning .log-icon { color: #fbbf24; } 
         .log-entry.status-error .log-icon { color: #f87171; } 
-        
+        .log-entry.status-scheduled .log-icon { color: #818cf8; } 
+        .log-entry.status-processing .log-icon { color: #9ca3af; } 
+
+
         .log-entry .log-details .log-ticker { 
             font-weight: 600; 
             color: #60a5fa;
@@ -490,7 +552,7 @@
             letter-spacing: 0.025em; 
             display: block; 
             width: fit-content; 
-            margin: 2rem auto; 
+            margin: 0 auto 1.5rem auto; /* Adjusted margin */
             box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
             transition: all 0.2s ease;
         }
@@ -661,28 +723,79 @@
             color: hsl(var(--foreground));
         }
         
+        .persisted-tickers-section {
+            grid-area: persisted-tickers; 
+            padding: 1rem;
+            background: #fdfdff; 
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+        }
+
+        .persisted-tickers-section h5 {
+            font-size: 0.9rem;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--green-100); 
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .persisted-tickers-section h5 i {
+            color: var(--green-600);
+        }
+
+        .persisted-tickers-table-container {
+            max-height: 250px; 
+            overflow-y: auto;
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            background: white;
+        }
+
+        .persisted-tickers-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem; 
+        }
+
+        .persisted-tickers-table th,
+        .persisted-tickers-table td {
+            padding: 0.4rem 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid hsl(var(--border));
+            white-space: nowrap;
+        }
+        .persisted-tickers-table th {
+            background: hsl(var(--muted));
+            font-weight: 500; 
+            color: hsl(var(--muted-foreground));
+            position: sticky;
+            top: 0;
+            z-index: 1; 
+        }
+        .persisted-tickers-table tbody tr:hover {
+            background-color: var(--green-50); 
+        }
+
         @media (max-width: 768px) {
             .automation-dashboard-container {
                 padding: 0.75rem;
             }
-            
-            .page-header {
-                padding: 1rem;
-            }
-            
-            .page-header h1 {
-                font-size: 1.25rem;
-            }
-            
+            .page-header { padding: 1rem; }
+            .page-header h1 { font-size: 1.25rem; }
             .profile-run-body {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; 
+                 grid-template-areas: 
+                    "config"
+                    "logs"
+                    "persisted-tickers"; /* Processed Ticker Info is now outside this grid */
                 gap: 0.75rem;
             }
-            
-            .btn-execute-runs {
-                font-size: 0.75rem;
-                padding: 0.75rem 1.5rem;
+            .processed-ticker-information-section, .persisted-tickers-section { 
+                grid-column: 1 / -1; 
             }
+            .btn-execute-runs { font-size: 0.75rem; padding: 0.75rem 1.5rem; }
         }
         
         .log-console-output .log-entry.status-error strong { color: #f87171; }
@@ -707,6 +820,7 @@
         </div>
 
         <form action="{{ url_for('run_automation_now') }}" method="POST" enctype="multipart/form-data" id="automationRunForm">
+            
             {% for profile in user_site_profiles %}
             <div class="profile-run-card" data-profile-id="{{ profile.profile_id }}">
                 <div class="profile-run-header">
@@ -721,27 +835,22 @@
                         <p>Site: <a href="{{ profile.site_url }}" target="_blank" rel="noopener noreferrer">{{ profile.site_url }}</a></p>
                         <p><span class="detail-label">Today:</span> <strong>{{ posts_today_by_profile.get(profile.profile_id, 0) }}</strong> / <span title="Global daily cap per site">{{ absolute_max_posts_cap if absolute_max_posts_cap is not none else 'N/A' }}</span></p>
                         
-                        {% set persisted_file = persisted_file_info.get(profile.profile_id) %}
-                        {% if persisted_file and persisted_file.name %}
+                        {% set p_file_info = persisted_file_info.get(profile.profile_id) %}
+                        {% if p_file_info and p_file_info.name %}
                             <div class="persisted-file-summary">
-                                <p><span class="detail-label"><i class="fas fa-file-alt text-success"></i> Current Ticker File:</span> <span class="text-muted">{{ persisted_file.name }}</span></p>
-                                {% if persisted_file.count is defined and persisted_file.count is not none %}
-                                    <p><span class="detail-label"><i class="fas fa-list-ol text-info"></i> Tickers Found:</span> <span class="text-muted">{{ persisted_file.count }}</span></p>
-                                    {% if persisted_file.preview and persisted_file.preview|length > 0 %}
-                                        <p><span class="detail-label"><i class="fas fa-binoculars text-warning"></i> Preview:</span></p>
-                                        <ul class="ticker-preview-list">
-                                            {% for ticker_item in persisted_file.preview[:5] %} {# Show up to 5 tickers #}
-                                                <li>{{ ticker_item }}</li>
-                                            {% endfor %}
-                                            {% if persisted_file.preview|length > 5 %}<li>...</li>{% endif %}
-                                        </ul>
-                                    {% endif %}
+                                <p><span class="detail-label"><i class="fas fa-file-alt text-success"></i> Current Ticker File:</span> <span class="text-muted">{{ p_file_info.name }}</span></p>
+                                {% if p_file_info.count is defined and p_file_info.count is not none %}
+                                    <p>
+                                        <span class="detail-label"><i class="fas fa-list-ol text-info"></i> Total Tickers in File:</span> <span class="text-muted">{{ p_file_info.count }}</span>
+                                        &amp; {{ p_file_info.processed_count or 0 }} / {{ p_file_info.count or 0 }} ({{ ((p_file_info.processed_count / p_file_info.count * 100) | round(1)) if p_file_info.count else 0 }}% processed)
+                                    </p>
                                 {% endif %}
                                  <small class="form-text text-muted" style="display:block; margin-top:0.5rem;">Automation will use this file unless you upload a new one below.</small>
                             </div>
                         {% else %}
-                            <p class="text-muted" style="font-size:0.75rem;">No ticker file currently associated with this profile. Please upload one or use manual entry.</p>
+                            <p class="text-muted" style="font-size:0.75rem; margin-bottom:1rem;">No ticker file currently associated with this profile. Please upload one or use manual entry.</p>
                         {% endif %}
+
                         <div class="form-group">
                             <label for="posts_{{ profile.profile_id }}">Posts for this run:</label>
                             {% set current_posts = posts_today_by_profile.get(profile.profile_id, 0) | int(0) %}
@@ -754,11 +863,12 @@
                             <label><input type="radio" name="ticker_source_{{ profile.profile_id }}" value="file" checked onchange="toggleTickerInput('{{ profile.profile_id }}', 'file')"> Upload/Use Saved File</label>
                             <label><input type="radio" name="ticker_source_{{ profile.profile_id }}" value="manual" onchange="toggleTickerInput('{{ profile.profile_id }}', 'manual')"> Manual Entry</label>
                         </div>
+
                         <div class="file-upload-section" id="file_upload_section_{{ profile.profile_id }}">
-                            <div class="form-group">
+                             <div class="form-group">
                                 <label for="ticker_file_{{ profile.profile_id }}">
-                                    {% if persisted_file and persisted_file.name %}
-                                        Upload New Ticker File to Replace '{{ persisted_file.name }}' (.csv, .xlsx, .xls):
+                                    {% if p_file_info and p_file_info.name %}
+                                        Upload New Ticker File to Replace '{{ p_file_info.name }}' (.csv, .xlsx, .xls):
                                     {% else %}
                                         Upload Ticker File (.csv, .xlsx, .xls):
                                     {% endif %}
@@ -770,76 +880,36 @@
                                 <span class="file-name"></span>
                                 <button type="button" class="remove-file-btn" title="Remove file"><i class="fas fa-times-circle"></i></button>
                             </div>
-                             <div class="automation-progress-display" id="progress_display_{{ profile.profile_id }}" style="margin-top: 1rem; display: none;">
-                                <p>Tickers Processed: <strong id="processed_count_{{ profile.profile_id }}">0</strong> / <strong id="total_count_{{ profile.profile_id }}">0</strong></p>
-                                <div class="progress">
-                                    <div class="progress-bar" id="ticker_progress_bar_{{ profile.profile_id }}" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-                                </div>
-                            </div>
-                            <div class="ticker-status-table-container" id="ticker_table_container_{{ profile.profile_id }}" style="margin-top: 1rem; display:none;">
-                                <table class="ticker-status-table" id="status_table_for_{{profile.profile_id}}">
-                                    <thead>
-                                        <tr>
-                                            <th>Ticker</th>
-                                            <th>Generated At</th>
-                                            <th>Published At</th>
-                                            <th>Writer</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        </tbody>
-                                </table>
-                            </div>
                         </div>
                         <div class="manual-ticker-section" id="manual_ticker_section_{{ profile.profile_id }}" style="display: none;">
-                            <div class="form-group">
+                             <div class="form-group">
                                 <label for="custom_tickers_{{ profile.profile_id }}">Enter Tickers (comma-separated):</label>
                                 <textarea class="form-control form-control-sm" id="custom_tickers_{{ profile.profile_id }}" name="custom_tickers_{{ profile.profile_id }}" rows="3" placeholder="AAPL, MSFT, GOOGL"></textarea>
-                            </div>
-                             <div class="automation-progress-display" id="manual_progress_display_{{ profile.profile_id }}" style="margin-top: 1rem; display: none;">
-                                <p>Tickers Processed: <strong id="manual_processed_count_{{ profile.profile_id }}">0</strong> / <strong id="manual_total_count_{{ profile.profile_id }}">0</strong></p>
-                                <div class="progress">
-                                    <div class="progress-bar" id="manual_ticker_progress_bar_{{ profile.profile_id }}" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-                                </div>
-                            </div>
-                            <div class="ticker-status-table-container" id="manual_ticker_table_container_{{ profile.profile_id }}" style="margin-top: 1rem; display:none;">
-                                <table class="ticker-status-table" id="manual_status_table_for_{{profile.profile_id}}">
-                                     <thead>
-                                        <tr>
-                                            <th>Ticker</th>
-                                            <th>Generated At</th>
-                                            <th>Published At</th>
-                                            <th>Writer</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        </tbody>
-                                </table>
                             </div>
                         </div>
                     </div>
                     <div class="profile-run-logs">
-                        <h4><i class="fas fa-stream"></i> Activity Log (Current Run)</h4>
+                        <h4><i class="fas fa-stream"></i> Activity Log (Live Run)</h4>
                         <div class="log-console-output" id="log_console_{{ profile.profile_id }}">
                             {% set todays_logs = processed_tickers_log_map.get(profile.profile_id, []) %}
                             {% if todays_logs and todays_logs|length > 0 %}
                                 {% for log_entry in todays_logs %}
                                     {% set status_class = log_entry.status | lower if log_entry.status else 'info' %}
                                     {% set icon_class = 'fa-info-circle' %}
-                                    {% if status_class == 'success' %}{% set icon_class = 'fa-check-circle' %}{% endif %}
+                                    {% if status_class == 'success' or status_class == 'published' %}{% set icon_class = 'fa-check-circle' %}{% endif %}
+                                    {% if status_class == 'scheduled' %}{% set icon_class = 'fa-clock' %}{% endif %}
                                     {% if status_class == 'failure' or status_class == 'error' %}{% set icon_class = 'fa-times-circle' %}{% endif %}
                                     {% if status_class == 'skipped' or 'skipped_' in status_class %}{% set icon_class = 'fa-info-circle' %}{% endif %}
                                     {% if status_class == 'warning' %}{% set icon_class = 'fa-exclamation-triangle' %}{% endif %}
-                                    <div class="log-entry status-{{ status_class }}">
+                                    {% if status_class == 'processing' %}{% set icon_class = 'fa-spinner fa-spin' %}{% endif %}
+                                    <div class="log-entry status-{{ status_class.replace(' ', '-') }}">
                                         <span class="log-icon"><i class="fas {{ icon_class }}"></i></span>
                                         <div class="log-details">
                                             {% if log_entry.phase and log_entry.stage %}<span class="log-phase-stage">[<span style="text-transform: capitalize;">{{ log_entry.phase.replace('_', ' ') }}</span>] {{ log_entry.stage }}</span>
                                             {% elif log_entry.phase %}<span class="log-phase-stage">[<span style="text-transform: capitalize;">{{ log_entry.phase.replace('_', ' ') }}</span>]</span>
                                             {% elif log_entry.stage %}<span class="log-phase-stage">{{ log_entry.stage }}</span>{% endif %}
                                             {% if log_entry.ticker and log_entry.ticker != 'N/A' %}<span class="log-ticker">{{ log_entry.ticker }}</span>{% endif %}
-                                            <span class="log-message">{{ log_entry.message | truncate(80, True) }}</span>
+                                            <span class="log-message">{{ log_entry.message | truncate(120, True) }}</span>
                                             <span class="log-timestamp">{{ log_entry.timestamp | format_datetime('%H:%M:%S') if log_entry.timestamp else '' }}</span>
                                         </div>
                                     </div>
@@ -852,11 +922,88 @@
                             <span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation
                         </button>
                     </div>
-                </div>
-            </div>
-            {% endfor %}
+
+                    {% if p_file_info and p_file_info.name and p_file_info.all_tickers %}
+                    <div class="persisted-tickers-section">
+                        <h5><i class="fas fa-clipboard-list"></i>Tickers in File: {{ p_file_info.name }} (Total: {{ p_file_info.count if p_file_info.count is not none else 'N/A' }})</h5>
+                        {% if p_file_info.all_tickers|length > 0 %}
+                        <div class="persisted-tickers-table-container">
+                            <table class="persisted-tickers-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Ticker Symbol</th>
+                                        <th>Initial Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ticker_name in p_file_info.all_tickers %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ ticker_name }}</td>
+                                        <td>Pending Analysis</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% elif p_file_info.count > 0 %} 
+                             <p class="text-muted" style="font-size: 0.75rem;">Full ticker list not displayed here ({{ p_file_info.count }} tickers total). Details will appear in live log during run.</p>
+                        {% else %}
+                             <p class="text-muted" style="font-size: 0.75rem;">No tickers found in the file, or the list is empty.</p>
+                        {% endif %}
+                    </div>
+                    {% elif p_file_info and p_file_info.name %} 
+                    <div class="persisted-tickers-section">
+                         <h5><i class="fas fa-clipboard-list"></i>Tickers in File: {{ p_file_info.name }} (Total: {{ p_file_info.count if p_file_info.count is not none else 'N/A' }})</h5>
+                         <p class="text-muted" style="font-size: 0.75rem;">Ticker list preview not available. Full processing during run.</p>
+                    </div>
+                    {% endif %}
+                </div> </div> {% endfor %}
             <button type="submit" class="btn-execute-runs" id="executeAutomationBtn"><i class="fas fa-bolt"></i> Start Selected Runs</button>
-        </form>
+
+            </form>
+
+        <div class="processed-ticker-information-section">
+            <h4><i class="fas fa-history"></i> Processed Ticker Information</h4>
+            <p class="text-muted" style="font-size:0.75rem; margin-bottom:0.75rem;">Showing last known status for tickers from active profile configurations. This table updates during active runs.</p>
+            {% for profile in user_site_profiles %}
+                <div class="profile-specific-persisted-statuses" data-profile-id="{{ profile.profile_id }}" style="margin-bottom: 1.5rem;">
+                    <h5 style="font-size:0.8rem; color: var(--green-700); margin-bottom:0.5rem;">Status for: {{profile.profile_name}}</h5>
+                    <!-- Filter Dropdown -->
+                    <div style="margin-bottom: 0.5rem;">
+                        <label for="status_filter_{{ profile.profile_id }}" style="font-size:0.85em; margin-right:0.5em;">Filter by Status:</label>
+                        <select class="status-filter-dropdown" id="status_filter_{{ profile.profile_id }}" data-profile-id="{{ profile.profile_id }}">
+                            <option value="all">All</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="failed">Failed</option>
+                            <option value="skipped">Skipped</option>
+                        </select>
+                    </div>
+                    <div class="ticker-status-table-container" id="persisted_status_container_{{ profile.profile_id }}">
+                        <table class="ticker-status-table" id="persisted_status_table_for_{{profile.profile_id}}">
+                            <thead><tr><th>Ticker</th><th>Generated At</th><th>Published At</th><th>Writer</th><th>Status</th></tr></thead>
+                            <tbody>
+                                {% set profile_statuses = persisted_ticker_statuses_map.get(profile.profile_id, {}) %}
+                                {% for ticker_symbol, ticker_info in profile_statuses.items() %}
+                                    <tr data-ticker="{{ ticker_symbol }}" data-status="{{ ticker_info.status|lower|replace(' ', '-') if ticker_info.status else 'unknown' }}">
+                                        <td>{{ ticker_symbol }}</td>
+                                        <td>{{ ticker_info.generated_at | format_datetime('%Y-%m-%d %H:%M') if ticker_info.generated_at else 'N/A' }}</td>
+                                        <td>{{ ticker_info.published_at | format_datetime('%Y-%m-%d %H:%M') if ticker_info.published_at else 'N/A' }}</td>
+                                        <td>{{ ticker_info.writer_username if ticker_info.writer_username else 'N/A' }}</td>
+                                        <td class="status-{{ (ticker_info.status | lower | replace(' ', '-') if ticker_info.status else 'unknown') }}">{{ ticker_info.status if ticker_info.status else 'Unknown' }}</td>
+                                    </tr>
+                                {% endfor %}
+                                {% if profile_statuses|length == 0 %}
+                                    <tr><td colspan="5" style="text-align:center; color:#6c757d; padding:0.75rem;"><i>No persisted ticker information available for this profile.</i></td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
     {% else %}
         <div class="no-profiles-message"> 
             <p>No site profiles configured for automation.</p>
@@ -871,154 +1018,164 @@
 {% block scripts_extra %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Always initialize the attractive progress bars based on processed/total
+    document.querySelectorAll('.attractive-progress-bar').forEach(function(bar) {
+        var processed = parseInt(bar.getAttribute('data-processed')) || 0;
+        var total = parseInt(bar.getAttribute('data-total')) || 0;
+        var percent = (total > 0) ? Math.round((processed / total) * 100) : 0;
+        bar.style.width = percent + '%';
+        bar.textContent = '';
+        // Update inline progress text if present
+        var profileId = bar.id.replace('ticker_progress_bar_', '');
+        var inline = document.getElementById('progress_inline_' + profileId);
+        if (inline) {
+            inline.textContent = processed + ' / ' + total + ' (' + (total > 0 ? ((processed / total * 100).toFixed(1)) : '0.0') + '% processed)';
+        }
+    });
+
+    if (typeof io !== 'undefined') {
+        const socket = io();
+        socket.on('ticker_processed_update', function(data) {
+            if (data.profile_id) {
+                var bar = document.getElementById('ticker_progress_bar_' + data.profile_id);
+                var processed = parseInt(data.last_processed_index) || 0;
+                var total = parseInt(data.total_count) || 0;
+                if (bar && total > 0) {
+                    var percent = Math.round((processed / total) * 100);
+                    bar.style.width = percent + '%';
+                    bar.textContent = '';
+                }
+                var inline = document.getElementById('progress_inline_' + data.profile_id);
+                if (inline) {
+                    inline.textContent = processed + ' / ' + total + ' (' + (total > 0 ? ((processed / total * 100).toFixed(1)) : '0.0') + '% processed)';
+                }
+            }
+        });
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // This script block handles the real-time updates and interactions on the Automation Runner page.
+
+    // --- INITIALIZATION ---
     const automationRunForm = document.getElementById('automationRunForm');
     const executeAutomationBtn = document.getElementById('executeAutomationBtn');
-    
+
+    // Initialize any existing progress bars on page load (e.g., from a previous run state)
+    document.querySelectorAll('.attractive-progress-bar').forEach(function(bar) {
+        var processed = parseInt(bar.getAttribute('data-processed')) || 0;
+        var total = parseInt(bar.getAttribute('data-total')) || 0;
+        var percent = (total > 0) ? Math.round((processed / total) * 100) : 0;
+        bar.style.width = percent + '%';
+        bar.textContent = ''; // Text is usually handled by a separate element now
+    });
+
+    // --- SOCKET.IO SETUP AND EVENT HANDLERS ---
     if (typeof io === 'undefined') {
         console.error("Socket.IO client library not loaded. Real-time updates will be disabled.");
-        const container = document.querySelector('.automation-dashboard-container');
-        if (container) {
-            const errorMsg = document.createElement('div');
-            errorMsg.textContent = "Error: Real-time features are unavailable. Please check connection or contact support.";
-            errorMsg.style.color = "red";
-            errorMsg.style.textAlign = "center";
-            errorMsg.style.padding = "10px";
-            errorMsg.style.border = "1px solid red";
-            errorMsg.style.backgroundColor = "#ffebee";
-            container.prepend(errorMsg);
-        }
-        if (executeAutomationBtn) executeAutomationBtn.disabled = true; 
-        return; 
+        if (executeAutomationBtn) executeAutomationBtn.disabled = true;
+        // You could show a persistent error message to the user here
+        return;
     }
+
     const socket = io();
 
-    socket.on('connect', function() { console.log('Socket.IO connected for automation updates.'); });
-    socket.on('disconnect', function(reason) { console.warn('Socket.IO disconnected. Reason:', reason); });
-    socket.on('connect_error', (error) => { console.error('Socket.IO Connection Error:', error); });
-    socket.on('error', (error) => { console.error('Socket.IO general error:', error); });
-    socket.on('reconnect_attempt', (attemptNumber) => { console.log(`Socket.IO reconnect attempt ${attemptNumber}`); });
-    socket.on('reconnect_error', (error) => { console.error('Socket.IO reconnection error:', error); });
-    socket.on('reconnect_failed', () => { console.error('Socket.IO reconnection failed.'); });
+    // Standard connection lifecycle logs
+    socket.on('connect', () => console.log('Socket.IO connected for automation updates.'));
+    socket.on('disconnect', (reason) => console.warn('Socket.IO disconnected. Reason:', reason));
+    socket.on('connect_error', (error) => console.error('Socket.IO Connection Error:', error));
+    socket.on('error', (error) => console.error('Socket.IO general error:', error));
 
-    function showToast(type, title, message, duration = 4000) {
+    // --- UI HELPER FUNCTIONS ---
+
+    // Function to show toast notifications
+    function showToast(type, title, message, duration = 5000) {
         const container = document.getElementById('toastContainer');
-        if (!container) return; 
+        if (!container) return;
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        
-        const icons = {
-            success: 'fa-check-circle', error: 'fa-times-circle',
-            warning: 'fa-exclamation-triangle', info: 'fa-info-circle'
-        };
-        
+        const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
         toast.innerHTML = `
             <div class="toast-icon ${type}"><i class="fas ${icons[type] || icons.info}"></i></div>
             <div class="toast-content">
                 <div class="toast-title">${title}</div>
                 <div class="toast-message">${message}</div>
             </div>
-            <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
-        `;
+            <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
         container.appendChild(toast);
-        setTimeout(() => toast.classList.add('show'), 100); 
+        setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300); 
+            setTimeout(() => toast.remove(), 300);
         }, duration);
     }
 
-    function updateTickerStatusTable(profileId, tickerData) {
-        const selectedMethodInput = document.querySelector(`input[name="ticker_source_${profileId}"]:checked`);
-        const methodPrefix = (selectedMethodInput && selectedMethodInput.value === 'manual') ? 'manual_' : '';
+    // *** THIS IS THE CORRECTED FUNCTION to update the main status table ***
+    function updatePersistedTickerStatusInTable(profileId, tickerData) {
+        const tableBody = document.querySelector(`#persisted_status_table_for_${profileId} tbody`);
+        if (!tableBody) return;
 
-        const tableBody = document.querySelector(`#${methodPrefix}status_table_for_${profileId} tbody`);
-        const progressDisplay = document.getElementById(`${methodPrefix}progress_display_${profileId}`);
-        const tickerTableContainer = document.getElementById(`${methodPrefix}ticker_table_container_${profileId}`);
-
-
-        if (tableBody) {
-            let row = tableBody.querySelector(`tr[data-ticker="${tickerData.ticker}"]`);
-            if (!row) {
-                row = tableBody.insertRow(0); 
-                row.setAttribute('data-ticker', tickerData.ticker);
-                row.innerHTML = `<td>${tickerData.ticker}</td><td></td><td></td><td></td><td></td>`;
-            }
-            
-            row.cells[1].textContent = tickerData.generation_time ? new Date(tickerData.generation_time).toLocaleString() : 'Pending';
-            row.cells[2].textContent = tickerData.publish_time ? new Date(tickerData.publish_time).toLocaleString() : 'Pending';
-            row.cells[3].textContent = tickerData.writer_username || 'N/A';
-            row.cells[4].textContent = tickerData.status || 'Processing';
-            row.cells[4].className = `status-${(tickerData.status || 'processing').toLowerCase().replace(/[^a-z0-9-]+/g, '-')}`; // More robust class naming
+        const placeholderRow = tableBody.querySelector('tr td[colspan="5"]');
+        if (placeholderRow) {
+            tableBody.innerHTML = ''; // Clear placeholder if it's the first update
         }
-        if(progressDisplay) progressDisplay.style.display = 'block';
-        if(tickerTableContainer) tickerTableContainer.style.display = 'block'; 
+
+        let row = tableBody.querySelector(`tr[data-ticker="${tickerData.ticker}"]`);
+        if (!row) { // Create a new row if one for this ticker doesn't exist
+            row = tableBody.insertRow(0); // Insert at the top for visibility
+            row.setAttribute('data-ticker', tickerData.ticker);
+            for (let i = 0; i < 5; i++) row.insertCell(); // Create all 5 cells
+            row.cells[0].textContent = tickerData.ticker;
+        }
+
+        // **THE FIX**: Use `generated_at` and `published_at` to match the backend data keys.
+        const localeOptions = { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        row.cells[1].textContent = tickerData.generated_at ? new Date(tickerData.generated_at).toLocaleString(undefined, localeOptions) : 'N/A';
+        row.cells[2].textContent = tickerData.published_at ? new Date(tickerData.published_at).toLocaleString(undefined, localeOptions) : 'N/A';
+        row.cells[3].textContent = tickerData.writer_username || 'N/A';
+
+        const statusText = tickerData.status || 'Unknown';
+        row.cells[4].textContent = statusText;
+        row.cells[4].className = `status-${statusText.toLowerCase().replace(/[^a-z0-9-]+/g, '-')}`;
     }
 
-    socket.on('ticker_processed_update', function(data) {
-        console.log("Ticker Processed Update:", data);
+    // --- SOCKET.IO EVENT LISTENERS ---
+
+    // Listener for real-time status updates from the backend
+    socket.on('ticker_status_persisted', function(data) {
+        console.log("Persisted Ticker Status Update Received:", data);
         if (data.profile_id && data.ticker) {
-            updateTickerStatusTable(data.profile_id, data);
-            
-            const selectedMethodInput = document.querySelector(`input[name="ticker_source_${data.profile_id}"]:checked`);
-            const methodPrefix = (selectedMethodInput && selectedMethodInput.value === 'manual') ? 'manual_' : '';
-            
-            const processedCountEl = document.getElementById(`${methodPrefix}processed_count_${data.profile_id}`);
-            const totalCountEl = document.getElementById(`${methodPrefix}total_count_${data.profile_id}`);
-            const progressBarEl = document.getElementById(`${methodPrefix}ticker_progress_bar_${data.profile_id}`);
-
-            if (processedCountEl && totalCountEl && progressBarEl) {
-                let currentProcessed = parseInt(processedCountEl.textContent) || 0;
-                
-                const finalStates = ['Published', 'Failed', 'Skipped', 'Skipped - Already Published', 'Skipped - Daily Limit', 'Skipped - No Tickers'];
-                let isFinalStateForThisUpdate = finalStates.some(fs => data.status && data.status.toLowerCase().startsWith(fs.toLowerCase()));
-
-                const tableBody = document.querySelector(`#${methodPrefix}status_table_for_${data.profile_id} tbody`);
-                const tickerRowInTable = tableBody ? tableBody.querySelector(`tr[data-ticker="${data.ticker}"]`) : null;
-
-                if (isFinalStateForThisUpdate && tickerRowInTable && !tickerRowInTable.dataset.countedAsProcessed) {
-                    currentProcessed++;
-                    tickerRowInTable.dataset.countedAsProcessed = "true"; 
-                }
-                processedCountEl.textContent = currentProcessed;
-                
-                let total = parseInt(totalCountEl.textContent) || 0;
-                if (total > 0 && progressBarEl) {
-                    const progressPercent = Math.min(100, (currentProcessed / total) * 100);
-                    progressBarEl.style.width = `${progressPercent}%`;
-                    progressBarEl.textContent = `${Math.round(progressPercent)}%`;
-                    progressBarEl.setAttribute('aria-valuenow', progressPercent);
-                }
-            }
+            updatePersistedTickerStatusInTable(data.profile_id, data);
         }
     });
 
-
+    // Listener for live log updates and other general automation events
     socket.on('automation_update', function(data) {
         const profileId = data.profile_id;
         const logConsole = document.getElementById(`log_console_${profileId}`);
         const stopButton = document.querySelector(`.stop-automation-button[data-profile-id="${profileId}"]`);
 
+        // Update the live log console
         if (logConsole) {
-            const currentRunPlaceholder = logConsole.querySelector('.current-run-message');
-            if (currentRunPlaceholder) currentRunPlaceholder.remove();
-            const initialNoLogMsg = logConsole.querySelector('.initial-message');
-            if (initialNoLogMsg && logConsole.children.length === 1 && (logConsole.firstElementChild === initialNoLogMsg)) {
-                 initialNoLogMsg.style.display = 'none';
-            }
+            const initialMsg = logConsole.querySelector('.initial-message');
+            if (initialMsg) initialMsg.style.display = 'none';
+
             const logEntryDiv = document.createElement('div');
-            const statusClass = (data.status || 'info').toLowerCase();
-            logEntryDiv.classList.add('log-entry', `status-${statusClass}`); 
-            let iconClass = 'fa-info-circle'; 
-            if (statusClass === 'success') iconClass = 'fa-check-circle';
-            else if (statusClass === 'error' || statusClass === 'failure') iconClass = 'fa-times-circle';
-            else if (statusClass === 'warning' || statusClass.startsWith('skipped')) iconClass = 'fa-exclamation-triangle'; // Group skipped with warning for icon
-            
-            let timestampShort = data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : '';
+            const statusClass = (data.status || 'info').toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+            logEntryDiv.classList.add('log-entry', `status-${statusClass}`);
+
+            let iconClass = 'fa-info-circle';
+            if (['success', 'published', 'scheduled'].includes(statusClass)) iconClass = 'fa-check-circle';
+            else if (['error', 'failure', 'failed'].includes(statusClass)) iconClass = 'fa-times-circle';
+            else if (statusClass.startsWith('skipped') || statusClass === 'halted' || statusClass === 'warning') iconClass = 'fa-exclamation-triangle';
+            else if (['processing', 'starting'].includes(statusClass)) iconClass = 'fa-spinner fa-spin';
+
+            let timestampShort = data.timestamp ? new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
             let phaseStageHTML = '';
-            let phaseDisplay = data.phase ? data.phase.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : '';
-            if (phaseDisplay && data.stage) phaseStageHTML = `<span class="log-phase-stage">[${phaseDisplay}] ${data.stage}</span>`;
-            else if (phaseDisplay) phaseStageHTML = `<span class="log-phase-stage">[${phaseDisplay}]</span>`;
-            else if (data.stage) phaseStageHTML = `<span class="log-phase-stage">${data.stage}</span>`;
+            if (data.phase && data.stage) phaseStageHTML = `<span class="log-phase-stage">[${data.phase}] ${data.stage}</span>`;
+
             logEntryDiv.innerHTML = `
                 <span class="log-icon"><i class="fas ${iconClass}"></i></span>
                 <div class="log-details">
@@ -1027,269 +1184,153 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span class="log-message">${data.message}</span>
                     <span class="log-timestamp">${timestampShort}</span>
                 </div>`;
-            logConsole.appendChild(logEntryDiv); 
-            logConsole.scrollTop = logConsole.scrollHeight; 
-        }
-        
-        // Determine correct prefix for UI elements (file or manual)
-        const selectedMethodInput = document.querySelector(`input[name="ticker_source_${profileId}"]:checked`);
-        const methodPrefix = (selectedMethodInput && selectedMethodInput.value === 'manual') ? 'manual_' : '';
-
-
-        if (profileId !== "Overall" && data.phase === "Ticker Loading" && (data.stage === "File" || data.stage === "Custom")) {
-            let totalTickers = 0;
-            const messageLC = data.message.toLowerCase();
-            if (data.stage === "File" && messageLC.startsWith("found ") && messageLC.includes(" tickers")) {
-                const match = data.message.match(/Found (\d+) tickers/i); // Case-insensitive match
-                if (match) totalTickers = parseInt(match[1]);
-            } else if (data.stage === "Custom" && messageLC.startsWith("processing ") && messageLC.includes(" custom tickers")) {
-                const match = data.message.match(/Processing (\d+) custom tickers/i); // Case-insensitive match
-                if (match) totalTickers = parseInt(match[1]);
-            }
-            
-            const totalCountEl = document.getElementById(`${methodPrefix}total_count_${profileId}`);
-            const processedCountEl = document.getElementById(`${methodPrefix}processed_count_${profileId}`);
-            const progressBarEl = document.getElementById(`${methodPrefix}ticker_progress_bar_${profileId}`);
-            const progressDisplay = document.getElementById(`${methodPrefix}progress_display_${profileId}`);
-            const tableContainer = document.getElementById(`${methodPrefix}ticker_table_container_${profileId}`);
-            const tableBody = document.querySelector(`#${methodPrefix}status_table_for_${profileId} tbody`);
-
-            if (totalCountEl) totalCountEl.textContent = totalTickers;
-            if (processedCountEl) processedCountEl.textContent = '0';
-            if (progressBarEl) { progressBarEl.style.width = '0%'; progressBarEl.textContent = '0%'; progressBarEl.setAttribute('aria-valuenow', '0');}
-            if (progressDisplay) progressDisplay.style.display = (totalTickers > 0) ? 'block' : 'none';
-            if (tableBody) tableBody.innerHTML = ''; 
-            if (tableContainer) tableContainer.style.display = (totalTickers > 0) ? 'block' : 'none';
+            logConsole.insertBefore(logEntryDiv, logConsole.firstChild);
         }
 
-
-        if (stopButton) {
-            const profileNameForButton = stopButton.dataset.profileName || profileId;
-            const isActiveRunPhase = (data.phase === 'Profile Processing' && data.stage === 'Starting') ||
-                                   (data.phase === 'Setup' && data.stage === 'Post Count') ||
-                                   (data.phase === 'Ticker Loading' && (data.stage === 'Custom' || data.stage === 'File')) ||
-                                   (data.phase === 'Report Gen' && (data.stage === 'Starting' || data.stage === 'Done')) ||
-                                   (data.phase === 'Publishing' && ['Image Gen', 'Image Upload', 'Image OK', 'Scheduling', 'Scheduled'].includes(data.stage));
-            
-            const isStopSignalAcknowledged = data.phase === 'Control' && data.stage === 'Stop Requested';
-            const isConfirmedHaltEvent = (data.phase === 'Processing' && data.stage === 'Halted') ||
-                                        (data.phase === 'Profile Processing' && data.stage === 'Complete' && data.message && data.message.toLowerCase().includes('halted by user request'));
-            const isProfileCompletedNormally = data.phase === 'Profile Processing' && data.stage === 'Complete' && !(data.message && data.message.toLowerCase().includes('halted'));
-            const isOverallCompletion = data.profile_id === "Overall" && data.phase === "Completion" && data.stage === "Run Finished";
-            
-            let isEarlyExitOrFailure = false;
-            if (data.status && (data.status.toLowerCase().includes('skipped') || data.status.toLowerCase().includes('failed') || data.status.toLowerCase().includes('error'))) {
-                 isEarlyExitOrFailure = true;
-            }
-
-            if (isConfirmedHaltEvent) {
-                stopButton.disabled = true; stopButton.classList.add('stopping');
-                stopButton.innerHTML = `<span class="icon"><i class="fas fa-check-circle"></i></span> Stopped`;
-                showToast('success', 'Automation Stopped', `Successfully halted automation for ${profileNameForButton}.`);
-                setTimeout(() => {
-                    stopButton.style.display = 'none'; stopButton.disabled = false; stopButton.classList.remove('stopping');
-                    stopButton.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
-                }, 2000);
-            } else if (isStopSignalAcknowledged) {
-                stopButton.style.display = 'block'; stopButton.disabled = true; stopButton.classList.add('stopping');
-                stopButton.innerHTML = `<span class="icon"><i class="fas fa-spinner fa-spin"></i></span> Stopping...`;
-                showToast('info', 'Stop Request Sent', `Processing stop request for ${profileNameForButton}...`);
-            } else if (isActiveRunPhase && !isEarlyExitOrFailure) {
-                stopButton.style.display = 'block'; stopButton.disabled = false; stopButton.classList.remove('stopping');
-                stopButton.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
-            } else if (isProfileCompletedNormally || isOverallCompletion || isEarlyExitOrFailure) {
-                stopButton.style.display = 'none'; stopButton.disabled = false; stopButton.classList.remove('stopping');
-                stopButton.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
-                if (isProfileCompletedNormally) showToast('success', 'Automation Complete', `${profileNameForButton} automation completed successfully.`);
-            }
-        }
-        
+        // Handle overall automation status (start/finish/error)
         if (data.profile_id === "Overall" && ((data.phase === "Completion" && data.stage === "Run Finished") || data.status === 'error')) {
-             if(executeAutomationBtn) executeAutomationBtn.disabled = false; 
-             if (data.phase === "Completion" && data.stage === "Run Finished") showToast('success', 'All Complete', 'All automation runs finished successfully.');
+            if(executeAutomationBtn) executeAutomationBtn.disabled = false;
+            if (data.status === 'success') {
+                showToast('success', 'All Runs Complete', data.message || 'All selected automation runs have finished.');
+            } else if (data.status === 'error') {
+                 showToast('error', 'Automation Error', data.message || 'An error occurred during the run.');
+            }
         }
-    });
-    
-    socket.on('automation_status', function(data){ 
-        console.log("Overall Automation Status:", data.message);
-        if (data.status === 'error' || data.message.toLowerCase().includes("finished") || data.message.toLowerCase().includes("completed")) {
-             if(executeAutomationBtn) executeAutomationBtn.disabled = false; 
-             if (data.status === 'error') showToast('error', 'Automation Error', data.message || 'An error occurred during automation.');
+
+        // Manage visibility and state of the "Stop" button
+        if (stopButton) {
+            const isRunning = (data.phase && !['Completion', 'Control'].includes(data.phase)) || (data.stage && data.stage !== 'Complete');
+            const isFinished = (data.phase === 'Profile Processing' && data.stage === 'Complete') || (data.status && ['skipped', 'failed', 'halted'].some(s => data.status.toLowerCase().includes(s)));
+
+            if (data.stage === 'Stop Requested') {
+                stopButton.disabled = true;
+                stopButton.innerHTML = `<span class="icon"><i class="fas fa-spinner fa-spin"></i></span> Stopping...`;
+            } else if (isRunning) {
+                stopButton.style.display = 'block';
+                stopButton.disabled = false;
+                stopButton.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
+            } else if (isFinished) {
+                setTimeout(() => {
+                    stopButton.style.display = 'none';
+                    stopButton.disabled = false;
+                    stopButton.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
+                }, 3000);
+            }
         }
     });
 
+    // --- FORM AND DOM EVENT LISTENERS ---
+
+    // Handle the main form submission
     if (automationRunForm) {
         automationRunForm.addEventListener('submit', function() {
-            if(executeAutomationBtn) executeAutomationBtn.disabled = true;
-            const selectedProfiles = [];
-            document.querySelectorAll('.profile-run-card input[type="checkbox"]:checked').forEach(checkbox => {
-                const profileId = checkbox.value;
-                const profileCard = checkbox.closest('.profile-run-card');
-                const stopButton = profileCard ? profileCard.querySelector('.stop-automation-button') : null;
-                const profileNameLabel = checkbox.nextElementSibling;
-                const profileName = profileNameLabel ? profileNameLabel.textContent.trim() : profileId;
-                selectedProfiles.push(profileName);
-                if (stopButton) {
-                    stopButton.style.display = 'block'; stopButton.disabled = false; stopButton.classList.remove('stopping');
-                    stopButton.dataset.profileName = profileName; 
-                    stopButton.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
-                }
-                const logConsole = document.getElementById(`log_console_${profileId}`);
-                if (logConsole) {
-                    const initialMsg = logConsole.querySelector('.initial-message');
-                    if (initialMsg) initialMsg.style.display = 'none';
-                    const currentRunMsg = logConsole.querySelector('.current-run-message');
-                    if(currentRunMsg) currentRunMsg.remove(); 
-                    let newRunPlaceholder = document.createElement('p');
-                    newRunPlaceholder.className = 'no-log current-run-message'; 
-                    Object.assign(newRunPlaceholder.style, {textAlign:'center', padding:'0.5rem 0', color:'#9ca3af', fontStyle:'italic', fontSize:'0.7rem'});
-                    newRunPlaceholder.textContent = `--- New Run Started (${new Date().toLocaleTimeString()}) ---`;
-                    if (logConsole.children.length > 0 && !(logConsole.children.length === 1 && logConsole.firstElementChild.classList.contains('initial-message'))) {
-                        const separator = document.createElement('hr');
-                        Object.assign(separator.style, {borderColor:'#333', margin:'0.5rem 0'});
-                        logConsole.appendChild(separator);
+            if (executeAutomationBtn) executeAutomationBtn.disabled = true;
+
+            const selectedProfiles = document.querySelectorAll('.profile-run-card input[type="checkbox"]:checked');
+            if (selectedProfiles.length > 0) {
+                showToast('info', 'Automation Initiated', `Starting automation for ${selectedProfiles.length} profile(s).`);
+                selectedProfiles.forEach(checkbox => {
+                    const profileId = checkbox.value;
+                    const logConsole = document.getElementById(`log_console_${profileId}`);
+                    if (logConsole) {
+                        const newRunSeparator = `<div style="text-align:center; color:#888; font-style:italic; font-size:0.7rem; border-top:1px dashed #444; margin-top:8px; padding-top:8px;">--- New Run Started (${new Date().toLocaleTimeString()}) ---</div>`;
+                        logConsole.insertAdjacentHTML('afterbegin', newRunSeparator);
                     }
-                    logConsole.appendChild(newRunPlaceholder);
-                }
-                ['', 'manual_'].forEach(prefix => {
-                    const progressDisp = document.getElementById(`${prefix}progress_display_${profileId}`);
-                    if(progressDisp) progressDisp.style.display = 'none'; 
-                    const procCount = document.getElementById(`${prefix}processed_count_${profileId}`);
-                    if(procCount) procCount.textContent = '0';
-                    const totCount = document.getElementById(`${prefix}total_count_${profileId}`);
-                    if(totCount) totCount.textContent = '0';
-                    const progBar = document.getElementById(`${prefix}ticker_progress_bar_${profileId}`);
-                    if(progBar) { progBar.style.width = '0%'; progBar.textContent = '0%'; progBar.setAttribute('aria-valuenow', '0');}
-                    const tableCont = document.getElementById(`${prefix}ticker_table_container_${profileId}`);
-                    if(tableCont) tableCont.style.display = 'none'; 
-                    const tableBody = document.querySelector(`#${prefix}status_table_for_${profileId} tbody`);
-                    if(tableBody) tableBody.innerHTML = ''; 
                 });
-            });
-            if (selectedProfiles.length > 0) showToast('info', 'Automation Started', `Starting automation for ${selectedProfiles.length} profile(s).`);
-            else if (executeAutomationBtn) executeAutomationBtn.disabled = false; 
+            } else {
+                if (executeAutomationBtn) executeAutomationBtn.disabled = false;
+            }
         });
     }
 
+    // Add click listeners to all "Stop" buttons
     document.querySelectorAll('.stop-automation-button').forEach(button => {
         button.addEventListener('click', function () {
             const profileId = this.dataset.profileId;
             const profileName = this.dataset.profileName || profileId;
-            if (!profileId) { console.error('Profile ID not found for stop button.'); return; }
             if (confirm(`Are you sure you want to request a stop for profile: ${profileName}?`)) {
-                this.disabled = true; this.classList.add('stopping');
+                this.disabled = true;
                 this.innerHTML = `<span class="icon"><i class="fas fa-spinner fa-spin"></i></span> Requesting Stop...`;
-                fetch(`/stop_automation_run/${profileId}`, { method: 'POST', headers: {'Content-Type': 'application/json'} })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        showToast('info', 'Stop Request Sent', data.message || `Stop request sent for ${profileName}.`);
-                    } else {
-                        showToast('error', 'Stop Failed', data.message || `Failed to send stop for ${profileName}.`);
-                        this.disabled = false; this.classList.remove('stopping');
+                fetch(`/stop_automation_run/${profileId}`, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        showToast(data.status, data.status === 'success' ? 'Stop Request Sent' : 'Stop Failed', data.message);
+                        if(data.status !== 'success') { // Re-enable button on failure
+                           this.disabled = false;
+                           this.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
+                        }
+                    })
+                    .catch(() => {
+                        showToast('error', 'Network Error', 'Failed to send stop request.');
+                        this.disabled = false;
                         this.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
-                    }
-                })
-                .catch(error => {
-                    showToast('error', 'Network Error', 'Failed to send stop request.');
-                    this.disabled = false; this.classList.remove('stopping');
-                    this.innerHTML = `<span class="icon"><i class="fas fa-stop-circle"></i></span> Stop Automation`;
-                });
+                    });
             }
         });
     });
 
+    // Function to toggle between file upload and manual ticker input
     window.toggleTickerInput = function(profileId, selectedMethod) {
         const fileSection = document.getElementById(`file_upload_section_${profileId}`);
         const manualSection = document.getElementById(`manual_ticker_section_${profileId}`);
-        const fileInput = document.getElementById(`ticker_file_${profileId}`);
-        const manualInput = document.getElementById(`custom_tickers_${profileId}`);
-
-        const fileProgressDisplay = document.getElementById(`progress_display_${profileId}`);
-        const fileTableContainer = document.getElementById(`ticker_table_container_${profileId}`);
-        
-        const manualProgressDisplay = document.getElementById(`manual_progress_display_${profileId}`);
-        const manualTableContainer = document.getElementById(`manual_ticker_table_container_${profileId}`);
-
-        if (fileSection && manualSection) { 
-            if (selectedMethod === 'file') {
-                fileSection.style.display = 'block';
-                manualSection.style.display = 'none';
-                if (manualInput) manualInput.value = ''; 
-                if(manualProgressDisplay) manualProgressDisplay.style.display = 'none';
-                if(manualTableContainer) manualTableContainer.style.display = 'none';
-                // Ensure file-specific UI elements are potentially visible if they have content later
-            } else if (selectedMethod === 'manual') {
-                fileSection.style.display = 'none';
-                manualSection.style.display = 'block';
-                if (fileInput) fileInput.value = ''; 
-                const fileInfoDiv = document.getElementById(`uploaded_file_info_${profileId}`);
-                if (fileInfoDiv) fileInfoDiv.style.display = 'none';
-                if(fileProgressDisplay) fileProgressDisplay.style.display = 'none';
-                if(fileTableContainer) fileTableContainer.style.display = 'none';
-                // Ensure manual-specific UI elements are potentially visible
-            }
+        if (fileSection && manualSection) {
+            fileSection.style.display = selectedMethod === 'file' ? 'block' : 'none';
+            manualSection.style.display = selectedMethod === 'manual' ? 'block' : 'none';
         }
-    }
+    };
 
+    // Initialize the correct input view on page load
     document.querySelectorAll('.profile-run-card').forEach(card => {
         const profileId = card.dataset.profileId;
         if (profileId) {
-            const radios = document.getElementsByName(`ticker_source_${profileId}`);
-            let initialMethod = 'file'; // Default
-            radios.forEach(radio => { if (radio.checked) initialMethod = radio.value; });
-            toggleTickerInput(profileId, initialMethod); 
-            
-            const logConsole = document.getElementById(`log_console_${profileId}`);
-            if (logConsole && logConsole.querySelector('.log-entry')) { 
-                const initialNoLogMsg = logConsole.querySelector('.initial-message');
-                if (initialNoLogMsg) initialNoLogMsg.style.display = 'none';
+            const radio = card.querySelector(`input[name="ticker_source_${profileId}"]:checked`);
+            if (radio) {
+                toggleTickerInput(profileId, radio.value);
             }
         }
     });
 
+    // Add change listeners for file inputs
     document.querySelectorAll('.ticker-file-input').forEach(input => {
         input.addEventListener('change', function(event) {
             const profileId = this.dataset.profileId;
             const fileInfoDiv = document.getElementById(`uploaded_file_info_${profileId}`);
             const fileNameSpan = fileInfoDiv ? fileInfoDiv.querySelector('.file-name') : null;
             const removeFileBtn = fileInfoDiv ? fileInfoDiv.querySelector('.remove-file-btn') : null;
-            
-            const tickerTableContainer = document.getElementById(`ticker_table_container_${profileId}`); // Non-manual table
-            const tickerTableBody = tickerTableContainer ? tickerTableContainer.querySelector('tbody') : null;
 
             if (event.target.files && event.target.files[0]) {
                 const file = event.target.files[0];
                 if (fileNameSpan) fileNameSpan.textContent = file.name;
                 if (fileInfoDiv) fileInfoDiv.style.display = 'flex';
-                
                 if (removeFileBtn) {
-                    removeFileBtn.style.display = 'inline-block'; 
-                    removeFileBtn.onclick = function() {
-                        input.value = ''; 
-                        if (fileInfoDiv) fileInfoDiv.style.display = 'none';
-                        if (tickerTableContainer) tickerTableContainer.style.display = 'none'; 
-                        if (tickerTableBody) tickerTableBody.innerHTML = ''; 
-                        const progressDisp = document.getElementById(`progress_display_${profileId}`);
-                        if (progressDisp) progressDisp.style.display = 'none';
+                    removeFileBtn.style.display = 'inline-block';
+                    removeFileBtn.onclick = () => {
+                        input.value = '';
+                        fileInfoDiv.style.display = 'none';
                     };
                 }
-                
                 const manualInput = document.getElementById(`custom_tickers_${profileId}`);
-                if (manualInput) manualInput.value = '';
-                
-                if (tickerTableBody) {
-                    tickerTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#6c757d; padding:0.75rem;"><i>Tickers from '${file.name}' will appear here once processing starts.</i></td></tr>`;
-                }
-                
-                showToast('success', 'File Ready', `"${file.name}" selected for profile.`);
-            } else { 
-                if (fileInfoDiv) fileInfoDiv.style.display = 'none';
-                if (tickerTableContainer) tickerTableContainer.style.display = 'none';
-                if (tickerTableBody) tickerTableBody.innerHTML = '';
-                const progressDisp = document.getElementById(`progress_display_${profileId}`);
-                if (progressDisp) progressDisp.style.display = 'none';
+                if (manualInput) manualInput.value = ''; // Clear manual input when file is selected
+                showToast('info', 'File Selected', `"${file.name}" is ready to be used.`);
             }
+        });
+    });
+
+    // Add filter logic for the status tables
+    document.querySelectorAll('.status-filter-dropdown').forEach(dropdown => {
+        dropdown.addEventListener('change', function() {
+            const profileId = this.dataset.profileId;
+            const filterValue = this.value;
+            const table = document.getElementById(`persisted_status_table_for_${profileId}`);
+            if (!table) return;
+            table.querySelectorAll('tbody tr').forEach(row => {
+                const status = row.dataset.status || '';
+                if (filterValue === 'all' || status.startsWith(filterValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         });
     });
 

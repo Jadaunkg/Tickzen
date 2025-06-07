@@ -135,10 +135,10 @@ Desktop.ini
 .vscode/
 *.swp
 *.swo
-
 # Custom Project Files
 # ---------------------
-
+/generated_data/
+/logs/
 # Log files
 *.log
 auto_publisher.log

@@ -18,16 +18,18 @@ import io
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 # --- START: Firebase Admin Storage Import (Conceptual) ---
-# You'll need to ensure firebase_admin is available and initialized
-# in a way that storage can be accessed.
 try:
-    from firebase_admin import storage # For storage operations
+    from firebase_admin import storage 
 except ImportError:
-    storage = None # Fallback if firebase_admin is not available in this context
+    storage = None 
 # --- END: Firebase Admin Storage Import ---
 
+try:
+    from app.main_portal_app import get_previous_ticker_status
+except ImportError:
+    def get_previous_ticker_status(user_uid, profile_id, ticker_symbol):
+        return None
 
-# Add the project root to Python's module search path
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -57,6 +59,7 @@ if not app_logger.handlers:
     app_logger.propagate = False
     APP_ROOT_PATH_FOR_LOG = os.path.dirname(os.path.abspath(__file__))
     log_file_path = os.path.join(APP_ROOT_PATH_FOR_LOG, '..', 'logs', LOG_FILE)
+    os.makedirs(os.path.dirname(log_file_path), exist_ok=True) # Ensure logs directory exists
     handler = RotatingFileHandler(log_file_path, maxBytes=5*1024*1024, backupCount=5, encoding='utf-8')
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     handler.setFormatter(formatter)
@@ -71,27 +74,16 @@ ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP = int(os.getenv("MAX_POSTS_PER_DAY_PER_SITE",
 
 SITES_PROFILES_CONFIG = []
 
-# --- START: New Helper for Firebase Storage (Conceptual) ---
 def get_file_content_from_storage(storage_path, original_filename):
-    """
-    Conceptual function to download file content from Firebase Storage.
-    Returns file content as bytes, or None on error.
-    """
     if not storage:
         app_logger.error("Firebase Admin SDK (storage) not available. Cannot download from storage.")
         return None
     if not storage_path:
         app_logger.error(f"No storage path provided for file {original_filename}.")
         return None
-
     try:
-        # This assumes your firebase_admin_setup.py provides a way to get the default bucket
-        # or you have a bucket instance available.
-        # from config.firebase_admin_setup import get_storage_bucket_instance # Conceptual
-        # bucket = get_storage_bucket_instance()
-        # For now, we'll mock this part or assume 'storage.bucket()' works if initialized
         bucket_name = os.getenv('FIREBASE_STORAGE_BUCKET')
-        bucket = storage.bucket(bucket_name if bucket_name else None) # Get default or named bucket
+        bucket = storage.bucket(bucket_name if bucket_name else None) 
         
         blob = bucket.blob(storage_path)
         if not blob.exists():
@@ -105,7 +97,6 @@ def get_file_content_from_storage(storage_path, original_filename):
     except Exception as e:
         app_logger.error(f"Error downloading '{original_filename}' from Firebase Storage path '{storage_path}': {e}", exc_info=True)
         return None
-# --- END: New Helper for Firebase Storage ---
 
 def _emit_automation_progress(socketio_instance, user_room, profile_id, ticker, phase, stage, message, status="info"):
     if socketio_instance and user_room:
@@ -120,7 +111,7 @@ def _emit_automation_progress(socketio_instance, user_room, profile_id, ticker, 
         }
         try:
             socketio_instance.emit('automation_update', payload, room=user_room)
-            socketio_instance.sleep(0.01)
+            socketio_instance.sleep(0.01) 
         except Exception as e:
             app_logger.error(f"Failed to emit SocketIO message to room {user_room}: {e}")
     else:
@@ -160,7 +151,8 @@ def load_state(user_uid=None, current_profile_ids_from_run=None):
         'last_successful_schedule_time_by_profile': lambda: None,
         'posts_today_by_profile': lambda: 0, 'published_tickers_log_by_profile': set,
         'processed_tickers_detailed_log_by_profile': list,
-        'last_author_index_by_profile': lambda: -1
+        'last_author_index_by_profile': lambda: -1,
+        'last_processed_ticker_index_by_profile': lambda: -1
     }
     default_state = {key: {str(pid): factory() for pid in active_profile_ids} for key, factory in default_factories.items()}
     default_state['last_run_date'] = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
@@ -225,10 +217,11 @@ def generate_feature_image(headline_text, site_display_name_for_wm, profile_conf
         app_logger.info(f"[FeatureImage] Resolved env_prefix: '{env_prefix}'")
 
         def get_env_color(var_name, default_hex):
-            specific_env_var = f"{env_prefix}_{var_name}"
-            default_env_var = f"DEFAULT_{var_name}"
-            color_val = os.getenv(specific_env_var, os.getenv(default_env_var, default_hex))
-            source = "env specific" if os.getenv(specific_env_var) else "env default" if os.getenv(default_env_var) else "hardcoded"
+            specific_env_var = f"{env_prefix}_{var_name}" if env_prefix else var_name # MODIFIED to allow empty env_prefix
+            default_env_var_with_default_prefix = f"DEFAULT_{var_name}"
+            
+            color_val = os.getenv(specific_env_var, os.getenv(default_env_var_with_default_prefix, default_hex))
+            source = "env specific" if os.getenv(specific_env_var) else "env default" if os.getenv(default_env_var_with_default_prefix) else "hardcoded"
             app_logger.info(f"[FeatureImage] Color for '{var_name}': '{color_val}' (Source: {source})")
             return color_val
 
@@ -239,7 +232,7 @@ def generate_feature_image(headline_text, site_display_name_for_wm, profile_conf
         right_panel_bg_hex = get_env_color("FEATURE_RIGHT_PANEL_BG_COLOR", "#1C3A6E")
         ticker_text_color_hex = get_env_color("FEATURE_TICKER_TEXT_COLOR", "#FFFFFF")
 
-        resolved_site_logo_path_specific_var = f"{env_prefix}_SITE_LOGO_PATH"
+        resolved_site_logo_path_specific_var = f"{env_prefix}_SITE_LOGO_PATH" if env_prefix else "SITE_LOGO_PATH"
         resolved_site_logo_path_default_var = "DEFAULT_SITE_LOGO_PATH"
         site_logo_path = os.getenv(resolved_site_logo_path_specific_var, os.getenv(resolved_site_logo_path_default_var))
         app_logger.info(f"[FeatureImage] Attempting to use Site Logo. Specific var: '{resolved_site_logo_path_specific_var}', Default var: '{resolved_site_logo_path_default_var}'. Resolved path: '{site_logo_path}'")
@@ -278,7 +271,7 @@ def generate_feature_image(headline_text, site_display_name_for_wm, profile_conf
             except IOError:
                 app_logger.warning(f"Font not found at {font_path} (from env '{env_var_name}' or default '{default_font_name}'). Using Pillow's default.")
                 try:
-                    return ImageFont.truetype("arial.ttf", default_size)
+                    return ImageFont.truetype("arial.ttf", default_size) # Common fallback
                 except IOError:
                     return ImageFont.load_default()
 
@@ -303,7 +296,7 @@ def generate_feature_image(headline_text, site_display_name_for_wm, profile_conf
                 logo_img = Image.open(site_logo_path).convert("RGBA")
                 ratio = min(logo_max_h / logo_img.height, (right_panel_x_start - 2*padding) / logo_img.width)
                 new_w = int(logo_img.width * ratio); new_h = int(logo_img.height * ratio)
-                logo_img = logo_img.resize((new_w, new_h), Image.LANCZOS)
+                logo_img = logo_img.resize((new_w, new_h), Image.Resampling.LANCZOS) # Updated
                 img.paste(logo_img, (text_area_left_margin, current_y), logo_img)
                 current_y += new_h + padding // 2
             except Exception as e_logo:
@@ -317,13 +310,16 @@ def generate_feature_image(headline_text, site_display_name_for_wm, profile_conf
         text_area_width = right_panel_x_start - text_area_left_margin - padding
         words = headline_text.split(); lines = []; current_line = ""
         for word in words:
+            # Use textbbox for more accurate width calculation
             if draw.textbbox((0,0), current_line + word, font=font_headline)[2] <= text_area_width:
                 current_line += word + " "
             else:
                 lines.append(current_line.strip()); current_line = word + " "
         lines.append(current_line.strip())
         for line in lines:
-            line_bbox = font_headline.getbbox(line); line_height = line_bbox[3] - line_bbox[1]
+            # Use textbbox for height and correct drawing
+            text_box = draw.textbbox((text_area_left_margin, current_y), line, font=font_headline, anchor="lt")
+            line_height = text_box[3] - text_box[1]
             if current_y + line_height > img_height - padding - font_sub_headline.getbbox("A")[3] - font_watermark.getbbox("A")[3]: break
             draw.text((text_area_left_margin, current_y), line, font=font_headline, fill=headline_color, anchor="lt")
             current_y += line_height * 1.2
@@ -343,8 +339,9 @@ def generate_feature_image(headline_text, site_display_name_for_wm, profile_conf
         draw.text((wm_x_centered, wm_y_bottom), watermark_text, font=font_watermark, fill=watermark_text_color, anchor="mb")
         img.save(output_path, "PNG", quality=90, optimize=True)
         return output_path
-    except ImportError: app_logger.error("Pillow (PIL) not installed."); return None
+    except ImportError: app_logger.error("Pillow (PIL) not installed or ImageFont.truetype failed."); return None # Added check for truetype
     except Exception as e: app_logger.error(f"Feature image error for '{headline_text}': {e}", exc_info=True); return None
+
 
 def upload_image_to_wordpress(image_path, site_url, author, title="Featured Image"):
     if not image_path or not os.path.exists(image_path): return None
@@ -354,7 +351,7 @@ def upload_image_to_wordpress(image_path, site_url, author, title="Featured Imag
     headers = {"Authorization": f"Basic {creds}", "Content-Disposition": f'attachment; filename="{filename}"'}
     try:
         with open(image_path, 'rb') as f:
-            files = {'file': (filename, f, 'image/png')}
+            files = {'file': (filename, f, 'image/png')} # Assuming PNG, adjust if other types
             response = requests.post(url, headers=headers, files=files, data={'title': title, 'alt_text': title}, timeout=120)
         response.raise_for_status(); return response.json().get('id')
     except Exception as e: app_logger.error(f"Image upload error to {site_url} for {title}: {e}"); return None
@@ -371,9 +368,12 @@ def create_wordpress_post(site_url, author, title, content, sched_time, cat_id=N
         except ValueError: app_logger.warning(f"Invalid category_id '{cat_id}'.")
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=90)
-        response.raise_for_status(); app_logger.info(f"Post '{title}' scheduled on {site_url}. ID: {response.json().get('id')}")
-        return True
-    except Exception as e: app_logger.error(f"WP post error for '{title}' on {site_url}: {e}"); return False
+        response.raise_for_status(); 
+        post_id = response.json().get('id')
+        app_logger.info(f"Post '{title}' scheduled on {site_url}. ID: {post_id}")
+        return post_id # MODIFIED: Return post ID
+    except Exception as e: app_logger.error(f"WP post error for '{title}' on {site_url}: {e}"); return None # MODIFIED: Return None on error
+
 
 def load_tickers_from_excel(profile_config):
     sheet_name = profile_config.get('sheet_name')
@@ -420,13 +420,25 @@ def load_tickers_from_excel(profile_config):
         app_logger.error(f"Error reading tickers from Excel file '{excel_path}', sheet '{sheet_name}': {e}", exc_info=True)
         return []
 
-
-# MODIFIED: Function to load tickers from uploaded file (now from storage path)
 def load_tickers_from_uploaded_file(storage_path, original_filename, user_uid=None, profile_id=None):
-    """
-    Loads tickers from a file specified by its storage_path in Firebase Storage.
-    """
     app_logger.info(f"Attempting to load tickers from storage: '{storage_path}' (original: '{original_filename}') for profile {profile_id}, user {user_uid}.")
+    global get_file_content_from_storage
+    _original_get_file_content_from_storage = get_file_content_from_storage # Save original
+
+    def cli_mock_get_file_content_from_storage(storage_path, original_filename):
+        # If storage_path in CLI mode is a local path to the dummy file
+        if os.path.exists(storage_path): # Check if it's a direct local path
+            try:
+                with open(storage_path, "rb") as f_local:
+                    app_logger.info(f"[CLI_MOCK_STORAGE] Reading local file: {storage_path}")
+                    return f_local.read()
+            except Exception as e_local_read:
+                app_logger.error(f"[CLI_MOCK_STORAGE] Error reading local file {storage_path}: {e_local_read}")
+                return None
+        return _original_get_file_content_from_storage(storage_path, original_filename) # Fallback
+
+    get_file_content_from_storage = cli_mock_get_file_content_from_storage
+
     content_bytes = get_file_content_from_storage(storage_path, original_filename)
     if content_bytes is None:
         app_logger.error(f"Failed to download file content from storage path: {storage_path}")
@@ -471,18 +483,25 @@ def load_tickers_from_uploaded_file(storage_path, original_filename, user_uid=No
 
 def generate_dynamic_headline(ticker, profile_name):
     site_specific_prefix = ""
-    if "Forecast" in profile_name or "Radar" in profile_name:
+    # Example: customize prefix based on profile_name
+    if "Forecast" in profile_name or "Radar" in profile_name or "MoneyStocker" in profile_name: # Added MoneyStocker
         site_specific_prefix = f"{ticker} Stock Forecast: "
     elif "Bernini" in profile_name:
         site_specific_prefix = f"{ticker} Analysis by Bernini Capital: "
-
+    
     base_headlines = [
         f"Is {ticker} a Smart Investment Now?",
         f"{ticker} Stock Deep Dive: Price Prediction & Analysis",
-        f"Future of {ticker}: Expert Analysis and Forecast",
+        f"Future of {ticker}: Expert Analysis and Forecast", # This was selected in logs
         f"Should You Buy {ticker} Stock? A detailed Review"
     ]
-    return site_specific_prefix + random.choice(base_headlines)
+    # If no specific prefix, one of the base headlines might be chosen directly by other logic
+    # This function provides a prefix if applicable, or the caller can use base headlines.
+    # For the log example "Future of AMED: Expert Analysis and Forecast", this implies ticker was AMED
+    # and one of the base_headlines was selected.
+    if site_specific_prefix: #Only return prefixed if site_specific_prefix is non-empty
+        return site_specific_prefix + random.choice(base_headlines)
+    return random.choice(base_headlines) # Fallback to a random base if no prefix
 
 
 _active_runs = {}
@@ -497,15 +516,14 @@ def stop_publishing_run(user_uid, profile_id):
     return {'success': False, 'message': 'No active run found for this profile to stop.'}
 
 
-# MODIFIED: trigger_publishing_run to use storage_path
 def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_publish_per_profile_map,
-                           custom_tickers_by_profile_id=None, uploaded_file_details_by_profile_id=None, # This now contains storage_path
-                           socketio_instance=None, user_room=None):
+                           custom_tickers_by_profile_id=None, uploaded_file_details_by_profile_id=None, 
+                           socketio_instance=None, user_room=None, save_status_callback=None): # MODIFIED: Added save_status_callback
     global _active_runs
     if user_uid not in _active_runs: _active_runs[user_uid] = {}
     for profile_config in profiles_to_process_data_list:
         profile_id = profile_config.get("profile_id")
-        if profile_id: _active_runs[user_uid][profile_id] = {"active": True, "stop_requested": False}
+        if profile_id: _active_runs[user_uid][str(profile_id)] = {"active": True, "stop_requested": False} # Ensure profile_id is string key
 
     _emit_automation_progress(socketio_instance, user_room, "Overall", "N/A", "Initialization", "Run Started", f"Processing {len(profiles_to_process_data_list)} profiles.", "info")
     profile_ids_for_run = [p.get("profile_id") for p in profiles_to_process_data_list if p.get("profile_id")]
@@ -513,22 +531,32 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
     run_results_summary = {}
 
     for profile_config in profiles_to_process_data_list:
-        profile_id = str(profile_config.get("profile_id"))
+        profile_id = str(profile_config.get("profile_id")) # Ensure string key
         profile_name = profile_config.get("profile_name", profile_id)
         current_run_detailed_logs_for_profile = []
 
         _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Profile Processing", "Starting", f"Processing profile: {profile_name}", "info")
         if not profile_id: continue
         if _active_runs[user_uid][profile_id].get("stop_requested", False):
-            msg = f"Halted by user: {profile_name}"; _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Processing", "Halted", msg, "warning")
-            current_run_detailed_logs_for_profile.append({"ticker": "N/A", "status": "Halted", "message": msg, "generation_timestamp": None, "publication_timestamp": None, "writer_username": None})
+            msg = f"Halted by user: {profile_name}"; 
+            _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Processing", "Halted", msg, "warning")
+            # NEW: Call save_status_callback for halt if needed (assuming N/A ticker for profile-level halt)
+            if save_status_callback:
+                status_data = {'status': "Halted (Profile Level)", 'generated_at': None, 'published_at': None, 'writer_username': None}
+                save_status_callback(user_uid, profile_id, "N/A_PROFILE_HALT", status_data) # Use a special ticker
+            current_run_detailed_logs_for_profile.append({"ticker": "N/A", "status": "Halted", "message": msg, "generated_at": None, "published_at": None, "writer_username": None})
             run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": msg, "tickers_processed": []}
             _active_runs[user_uid][profile_id]["active"] = False; continue
 
         authors = profile_config.get('authors', [])
         if not authors:
-            msg = f"No authors for '{profile_name}'. Skipping."; _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Setup", "Skipped", msg, "warning")
-            current_run_detailed_logs_for_profile.append({"ticker": "N/A", "status": "Skipped - No Authors", "message": msg, "generation_timestamp": None, "publication_timestamp": None, "writer_username": None})
+            msg = f"No authors for '{profile_name}'. Skipping."; 
+            _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Setup", "Skipped", msg, "warning")
+            # NEW: Call save_status_callback
+            if save_status_callback:
+                status_data = {'status': "Skipped - No Authors", 'generated_at': None, 'published_at': None, 'writer_username': None}
+                save_status_callback(user_uid, profile_id, "N/A_NO_AUTHORS", status_data)
+            current_run_detailed_logs_for_profile.append({"ticker": "N/A", "status": "Skipped - No Authors", "message": msg, "generated_at": None, "published_at": None, "writer_username": None})
             run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": msg, "tickers_processed": []}
             _active_runs[user_uid][profile_id]["active"] = False; continue
 
@@ -540,7 +568,11 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
         if to_attempt <= 0:
             msg = f"Limit reached for '{profile_name}'. Today: {posts_today}/{ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP}, Req: {requested_posts}"
             _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Setup", "Skipped - Limit", msg, "info")
-            current_run_detailed_logs_for_profile.append({"ticker": "N/A", "status": "Skipped - Daily Limit", "message": msg, "generation_timestamp": None, "publication_timestamp": None, "writer_username": None})
+            # NEW: Call save_status_callback
+            if save_status_callback:
+                status_data = {'status': "Skipped - Daily Limit", 'generated_at': None, 'published_at': None, 'writer_username': None}
+                save_status_callback(user_uid, profile_id, "N/A_DAILY_LIMIT", status_data)
+            current_run_detailed_logs_for_profile.append({"ticker": "N/A", "status": "Skipped - Daily Limit", "message": msg, "generated_at": None, "published_at": None, "writer_username": None})
             run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": msg, "tickers_processed": []}
             _active_runs[user_uid][profile_id]["active"] = False; continue
         _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Setup", "Post Count", f"Attempting {to_attempt} posts for {profile_name}.", "info")
@@ -552,33 +584,51 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
             tickers_for_this_profile_run = custom_tickers_by_profile_id[profile_id]
             source_type = "Manual Entry"
             _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Ticker Loading", "Custom", f"Processing {len(tickers_for_this_profile_run)} custom tickers.", "info")
+            last_processed_index = -1
+            initial_last_processed_index_for_file = -1
+            total_items_in_file = 0
         elif uploaded_file_details_by_profile_id and profile_id in uploaded_file_details_by_profile_id:
             f_details = uploaded_file_details_by_profile_id[profile_id]
             storage_path = f_details.get("storage_path")
             original_filename = f_details.get("original_filename")
             _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Ticker Loading", "File", f"Reading tickers from '{original_filename}' (from storage).", "info")
-            # Call the modified load_tickers_from_uploaded_file
-            tickers_for_this_profile_run = load_tickers_from_uploaded_file(storage_path, original_filename, user_uid, profile_id)
+            all_tickers = load_tickers_from_uploaded_file(storage_path, original_filename, user_uid, profile_id)
             source_type = "Uploaded File (Storage)"
-            _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Ticker Loading", "File", f"Found {len(tickers_for_this_profile_run)} tickers in file from storage.", "info")
-        else: # Fallback to state/excel (no change needed here for this part of the logic)
+            _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Ticker Loading", "File", f"Found {len(all_tickers)} tickers in file from storage.", "info")
+            last_processed_index = state.get('last_processed_ticker_index_by_profile', {}).get(profile_id, -1)
+            initial_last_processed_index_for_file = last_processed_index
+            tickers_for_this_profile_run = all_tickers[last_processed_index+1:] if last_processed_index+1 < len(all_tickers) else []
+            total_items_in_file = profile_config.get('ticker_count_from_file', len(all_tickers))
+            if total_items_in_file == 0 and len(all_tickers) > 0:
+                total_items_in_file = len(all_tickers)
+        else:
             pending = state['pending_tickers_by_profile'].get(profile_id, [])
             if not pending:
                 excel_tickers = load_tickers_from_excel(profile_config)
                 failed = list(state['failed_tickers_by_profile'].get(profile_id, []))
-                published = state['published_tickers_log_by_profile'].get(profile_id, set())
-                tickers_for_this_profile_run = [t for t in failed + excel_tickers if t not in published and t not in tickers_for_this_profile_run]
+                published_log_set = state['published_tickers_log_by_profile'].get(profile_id, set())
+                current_tickers_set = set(tickers_for_this_profile_run)
+                tickers_from_excel_state = [t for t in failed + excel_tickers if t not in published_log_set and t not in current_tickers_set]
+                tickers_for_this_profile_run.extend(tickers_from_excel_state)
                 state['pending_tickers_by_profile'][profile_id] = tickers_for_this_profile_run
                 state['failed_tickers_by_profile'][profile_id] = []
                 _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Ticker Loading", "Excel/State", f"Loaded {len(tickers_for_this_profile_run)} tickers from Excel/State.", "info")
             else:
                 tickers_for_this_profile_run = pending
                 _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Ticker Loading", "State", f"Resuming with {len(tickers_for_this_profile_run)} pending tickers.", "info")
+            last_processed_index = -1
+            initial_last_processed_index_for_file = -1
+            total_items_in_file = profile_config.get('ticker_count_from_file', 0)
+
 
         if not tickers_for_this_profile_run:
             msg = f"No tickers to process for '{profile_name}' from {source_type}."
             _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Ticker Loading", "Skipped - No Tickers", msg, "warning")
-            current_run_detailed_logs_for_profile.append({"ticker": "N/A", "status": "Skipped - No Tickers", "message": msg, "generation_timestamp": None, "publication_timestamp": None, "writer_username": None})
+            # NEW: Call save_status_callback
+            if save_status_callback:
+                status_data = {'status': "Skipped - No Tickers", 'generated_at': None, 'published_at': None, 'writer_username': None}
+                save_status_callback(user_uid, profile_id, "N/A_NO_TICKERS", status_data)
+            current_run_detailed_logs_for_profile.append({"ticker": "N/A", "status": "Skipped - No Tickers", "message": msg, "generated_at": None, "published_at": None, "writer_username": None})
             run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": msg, "tickers_processed": []}
             _active_runs[user_uid][profile_id]["active"] = False; continue
 
@@ -597,8 +647,7 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                 max_gap = profile_config.get("max_scheduling_gap_minutes", 68)
                 random_gap = random.randint(min_gap, max_gap)
                 next_schedule_time = last_sched_dt + timedelta(minutes=random_gap)
-            except:
-                pass
+            except: pass
         if next_schedule_time < datetime.now(timezone.utc):
             next_schedule_time = datetime.now(timezone.utc) + timedelta(minutes=random.randint(2,5))
 
@@ -607,69 +656,111 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
         total_tickers_for_profile = len(tickers_for_this_profile_run)
 
         for i, ticker_to_process in enumerate(tickers_for_this_profile_run):
+            gen_time_iso = None; pub_time_iso = None; writer_name = None; final_post_status = "Processing" # Default
+            error_message_for_log = None # For detailed log
+            
             if _active_runs[user_uid][profile_id].get("stop_requested", False):
                 msg = f"Halted by user for {profile_name} before processing ticker '{ticker_to_process}'."; app_logger.info(msg)
                 _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Processing", "Halted", msg, "warning")
-                current_run_detailed_logs_for_profile.append({"ticker": ticker_to_process, "status": "Halted", "message": msg, "generation_timestamp": None, "publication_timestamp": None, "writer_username": None})
+                final_post_status = "Halted"
+                # NEW: Call save_status_callback for this ticker
+                if save_status_callback and final_post_status == "Scheduled":
+                    status_data_for_persistence = {
+                        'status': final_post_status,
+                        'generated_at': gen_time_iso,
+                        'published_at': pub_time_iso,
+                        'writer_username': writer_name,
+                        'message_log': error_message_for_log
+                    }
+                    app_logger.info(f"[SAVE_CALLBACK] Attempting to save status for ticker {ticker_to_process} (Profile: {profile_id}): {status_data_for_persistence}")
+                    try:
+                        save_status_callback(user_uid, profile_id, ticker_to_process, status_data_for_persistence)
+                    except Exception as e_cb_call:
+                        app_logger.error(f"Error during save_status_callback for {ticker_to_process}: {e_cb_call}", exc_info=True)
+                # Always append log before break
+                current_run_detailed_logs_for_profile.append({
+                    "ticker": ticker_to_process, "status": final_post_status, "message": msg, "generated_at": gen_time_iso, "published_at": pub_time_iso, "writer_username": writer_name
+                })
                 break
 
             if published_count_this_profile_run >= to_attempt:
                 app_logger.info(f"Reached target of {to_attempt} posts for profile '{profile_name}' in this run.")
+                # Always append log before break
+                current_run_detailed_logs_for_profile.append({
+                    "ticker": ticker_to_process, "status": "Limit Reached", "message": f"Reached post limit for this run.", "generated_at": gen_time_iso, "published_at": pub_time_iso, "writer_username": writer_name
+                })
                 break
             if state['posts_today_by_profile'].get(profile_id, 0) >= ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP:
                 app_logger.info(f"Daily cap of {ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP} reached for profile '{profile_name}'.")
-                break
-            if ticker_to_process in state.get('published_tickers_log_by_profile', {}).get(profile_id, set()):
+                # Always append log before break
+                current_run_detailed_logs_for_profile.append({
+                    "ticker": ticker_to_process, "status": "Daily Cap Reached", "message": f"Daily cap reached for this profile.", "generated_at": gen_time_iso, "published_at": pub_time_iso, "writer_username": writer_name
+                })
+                break 
+            
+            # Ensure published_tickers_log_by_profile and its sub-dict/set exist
+            state.setdefault('published_tickers_log_by_profile', {}).setdefault(profile_id, set())
+            if ticker_to_process in state['published_tickers_log_by_profile'][profile_id]:
                 msg = f"Ticker '{ticker_to_process}' already published for '{profile_name}'. Skipping."
                 _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Article", "Skipped", msg, "info")
-                current_run_detailed_logs_for_profile.append({"ticker": ticker_to_process, "status": "Skipped - Already Published", "message": msg, "generation_timestamp": None, "publication_timestamp": None, "writer_username": None})
-                socketio_instance.emit('ticker_processed_update', {
-                    'profile_id': profile_id, 'ticker': ticker_to_process, 'status': "Skipped - Already Published",
-                    'generation_time': None, 'publish_time': None, 'writer_username': None
+                final_post_status = "Skipped - Already Published"
+                # Fetch previous status for this ticker
+                previous_status = None
+                if save_status_callback:
+                    previous_status = get_previous_ticker_status(user_uid, profile_id, ticker_to_process)
+                gen_time_val = previous_status.get('generated_at') if previous_status else None
+                pub_time_val = previous_status.get('published_at') if previous_status else None
+                writer_val = previous_status.get('writer_username') if previous_status else None
+                # NEW: Call save_status_callback
+                if save_status_callback:
+                    status_data = {'status': final_post_status, 'generated_at': gen_time_val, 'published_at': pub_time_val, 'writer_username': writer_val}
+                    app_logger.info(f"[SAVE_CALLBACK] Pre-call for {ticker_to_process} (Skipped - Already Published): {status_data}")
+                    save_status_callback(user_uid, profile_id, ticker_to_process, status_data)
+                current_run_detailed_logs_for_profile.append({"ticker": ticker_to_process, "status": final_post_status, "message": msg, "generated_at": gen_time_val, "published_at": pub_time_val, "writer_username": writer_val})
+                socketio_instance.emit('ticker_processed_update', { # This is for progress bar
+                    'profile_id': profile_id, 'ticker': ticker_to_process, 'status': final_post_status,
+                    'generated_at': gen_time_val, 'published_at': pub_time_val, 'writer_username': writer_val
                 }, room=user_room)
                 continue
 
             current_author = next(author_iterator)
             state['last_author_index_by_profile'][profile_id] = authors.index(current_author)
+            writer_name = current_author['wp_username']
 
             _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Ticker Processing", "Begin", f"Starting {ticker_to_process}", "info")
 
-            gen_time = None; pub_time = None; writer_name = current_author['wp_username']; post_status = "Processing"
-            error_message = None
-
             try:
                 _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Starting", "Generating content...", "info")
-                # The APP_ROOT for generate_wordpress_report is the root of the 'app' directory
-                # automation_scripts is one level up from app in this structure, so adjust.
                 report_app_root = os.path.join(APP_ROOT, '..', 'app')
                 rdata, html_content, css_content = generate_wordpress_report(
-                    profile_name,
-                    ticker_to_process,
-                    report_app_root, # Pass the correct app root for template/static access
+                    profile_name, ticker_to_process, report_app_root, 
                     profile_config.get("report_sections_to_include", list(ALL_REPORT_SECTIONS.keys()))
                 )
-                gen_time = datetime.now(timezone.utc).isoformat()
+                gen_time_iso = datetime.now(timezone.utc).isoformat()
 
                 if "Error generating report" in html_content or not html_content or not rdata:
-                    error_message = f"Content generation failed for {ticker_to_process}."
-                    _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Failed", error_message, "error")
-                    post_status = f"Failed: {error_message}"
+                    error_message_for_log = f"Content generation failed for {ticker_to_process}."
+                    _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Failed", error_message_for_log, "error")
+                    final_post_status = f"Failed: Content Gen"
                     state.get('failed_tickers_by_profile', {}).setdefault(profile_id, []).append(ticker_to_process)
                 else:
                     _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Done", "Content generated.", "success")
-                    post_status = "Generated"
+                    final_post_status = "Generated" # Intermediate status
 
-                    socketio_instance.emit('ticker_processed_update', {
-                        'profile_id': profile_id, 'ticker': ticker_to_process, 'status': post_status,
-                        'generation_time': gen_time, 'publish_time': None, 'writer_username': writer_name,
-                        'error_message': error_message
+                    socketio_instance.emit('ticker_processed_update', { # For progress bar
+                        'profile_id': profile_id, 'ticker': ticker_to_process, 'status': final_post_status,
+                        'generated_at': gen_time_iso, 'published_at': None, 'writer_username': writer_name
                     }, room=user_room)
 
                     if _active_runs[user_uid][profile_id].get("stop_requested", False):
                         msg = f"Halted for {profile_name} after generating content for '{ticker_to_process}'."; app_logger.info(msg)
                         _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Processing", "Halted", msg, "warning")
-                        current_run_detailed_logs_for_profile.append({"ticker": ticker_to_process, "status": f"Halted - {post_status}", "message": msg, "generation_timestamp": gen_time, "publication_timestamp": None, "writer_username": writer_name})
-                        break
+                        final_post_status = "Halted - After Gen"
+                        # Always append log before break
+                        current_run_detailed_logs_for_profile.append({
+                            "ticker": ticker_to_process, "status": final_post_status, "message": msg, "generated_at": gen_time_iso, "published_at": pub_time_iso, "writer_username": writer_name
+                        })
+                        break 
 
                     article_title = generate_dynamic_headline(ticker_to_process, profile_name)
                     feature_img_dir = os.path.join(APP_ROOT, "..", "generated_data", "temp_images", profile_id)
@@ -692,79 +783,140 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                     if _active_runs[user_uid][profile_id].get("stop_requested", False):
                         msg = f"Halted for {profile_name} after image processing for '{ticker_to_process}'."; app_logger.info(msg)
                         _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Processing", "Halted", msg, "warning")
-                        current_run_detailed_logs_for_profile.append({"ticker": ticker_to_process, "status": "Halted - After Image", "message": msg, "generation_timestamp": gen_time, "publication_timestamp": None, "writer_username": writer_name})
-                        break
+                        final_post_status = "Halted - After Image"
+                        # Always append log before break
+                        current_run_detailed_logs_for_profile.append({
+                            "ticker": ticker_to_process, "status": final_post_status, "message": msg, "generated_at": gen_time_iso, "published_at": pub_time_iso, "writer_username": writer_name
+                        })
+                        break 
 
-                    if published_count_this_profile_run > 0:
+                    if published_count_this_profile_run > 0: # Adjust schedule time for subsequent posts
                         min_gap = profile_config.get("min_scheduling_gap_minutes",45)
                         max_gap = profile_config.get("max_scheduling_gap_minutes",68)
                         next_schedule_time += timedelta(minutes=random.randint(min_gap, max_gap))
-
+                    
+                    # Ensure next schedule time is in the future
                     if next_schedule_time < datetime.now(timezone.utc):
                         next_schedule_time = datetime.now(timezone.utc) + timedelta(minutes=random.randint(2,5))
 
-                    _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Publishing", "Scheduling", f"Scheduling for {next_schedule_time.strftime('%H:%M')} by {current_author['wp_username']}", "info")
-                    publish_success = create_wordpress_post(profile_config['site_url'], current_author, article_title, html_content, next_schedule_time, profile_config.get('stockforecast_category_id'), wp_media_id)
-                    pub_time = datetime.now(timezone.utc).isoformat()
-
-                    if publish_success:
-                        state['last_successful_schedule_time_by_profile'][profile_id] = next_schedule_time.isoformat()
+                    _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Publishing", "Scheduling", f"Scheduling for {next_schedule_time.strftime('%H:%M')} by {writer_name}", "info")
+                    
+                    # create_wordpress_post now returns post_id or None
+                    created_post_id = create_wordpress_post(profile_config['site_url'], current_author, article_title, html_content, next_schedule_time, profile_config.get('stockforecast_category_id'), wp_media_id)
+                    
+                    if created_post_id: # If post creation was successful
+                        pub_time_iso = next_schedule_time.isoformat() # Use scheduled time as publish time
+                        state['last_successful_schedule_time_by_profile'][profile_id] = pub_time_iso
                         state['posts_today_by_profile'][profile_id] = state['posts_today_by_profile'].get(profile_id, 0) + 1
-                        state.get('published_tickers_log_by_profile', {}).setdefault(profile_id, set()).add(ticker_to_process)
+                        state['published_tickers_log_by_profile'].setdefault(profile_id, set()).add(ticker_to_process)
                         published_count_this_profile_run += 1
-                        post_status = "Published"
-                        _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Publishing", "Scheduled", f"Post for {ticker_to_process} scheduled by {writer_name} at {next_schedule_time.strftime('%H:%M')}.", "success")
+                        final_post_status = "Scheduled" # MODIFIED: Status is Scheduled, not Published immediately
+                        _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Publishing", "Scheduled", f"Post for {ticker_to_process} scheduled by {writer_name} for {next_schedule_time.strftime('%Y-%m-%d %H:%M')}. WP ID: {created_post_id}", "success")
+                        
+                        # NEW: Save status after successful scheduling
+                        if save_status_callback:
+                            status_data = {
+                                'status': final_post_status,
+                                'generated_at': gen_time_iso,
+                                'published_at': pub_time_iso,
+                                'writer_username': writer_name,
+                                'message_log': f"Scheduled for {next_schedule_time.strftime('%Y-%m-%d %H:%M')} by {writer_name}"
+                            }
+                            app_logger.info(f"[SAVE_CALLBACK] Saving status for successfully scheduled ticker {ticker_to_process}: {status_data}")
+                            try:
+                                save_status_callback(user_uid, profile_id, ticker_to_process, status_data)
+                            except Exception as e_cb:
+                                app_logger.error(f"Error saving status for scheduled ticker {ticker_to_process}: {e_cb}", exc_info=True)
+                        
+                        # Update last_processed_ticker_index_by_profile
+                        if uploaded_file_details_by_profile_id and profile_id in uploaded_file_details_by_profile_id:
+                            # Only update for file-based runs
+                            if 'last_processed_ticker_index_by_profile' not in state:
+                                state['last_processed_ticker_index_by_profile'] = {}
+                            # The index in all_tickers is last_processed_index + i + 1 (i is loop index in tickers_for_this_profile_run)
+                            state['last_processed_ticker_index_by_profile'][profile_id] = last_processed_index + i + 1
+                            save_state(state)
                     else:
-                        error_message = f"WordPress post creation failed for {ticker_to_process}."
-                        _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Publishing", "Failed", error_message, "error")
-                        post_status = f"Failed: {error_message}"
+                        error_message_for_log = f"WordPress post creation failed for {ticker_to_process}."
+                        _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Publishing", "Failed", error_message_for_log, "error")
+                        final_post_status = f"Failed: WP Post"
                         state.get('failed_tickers_by_profile', {}).setdefault(profile_id, []).append(ticker_to_process)
-
-                current_run_detailed_logs_for_profile.append({
-                    "ticker": ticker_to_process, "status": post_status, "message": error_message or f"{post_status} by {writer_name}",
-                    "generation_timestamp": gen_time, "publication_timestamp": pub_time if post_status=="Published" else None,
-                    "writer_username": writer_name if post_status=="Published" else None
-                })
-                socketio_instance.emit('ticker_processed_update', {
-                    'profile_id': profile_id, 'ticker': ticker_to_process, 'status': post_status,
-                    'generation_time': gen_time, 'publish_time': pub_time if post_status=="Published" else None,
-                    'writer_username': writer_name if post_status=="Published" else None,
-                    'error_message': error_message
-                }, room=user_room)
-
-                _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process,
-                                        "Ticker Processing", "Progress",
-                                        f"Processed {i+1}/{total_tickers_for_profile} for {profile_name}.", "info")
-
-                if not _active_runs[user_uid][profile_id].get("stop_requested", False):
-                     time.sleep(random.uniform(1, 3))
+                        
+                        # NEW: Save status for failed case
+                        if save_status_callback:
+                            status_data = {
+                                'status': final_post_status,
+                                'generated_at': gen_time_iso,
+                                'published_at': None,
+                                'writer_username': None,
+                                'message_log': error_message_for_log
+                            }
+                            app_logger.info(f"[SAVE_CALLBACK] Saving status for failed ticker {ticker_to_process}: {status_data}")
+                            try:
+                                save_status_callback(user_uid, profile_id, ticker_to_process, status_data)
+                            except Exception as e_cb:
+                                app_logger.error(f"Error saving status for failed ticker {ticker_to_process}: {e_cb}", exc_info=True)
 
             except Exception as e_ticker_loop:
                 app_logger.error(f"Error processing ticker {ticker_to_process} for profile {profile_name}: {e_ticker_loop}", exc_info=True)
-                error_message = f"Error with {ticker_to_process}: {str(e_ticker_loop)[:100]}"
-                post_status = f"Failed: {error_message}"
-                _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Ticker Processing", "Error", error_message, "error")
+                error_message_for_log = f"Error with {ticker_to_process}: {str(e_ticker_loop)[:100]}"
+                final_post_status = f"Failed: {error_message_for_log}"
+                _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Ticker Processing", "Error", error_message_for_log, "error")
                 state.get('failed_tickers_by_profile', {}).setdefault(profile_id, []).append(ticker_to_process)
-                current_run_detailed_logs_for_profile.append({
-                    "ticker": ticker_to_process, "status": post_status, "message": error_message,
-                    "generation_timestamp": gen_time, "publication_timestamp": None, "writer_username": None
-                })
-                socketio_instance.emit('ticker_processed_update', {
-                    'profile_id': profile_id, 'ticker': ticker_to_process, 'status': post_status,
-                    'generation_time': gen_time, 'publish_time': None, 'writer_username': None, 'error_message': error_message
-                }, room=user_room)
+                
+                # NEW: Save status for exception case
+                if save_status_callback:
+                    status_data = {
+                        'status': final_post_status,
+                        'generated_at': gen_time_iso,
+                        'published_at': None,
+                        'writer_username': None,
+                        'message_log': error_message_for_log
+                    }
+                    app_logger.info(f"[SAVE_CALLBACK] Saving status for error ticker {ticker_to_process}: {status_data}")
+                    try:
+                        save_status_callback(user_uid, profile_id, ticker_to_process, status_data)
+                    except Exception as e_cb:
+                        app_logger.error(f"Error saving status for error ticker {ticker_to_process}: {e_cb}", exc_info=True)
+            
+            # Log and save status regardless of outcome inside the loop
+            current_run_detailed_logs_for_profile.append({
+                "ticker": ticker_to_process, "status": final_post_status, "message": error_message_for_log or f"{final_post_status} by {writer_name}",
+                "generated_at": gen_time_iso, "published_at": pub_time_iso if final_post_status=="Scheduled" else None, # Use pub_time_iso
+                "writer_username": writer_name if final_post_status=="Scheduled" else None # Only log writer if successfully scheduled
+            })
+            
+            # Calculate current progress for event emission (for attractive progress bar)
+            current_overall_item_index_0_based = initial_last_processed_index_for_file + 1 + i
+            processed_item_count_for_event = current_overall_item_index_0_based + 1
+            # Emit 'ticker_processed_update' for the attractive progress bar (file-based runs only)
+            if socketio_instance and user_room and total_items_in_file > 0:
+                event_payload_for_attractive_bar = {
+                    'profile_id': profile_id,
+                    'last_processed_index': processed_item_count_for_event,
+                    'total_count': total_items_in_file
+                }
+                socketio_instance.emit('ticker_processed_update', event_payload_for_attractive_bar, room=user_room)
 
-        if not (source_type == "Manual Entry" or source_type == "Uploaded File (Storage)"):
+            _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process,
+                                    "Ticker Processing", "Progress",
+                                    f"Processed {i+1}/{total_tickers_for_profile} for {profile_name}.", "info")
+
+            if not _active_runs[user_uid][profile_id].get("stop_requested", False):
+                 time.sleep(random.uniform(1, 3)) # Small delay between tickers if not stopping
+
+        # After loop for a profile finishes or breaks
+        if not (source_type == "Manual Entry" or source_type == "Uploaded File (Storage)"): # Only manage pending list for Excel/State
             current_pending = state.get('pending_tickers_by_profile', {}).get(profile_id, [])
             processed_in_this_batch = {log_item['ticker'] for log_item in current_run_detailed_logs_for_profile}
             state['pending_tickers_by_profile'][profile_id] = [t for t in current_pending if t not in processed_in_this_batch]
 
-        if not isinstance(state.get('processed_tickers_detailed_log_by_profile', {}).get(profile_id), list):
-            state.setdefault('processed_tickers_detailed_log_by_profile', {})[profile_id] = []
+        # Ensure the log list exists before extending
+        state.setdefault('processed_tickers_detailed_log_by_profile', {}).setdefault(profile_id, [])
         state['processed_tickers_detailed_log_by_profile'][profile_id].extend(current_run_detailed_logs_for_profile)
 
         was_halted_profile = _active_runs[user_uid][profile_id].get("stop_requested", False)
-        summary_msg = f"Halted by user. Published {published_count_this_profile_run}." if was_halted_profile else f"Finished. Published {published_count_this_profile_run} of {to_attempt} planned. Today's total: {state['posts_today_by_profile'].get(profile_id,0)}."
+        summary_msg = f"Halted by user. Published/Scheduled {published_count_this_profile_run}." if was_halted_profile else f"Finished. Published/Scheduled {published_count_this_profile_run} of {to_attempt} planned. Today's total for profile: {state['posts_today_by_profile'].get(profile_id,0)}."
         _emit_automation_progress(socketio_instance, user_room, profile_id, "N/A", "Profile Processing", "Complete", summary_msg, "warning" if was_halted_profile else "success")
         run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": summary_msg, "tickers_processed": current_run_detailed_logs_for_profile}
         _active_runs[user_uid][profile_id]["active"] = False
@@ -785,8 +937,10 @@ if __name__ == '__main__':
 
     custom_tickers_sim = {}
     uploaded_files_sim = {}
+    
+    def cli_mock_save_status_callback(user_uid, profile_id, ticker_symbol, status_data):
+        app_logger.info(f"[CLI_CALLBACK] User: {user_uid}, Profile: {profile_id}, Ticker: {ticker_symbol}, Status Data: {status_data}")
 
-    # Simulate: first profile uses custom tickers, second uses a (mocked) uploaded file
     if len(cli_profiles) > 0 and cli_profiles[0].get("profile_id"):
         pid1 = cli_profiles[0].get("profile_id")
         custom_tickers_sim[pid1] = ["GOOG", "MSFT"]
@@ -794,34 +948,33 @@ if __name__ == '__main__':
 
     if len(cli_profiles) > 1 and cli_profiles[1].get("profile_id"):
         pid2 = cli_profiles[1].get("profile_id")
-        # This would be a conceptual storage path if you were testing actual storage download
-        # For now, it's just to show the structure.
-        # `load_tickers_from_uploaded_file` would need a mock for CLI if not using real storage.
-        uploaded_files_sim[pid2] = {"storage_path": "user_ticker_files/cli_user_standalone/mock_profile_id/cli_test_tickers.csv",
-                                    "original_filename": "cli_test_tickers.csv"}
-        app_logger.info(f"CLI: Simulating uploaded file for profile {pid2} (path: {uploaded_files_sim[pid2]['storage_path']})")
-        # To make this CLI test runnable without actual Firebase Storage, you might need to mock
-        # `get_file_content_from_storage` if `load_tickers_from_uploaded_file` calls it.
-        # Example mock for get_file_content_from_storage if needed for CLI:
-        # def mock_get_file_content_from_storage(storage_path, original_filename):
-        # if "cli_test_tickers.csv" in storage_path:
-        # return b"Ticker\nNDAQ\nSPY" # Mock CSV content
-        # return None
-        # global get_file_content_from_storage # if it's a global function
-        # get_file_content_from_storage = mock_get_file_content_from_storage
+        # Create a dummy CSV file for CLI testing of load_tickers_from_uploaded_file
+        dummy_csv_content = "Ticker\nNDAQ\nSPY"
+        dummy_csv_path = os.path.join(APP_ROOT, "..", "generated_data", "temp_uploads", "cli_test_tickers.csv")
+        os.makedirs(os.path.dirname(dummy_csv_path), exist_ok=True)
+        with open(dummy_csv_path, "w") as f_dummy:
+            f_dummy.write(dummy_csv_content)
+        
+        # For CLI, get_file_content_from_storage needs to be able to read this local dummy file
+        # This requires mocking or adjusting get_file_content_from_storage if storage SDK is not fully available/mocked for local files.
+        # Let's assume for CLI, 'storage_path' can be a local path that load_tickers_from_uploaded_file can handle if get_file_content_from_storage is adapted.
+        # OR, we adjust load_tickers_from_uploaded_file to also accept local paths for CLI mode.
 
+        # For simplicity in CLI, let's assume load_tickers_from_uploaded_file can handle a local path if storage_path points to it.
+        # This might need a temporary mock of get_file_content_from_storage for CLI.
+        
+        results = trigger_publishing_run(
+            "cli_user_standalone",
+            cli_profiles,
+            articles_map,
+            custom_tickers_by_profile_id=custom_tickers_sim,
+            uploaded_file_details_by_profile_id=uploaded_files_sim,
+            save_status_callback=cli_mock_save_status_callback # MODIFIED: Pass mock callback for CLI
+        )
 
-    results = trigger_publishing_run(
-        "cli_user_standalone",
-        cli_profiles,
-        articles_map,
-        custom_tickers_by_profile_id=custom_tickers_sim,
-        uploaded_file_details_by_profile_id=uploaded_files_sim
-    )
-
-    if results:
-        for pid, data in results.items():
-            app_logger.info(f"Profile {data.get('profile_name',pid)}: {data.get('status_summary','No summary.')}")
-            for log_entry in data.get("tickers_processed", []):
-                app_logger.info(f"  - Ticker: {log_entry.get('ticker', 'N/A')}, Status: {log_entry.get('status', 'N/A')}, GenTime: {log_entry.get('generation_timestamp', 'N/A')}, PubTime: {log_entry.get('publication_timestamp', 'N/A')}, Writer: {log_entry.get('writer_username', 'N/A')}, Msg: {log_entry.get('message', '')}")
-    app_logger.info("--- CLI Run Finished ---")
+        if results:
+            for pid, data in results.items():
+                app_logger.info(f"Profile {data.get('profile_name',pid)}: {data.get('status_summary','No summary.')}")
+                for log_entry in data.get("tickers_processed", []):
+                    app_logger.info(f"  - Ticker: {log_entry.get('ticker', 'N/A')}, Status: {log_entry.get('status', 'N/A')}, GenTime: {log_entry.get('generated_at', 'N/A')}, PubTime: {log_entry.get('published_at', 'N/A')}, Writer: {log_entry.get('writer_username', 'N/A')}, Msg: {log_entry.get('message', '')}")
+        app_logger.info("--- CLI Run Finished ---")

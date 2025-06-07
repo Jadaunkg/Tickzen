@@ -298,8 +298,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (processedCount) processedCount.textContent = '0';
                 const totalCount = document.getElementById(`${prefix}total_count_${profileId}`);
                 if (totalCount) totalCount.textContent = '0';
-                const progressBar = document.getElementById(`${prefix}ticker_progress_bar_${profileId}`);
-                if (progressBar) { progressBar.style.width = '0%'; progressBar.textContent = '0%'; progressBar.setAttribute('aria-valuenow', '0'); }
                 const tableContainer = document.getElementById(`${prefix}ticker_table_container_${profileId}`);
                 if (tableContainer) tableContainer.style.display = 'none';
                 const tableBody = document.querySelector(`#${prefix}status_table_for_${profileId} tbody`);
@@ -413,10 +411,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             // Also reset counts if file is removed
                             const processedCountEl = document.getElementById(`processed_count_${profileId}`);
                             const totalCountEl = document.getElementById(`total_count_${profileId}`);
-                            const progressBarEl = document.getElementById(`ticker_progress_bar_${profileId}`);
                             if(processedCountEl) processedCountEl.textContent = '0';
                             if(totalCountEl) totalCountEl.textContent = '0';
-                            if(progressBarEl) {progressBarEl.style.width = '0%'; progressBarEl.textContent = '0%';}
                             removeFileBtn.style.display = 'none';
                         };
                     }
@@ -462,7 +458,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         const totalCountEl = document.getElementById(`${methodPrefix}total_count_${data.profile_id}`);
                         const processedCountEl = document.getElementById(`${methodPrefix}processed_count_${data.profile_id}`);
-                        const progressBarEl = document.getElementById(`${methodPrefix}ticker_progress_bar_${data.profile_id}`);
                         const progressDisplayEl = document.getElementById(`${methodPrefix}progress_display_${data.profile_id}`);
                         const tableContainerEl = document.getElementById(`${methodPrefix}ticker_table_container_${data.profile_id}`);
                         const tableBodyEl = document.querySelector(`#${methodPrefix}status_table_for_${data.profile_id} tbody`);
@@ -470,7 +465,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         if (totalCountEl) totalCountEl.textContent = totalTickers;
                         if (processedCountEl) processedCountEl.textContent = '0';
-                        if (progressBarEl) { progressBarEl.style.width = '0%'; progressBarEl.textContent = '0%'; progressBarEl.setAttribute('aria-valuenow', '0');}
                         if (progressDisplayEl) progressDisplayEl.style.display = (totalTickers > 0) ? 'block' : 'none';
                         if (tableBodyEl) tableBodyEl.innerHTML = ''; // Clear previous table entries
                         if (tableContainerEl) tableContainerEl.style.display = (totalTickers > 0) ? 'block' : 'none';
@@ -485,9 +479,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const methodPrefix = getElementPrefixForProfile(data.profile_id);
                     const processedCountEl = document.getElementById(`${methodPrefix}processed_count_${data.profile_id}`);
                     const totalCountEl = document.getElementById(`${methodPrefix}total_count_${data.profile_id}`);
-                    const progressBarEl = document.getElementById(`${methodPrefix}ticker_progress_bar_${data.profile_id}`);
 
-                    if (processedCountEl && totalCountEl && progressBarEl) {
+                    if (processedCountEl && totalCountEl) {
                         // Increment processed count only for final states
                         let isFinalState = ['Published', 'Skipped'].includes(data.status) || 
                                            (typeof data.status === 'string' && (data.status.startsWith("Failed") || data.status.startsWith("Halted")));
@@ -506,9 +499,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         if (total > 0) {
                             const progressPercent = Math.min(100, (finalProcessedCount / total) * 100);
-                            progressBarEl.style.width = `${progressPercent}%`;
-                            progressBarEl.textContent = `${Math.round(progressPercent)}%`;
-                            progressBarEl.setAttribute('aria-valuenow', progressPercent);
+                            // progressBarEl.style.width = `${progressPercent}%`;
+                            // progressBarEl.textContent = `${Math.round(progressPercent)}%`;
+                            // progressBarEl.setAttribute('aria-valuenow', progressPercent);
                         }
                     }
                 }
