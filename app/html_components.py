@@ -111,134 +111,154 @@ def format_html_value(value, format_type="number", precision=2, currency='$'):
         return str(value)
 
 # --- WRAPPED Component Functions with Site Variations & Deeper Analysis ---
-
 def generate_introduction_html(ticker, rdata):
-    """Generates the Introduction and Overview section with enhanced context."""
+    """
+    Generates a fully dynamic and data-driven introduction for the stock report.
+    The language and narrative adapt based on the analyzed data.
+    """
     try:
+        # --- 1. Extract and Format All Necessary Data ---
+        # This part remains the same, as it correctly pulls the dynamic data.
         profile_data = rdata.get('profile_data', {})
-        company_name = profile_data.get('Company Name', ticker)
-        current_price = rdata.get('current_price')
+        detailed_ta_data = rdata.get('detailed_ta_data', {})
+        health_data = rdata.get('financial_health_data', {})
+        analyst_data = rdata.get('analyst_info_data', {})
+        profit_data = rdata.get('profitability_data', {})
         currency_symbol = rdata.get('currency_symbol', '$')
-        current_price_fmt = format_html_value(current_price, 'currency', currency=currency_symbol)
-        market_cap_fmt = format_html_value(profile_data.get('Market Cap'), 'large_number', currency=currency_symbol)
-        sector = profile_data.get('Sector', 'Unknown Sector')
-        industry = profile_data.get('Industry', 'Unknown Industry')
-        last_date_obj = rdata.get('last_date', datetime.now()) 
-        last_date_fmt = format_html_value(last_date_obj, 'date') 
 
-        price = _safe_float(current_price)
-        sma50 = _safe_float(rdata.get('sma_50'))
-        sma200 = _safe_float(rdata.get('sma_200'))
+        company_name = profile_data.get('Company Name', ticker)
+        industry = profile_data.get('Industry', 'its')
+        market_cap_fmt = profile_data.get('Market Cap', 'N/A')
 
-        intro_phrase_options = [
-            f"This analysis focuses on <strong>{company_name} ({ticker})</strong>, a key player within the {industry} industry ({sector} sector).",
-            f"Here, we examine <strong>{company_name} ({ticker})</strong>, operating in the {sector} sector's {industry} space.",
-            f"Our report delves into <strong>{company_name} ({ticker})</strong>, a company active in the {industry} field ({sector} sector).",
-            f"We turn our attention to <strong>{company_name} ({ticker})</strong>, situated in the {industry} industry within the {sector} sector."
-        ]
-        intro_phrase = random.choice(intro_phrase_options)
+        current_price_val = rdata.get('current_price')
+        current_price_fmt = format_html_value(current_price_val, 'currency', currency=currency_symbol)
 
-        price_phrase_options = [
-            f"As of {last_date_fmt}, the stock is trading at <strong>{current_price_fmt}</strong>,",
-            f"The latest price recorded on {last_date_fmt} stands at <strong>{current_price_fmt}</strong>,",
-            f"On {last_date_fmt}, {ticker}'s shares were valued at <strong>{current_price_fmt}</strong>,",
-            f"Trading activity on {last_date_fmt} placed the stock price at <strong>{current_price_fmt}</strong>,"
-        ]
-        price_phrase = random.choice(price_phrase_options)
+        last_date_obj = rdata.get('last_date', datetime.now())
+        last_date_fmt = last_date_obj.strftime('%B %Y')
 
-        dynamic_sentiment_text = "its current market position"
-        trend_context = ""
-        if price is not None and sma50 is not None and sma200 is not None:
-            if price < sma50 and price < sma200:
-                dynamic_sentiment_text = random.choice([
-                    "a potentially challenging technical posture below key moving averages",
-                    "a technically weaker stance, positioned under its main moving averages",
-                    "a bearish technical signal, trading beneath significant moving averages"
-                ])
-                trend_context = random.choice([
-                    "This position below both the 50-day and 200-day Simple Moving Averages (SMAs) often signals short-to-medium term weakness.",
-                    "Being under both the 50-day and 200-day SMAs typically suggests prevailing downward pressure.",
-                    "Trading beneath these key SMAs usually points towards negative momentum in the near to medium term."
-                ])
-            elif price > sma50 and price > sma200:
-                dynamic_sentiment_text = random.choice([
-                    "apparent technical strength, trading above its key moving averages",
-                    "a robust technical setup, holding above primary moving averages",
-                    "a bullish technical indication, positioned over its main moving averages"
-                ])
-                trend_context = random.choice([
-                    "Trading above both the 50-day and 200-day SMAs is typically viewed as a bullish signal, indicating positive short-to-medium term momentum.",
-                    "Staying above these critical SMAs generally signifies positive market sentiment and upward momentum.",
-                    "A position over both the 50-day and 200-day SMAs often confirms an ongoing uptrend."
-                ])
-            elif price > sma50 and price < sma200:
-                 dynamic_sentiment_text = random.choice([
-                     "a mixed technical picture, positioned between its key moving averages",
-                     "a conflicted technical stance, caught between major moving averages",
-                     "an ambiguous technical signal, trading above the 50-day but below the 200-day SMA"
-                 ])
-                 trend_context = random.choice([
-                     "Being above the 50-day SMA but below the 200-day SMA suggests potential short-term strength conflicting with the longer-term trend, often requiring further confirmation.",
-                     "This placement indicates short-term momentum might be positive, but the longer-term downtrend (vs. SMA200) remains a factor.",
-                     "Such positioning often points to a period of consolidation or a potential battle between short-term buyers and long-term sellers."
-                 ])
-            else: 
-                 dynamic_sentiment_text = random.choice([
-                     "an interesting technical juncture near its key moving averages",
-                     "a notable technical position relative to its moving averages",
-                     "a potentially pivotal technical spot, interacting with its SMAs"
-                 ])
-                 trend_context = random.choice([
-                     "Positioned below the 50-day SMA but above the 200-day SMA indicates potential short-term consolidation or pullback within a longer-term uptrend.",
-                     "This setup might suggest a temporary dip or consolidation phase within an established longer-term positive trend.",
-                     "Trading below the short-term average but above the long-term one can signal weakening momentum that needs monitoring."
-                 ])
+        sma50_val = detailed_ta_data.get('SMA_50')
+        sma50_fmt = format_html_value(sma50_val, 'currency', currency=currency_symbol)
+        sma200_val = detailed_ta_data.get('SMA_200')
+        sma200_fmt = format_html_value(sma200_val, 'currency', currency=currency_symbol)
+        
+        analyst_target_val = _safe_float(analyst_data.get('Mean Target Price')) # Use _safe_float for calculations
+        analyst_target_fmt = format_html_value(analyst_target_val, 'currency', currency=currency_symbol)
+        
+        upside_pct_val = rdata.get('overall_pct_change', 0.0)
+        upside_pct_fmt = f"{upside_pct_val:+.1f}%"
+        
+        volatility_val = rdata.get('volatility')
+        volatility_fmt = format_html_value(volatility_val, 'percent_direct', 1)
 
-        market_cap_phrase_options = [
-            f"With a market capitalization of approximately <strong>{market_cap_fmt}</strong>,",
-            f"Boasting a market cap around <strong>{market_cap_fmt}</strong>,",
-            f"Valued by the market at roughly <strong>{market_cap_fmt}</strong>,",
-            f"Its market capitalization stands near <strong>{market_cap_fmt}</strong>,"
-        ]
-        market_cap_phrase = random.choice(market_cap_phrase_options)
+        rev_growth_val = _safe_float(profit_data.get('Revenue Growth (YoY)'))
+        rev_growth_fmt = format_html_value(rev_growth_val, 'percent')
+        
+        debt_equity_val = _safe_float(health_data.get('Debt/Equity (MRQ)'))
+        debt_equity_fmt = format_html_value(debt_equity_val, 'ratio')
+        total_debt_fmt = health_data.get('Total Debt (MRQ)', 'N/A')
 
-        # Default (Balanced Approach) narrative for report_purpose_intro
-        report_purpose_intro_options = [
-             (
-                 f"This report offers a multi-faceted analysis of {company_name} ({ticker}), integrating technical signals, fundamental data, and forward-looking forecasts. "
-                 f"The aim is to provide investors with a balanced perspective on the stock's current market standing, potential risks (see Risk Factors), and future performance outlook."
-             ),
-             (
-                f"Here, we present a combined analysis of {company_name} ({ticker}), blending technical charts, fundamental metrics, and future projections. "
-                f"Our goal is to offer a well-rounded view of its market position, associated risks (review Risk Factors), and what the future might hold."
-             )
-        ]
-        report_purpose_intro = random.choice(report_purpose_intro_options)
+        rsi_val = detailed_ta_data.get('RSI_14')
+        rsi_fmt = f"{rsi_val:.1f}" if isinstance(rsi_val, (int, float)) else "N/A"
+        
+        # --- 2. Generate Dynamic Text Snippets based on Data ---
 
-        intro_base = (
-            f"<p>{intro_phrase} {price_phrase} reflecting {dynamic_sentiment_text}. "
-            f"{trend_context} {market_cap_phrase} {ticker} represents a significant player in its field.</p>"
-            f"<p>{report_purpose_intro}</p>"
-        )
+        # Dynamic Momentum Text
+        momentum_text = ""
+        if current_price_val and sma50_val and sma200_val:
+            if current_price_val > sma50_val and current_price_val > sma200_val:
+                momentum_text = "showing positive momentum, trading above both its 50-day and 200-day moving averages"
+            elif current_price_val < sma50_val and current_price_val < sma200_val:
+                momentum_text = "currently in a bearish trend, trading below both its 50-day and 200-day moving averages"
+            elif current_price_val > sma50_val and current_price_val < sma200_val:
+                momentum_text = "in a mixed technical state, trading above its short-term 50-day average but still under the long-term 200-day trendline"
+            else: # price < 50-day but > 200-day
+                momentum_text = "experiencing a short-term pullback within a larger uptrend, as it trades below its 50-day average while holding above the 200-day"
+        else:
+            momentum_text = "exhibiting a complex technical picture"
 
-        summary = profile_data.get('Summary', None)
-        summary_str = str(summary) if summary is not None else ''
-        if summary_str and summary_str != 'No summary available.':
-            # Default summary title and focus
-            summary_title_options = ["Business Overview", "Company Description"]
-            summary_title = random.choice(summary_title_options)
-            summary_focus_options = [
-                "Key aspects of its operations include:",
-                "Its business model centers around:",
-                "The company primarily focuses on:",
-                "Core activities involve:",
-                "Operationally, the company is engaged in:"
-            ]
-            summary_focus = random.choice(summary_focus_options)
-            intro_base += f"<h4>{summary_title}</h4><p><i>{summary_focus}</i> {summary_str[:400]}{'...' if len(summary_str) > 400 else ''}</p>"
+        # Dynamic Analyst Outlook Text
+        analyst_outlook_text = ""
+        if analyst_target_val:
+            if upside_pct_val > 5:
+                analyst_outlook_text = f"Analysts appear optimistic, with a 1-year price target of <strong>{analyst_target_fmt}</strong> (a potential {upside_pct_fmt} upside)"
+            elif upside_pct_val < -5:
+                analyst_outlook_text = f"Analysts are cautious, with a 1-year price target of <strong>{analyst_target_fmt}</strong> (a potential {upside_pct_fmt} downside)"
+            else:
+                analyst_outlook_text = f"Analysts project a relatively stable outlook, with a 1-year price target of <strong>{analyst_target_fmt}</strong> (a potential {upside_pct_fmt} change)"
+        else:
+            analyst_outlook_text = "Analyst price targets are currently unavailable"
+        
+        # Dynamic Fundamental "Two Stories" Text
+        positive_fundamental = ""
+        if rev_growth_val is not None and rev_growth_val > 5:
+            positive_fundamental = f"solid revenue growth (up {rev_growth_fmt} YoY)"
+        else:
+            profit_margin_val = _safe_float(profit_data.get('Profit Margin (TTM)'))
+            if profit_margin_val is not None and profit_margin_val > 15:
+                positive_fundamental = f"strong profitability with a {format_html_value(profit_margin_val, 'percent')} profit margin"
+            else:
+                positive_fundamental = "a portfolio of established brands"
 
-        return intro_base
+        negative_fundamental = ""
+        if debt_equity_val is not None and debt_equity_val > 2.0:
+            negative_fundamental = f"a high debt load (Debt/Equity: {debt_equity_fmt})"
+        else:
+            earnings_growth_val = _safe_float(profit_data.get('Earnings Growth (YoY)'))
+            if earnings_growth_val is not None and earnings_growth_val < 0:
+                negative_fundamental = f"a recent contraction in earnings (down {format_html_value(earnings_growth_val, 'percent')} YoY)"
+            else:
+                negative_fundamental = "intense competition in its sector"
+
+        fundamental_story_text = f"On one hand, the company benefits from {positive_fundamental}. On the other, it faces challenges with {negative_fundamental}."
+
+        # Dynamic "What's Inside" text
+        technical_verdict = "Neutral"
+        if "bullish" in momentum_text:
+            technical_verdict = "Bullish"
+        elif "bearish" in momentum_text:
+            technical_verdict = "Bearish"
+
+        rsi_condition = "neutral"
+        if isinstance(rsi_val, (int, float)):
+            if rsi_val > 70: rsi_condition = "overbought"
+            elif rsi_val < 30: rsi_condition = "oversold"
+
+        fundamental_verdict = "be cautious"
+        if debt_equity_val is not None and debt_equity_val < 1.0:
+            fundamental_verdict = "looking solid"
+
+        # --- 3. Construct the Final, Fully Dynamic HTML ---
+        introduction_html = f"""
+        <p>This report provides a detailed analysis of <strong>{company_name} ({ticker})</strong>, a {market_cap_fmt} company operating in the {industry} industry. The core question for investors is whether the current stock price represents a fair value and if the company is positioned for future growth.</p>
+        
+        <h3>Here’s What You Need to Know Right Now</h3>
+        <p>The stock is sitting at <strong>{current_price_fmt}</strong> (as of {last_date_fmt}), and it’s {momentum_text}.</p>
+        <p>{analyst_outlook_text}. However, there’s significant volatility here (<strong>{volatility_fmt} annualized</strong>), suggesting the potential for wide price swings.</p>
+        <p>{company_name}’s fundamental story is nuanced. {fundamental_story_text}</p>
+        
+        <h3>What’s Inside This Analysis?</h3>
+        <p>We’re not just throwing numbers at you—we’re breaking down {ticker}’s stock from every angle so you can make an informed decision:</p>
+        <ul>
+            <li>✅ <strong>Is now a good time to buy?</strong><br>
+            Technicals say "{technical_verdict}" (but RSI is {rsi_condition} at {rsi_fmt}).<br>
+            Fundamentals say "{fundamental_verdict}" (driven by debt levels and growth metrics).</li>
+            
+            <li>✅ <strong>Can its core operations drive future growth?</strong><br>
+            Future growth will likely depend on performance in its core {industry} operations and ability to manage competitive pressures.</li>
+            
+            <li>✅ <strong>What are the biggest risks?</strong><br>
+            The company carries {total_debt_fmt} in debt, which could be a headwind in a high-interest-rate environment.<br>
+            Competition is fierce from both established players and new entrants.</li>
+        </ul>
+        
+        <p>Most stock analyses either use hard-to-understand jargon or say something too simple like “just buy” and trust the outcome. This is not what’s happening. We’re here with clear information that benefits you, no matter if you invest for long-term results or try for fast profits.</p>
+        <p>All in all, is {company_name} the right investment to make sure your money tells a story of success and satisfaction? Or are there underlying issues to be wary of? Stick around as we get to the details in the data.</p>
+        """
+
+        return introduction_html
+
     except Exception as e:
+        # Fallback to generate a standard error message
         return _generate_error_html("Introduction", str(e))
 
 

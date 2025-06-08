@@ -50,8 +50,7 @@ from analysis_scripts.technical_analysis import (
     plot_historical_mpl, plot_bollinger_mpl, plot_rsi_mpl,
     plot_macd_lines_mpl, plot_macd_hist_mpl, plot_forecast_mpl
 )
-# --- Remove or keep evaluation imports based on prophet_model.py ---
-# from evaluation import calculate_evaluation_metrics, print_metrics
+
 
 from app.html_components import (
     generate_introduction_html, generate_metrics_summary_html,

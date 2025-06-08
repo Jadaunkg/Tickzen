@@ -254,7 +254,7 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
 
         # --- 6. Generate HTML Report Parts (CONDITIONAL ASSEMBLY) ---
         print("Step 6: Generating HTML content based on selected sections...")
-        html_report_parts.append(f"<h2 class='report-title'>{ticker} Stock Analysis for {site_name}</h2>")
+        html_report_parts.append(f"<h3 class='report-title'>{ticker} Stock Analysis and Forecast</h2>")
 
         for section_key in report_sections_to_include:
             generator_func = ALL_REPORT_SECTIONS.get(section_key)
@@ -349,39 +349,8 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
 .disclaimer, .general-info p { font-size: 0.85em; color: #555; margin-top: 1.5em; padding-top: 1em; border-top: 1px dashed #ccc; }
 .disclaimer strong { color: #c00; }
 """
-        site_specific_css = ""
-        if site_slug == 'finances-forecast':
-            site_specific_css = """
-.report-finances-forecast { border-color: #007bff; }
-.report-finances-forecast h2, .report-finances-forecast h3 { color: #0056b3; } 
-.report-finances-forecast a { color: #007bff; }
-.report-finances-forecast .narrative { background-color: #e7f3ff; border-left-color: #007bff; }
-.report-finances-forecast .conclusion-column { background-color: #f0f8ff; border-color: #cce5ff;}
-.report-finances-forecast #detailed-forecast table th { background-color: #b8daff; } 
-.report-finances-forecast .metric-value { color: #0056b3; }
-"""
-        elif site_slug == 'radar-stocks':
-            site_specific_css = """
-.report-radar-stocks { border-color: #28a745; }
-.report-radar-stocks h2, .report-radar-stocks h3 { color: #155724; } 
-.report-radar-stocks a { color: #28a745; }
-.report-radar-stocks .narrative { background-color: #e2f0e1; border-left-color: #28a745; }
-.report-radar-stocks .conclusion-column { background-color: #f0fff0; border-color: #c3e6cb;}
-.report-radar-stocks #technical-analysis .ma-summary { background-color: #d4edda; } 
-.report-radar-stocks .metric-value { color: #155724; }
-"""
-        elif site_slug == 'bernini-capital':
-            site_specific_css = """
-.report-bernini-capital { border-color: #6f42c1; }
-.report-bernini-capital h2, .report-bernini-capital h3 { color: #4a148c; } 
-.report-bernini-capital a { color: #6f42c1; }
-.report-bernini-capital .narrative { background-color: #f3e5f5; border-left-color: #6f42c1; }
-.report-bernini-capital .conclusion-column { background-color: #f9f0ff; border-color: #e9d8fd;}
-.report-bernini-capital #financial-health table th,
-.report-bernini-capital #dividends table th { background-color: #d1c4e9; } 
-.report-bernini-capital .metric-value { color: #4a148c; }
-"""
-        final_css = base_css + site_specific_css
+      
+        final_css = base_css 
         final_html_wrapped = f'<div class="stock-report-container report-{site_slug}">{final_html_body}</div>'
 
 
