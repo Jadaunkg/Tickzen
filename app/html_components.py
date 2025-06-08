@@ -229,7 +229,7 @@ def generate_introduction_html(ticker, rdata):
 
         # --- 3. Construct the Final, Fully Dynamic HTML ---
         introduction_html = f"""
-        <p>This report provides a detailed analysis of <strong>{company_name} ({ticker})</strong>, a {market_cap_fmt} company operating in the {industry} industry. The core question for investors is whether the current stock price represents a fair value and if the company is positioned for future growth.</p>
+        <p>This report provides a detailed analysis of <strong>{company_name} ({ticker})</strong>, a {market_cap_fmt} company operating in the {industry} industry. The core question for investors is whether the current stock price represents a fair value and if the company is positioned for future growth. Would it be wise to invest in {company_name} at this moment? let see how well {ticker} stock perform in current market. </p>
         
         <h3>Here’s What You Need to Know Right Now</h3>
         <p>The stock is sitting at <strong>{current_price_fmt}</strong> (as of {last_date_fmt}), and it’s {momentum_text}.</p>
@@ -263,101 +263,524 @@ def generate_introduction_html(ticker, rdata):
 
 
 def generate_metrics_summary_html(ticker, rdata):
-    """Generates the key metrics summary box with context."""
+    """
+    Generates the new, enhanced Key Metrics & Forecast Summary section with a
+    tactical grid and a fully dynamic, data-driven narrative.
+    """
     try:
-        current_price = rdata.get('current_price')
-        sma50 = rdata.get('sma_50')
-        sma200 = rdata.get('sma_200')
-        volatility = rdata.get('volatility') 
-        sentiment = rdata.get('sentiment', 'Neutral') 
-        forecast_1y = rdata.get('forecast_1y')
-        overall_pct_change_val = _safe_float(rdata.get('overall_pct_change'), default=0.0)
-        period_label = rdata.get('period_label', 'Period')
-        forecast_1m = rdata.get('forecast_1m') 
+        #data dictionary extraction
+        detailed_ta_data = rdata.get('detailed_ta_data', {})
+        analyst_data = rdata.get('analyst_info_data', {})
+        share_stats_data = rdata.get('share_statistics_data', {})
+        price_stats_data = rdata.get('stock_price_stats_data', {})
+        short_data = rdata.get('short_selling_data', {})
+        historical_data = rdata.get('historical_data', pd.DataFrame())
         currency_symbol = rdata.get('currency_symbol', '$')
 
-        current_price_fmt = format_html_value(current_price, 'currency', currency=currency_symbol)
-        forecast_1m_fmt = format_html_value(forecast_1m, 'currency', currency=currency_symbol)
-        forecast_1y_fmt = format_html_value(forecast_1y, 'currency', currency=currency_symbol)
-        overall_pct_change_fmt = f"{overall_pct_change_val:+.1f}%"
-        volatility_fmt = format_html_value(volatility, 'percent_direct', 1)
-        sma50_fmt = format_html_value(sma50, 'currency', currency=currency_symbol)
-        sma200_fmt = format_html_value(sma200, 'currency', currency=currency_symbol)
+        # Raw Values
+        current_price_val = _safe_float(rdata.get('current_price'))
+        forecast_1m_val = _safe_float(rdata.get('forecast_1m'))
+        forecast_1y_val = _safe_float(rdata.get('forecast_1y'))
+        analyst_target_val = _safe_float(analyst_data.get('Mean Target Price'))
+        sma50_val = _safe_float(detailed_ta_data.get('SMA_50'))
+        sma200_val = _safe_float(detailed_ta_data.get('SMA_200'))
+        rsi_val = _safe_float(detailed_ta_data.get('RSI_14'))
+        macd_hist_val = _safe_float(detailed_ta_data.get('MACD_Hist'))
+        low_52wk_val = _safe_float(price_stats_data.get('52 Week Low'))
+        high_52wk_val = _safe_float(price_stats_data.get('52 Week High'))
+        volatility_val = _safe_float(rdata.get('volatility'))
+        beta_val = _safe_float(price_stats_data.get('Beta'))
+        inst_own_val = _safe_float(share_stats_data.get('Institutional Ownership'))
+        short_float_val = _safe_float(short_data.get('Short % of Float'))
+        
+        # **FIX for Green Days Calculation**
+        green_days_val = 0
+        total_days_val = 0
+        if not historical_data.empty and len(historical_data) >= 30:
+            last_30_days = historical_data.iloc[-30:]
+            green_days_val = int((last_30_days['Close'] > last_30_days['Open']).sum())
+            total_days_val = len(last_30_days)
+        green_days_pct = (green_days_val / total_days_val * 100) if total_days_val > 0 else 0
+        
+        # Calculated Percentages
+        forecast_1m_pct = ((forecast_1m_val - current_price_val) / current_price_val) * 100 if forecast_1m_val and current_price_val else 0.0
+        forecast_1y_pct = rdata.get('overall_pct_change', 0.0)
+        analyst_target_pct = ((analyst_target_val - current_price_val) / current_price_val) * 100 if analyst_target_val and current_price_val else 0.0
+        # Formatted Strings for Display
+        current_price_fmt = format_html_value(current_price_val, 'currency', currency=currency_symbol)
+        forecast_1m_fmt = f"{format_html_value(forecast_1m_val, 'currency', currency=currency_symbol)} ({'▲' if forecast_1m_pct > 0 else '▼'} {forecast_1m_pct:+.1f}%)"
+        forecast_1y_fmt = f"{format_html_value(forecast_1y_val, 'currency', currency=currency_symbol)} ({'▲' if forecast_1y_pct > 0 else '▼'} {forecast_1y_pct:+.1f}%)"
+        analyst_target_fmt = f"{format_html_value(analyst_target_val, 'currency', currency=currency_symbol)} ({'▲' if analyst_target_pct > 0 else '▼'} {analyst_target_pct:+.1f}%)"
+        sma50_fmt = format_html_value(sma50_val, 'currency', currency=currency_symbol)
+        sma200_fmt = format_html_value(sma200_val, 'currency', currency=currency_symbol)
+        rsi_fmt = f"{rsi_val:.1f}" if rsi_val else "N/A"
+        macd_hist_fmt = f"({macd_hist_val:.2f})" if macd_hist_val else ""
+        range_52wk_fmt = f"{format_html_value(low_52wk_val, 'currency', currency=currency_symbol)} - {format_html_value(high_52wk_val, 'currency', currency=currency_symbol)}"
+        volatility_fmt = format_html_value(volatility_val, 'percent_direct', 1)
+        beta_fmt = f"{format_html_value(beta_val, 'ratio')} (High Sensitivity)" if beta_val and beta_val > 1.2 else f"{format_html_value(beta_val, 'ratio')}"
+        green_days_fmt = f"{int(green_days_val)}/{int(total_days_val)} ({green_days_pct:.0f}%)"
+        inst_own_fmt = format_html_value(inst_own_val, 'percent')
+        short_float_fmt = f"{format_html_value(short_float_val, 'percent')} (Low Bearish Bets)" if short_float_val and short_float_val < 2.0 else f"{format_html_value(short_float_val, 'percent')}"
+        
+        # --- 2. Dynamic Text Generation ---
+        
+        # Technical Pattern Text
+        technical_pattern_text = "mixed pattern"
+        price_vs_sma50_icon = "▲"
+        price_vs_sma200_icon = "▲"
+        if current_price_val and sma50_val and sma200_val:
+            if current_price_val > sma50_val and current_price_val > sma200_val:
+                technical_pattern_text = "bullish pattern"
+            elif current_price_val < sma50_val and current_price_val < sma200_val:
+                technical_pattern_text = "bearish pattern"
+                price_vs_sma50_icon = "▼"
+                price_vs_sma200_icon = "▼"
+            else:
+                price_vs_sma50_icon = "▲" if current_price_val > sma50_val else "▼"
+                price_vs_sma200_icon = "▲" if current_price_val > sma200_val else "▼"
+        trend_summary_text = f"▲ Bullish (Price > SMA 50/200)" if technical_pattern_text == "bullish pattern" else f"▼ Bearish (Price < SMA 50/200)" if technical_pattern_text == "bearish pattern" else f"● Mixed Trend"
 
-        forecast_1y_icon = get_icon('up' if overall_pct_change_val > 1 else ('down' if overall_pct_change_val < -1 else 'neutral'))
+        # RSI and MACD Condition Text
+        rsi_condition_text = "Neutral"
+        if rsi_val:
+            if rsi_val > 70: rsi_condition_text = "Overbought"
+            elif rsi_val < 30: rsi_condition_text = "Oversold"
+        
+        macd_trend_text = "neutral trend"
+        macd_icon = "●"
+        if macd_hist_val:
+            if macd_hist_val > 0.1: 
+                macd_trend_text = "bullish short-term trend"
+                macd_icon = "▲"
+            elif macd_hist_val < -0.1:
+                macd_trend_text = "bearish short-term trend"
+                macd_icon = "▼"
+        
+        # 52-Week Range Position Text
+        recovery_status_text = ""
+        range_position_text = ""
+        if current_price_val and low_52wk_val and high_52wk_val:
+            range_pct = (current_price_val - low_52wk_val) / (high_52wk_val - low_52wk_val)
+            if range_pct > 0.75:
+                range_position_text = "the current price is near the higher end of that range"
+                recovery_status_text = "the stock has recovered significantly from its lows"
+            elif range_pct < 0.25:
+                range_position_text = "the current price is near the lower end of that range"
+                recovery_status_text = "the stock has pulled back significantly from its highs"
+            else:
+                range_position_text = "the current price is trading mid-range"
+                recovery_status_text = "investor sentiment has been mixed"
 
-        price_f = _safe_float(current_price)
-        sma50_f = _safe_float(sma50)
-        sma200_f = _safe_float(sma200)
+        # Investor Bets Text
+        investor_bets_text = "most big investors are betting on the company's long-term success rather than a decline"
+        if short_float_val and short_float_val > 5.0:
+            investor_bets_text = "a notable number of investors are betting on a price decline"
 
-        sma50_comp_icon = get_icon('neutral')
-        price_vs_sma50_text = "vs SMA 50"
-        if price_f is not None and sma50_f is not None:
-            if price_f > sma50_f * 1.001: sma50_comp_icon = get_icon('up'); price_vs_sma50_text = "Above SMA 50"
-            elif price_f < sma50_f * 0.999: sma50_comp_icon = get_icon('down'); price_vs_sma50_text = "Below SMA 50"
-            else: price_vs_sma50_text = "At SMA 50"
+        # --- 3. Assemble Final HTML with Enhanced CSS and Dynamic Content ---
+        
+        # Enhanced CSS with reduced sizes for more compact display
+        style_block = """
+        <style>
+            .metrics-grid-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 0.75rem;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                margin-bottom: 1.5rem;
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 0.75rem;
+            }
+            
+            .metric-card {
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                padding: 0.75rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                transition: all 0.2s ease;
+                position: relative;
+            }
+            
+            .metric-card:hover {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            
+            .metric-card .header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 0.5rem;
+            }
+            
+            .metric-card .header h3 {
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: #4b5563;
+                text-transform: uppercase;
+                letter-spacing: 0.025em;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+            
+            .metric-card .main-value {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #111827;
+                margin-bottom: 0.25rem;
+                line-height: 1.2;
+            }
+            
+            .metric-card .sub-value {
+                font-size: 0.75rem;
+                color: #6b7280;
+                margin-bottom: 0.5rem;
+            }
+            
+            .metric-card .metrics-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .metric-card .metric-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.25rem 0;
+                font-size: 0.875rem;
+            }
+            
+            .metric-card .metric-row:not(:last-child) {
+                border-bottom: 1px solid #f3f4f6;
+            }
+            
+            .metric-card .metric-row.border-top {
+                border-top: 1px solid #f3f4f6;
+                padding-top: 0.5rem;
+                margin-top: 0.125rem;
+            }
+            
+            .metric-card .metric-label {
+                font-size: 0.8125rem;
+                color: #4b5563;
+                font-weight: 500;
+            }
+            
+            .metric-card .metric-value {
+                font-weight: 600;
+                color: #111827;
+                text-align: right;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                font-size: 0.875rem;
+            }
+            
+            /* Color coding for positive/negative values */
+            .positive-value {
+                color: #059669 !important;
+            }
+            
+            .negative-value {
+                color: #dc2626 !important;
+            }
+            
+            .neutral-value {
+                color: #d97706 !important;
+            }
+            
+            /* Trend badges */
+            .trend-badge {
+                padding: 0.125rem 0.375rem;
+                border-radius: 9999px;
+                font-size: 0.6875rem;
+                font-weight: 600;
+                border: 1px solid;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.125rem;
+            }
+            
+            .trend-bullish {
+                color: #059669;
+                background-color: #ecfdf5;
+                border-color: #a7f3d0;
+            }
+            
+            .trend-bearish {
+                color: #dc2626;
+                background-color: #fef2f2;
+                border-color: #fca5a5;
+            }
+            
+            .trend-mixed {
+                color: #d97706;
+                background-color: #fffbeb;
+                border-color: #fde68a;
+            }
+            
+            /* RSI status badges */
+            .rsi-badge {
+                padding: 0.125rem 0.25rem;
+                border-radius: 0.25rem;
+                font-size: 0.6875rem;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.125rem;
+            }
+            
+            .rsi-overbought {
+                color: #dc2626;
+                background-color: #fef2f2;
+            }
+            
+            .rsi-oversold {
+                color: #059669;
+                background-color: #ecfdf5;
+            }
+            
+            .rsi-neutral {
+                color: #2563eb;
+                background-color: #dbeafe;
+            }
+            
+            /* Volatility indicators */
+            .volatility-high {
+                color: #dc2626;
+                font-weight: 600;
+            }
+            
+            .volatility-medium {
+                color: #d97706;
+                font-weight: 600;
+            }
+            
+            .volatility-low {
+                color: #059669;
+                font-weight: 600;
+            }
+            
+            /* Beta sensitivity indicators */
+            .beta-high {
+                color: #dc2626;
+                font-weight: 600;
+            }
+            
+            .beta-low {
+                color: #2563eb;
+                font-weight: 600;
+            }
+            
+            .beta-moderate {
+                color: #059669;
+                font-weight: 600;
+            }
+            
+            /* Ownership indicators */
+            .ownership-high {
+                color: #059669;
+                font-weight: 600;
+            }
+            
+            .ownership-medium {
+                color: #d97706;
+                font-weight: 600;
+            }
+            
+            .ownership-low {
+                color: #dc2626;
+                font-weight: 600;
+            }
+            
+            /* Responsive design */
+            @media (max-width: 768px) {
+                .metrics-grid-container {
+                    grid-template-columns: 1fr;
+                    gap: 0.5rem;
+                    padding: 0.5rem;
+                }
+                
+                .metric-card {
+                    padding: 0.75rem;
+                }
+                
+                .metric-card .main-value {
+                    font-size: 1.25rem;
+                }
+            }
+            
+            /* Animation for the pulse dot */
+            @keyframes pulse {
+                0% { opacity: 0.6; }
+                50% { opacity: 1; }
+                100% { opacity: 0.6; }
+            }
+        </style>
+        """
 
-        sma200_comp_icon = get_icon('neutral')
-        price_vs_sma200_text = "vs SMA 200"
-        if price_f is not None and sma200_f is not None:
-            if price_f > sma200_f * 1.001: sma200_comp_icon = get_icon('up'); price_vs_sma200_text = "Above SMA 200"
-            elif price_f < sma200_f * 0.999: sma200_comp_icon = get_icon('down'); price_vs_sma200_text = "Below SMA 200"
-            else: price_vs_sma200_text = "At SMA 200"
+        # HTML structure with enhanced styling matching the React component
+        html_content = f"""
+        <div class="metrics-grid-container">
+            <div class="metric-card">
+                <div class="header">
+                    <h3>💰 Current Price</h3>
+                    <div style="width: 6px; height: 6px; background-color: #3b82f6; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                </div>
+                <div class="main-value">{current_price_fmt}</div>
+                <div class="sub-value">Live Market Price</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="header">
+                    <h3>🎯 Price Targets & Forecasts</h3>
+                </div>
+                <div class="metrics-list">
+                    <div class="metric-row">
+                        <span class="metric-label">1-Month Forecast:</span>
+                        <div class="metric-value">
+                            <span>{format_html_value(forecast_1m_val, 'currency', currency=currency_symbol)}</span>
+                            <span class="{'positive-value' if forecast_1m_pct > 0 else 'negative-value'}">
+                                {'📈' if forecast_1m_pct > 0 else '📉'} {forecast_1m_pct:+.1f}%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">1-Year Forecast:</span>
+                        <div class="metric-value">
+                            <span>{format_html_value(forecast_1y_val, 'currency', currency=currency_symbol)}</span>
+                            <span class="{'positive-value' if forecast_1y_pct > 0 else 'negative-value'}">
+                                {'📈' if forecast_1y_pct > 0 else '📉'} {forecast_1y_pct:+.1f}%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="metric-row border-top">
+                        <span class="metric-label">Analyst Mean Target:</span>
+                        <div class="metric-value">
+                            <span>{format_html_value(analyst_target_val, 'currency', currency=currency_symbol)}</span>
+                            <span class="{'positive-value' if analyst_target_pct > 0 else 'negative-value'}">
+                                {'📈' if analyst_target_pct > 0 else '📉'} {analyst_target_pct:+.1f}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="header">
+                    <h3>📈 Trend & Momentum</h3>
+                </div>
+                <div class="metrics-list">
+                    <div class="metric-row">
+                        <span class="metric-label">Trend:</span>
+                        <span class="trend-badge {'trend-bullish' if technical_pattern_text == 'bullish pattern' else 'trend-bearish' if technical_pattern_text == 'bearish pattern' else 'trend-mixed'}">
+                            {'🚀' if technical_pattern_text == 'bullish pattern' else '📉' if technical_pattern_text == 'bearish pattern' else '⚖️'} {trend_summary_text}
+                        </span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">RSI (14-day):</span>
+                        <span class="rsi-badge {'rsi-overbought' if rsi_condition_text == 'Overbought' else 'rsi-oversold' if rsi_condition_text == 'Oversold' else 'rsi-neutral'}">
+                            {rsi_fmt} ({rsi_condition_text}) {'🔥' if rsi_condition_text == 'Overbought' else '❄️' if rsi_condition_text == 'Oversold' else '⚖️'}
+                        </span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">MACD:</span>
+                        <span class="metric-value {'positive-value' if macd_hist_val and macd_hist_val > 0.1 else 'negative-value' if macd_hist_val and macd_hist_val < -0.1 else 'neutral-value'}">
+                            {'📈' if macd_hist_val and macd_hist_val > 0.1 else '📉' if macd_hist_val and macd_hist_val < -0.1 else '➡️'} {macd_trend_text.title()} {macd_hist_fmt}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="header">
+                    <h3>📊 Key Technical Levels</h3>
+                </div>
+                <div class="metrics-list">
+                    <div class="metric-row">
+                        <span class="metric-label">Above SMA 50:</span>
+                        <span class="metric-value {'positive-value' if current_price_val and sma50_val and current_price_val > sma50_val else 'negative-value'}">
+                            {'✅' if current_price_val and sma50_val and current_price_val > sma50_val else '❌'} {sma50_fmt}
+                        </span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Above SMA 200:</span>
+                        <span class="metric-value {'positive-value' if current_price_val and sma200_val and current_price_val > sma200_val else 'negative-value'}">
+                            {'✅' if current_price_val and sma200_val and current_price_val > sma200_val else '❌'} {sma200_fmt}
+                        </span>
+                    </div>
+                    <div class="metric-row border-top">
+                        <span class="metric-label">52-Week Range:</span>
+                        <span class="metric-value">
+                            📏 {range_52wk_fmt}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="header">
+                    <h3>⚡ Volatility</h3>
+                </div>
+                <div class="metrics-list">
+                    <div class="metric-row">
+                        <span class="metric-label">Volatility (30d Ann.):</span>
+                        <span class="metric-value {'volatility-high' if volatility_val and volatility_val > 30 else 'volatility-medium' if volatility_val and volatility_val > 20 else 'volatility-low'}">
+                            {volatility_fmt} {'🌪️' if volatility_val and volatility_val > 30 else '🌊' if volatility_val and volatility_val > 20 else '🏞️'}
+                        </span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Beta (vs. Market):</span>
+                        <span class="metric-value {'beta-high' if beta_val and beta_val > 1.2 else 'beta-low' if beta_val and beta_val < 0.8 else 'beta-moderate'}">
+                            {format_html_value(beta_val, 'ratio')}x {'🎢' if beta_val and beta_val > 1.2 else '🛡️' if beta_val and beta_val < 0.8 else '⚖️'}
+                            {' (High Sensitivity)' if beta_val and beta_val > 1.2 else ' (Low Sensitivity)' if beta_val and beta_val < 0.8 else ' (Moderate)'}
+                        </span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Green Days (30d):</span>
+                        <span class="metric-value {'positive-value' if green_days_pct >= 60 else 'neutral-value' if green_days_pct >= 40 else 'negative-value'}">
+                            {green_days_fmt} {'🟢' if green_days_pct >= 60 else '🟡' if green_days_pct >= 40 else '🔴'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="header">
+                    <h3>🏢 Ownership</h3>
+                </div>
+                <div class="metrics-list">
+                    <div class="metric-row">
+                        <span class="metric-label">Institutional Ownership:</span>
+                        <span class="metric-value {'ownership-high' if inst_own_val and inst_own_val > 60 else 'ownership-medium' if inst_own_val and inst_own_val > 40 else 'ownership-low'}">
+                            {inst_own_fmt} {'🏛️' if inst_own_val and inst_own_val > 60 else '🏢' if inst_own_val and inst_own_val > 40 else '🏠'}
+                        </span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Short % of Float:</span>
+                        <span class="metric-value {'positive-value' if short_float_val and short_float_val < 2 else 'neutral-value' if short_float_val and short_float_val < 5 else 'negative-value'}">
+                            {format_html_value(short_float_val, 'percent')}% {'😊' if short_float_val and short_float_val < 2 else '😐' if short_float_val and short_float_val < 5 else '😰'}
+                            {' (Low Bearish Bets)' if short_float_val and short_float_val < 2 else ' (Moderate Bets)' if short_float_val and short_float_val < 5 else ' (High Bearish Bets)'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        sentiment_str = str(sentiment) 
-        sentiment_icon = get_icon('up' if 'Bullish' in sentiment_str else ('down' if 'Bearish' in sentiment_str else 'neutral'))
+        <div class="metrics-narrative">
+            <p>Right now, {ticker}'s stock is trading at <strong>{current_price_fmt}</strong>. The technical indicators are showing a <strong>{technical_pattern_text}</strong> because the price is holding relative to both the 50-day ({sma50_fmt}) and 200-day ({sma200_fmt}) moving averages. This suggests the stock has been gaining momentum recently. However, the Relative Strength Index (RSI) at <strong>{rsi_fmt}</strong> is {rsi_condition_text}—neither overbought nor oversold—while the MACD indicator shows a {macd_trend_text}, meaning there could be some minor pullbacks before the next upward move.</p>
+            <p>Over the past year, {ticker}'s stock has traded between <strong>{format_html_value(low_52wk_val, 'currency', currency=currency_symbol)} and {format_html_value(high_52wk_val, 'currency', currency=currency_symbol)}</strong>, which tells us two things: First, {recovery_status_text}. Second, {range_position_text}, meaning big swings are less likely unless something major happens. Analysts expect modest growth ahead, with a <strong>1-year target of {format_html_value(forecast_1y_val, 'currency', currency=currency_symbol)} ({forecast_1y_pct:+.1f}%)</strong> and an average consensus target of <strong>{format_html_value(analyst_target_val, 'currency', currency=currency_symbol)} ({analyst_target_pct:+.1f}%)</strong>. Plus, with <strong>{inst_own_fmt} institutional ownership</strong> and very low short interest ({short_float_fmt}), it seems {investor_bets_text}.</p>
+        </div>
+        """
+        
+        return style_block + html_content
 
-        grid_html = f"""
-        <div class="metrics-summary">
-            <div class="metric-item"><span class="metric-label">Current Price</span><span class="metric-value">{current_price_fmt}</span></div>
-            <div class="metric-item"><span class="metric-label">1-{period_label} Forecast</span><span class="metric-value">{forecast_1m_fmt}</span></div>
-            <div class="metric-item"><span class="metric-label">1-Year Forecast</span><span class="metric-value">{forecast_1y_fmt} <span class="metric-change {('trend-up' if overall_pct_change_val > 0 else 'trend-down' if overall_pct_change_val < 0 else 'trend-neutral')}">({overall_pct_change_fmt})</span> {forecast_1y_icon}</span></div>
-            <div class="metric-item"><span class="metric-label">Technical Sentiment</span><span class="metric-value sentiment-{sentiment_str.lower().replace(' ', '-')}">{sentiment_icon} {sentiment_str}</span></div>
-            <div class="metric-item"><span class="metric-label">Volatility (30d Ann.)</span><span class="metric-value">{volatility_fmt} {get_icon('stats')}</span></div>
-            <div class="metric-item"><span class="metric-label">{price_vs_sma50_text}</span><span class="metric-value">{sma50_fmt} {sma50_comp_icon}</span></div>
-            <div class="metric-item"><span class="metric-label">{price_vs_sma200_text}</span><span class="metric-value">{sma200_fmt} {sma200_comp_icon}</span></div>
-            """
-        green_days = _safe_float(rdata.get('green_days')); total_days = _safe_float(rdata.get('total_days'))
-        if green_days is not None and total_days is not None and total_days > 0:
-             green_days_pct = green_days / total_days * 100
-             green_icon = get_icon('up' if green_days_pct > 55 else ('down' if green_days_pct < 45 else 'neutral'))
-             green_days_fmt = f"{int(green_days)}/{int(total_days)} ({green_days_pct:.0f}%)"
-             grid_html += f'<div class="metric-item"><span class="metric-label">Green Days (30d)</span><span class="metric-value">{green_days_fmt} {green_icon}</span></div>'
-        grid_html += "</div>"
-
-        # Default Narrative
-        phrase_default_intro = random.choice([
-            f"This snapshot summarizes {ticker}'s current position.",
-            f"Here's a quick overview of {ticker}'s key metrics.",
-            f"The following data points provide a summary of {ticker}'s current status."
-        ])
-        phrase_default_forecast = random.choice([
-             f"The stock trades at {current_price_fmt}, with models forecasting a 1-year average target near {forecast_1y_fmt} ({overall_pct_change_fmt}).",
-             f"Currently priced at {current_price_fmt}, {ticker} has a model-based 1-year forecast around {forecast_1y_fmt} (a {overall_pct_change_fmt} potential change).",
-             f"With a price of {current_price_fmt}, the 1-year projection aims for approximately {forecast_1y_fmt} ({overall_pct_change_fmt})."
-        ])
-        phrase_default_tech = random.choice([
-            f"Technical indicators currently reflect a {sentiment_str} sentiment ({price_vs_sma50_text} / {price_vs_sma200_text}).",
-            f"The technical picture shows a {sentiment_str} bias ({price_vs_sma50_text}, {price_vs_sma200_text}).",
-            f"Sentiment derived from technicals is {sentiment_str} ({price_vs_sma50_text} / {price_vs_sma200_text})."
-        ])
-        phrase_default_vol = random.choice([
-            f"Recent volatility ({volatility_fmt}) quantifies price fluctuations.",
-            f"Price swing intensity is measured by volatility at {volatility_fmt}.",
-            f"The stock's recent volatility stands at {volatility_fmt}."
-        ])
-        phrase_default_outro = random.choice([
-            "The following sections provide deeper analysis into the underlying technicals and fundamentals.",
-            "Further details on the technical and fundamental aspects are explored below.",
-            "We delve into more specific technical and fundamental analysis in the subsequent sections."
-        ])
-        narrative = f"{phrase_default_intro} {phrase_default_forecast} {phrase_default_tech} {phrase_default_vol} {phrase_default_outro}"
-
-        return grid_html + f'<div class="narrative"><p>{narrative}</p></div>'
     except Exception as e:
-        return _generate_error_html("Metrics Summary", str(e))
-
-
+        return f"<div style='color: red; padding: 1rem; border: 1px solid red; border-radius: 4px;'>Error generating metrics summary: {str(e)}</div>"
+        
 def generate_metrics_section_content(metrics):
     """Helper to generate table body content for metrics sections (Robust NA handling)."""
     rows = ""

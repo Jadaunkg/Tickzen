@@ -324,7 +324,7 @@ def extract_share_statistics_data(fundamentals: dict, current_price=None, curren
         "Implied Shares Outstanding": format_value(safe_get(info, 'impliedSharesOutstanding'), 'large_number', 0), # Sometimes available
         "Shares Float": format_value(safe_get(info, 'floatShares'), 'large_number', 0),
         "Insider Ownership": format_value(safe_get(info, 'heldPercentInsiders'), 'percent'),
-        "Institutional Ownership": format_value(safe_get(info, 'heldPercentInstitutions'), 'percent'),
+        "Institutional Ownership": format_value(safe_get(info, 'heldPercentInstitutions'), 'percent_direct'),
         "Shares Short": format_value(safe_get(info, 'sharesShort'), 'large_number', 0), # Part of short info, but fits here too
         "Shares Change (YoY)": "N/A", # Requires historical shares data - Placeholder
     }
@@ -378,7 +378,7 @@ def extract_short_selling_data(fundamentals: dict):
     metrics = {
         "Shares Short": format_value(safe_get(info, 'sharesShort'), 'large_number', 0),
         "Short Ratio (Days To Cover)": format_value(safe_get(info, 'shortRatio'), 'ratio', 1),
-        "Short % of Float": format_value(safe_get(info, 'shortPercentOfFloat'), 'percent'),
+        "Short % of Float": format_value(safe_get(info, 'shortPercentOfFloat'), 'percent_direct'),
         "Shares Short (Prior Month)": format_value(safe_get(info, 'sharesShortPriorMonth'), 'large_number', 0),
         "Short Date": format_value(safe_get(info, 'dateShortInterest'), 'date'), # Date of last short interest report
     }
