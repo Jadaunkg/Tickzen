@@ -1396,118 +1396,114 @@ def generate_company_profile_html(ticker, rdata):
         return _generate_error_html("Company Profile", str(e))
 
 def generate_valuation_metrics_html(ticker, rdata):
-    """Generates Valuation Metrics with enhanced narrative and explanations."""
+    """
+    Generates a human-centric, two-paragraph summary for the Valuation Metrics section,
+    followed by the detailed data table.
+    """
     try:
-        valuation_data = rdata.get('valuation_data')
-        if not isinstance(valuation_data, dict):
-             valuation_data = {}
-             logging.warning("valuation_data not found or not a dict, using empty.")
-
-        currency_symbol = rdata.get('currency_symbol', '$')
-
-        # Extract and format specific valuation metrics
-        forward_pe_fmt = format_html_value(valuation_data.get('Forward P/E'), 'ratio')
-        forward_pe_val = _safe_float(valuation_data.get('Forward P/E'))
-        peg_ratio_fmt = format_html_value(valuation_data.get('PEG Ratio'), 'ratio')
-        peg_ratio_val = _safe_float(valuation_data.get('PEG Ratio'))
-        trailing_pe_fmt = format_html_value(valuation_data.get('Trailing P/E'), 'ratio')
-        ps_ratio_fmt = format_html_value(valuation_data.get('Price/Sales (TTM)'), 'ratio')
-        pb_ratio_fmt = format_html_value(valuation_data.get('Price/Book (MRQ)'), 'ratio')
+        # --- 1. Data Extraction and Parsing ---
+        valuation_data = rdata.get('valuation_data', {})
+        total_valuation_data = rdata.get('total_valuation_data', {}) # For EV metrics
         
-        # Attempt to get industry average P/E from rdata (needs to be added in report_generator.py)
-        industry_avg_pe = rdata.get('industry_avg_pe') 
-        industry_avg_pe_fmt = format_html_value(industry_avg_pe, 'ratio')
+        # Ensure data is in dict format
+        if not isinstance(valuation_data, dict): valuation_data = {}
+        if not isinstance(total_valuation_data, dict): total_valuation_data = {}
 
-        # Expanded Narrative Introduction
-        narrative_intro_options = [
-            (
-                f"<p>Understanding {ticker}'s valuation is a cornerstone of investment analysis. This section delves into key ratios "
-                f"that analysts and investors use to assess whether the stock price is justified relative to its earnings, "
-                f"sales, book value, or growth prospects. It's important to remember that these metrics provide a snapshot "
-                f"and should ideally be compared against the company's historical levels {get_icon('history')}, its industry peers {get_icon('peer')}, and the broader market context "
-                f"to derive meaningful insights. No single ratio tells the whole story, but together they can paint a compelling picture "
-                f"of market perception and potential investment appeal.</p>"
-            ),
-            (
-                f"<p>To gauge if {ticker}'s stock is fairly priced, investors often turn to valuation metrics. These ratios compare the company's stock price "
-                f"to its financial performance (like earnings or sales) or its intrinsic value (like book value). This section explores these critical indicators. "
-                f"Remember, a thorough analysis involves looking at these ratios in the context of {ticker}'s own past performance {get_icon('history')}, how it stacks up against competitors {get_icon('peer')}, "
-                f"and the overall market sentiment. One metric alone is rarely definitive, but collectively they offer valuable clues.</p>"
-            )
-        ]
-        html_content = f'<div class="narrative">{random.choice(narrative_intro_options)}</div>'
+        # Helper to parse formatted values like '23.24x' into numbers
+        def _parse_value(value_str):
+            if value_str is None or not isinstance(value_str, str) or value_str.lower() == 'n/a':
+                return None
+            try:
+                # Handles '23.24x' or '23.24'
+                return float(value_str.replace('x', '').strip())
+            except (ValueError, TypeError):
+                return None
 
-        # Detailed explanation for Forward P/E
-        if forward_pe_fmt != "N/A":
-            pe_explanation_html = f"<h4>Forward P/E Ratio: {forward_pe_fmt}</h4>"
-            pe_para_options = [
-                (f"<p>The Forward Price-to-Earnings (P/E) ratio of <strong>{forward_pe_fmt}</strong> indicates how much investors are "
-                 f"willing to pay for each dollar of {ticker}'s anticipated earnings over the next fiscal period. "
-                 f"A lower Forward P/E can sometimes suggest that the stock is undervalued relative to its future earnings potential, "
-                 f"or it might reflect market expectations of slower growth. Conversely, a higher Forward P/E often implies that "
-                 f"investors have high growth expectations, or that the stock is perceived as a premium quality name. ")
-            ]
-            pe_paragraph = random.choice(pe_para_options)
-            
-            if forward_pe_val is not None and industry_avg_pe is not None and industry_avg_pe_fmt != "N/A": # Check if industry_avg_pe_fmt is not N/A
-                if forward_pe_val < industry_avg_pe:
-                    pe_paragraph += (f"Compared to an industry average P/E of {industry_avg_pe_fmt}, {ticker}'s Forward P/E suggests it might be relatively cheaper than its peers. ")
-                elif forward_pe_val > industry_avg_pe:
-                    pe_paragraph += (f"When seen against an industry average P/E of {industry_avg_pe_fmt}, {ticker}'s Forward P/E indicates it might be trading at a premium. ")
-            pe_paragraph += "It's a forward-looking measure, so the accuracy of the underlying earnings estimates is crucial.</p>"
-            pe_explanation_html += pe_paragraph
-            html_content += pe_explanation_html
+        # Get formatted values for display
+        trailing_pe_fmt = valuation_data.get('Trailing P/E', 'N/A')
+        forward_pe_fmt = valuation_data.get('Forward P/E', 'N/A')
+        ps_ratio_fmt = valuation_data.get('Price/Sales (TTM)', 'N/A')
+        pb_ratio_fmt = valuation_data.get('Price/Book (MRQ)', 'N/A')
+        ev_rev_fmt = total_valuation_data.get('EV/Revenue (TTM)', 'N/A')
+        ev_ebitda_fmt = total_valuation_data.get('EV/EBITDA (TTM)', 'N/A')
 
-        # Detailed explanation for PEG Ratio
-        if peg_ratio_fmt != "N/A":
-            peg_explanation_html = f"<h4>PEG Ratio: {peg_ratio_fmt}</h4>"
-            peg_para_options = [
-                (f"<p>The Price/Earnings-to-Growth (PEG) ratio of <strong>{peg_ratio_fmt}</strong> offers a more nuanced view by "
-                 f"relating the P/E ratio to earnings growth expectations. It helps assess if the stock's P/E is justified by its anticipated growth. A common rule of thumb is that a PEG ratio around 1.0 "
-                 f"suggests a fair valuation relative to expected growth. ")
-            ]
-            peg_paragraph = random.choice(peg_para_options)
+        # Get raw values for conditional logic
+        trailing_pe_raw = _parse_value(trailing_pe_fmt)
+        forward_pe_raw = _parse_value(forward_pe_fmt)
+        ps_ratio_raw = _parse_value(ps_ratio_fmt)
+        pb_ratio_raw = _parse_value(pb_ratio_fmt)
+        ev_rev_raw = _parse_value(ev_rev_fmt)
+        ev_ebitda_raw = _parse_value(ev_ebitda_fmt)
 
-            if peg_ratio_val is not None:
-                if peg_ratio_val < 0:
-                    peg_paragraph += ("A negative PEG ratio, like this one, typically arises when a company has negative earnings (a net loss) or if earnings growth expectations are negative. "
-                                      "In such cases, the PEG ratio is generally not considered a meaningful indicator for valuation and other metrics should be prioritized. ")
-                elif peg_ratio_val < 1.0 and peg_ratio_val >= 0:
-                    peg_paragraph += (f"A PEG below 1.0, like {ticker}'s current ratio, can indicate that the stock might be undervalued given its "
-                                      "earnings growth forecast. This can be particularly attractive for investors looking for growth at a reasonable price (GARP). ")
-                elif peg_ratio_val >= 1.0 and peg_ratio_val <= 1.5: # Adjusted to be inclusive of 1.0
-                    peg_paragraph += (f"This PEG ratio of {peg_ratio_fmt} suggests a reasonable balance between the stock's P/E and its expected growth. "
-                                      "It doesn't strongly signal over or undervaluation based on this metric alone. ")
-                elif peg_ratio_val > 1.5:
-                    peg_paragraph += (f"A PEG significantly above 1.0, such as {peg_ratio_fmt}, could suggest that the stock's price has outpaced its expected earnings growth, "
-                                      "or that investors are paying a premium for that growth. This warrants closer scrutiny of the growth assumptions and sustainability. ")
-                
-            peg_paragraph += "However, like all ratios, the PEG is best used in conjunction with other valuation metrics and a thorough understanding of the company's prospects and the industry it operates in.</p>"
-            peg_explanation_html += peg_paragraph
-            html_content += peg_explanation_html
+        # --- 2. Dynamic Narrative Generation ---
+        p1_parts = []
+        p2_parts = []
+
+        # --- Paragraph 1: P/E, P/S, and P/B Ratios ---
+        if trailing_pe_raw is not None or forward_pe_raw is not None:
+            # Interpret P/E level
+            pe_level_raw = forward_pe_raw if forward_pe_raw is not None else trailing_pe_raw
+            if pe_level_raw <= 0:
+                pe_interpretation = "is currently negative, making P/E an unreliable metric for valuation at this time"
+            elif pe_level_raw < 15:
+                pe_interpretation = "suggests the stock may be attractively priced compared to its earnings"
+            elif pe_level_raw < 25:
+                pe_interpretation = "suggests the stock is trading at a moderate premium compared to earnings"
+            else:
+                pe_interpretation = "suggests the stock is trading at a high premium, indicating high growth expectations from investors"
+
+            p1_parts.append(f"The company's Trailing P/E of <strong>{trailing_pe_fmt}</strong> and Forward P/E of <strong>{forward_pe_fmt}</strong> {pe_interpretation}.")
+
+            # Compare Trailing vs Forward P/E
+            if trailing_pe_raw is not None and forward_pe_raw is not None and forward_pe_raw > 0:
+                if forward_pe_raw < trailing_pe_raw * 0.9: # More than 10% dip
+                    p1_parts.append("The significant dip in the Forward P/E hints that analysts anticipate strong earnings improvement over the next year.")
+                elif forward_pe_raw < trailing_pe_raw:
+                    p1_parts.append("The slight dip in the Forward P/E hints that analysts anticipate modest earnings improvement.")
+                else:
+                    p1_parts.append("The lack of a significant drop in the Forward P/E suggests earnings are expected to remain stable or grow only slightly.")
+
+        # Interpret P/S and P/B
+        ps_pb_narrative = ""
+        if ps_ratio_raw is not None and pb_ratio_raw is not None:
+            ps_pb_narrative = f"Meanwhile, the Price/Sales ratio of <strong>{ps_ratio_fmt}</strong> and Price/Book of <strong>{pb_ratio_fmt}</strong> show the stock isn’t cheap relative to its revenue or net assets, but it’s not wildly overvalued either. These multiples align with a reasonably healthy business, though they leave little room for error if growth slows."
+        elif ps_ratio_raw is not None:
+            ps_pb_narrative = f"The Price/Sales ratio of <strong>{ps_ratio_fmt}</strong> indicates investors are paying {ps_ratio_fmt} for every dollar of revenue, a key metric for growth-focused companies."
         
-        # You can add similar detailed explanations for Trailing P/E, P/S, P/B here
-        # For brevity in this example, I'm focusing on Forward P/E and PEG
+        if ps_pb_narrative:
+            p1_parts.append(ps_pb_narrative)
 
-        # Displaying other key valuation metrics in a slightly more descriptive way
-        # This can be expanded similarly to P/E and PEG or use a condensed table.
+        # --- Paragraph 2: Enterprise Value Ratios and Synthesis ---
+        ev_narrative = ""
+        if ev_rev_raw is not None:
+            ev_rev_interp = "a fair but not bargain valuation" if 1.5 < ev_rev_raw < 3.5 else "an attractive valuation" if ev_rev_raw <= 1.5 else "a rich valuation"
+            ev_narrative += f"The EV/Revenue of <strong>{ev_rev_fmt}</strong> reinforces that the market assigns {ev_rev_interp} to the company’s sales. "
+
+        if ev_ebitda_raw is not None:
+            ev_ebitda_interp = "sits at the higher end of the spectrum—common for stable firms but potentially stretched if margins come under pressure" if ev_ebitda_raw > 12 else "is in a reasonable range, suggesting the enterprise value is well-supported by its operational earnings"
+            ev_narrative += f"More telling is the EV/EBITDA of <strong>{ev_ebitda_fmt}</strong>, which {ev_ebitda_interp}. "
         
-        other_metrics_html = "<h4>Other Key Valuation Ratios:</h4><ul>"
-        if trailing_pe_fmt != "N/A":
-            other_metrics_html += f"<li><strong>Trailing P/E: {trailing_pe_fmt}</strong> - Reflects the company's stock price relative to its earnings per share over the past 12 months (TTM). It's a historical measure often used as a starting point for valuation.</li>"
-        if ps_ratio_fmt != "N/A":
-            other_metrics_html += f"<li><strong>Price/Sales (TTM): {ps_ratio_fmt}</strong> - Compares the company's stock price to its total sales per share over the past 12 months. This can be particularly useful for valuing companies that are not yet profitable or are in cyclical industries where earnings can be volatile.</li>"
-        if pb_ratio_fmt != "N/A":
-            other_metrics_html += f"<li><strong>Price/Book (MRQ): {pb_ratio_fmt}</strong> - Measures the market's valuation of a company compared to its book value (assets minus liabilities) on its most recent quarterly balance sheet. A lower P/B ratio could mean the stock is undervalued. It's often used for valuing financial institutions or capital-intensive businesses.</li>"
-        other_metrics_html += "</ul>"
+        if ev_narrative:
+             p2_parts.append(f"When we look at enterprise-level metrics, {ev_narrative.strip()}")
+
+        # Synthesis
+        p2_parts.append("Taken together, these ratios paint a picture of a fairly valued stock with future growth already priced in, but not a clear undervaluation. Investors should weigh these multiples against industry peers and the company’s historical range to gauge whether the current price justifies the fundamentals.")
+
+        # --- 3. Assemble Final HTML ---
+        paragraph1_html = '<p>' + ' '.join(p1_parts) + '</p>' if p1_parts else ''
+        paragraph2_html = '<p>' + ' '.join(p2_parts) + '</p>' if p2_parts else ''
+        full_narrative_html = f'<div class="narrative">{paragraph1_html}{paragraph2_html}</div>'
+
+        # Combine data for the table display
+        combined_data_for_table = {**valuation_data, **total_valuation_data}
+        # Filter out keys we don't want in this specific table
+        keys_to_exclude = ['Market Cap', 'Enterprise Value', 'Next Earnings Date', 'Ex-Dividend Date']
+        filtered_table_data = {k: v for k, v in combined_data_for_table.items() if k not in keys_to_exclude}
+
+        table_html = generate_metrics_section_content(filtered_table_data)
         
-        if other_metrics_html != "<h4>Other Key Valuation Ratios:</h4><ul></ul>": # Only add if there's content
-            html_content += other_metrics_html
+        return full_narrative_html + table_html
 
-        # Optionally, add back the original table if you want a compact summary as well
-        # html_content += generate_metrics_section_content(valuation_data) 
-
-        return html_content
     except Exception as e:
         logging.error(f"Error in generate_valuation_metrics_html for {ticker}: {e}", exc_info=True)
         return _generate_error_html("Valuation Metrics", str(e))
