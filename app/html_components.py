@@ -1509,52 +1509,134 @@ def generate_valuation_metrics_html(ticker, rdata):
         return _generate_error_html("Valuation Metrics", str(e))
 
 def generate_financial_health_html(ticker, rdata):
-    """Generates Financial Health section with a default narrative focus."""
+    """
+    Generates a dynamic, two-paragraph narrative analyzing financial health,
+    followed by the detailed data table.
+    """
     try:
-        health_data = rdata.get('financial_health_data')
-        if not isinstance(health_data, dict):
-             health_data = {}
-             logging.warning("financial_health_data not found or not a dict, using empty.")
+        # --- 1. Data Extraction and Parsing ---
+        health_data = rdata.get('financial_health_data', {})
+        if not isinstance(health_data, dict) or not health_data:
+            return _generate_error_html("Financial Health", "No financial health data available.")
 
-        content = generate_metrics_section_content(health_data)
-        currency_symbol = rdata.get('currency_symbol', '$')
+        # Helper to parse formatted values like '8.89%' or '$42.89B' into numbers
+        def _parse_value(value_str, currency_symbol='$'):
+            if value_str is None or not isinstance(value_str, str) or value_str.lower() == 'n/a':
+                return None
+            
+            cleaned_str = value_str.strip().upper().replace(currency_symbol, '').replace(',', '')
+            multiplier = 1
+            
+            if cleaned_str.endswith('%'):
+                multiplier = 0.01
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('T'):
+                multiplier = 1e12
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('B'):
+                multiplier = 1e9
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('M'):
+                multiplier = 1e6
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('K'):
+                multiplier = 1e3
+                cleaned_str = cleaned_str[:-1]
 
-        roe_fmt = format_html_value(health_data.get('Return on Equity (ROE TTM)'), 'percent_direct')
-        debt_equity_fmt = format_html_value(health_data.get('Debt/Equity (MRQ)'), 'ratio')
-        current_ratio_fmt = format_html_value(health_data.get('Current Ratio (MRQ)'), 'ratio')
-        quick_ratio_fmt = format_html_value(health_data.get('Quick Ratio (MRQ)'), 'ratio')
-        op_cash_flow_fmt = format_html_value(health_data.get('Operating Cash Flow (TTM)'), 'large_number', currency=currency_symbol)
-        roe_trend = rdata.get('roe_trend', None) 
-        debt_equity_trend = rdata.get('debt_equity_trend', None)
+            try:
+                return float(cleaned_str.replace('X',''))
+            except (ValueError, TypeError):
+                return None
+
+        # Parse all necessary raw values for logic
+        roe_raw = _parse_value(health_data.get('Return on Equity (ROE TTM)'))
+        roa_raw = _parse_value(health_data.get('Return on Assets (ROA TTM)'))
+        de_raw = _parse_value(health_data.get('Debt/Equity (MRQ)'))
+        current_ratio_raw = _parse_value(health_data.get('Current Ratio (MRQ)'))
+        quick_ratio_raw = _parse_value(health_data.get('Quick Ratio (MRQ)'))
+        op_cash_flow_raw = _parse_value(health_data.get('Operating Cash Flow (TTM)'))
+        lfcf_raw = _parse_value(health_data.get('Levered Free Cash Flow (TTM)'))
+
+        # Get formatted values for display
+        roe_fmt = health_data.get('Return on Equity (ROE TTM)', 'N/A')
+        roa_fmt = health_data.get('Return on Assets (ROA TTM)', 'N/A')
+        de_fmt = health_data.get('Debt/Equity (MRQ)', 'N/A')
+        debt_fmt = health_data.get('Total Debt (MRQ)', 'N/A')
+        cash_fmt = health_data.get('Total Cash (MRQ)', 'N/A')
+        op_cash_flow_fmt = health_data.get('Operating Cash Flow (TTM)', 'N/A')
+        current_ratio_fmt = health_data.get('Current Ratio (MRQ)', 'N/A')
+        quick_ratio_fmt = health_data.get('Quick Ratio (MRQ)', 'N/A')
+        lfcf_fmt = health_data.get('Levered Free Cash Flow (TTM)', 'N/A')
+
+        # --- 2. Determine Overall Theme (Strength, Weakness, or Mixed) ---
+        score = 0
+        if roe_raw is not None: score += 1 if roe_raw > 0.15 else -1 if roe_raw < 0.05 else 0
+        if de_raw is not None: score += 1 if de_raw < 1.0 else -1 if de_raw > 2.0 else 0
+        if current_ratio_raw is not None: score += 1 if current_ratio_raw > 1.5 else -1 if current_ratio_raw < 1.0 else 0
+        if op_cash_flow_raw is not None and op_cash_flow_raw > 0: score += 1
+        if op_cash_flow_raw is not None and op_cash_flow_raw <= 0: score -= 2
         
-        health_summary_options = [
-            f"Key indicators include ROE ({roe_fmt}), Debt/Equity ({debt_equity_fmt}), Current Ratio ({current_ratio_fmt}), Quick Ratio ({quick_ratio_fmt}), and Operating Cash Flow ({op_cash_flow_fmt}).",
-            f"Financial stability is gauged by ROE ({roe_fmt}), leverage ({debt_equity_fmt}), liquidity (Current: {current_ratio_fmt}, Quick: {quick_ratio_fmt}), and cash generation (Op Cash Flow: {op_cash_flow_fmt}).",
-            f"We assess health via ROE ({roe_fmt}), D/E ratio ({debt_equity_fmt}), liquidity measures (Current: {current_ratio_fmt}, Quick: {quick_ratio_fmt}), and operating cash flow ({op_cash_flow_fmt})."
-        ]
-        health_summary = random.choice(health_summary_options)
+        # --- 3. Build Narrative Paragraphs ---
+        p1_parts = []
+        p2_parts = []
 
-        trend_comments = []
-        if roe_trend: trend_comments.append(f"ROE trend appears {str(roe_trend).lower()}.")
-        if debt_equity_trend: trend_comments.append(f"Debt/Equity trend seems {str(debt_equity_trend).lower()}.")
-        trend_context = " ".join(trend_comments)
+        # Paragraph 1: Intro, ROE/ROA, and Debt vs. Operating Cash
+        if score > 2:
+            p1_parts.append(f"{ticker}'s financial health appears robust, showcasing several key strengths.")
+        elif score < -1:
+            p1_parts.append(f"{ticker}'s financial data reveals several areas of concern that warrant caution.")
+        else:
+            p1_parts.append(f"{ticker}’s financial data clearly shows that strengths and weaknesses can appear together.")
         
-        # Default Narrative
-        narrative_options = [
-            (
-                 f"Financial health metrics provide insights into {ticker}'s stability, efficiency, and ability to meet its obligations. {health_summary} {trend_context} "
-                 f"These figures indicate the company's leverage, short-term solvency, and profitability relative to shareholder equity. Robust cash flow is generally a positive sign."
-            ),
-            (
-            f"This section gauges {ticker}'s financial stability and operational effectiveness. {health_summary} {trend_context} "
-            f"The data reflects leverage, liquidity, and returns on equity. Strong cash flow is typically viewed favorably."
-            )
-        ]
-        narrative = random.choice(narrative_options)
+        if roe_raw is not None and roa_raw is not None:
+            efficiency_text = "reflects a highly efficient use of capital, often seen in fast-growing firms" if roe_raw > 0.15 else "reflects that the company is not very efficient with its capital, and such numbers are usually found in established, stable firms"
+            p1_parts.append(f"The ROE and ROA of <strong>{roe_fmt}</strong> and <strong>{roa_fmt}</strong>, respectively, {efficiency_text}.")
 
-        return f'<div class="narrative"><p>{narrative}</p></div>' + content
+        if de_raw is not None:
+            debt_level_text = "a very high level of debt" if de_raw > 2.5 else "a considerable amount of debt" if de_raw > 1.5 else "a manageable debt load"
+            p1_parts.append(f"The <strong>{de_fmt}</strong> Debt/Equity ratio (with {debt_fmt} in debt and {cash_fmt} in cash) points to the fact that {ticker} has taken on {debt_level_text} to fuel its operations and growth.")
+
+        if op_cash_flow_raw is not None:
+            if op_cash_flow_raw > 0:
+                p1_parts.append(f"Even with its debt, the company's ability to bring in <strong>{op_cash_flow_fmt}</strong> in operating cash flow (TTM) proves that its core business can steadily produce cash, which is a significant strength.")
+            else:
+                p1_parts.append(f"A major concern is the negative operating cash flow of <strong>{op_cash_flow_fmt}</strong> (TTM), indicating the core business is currently using more cash than it generates.")
+
+        # Paragraph 2: Liquidity, Free Cash Flow, and Synthesis
+        if current_ratio_raw is not None and quick_ratio_raw is not None:
+            liquidity_text = "potential liquidity issues that might cause trouble if the company’s cash cycle lengthens" if current_ratio_raw < 1.0 else "a solid liquidity position, able to cover its short-term liabilities"
+            p2_parts.append(f"The Current Ratio of <strong>{current_ratio_fmt}</strong> and Quick Ratio of <strong>{quick_ratio_fmt}</strong> show {liquidity_text}.")
+
+        if lfcf_raw is not None and lfcf_raw > 0:
+            p2_parts.append(f"Furthermore, {ticker}’s <strong>{lfcf_fmt}</strong> in levered free cash flow suggests it can still generate significant cash for shareholders even after meeting its financial obligations.")
+
+        # Synthesis based on the combined data
+        synthesis = ""
+        if de_raw is not None and de_raw > 1.5 and current_ratio_raw is not None and current_ratio_raw < 1.2 and op_cash_flow_raw is not None and op_cash_flow_raw > 0:
+            synthesis = "For investors, this means that while cash flows appear to cover its debts for now, there is not much space for mistakes. If business results fall or interest rates are high when it tries to refinance, the company could be put under increased financial stress."
+        elif de_raw is not None and de_raw < 1.0 and current_ratio_raw is not None and current_ratio_raw > 1.5 and op_cash_flow_raw is not None and op_cash_flow_raw > 0:
+            synthesis = "For investors, this financial profile suggests a resilient and well-managed company. The low debt and strong liquidity provide a solid safety net and the flexibility to invest in growth, weather economic downturns, or increase returns to shareholders."
+        elif de_raw is not None and de_raw > 2.0 and (op_cash_flow_raw is None or op_cash_flow_raw <= 0):
+             synthesis = "This combination of high debt and negative operating cash flow is a significant red flag. It indicates the company is burning through cash while servicing a large debt load, a high-risk situation that could lead to financial distress if not reversed quickly."
+        
+        if synthesis:
+            p2_parts.append(synthesis)
+
+        # --- 4. Assemble Final HTML ---
+        paragraph1_html = '<p>' + ' '.join(p1_parts) + '</p>' if p1_parts else ''
+        paragraph2_html = '<p>' + ' '.join(p2_parts) + '</p>' if p2_parts else ''
+        full_narrative_html = f'<div class="narrative">{paragraph1_html}{paragraph2_html}</div>'
+
+        # Get the table content
+        table_html = generate_metrics_section_content(health_data)
+
+        return full_narrative_html + table_html
+
     except Exception as e:
+        logging.error(f"Error in generate_financial_health_html for {ticker}: {e}", exc_info=True)
         return _generate_error_html("Financial Health", str(e))
+
+
 
 def generate_financial_efficiency_html(ticker, rdata):
     """Generates Financial Efficiency section with a default narrative focus."""
@@ -1604,66 +1686,120 @@ def generate_financial_efficiency_html(ticker, rdata):
         return _generate_error_html("Financial Efficiency", str(e))
 
 def generate_profitability_growth_html(ticker, rdata):
-    """Generates Profitability & Growth section with a default narrative focus."""
+    """
+    Generates a dynamic, two-paragraph narrative for the Profitability & Growth
+    section, followed by the detailed data table.
+    """
     try:
-        profit_data = rdata.get('profitability_data')
-        if not isinstance(profit_data, dict):
-             profit_data = {}
-             logging.warning("profitability_data not found or not a dict, using empty.")
+        # --- 1. Data Extraction and Parsing ---
+        profit_data = rdata.get('profitability_data', {})
+        if not isinstance(profit_data, dict) or not profit_data:
+            return _generate_error_html("Profitability & Growth", "No profitability data available.")
 
-        content = generate_metrics_section_content(profit_data)
-        currency_symbol = rdata.get('currency_symbol', '$')
+        # Helper to parse formatted values like '37.10%' or '$18.08B' into numbers
+        def _parse_value(value_str, currency_symbol='$'):
+            if value_str is None or not isinstance(value_str, str) or value_str.lower() == 'n/a':
+                return None
+            
+            cleaned_str = value_str.strip().upper().replace(currency_symbol, '').replace(',', '')
+            multiplier = 1
+            
+            if cleaned_str.endswith('%'):
+                multiplier = 0.01
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('T'):
+                multiplier = 1e12
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('B'):
+                multiplier = 1e9
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('M'):
+                multiplier = 1e6
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('K'):
+                multiplier = 1e3
+                cleaned_str = cleaned_str[:-1]
+            try:
+                return float(cleaned_str.replace('X',''))
+            except (ValueError, TypeError):
+                return None
 
-        gross_margin_fmt = format_html_value(profit_data.get('Gross Margin (TTM)'), 'percent_direct')
-        op_margin_fmt = format_html_value(profit_data.get('Operating Margin (TTM)'), 'percent_direct')
-        net_margin_key = 'Net Profit Margin (TTM)'
-        if net_margin_key not in profit_data: net_margin_key = 'Profit Margin (TTM)'
-        net_margin_fmt = format_html_value(profit_data.get(net_margin_key), 'percent_direct')
-        rev_growth_fmt = format_html_value(profit_data.get('Revenue Growth (YoY)'), 'percent_direct')
-        earn_growth_fmt = format_html_value(profit_data.get('Earnings Growth (YoY)'), 'percent_direct')
-        margin_trend = rdata.get('margin_trend', None) 
-        growth_trend = rdata.get('growth_trend', None) 
+        # Parse all necessary raw values for logic
+        gross_margin_raw = _parse_value(profit_data.get('Gross Margin (TTM)'))
+        op_margin_raw = _parse_value(profit_data.get('Operating Margin (TTM)'))
+        ebitda_margin_raw = _parse_value(profit_data.get('EBITDA Margin (TTM)'))
+        net_margin_raw = _parse_value(profit_data.get('Profit Margin (TTM)'))
+        rev_growth_raw = _parse_value(profit_data.get('Revenue Growth (YoY)'))
         
-        profit_summary_options = [
-            f"Key profitability metrics include Gross Margin ({gross_margin_fmt}), Operating Margin ({op_margin_fmt}), and Net Profit Margin ({net_margin_fmt}).",
-            f"Profitability is reflected in margins: Gross ({gross_margin_fmt}), Operating ({op_margin_fmt}), and Net ({net_margin_fmt}).",
-            f"Core profitability measures are Gross Margin ({gross_margin_fmt}), Operating Margin ({op_margin_fmt}), and Net Margin ({net_margin_fmt})."
-        ]
-        profit_summary = random.choice(profit_summary_options)
+        # Get formatted values for display
+        gross_margin_fmt = profit_data.get('Gross Margin (TTM)', 'N/A')
+        op_margin_fmt = profit_data.get('Operating Margin (TTM)', 'N/A')
+        ebitda_margin_fmt = profit_data.get('EBITDA Margin (TTM)', 'N/A')
+        net_margin_fmt = profit_data.get('Profit Margin (TTM)', 'N/A')
+        rev_growth_fmt = profit_data.get('Revenue Growth (YoY)', 'N/A')
+        ebitda_fmt = profit_data.get('EBITDA (TTM)', 'N/A')
+        gross_profit_fmt = profit_data.get('Gross Profit (TTM)', 'N/A')
+        net_income_fmt = profit_data.get('Net Income (TTM)', 'N/A')
+        
+        # --- 2. Dynamic Narrative Generation ---
+        p1_parts = []
+        p2_parts = []
 
-        growth_summary_options = [
-             f"Recent expansion is reflected in Year-over-Year Revenue Growth ({rev_growth_fmt}) and Earnings Growth ({earn_growth_fmt}).",
-             f"Growth trends are indicated by YoY Revenue ({rev_growth_fmt}) and Earnings ({earn_growth_fmt}) increases.",
-             f"The company's recent growth trajectory shows Revenue up {rev_growth_fmt} and Earnings up {earn_growth_fmt} YoY."
-        ]
-        growth_summary = random.choice(growth_summary_options)
+        # --- Paragraph 1: Margin Performance and Revenue Context ---
+        margin_assessment = "shows the company has solid control over its costs and prices"
+        if op_margin_raw is not None and op_margin_raw < 0.05:
+            margin_assessment = "suggests the company faces significant margin pressure"
+        elif op_margin_raw is not None and op_margin_raw < 0.10:
+            margin_assessment = "indicates a moderately profitable operation, though with room for improvement"
+        
+        p1_parts.append(f"An analysis of the key metrics in {ticker}'s margin performance {margin_assessment}.")
 
-        comparison_prompt_options = [
-            f"Evaluating these margins and growth rates against historical performance {get_icon('history')} and industry competitors {get_icon('peer')} provides crucial context.",
-            f"Benchmarking these profit and growth figures against the past {get_icon('history')} and peers {get_icon('peer')} is vital for interpretation.",
-            f"Context for these margin and growth numbers comes from comparing them to historical data {get_icon('history')} and industry rivals {get_icon('peer')}."
-        ]
-        comparison_prompt = random.choice(comparison_prompt_options)
+        if gross_margin_raw is not None and op_margin_raw is not None:
+            p1_parts.append(f"The company is successful in controlling its production costs, as shown by the gross margin of <strong>{gross_margin_fmt}</strong>, and it also profits well from its core operations, reflected in the <strong>{op_margin_fmt}</strong> operating margin.")
+        
+        if ebitda_margin_raw is not None:
+             p1_parts.append(f"An <strong>{ebitda_margin_fmt}</strong> EBITDA margin indicates {ticker} is capable of generating strong cash flow from its operations before accounting for financing and tax strategies.")
+        
+        if net_margin_raw is not None:
+            net_profit_cents = f"{net_margin_raw:.3f}"
+            p1_parts.append(f"All things considered, {ticker} is able to hold onto around <strong>${net_profit_cents}</strong> in net profit for every $1 of its revenue over the last twelve months.")
+        
+        if rev_growth_raw is not None:
+            growth_rate_text = "an aggressive" if rev_growth_raw > 0.20 else "a moderate and healthy" if rev_growth_raw > 0.05 else "a slow"
+            p1_parts.append(f"While the business’s revenue is increasing at {growth_rate_text} rate (<strong>{rev_growth_fmt}</strong>), investors should monitor if this pace can be sustained without eroding profit margins.")
 
-        trend_comments = []
-        if margin_trend: trend_comments.append(f"Margin trend appears {str(margin_trend).lower()}.")
-        if growth_trend: trend_comments.append(f"Growth trend seems {str(growth_trend).lower()}.")
-        trend_context = " ".join(trend_comments)
+        # --- Paragraph 2: Profit vs. Growth and Synthesis ---
+        p2_parts.append(f"{ticker}’s <strong>{ebitda_fmt}</strong> in EBITDA and <strong>{gross_profit_fmt}</strong> in gross profit indicate its raw earning power, while the <strong>{net_income_fmt}</strong> in net income reveals how effectively it converts that power into bottom-line results.")
 
-        # Default Narrative
-        narrative_options = [
-            (
-                 f"This section examines {ticker}'s ability to generate profit and expand its business. {profit_summary} {growth_summary} {trend_context} {comparison_prompt} These are key indicators of financial performance and future potential."
-            ),
-            (
-            f"Here we look at {ticker}'s profit generation and growth trajectory. {profit_summary} {growth_summary} {trend_context} {comparison_prompt} These metrics reflect financial success and expansion capacity."
-            )
-        ]
-        narrative = random.choice(narrative_options)
+        if op_margin_raw is not None and rev_growth_raw is not None:
+            if op_margin_raw > 0.15 and rev_growth_raw < 0.10:
+                p2_parts.append("From these indicators, it becomes clear that the company is currently prioritizing strong profitability over rapid, top-line growth.")
+            elif op_margin_raw < 0.05 and rev_growth_raw > 0.15:
+                p2_parts.append("This financial profile suggests the company is focused on aggressive growth and market capture, even at the expense of short-term profitability.")
+            else:
+                 p2_parts.append("The company appears to be balancing its pursuit of growth with the need to maintain profitability.")
 
-        return f'<div class="narrative"><p>{narrative}</p></div>' + content
+        if gross_margin_raw is not None and net_margin_raw is not None:
+            margin_spread = (gross_margin_raw - net_margin_raw) * 100
+            if margin_spread > 20:
+                p2_parts.append(f"Despite healthy gross margins, there is a significant difference between the company’s gross and net margins ({gross_margin_fmt} vs. {net_margin_fmt}). This is likely due to high operating expenses, interest costs, or taxes, which are key areas for investors to watch.")
+
+        p2_parts.append(f"In the future, maintaining steady or improving margins will be critical. It is important for {ticker} to defend its pricing power and control operating costs, as this will help sustain profitability, especially if revenue growth moderates.")
+        
+        # --- 3. Assemble Final HTML ---
+        paragraph1_html = '<p>' + ' '.join(p1_parts) + '</p>' if p1_parts else ''
+        paragraph2_html = '<p>' + ' '.join(p2_parts) + '</p>' if p2_parts else ''
+        full_narrative_html = f'<div class="narrative">{paragraph1_html}{paragraph2_html}</div>'
+        
+        # Generate the data table
+        table_html = generate_metrics_section_content(profit_data)
+        
+        return full_narrative_html + table_html
+
     except Exception as e:
+        logging.error(f"Error in generate_profitability_growth_html for {ticker}: {e}", exc_info=True)
         return _generate_error_html("Profitability & Growth", str(e))
+
 
 def generate_dividends_shareholder_returns_html(ticker, rdata):
     """Generates Dividends & Shareholder Returns section with a default narrative focus."""
