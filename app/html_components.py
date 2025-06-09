@@ -822,52 +822,161 @@ def generate_metrics_section_content(metrics):
                    </div>"""
 
 def generate_total_valuation_html(ticker, rdata):
-    """Generates Total Valuation section with a default narrative focus."""
+    """
+    Generates the Total Valuation section with a custom, dynamic narrative summary
+    split into two paragraphs, followed by the original data table.
+    """
     try:
-        valuation_data = rdata.get('total_valuation_data')
-        if not isinstance(valuation_data, dict):
-            valuation_data = {}
-            logging.warning("total_valuation_data not found or not a dict, using empty.")
+        # --- 1. Data Extraction and Parsing ---
+        profile_data = rdata.get('profile_data', {})
+        valuation_data = rdata.get('total_valuation_data', {})
+        dividend_data = rdata.get('dividends_data', {})
+        currency_symbol = rdata.get('currency_symbol', '$')
 
-        content = generate_metrics_section_content(valuation_data)
+        # Helper to parse formatted numbers like '$204.76B' back to a float
+        def _parse_formatted_value(value_str):
+            if value_str is None or not isinstance(value_str, (str, int, float)) or (isinstance(value_str, str) and value_str.lower() in ["n/a", ""]):
+                return None
+            
+            value_str = str(value_str) # Convert non-string to string for processing
+            
+            # Clean the string
+            value_str = value_str.strip().upper().replace(currency_symbol, '').replace(',', '').replace('X', '')
+            
+            multiplier = 1
+            if value_str.endswith('T'):
+                multiplier = 1e12
+                value_str = value_str[:-1]
+            elif value_str.endswith('B'):
+                multiplier = 1e9
+                value_str = value_str[:-1]
+            elif value_str.endswith('M'):
+                multiplier = 1e6
+                value_str = value_str[:-1]
+            elif value_str.endswith('K'):
+                multiplier = 1e3
+                value_str = value_str[:-1]
+            
+            try:
+                return float(value_str) * multiplier
+            except (ValueError, TypeError):
+                return None
 
-        ev_ttm = format_html_value(valuation_data.get('Enterprise Value (EV TTM)'), 'large_number', currency=rdata.get('currency_symbol', '$'))
-        ev_rev = format_html_value(valuation_data.get('EV/Revenue (TTM)'), 'ratio')
-        ev_ebitda = format_html_value(valuation_data.get('EV/EBITDA (TTM)'), 'ratio')
-        next_earn_date = format_html_value(valuation_data.get('Next Earnings Date'), 'date')
-        ex_div_date = format_html_value(valuation_data.get('Ex-Dividend Date'), 'date')
-
-        ev_explanation_options = [
-            f"Enterprise Value (EV) of <strong>{ev_ttm}</strong> provides a more comprehensive measure of {ticker}'s total worth than market cap alone, as it incorporates debt and cash.",
-            f"Looking beyond market cap, the Enterprise Value (EV), currently <strong>{ev_ttm}</strong>, offers a broader view of {ticker}'s value by including debt and cash.",
-            f"At <strong>{ev_ttm}</strong>, the Enterprise Value (EV) presents a fuller picture of {ticker}'s aggregate value, accounting for both equity and net debt."
-        ]
-        ev_explanation = random.choice(ev_explanation_options)
-
-        ratio_explanation_options = [
-            f"The EV/Revenue ratio ({ev_rev}) compares this total value to sales, while EV/EBITDA ({ev_ebitda}) relates it to operating profitability before interest, taxes, depreciation, and amortization.",
-            f"Relating this EV to performance, the EV/Revenue multiple stands at {ev_rev}, and the EV/EBITDA multiple is {ev_ebitda}, gauging value against sales and core operational earnings respectively.",
-            f"Key ratios derived from EV include EV/Revenue ({ev_rev}) and EV/EBITDA ({ev_ebitda}), which assess valuation relative to top-line revenue and operating profit (pre-deductions)."
-        ]
-        ratio_explanation = random.choice(ratio_explanation_options)
+        # Get formatted values for display
+        market_cap_fmt = valuation_data.get('Market Cap', 'N/A')
+        enterprise_value_fmt = valuation_data.get('Enterprise Value', 'N/A')
+        ev_rev_fmt = valuation_data.get('EV/Revenue (TTM)', 'N/A')
+        ev_ebitda_fmt = valuation_data.get('EV/EBITDA (TTM)', 'N/A')
+        next_earn_date = valuation_data.get('Next Earnings Date', 'N/A')
+        ex_div_date = valuation_data.get('Ex-Dividend Date', 'N/A')
         
-        # Default Narrative
-        narrative_options = [
-             (
-                 f"Total valuation metrics offer a broader perspective beyond market capitalization. {ev_explanation} {ratio_explanation} "
-                 f"These ratios help assess the company's valuation relative to its sales and operating earnings. Key upcoming dates include the next earnings announcement (Est: {next_earn_date}) and the ex-dividend date ({ex_div_date})."
-             ),
-             (
-                f"Moving beyond simple market cap, total valuation metrics provide deeper insight. {ev_explanation} {ratio_explanation} "
-                f"These figures help evaluate {ticker}'s price relative to its business scale and operational results. Note the upcoming earnings (Est: {next_earn_date}) and ex-dividend ({ex_div_date}) dates."
-             )
-        ]
-        narrative = random.choice(narrative_options)
+        # Get raw values for calculations
+        market_cap_raw = _parse_formatted_value(market_cap_fmt)
+        enterprise_value_raw = _parse_formatted_value(enterprise_value_fmt)
+        ev_rev_raw = _parse_formatted_value(ev_rev_fmt)
+        ev_ebitda_raw = _parse_formatted_value(ev_ebitda_fmt)
 
-        return f'<div class="narrative"><p>{narrative}</p></div>' + content
+        # Get other necessary data
+        company_name = profile_data.get('Company Name', ticker)
+        industry_descriptor = f"a key player in the {profile_data.get('Industry', 'its')} industry"
+        
+        # Check for dividend payment
+        fwd_rate_raw = _parse_formatted_value(dividend_data.get('Forward Annual Dividend Rate'))
+        yield_raw = _parse_formatted_value(str(dividend_data.get('Dividend Yield', '0')).replace('%',''))
+        trailing_rate_raw = _parse_formatted_value(dividend_data.get('Trailing Annual Dividend Rate'))
+        has_dividend = (fwd_rate_raw is not None and fwd_rate_raw > 0) or \
+                       (yield_raw is not None and yield_raw > 0) or \
+                       (trailing_rate_raw is not None and trailing_rate_raw > 0)
+
+        # --- 2. Dynamic Narrative Generation ---
+        
+        # Part 1: Market Cap vs. Enterprise Value (First Paragraph)
+        narrative_part1 = ""
+        if market_cap_raw is not None and enterprise_value_raw is not None:
+            net_debt = enterprise_value_raw - market_cap_raw
+            if net_debt > 0.01 * market_cap_raw: # Check if debt is more than 1% of market cap
+                net_debt_fmt = format_html_value(net_debt, 'large_number', currency=currency_symbol)
+                narrative_part1 = (
+                    f"Although the market considers {company_name} to be {industry_descriptor} with a <strong>{market_cap_fmt}</strong> market cap, "
+                    f"its enterprise value is actually much higher at <strong>{enterprise_value_fmt}</strong>, with <strong>{net_debt_fmt}</strong> of that value added by debt. "
+                    f"Investors are confident about {company_name}’s future earnings, but keep in mind the risk of that large amount of debt."
+                )
+            else: # Net cash position or negligible debt
+                net_cash_fmt = format_html_value(abs(net_debt), 'large_number', currency=currency_symbol)
+                narrative_part1 = (
+                    f"While {company_name} has a market cap of <strong>{market_cap_fmt}</strong>, its enterprise value of <strong>{enterprise_value_fmt}</strong> is lower, "
+                    f"reflecting a strong net cash position of approximately {net_cash_fmt}. This financial strength provides a cushion and flexibility for future investments."
+                )
+        else:
+            narrative_part1 = f"The company's total valuation, including both its market capitalization and debt, provides a comprehensive view of its worth."
+
+        # Part 2: Valuation Ratios and Outlook (Second Paragraph)
+        narrative_parts2_and_3 = []
+        if ev_rev_fmt != 'N/A' and ev_ebitda_fmt != 'N/A':
+            premium_text = "trades at a valuation that reflects its market position"
+            if ev_rev_raw is not None and ev_ebitda_raw is not None:
+                if ev_rev_raw > 4 or ev_ebitda_raw > 15:
+                    premium_text = "trades at a premium to many peers"
+                elif ev_rev_raw < 1.5 and ev_ebitda_raw < 8 and ev_rev_raw > 0 and ev_ebitda_raw > 0:
+                     premium_text = "appears attractively valued compared to many peers"
+            
+            narrative_parts2_and_3.append(
+                f"The valuation ratios tell an interesting story: at <strong>{ev_rev_fmt}</strong> revenue and <strong>{ev_ebitda_fmt}</strong> EBITDA, {company_name} {premium_text}. "
+                f"This reflects the company's strong market position and brand assets. But it also means the stock may have little room for error."
+            )
+
+        earnings_text = ""
+        dividend_text = ""
+        if next_earn_date != 'N/A':
+            earnings_text = (
+                f"The upcoming <strong>{next_earn_date}</strong> earnings report will be crucial in showing whether {company_name}'s businesses can grow into this valuation"
+            )
+
+        if has_dividend and ex_div_date != 'N/A':
+            dividend_text = (
+                f"the {ex_div_date} ex-dividend date serves as a reminder that {company_name} still rewards shareholders even as it invests for growth"
+            )
+
+        # Combine earnings and dividend text intelligently
+        if earnings_text and dividend_text:
+            narrative_parts2_and_3.append(f"{earnings_text}, while {dividend_text}.")
+        elif earnings_text:
+            narrative_parts2_and_3.append(f"{earnings_text}.")
+        elif dividend_text:
+            narrative_parts2_and_3.append(f"The {dividend_text[4:]}.")
+
+        narrative_parts2_and_3.append("Essentially, you're paying for quality - but quality doesn't come cheap.")
+
+        # --- 3. Assemble Final HTML ---
+        
+        # Create the two paragraphs
+        paragraph1_html = f"<p>{narrative_part1}</p>"
+        paragraph2_html = f"<p>{' '.join(narrative_parts2_and_3)}</p>" if narrative_parts2_and_3 else ""
+        
+        full_narrative_html = f'<div class="narrative">{paragraph1_html}{paragraph2_html}</div>'
+
+        # Get the original table content
+        table_content = generate_metrics_section_content(valuation_data)
+        
+        # Return the new narrative followed by the table
+        return full_narrative_html + table_content
+
     except Exception as e:
+        # Fallback to the standard error HTML generator on any failure
+        logging.error(f"Error in generate_total_valuation_html for {ticker}: {e}", exc_info=True)
         return _generate_error_html("Total Valuation", str(e))
+        # --- 3. Assemble Final HTML ---
+        
+        # Get the original table content
+        table_content = generate_metrics_section_content(valuation_data)
+        
+        # Return the new narrative followed by the table
+        return f'<div class="narrative">{full_narrative}</div>' + table_content
 
+    except Exception as e:
+        # Fallback to the standard error HTML generator on any failure
+        logging.error(f"Error in generate_total_valuation_html for {ticker}: {e}", exc_info=True)
+        return _generate_error_html("Total Valuation", str(e))
 
 def generate_conclusion_outlook_html(ticker, rdata):
     """Generates the Conclusion and Outlook section with synthesized analysis."""
@@ -1647,62 +1756,126 @@ def generate_dividends_shareholder_returns_html(ticker, rdata):
         return _generate_error_html("Dividends & Shareholder Returns", str(e))
 
 def generate_share_statistics_html(ticker, rdata):
-    """Generates Share Statistics with a default narrative focus."""
+    """
+    Generates the Share Statistics and Short Interest summary with a dynamically
+    generated narrative split into two paragraphs for better readability.
+    """
     try:
-        share_data = rdata.get('share_statistics_data')
-        if not isinstance(share_data, dict):
-             share_data = {}
-             logging.warning("share_statistics_data not found or not a dict, using empty.")
-
-        content = generate_metrics_section_content(share_data)
+        # --- 1. Data Extraction and Helper Function ---
+        share_data = rdata.get('share_statistics_data', {})
+        short_data = rdata.get('short_selling_data', {})
         currency_symbol = rdata.get('currency_symbol', '$')
 
-        float_shares = format_html_value(share_data.get('Float'), 'large_number', currency=currency_symbol) # No currency for shares count
-        shares_outstanding = format_html_value(share_data.get('Shares Outstanding'), 'large_number', currency=currency_symbol) # No currency for shares count
-        insider_own_fmt = format_html_value(share_data.get('Insider Ownership'), 'percent_direct') 
-        inst_own_fmt = format_html_value(share_data.get('Institutional Ownership'), 'percent_direct') 
-        shares_change_yoy_fmt = format_html_value(share_data.get('Shares Change (YoY)'), 'percent_direct') 
+        # Helper to parse formatted values like '$2B' or '1.1%' into numbers
+        def _parse_value(value_str):
+            if value_str is None or not isinstance(value_str, str) or value_str.lower() == 'n/a':
+                return None
+            
+            cleaned_str = value_str.strip().upper().replace(currency_symbol, '').replace(',', '')
+            multiplier = 1
+            
+            if cleaned_str.endswith('%'):
+                multiplier = 0.01
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('T'):
+                multiplier = 1e12
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('B'):
+                multiplier = 1e9
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('M'):
+                multiplier = 1e6
+                cleaned_str = cleaned_str[:-1]
+            elif cleaned_str.endswith('K'):
+                multiplier = 1e3
+                cleaned_str = cleaned_str[:-1]
 
-        ownership_implication = ""
-        insider_val = _safe_float(share_data.get('Insider Ownership'))
-        inst_val = _safe_float(share_data.get('Institutional Ownership'))
-        insider_options = {'high': ["significant", "substantial"], 'mid': ["moderate", "meaningful"], 'low': ["low", "limited"]}
-        insider_alignment_options = {'high': ["suggests strong alignment with shareholders."], 'mid': ["suggests some alignment with shareholders."], 'low': ["suggests limited direct management skin-in-the-game."]}
+            try:
+                return float(cleaned_str.replace('X','')) * multiplier
+            except (ValueError, TypeError):
+                return None
 
-        if insider_val is not None:
-            insider_level = random.choice(insider_options['high']) if insider_val > 10 else random.choice(insider_options['mid']) if insider_val > 2 else random.choice(insider_options['low'])
-            ownership_implication += f"The {insider_level} insider ownership ({insider_own_fmt}) {random.choice(insider_alignment_options[insider_level if insider_val > 10 else ('mid' if insider_val > 2 else 'low')])}"
-
-        inst_options = {'high': ["very high", "dominant"], 'mid': ["high", "significant"], 'low': ["moderate", "reasonable"]}
-        inst_conviction_options = {'high': ["indicating strong conviction from large investors, potentially leading to lower volatility."], 'mid': ["indicating moderate interest from large funds."], 'low': ["reflecting limited institutional focus currently."]}
-
-        if inst_val is not None:
-            inst_level = random.choice(inst_options['high']) if inst_val > 75 else random.choice(inst_options['mid']) if inst_val > 50 else random.choice(inst_options['low'])
-            if ownership_implication: ownership_implication += " "
-            ownership_implication += f"Institutional ownership stands at a {inst_level} level ({inst_own_fmt}), {random.choice(inst_conviction_options[inst_level if inst_val > 75 else ('mid' if inst_val > 50 else 'low')])}"
-
-        float_context_options = [
-            f"The public float of <strong>{float_shares}</strong> (out of {shares_outstanding} outstanding shares) represents the shares readily available for trading, influencing liquidity and potential price impact from large trades.",
-            f"With <strong>{float_shares}</strong> shares floating (vs. {shares_outstanding} total), this portion is actively traded, affecting liquidity and susceptibility to large order impacts."
-        ]
-        float_context = random.choice(float_context_options)
+        # --- 2. Parse Raw Values for Logic ---
+        shares_out_raw = _parse_value(share_data.get('Shares Outstanding'))
+        shares_float_raw = _parse_value(share_data.get('Shares Float'))
+        insider_own_raw = _parse_value(share_data.get('Insider Ownership'))
+        inst_own_raw = _parse_value(share_data.get('Institutional Ownership'))
+        shares_short_raw = _parse_value(short_data.get('Shares Short'))
+        short_float_raw = _parse_value(short_data.get('Short % of Float'))
         
-        # Default Narrative
-        narrative_options = [
-             (
-                 f"These statistics detail {ticker}'s equity landscape. {float_context} {ownership_implication} "
-                 f"Monitoring changes in share count ({shares_change_yoy_fmt}) and ownership can offer clues about company strategy and investor sentiment."
-             ),
-             (
-             f"Here's a look at {ticker}'s share structure. {float_context} {ownership_implication} "
-             f"Tracking share count ({shares_change_yoy_fmt}) and ownership shifts provides insight into corporate actions and market sentiment."
-             )
-        ]
-        narrative = random.choice(narrative_options)
+        # --- 3. Dynamic Narrative Generation (in two paragraphs) ---
+        p1_parts = []
+        p2_parts = []
+        
+        # Paragraph 1: Float, Liquidity, and Ownership
+        if shares_out_raw is not None and shares_float_raw is not None:
+            float_percentage = (shares_float_raw / shares_out_raw) * 100 if shares_out_raw > 0 else 0
+            if float_percentage > 95:
+                p1_parts.append(f"Nearly all of the company’s <strong>{share_data.get('Shares Outstanding', 'N/A')}</strong> shares are publicly available as float, so no major amount is locked up.")
+            else:
+                locked_up_pct = 100 - float_percentage
+                p1_parts.append(f"About <strong>{locked_up_pct:.1f}%</strong> of the company's shares are closely held by insiders or strategic investors, with the remaining <strong>{share_data.get('Shares Float', 'N/A')}</strong> available for public trading.")
+            
+            if shares_float_raw > 50_000_000:
+                 p1_parts.append("Because the float is high, investors can typically trade this stock without causing significant price shifts.")
+            
+            p1_parts.append("However, investors should be aware that the company could issue more shares, potentially diluting the value of existing stock.")
+        else:
+            p1_parts.append("Information on the total number of shares and the publicly traded float was not available, which can impact understanding of the stock's liquidity and ownership structure.")
 
-        return f'<div class="narrative"><p>{narrative}</p></div>' + content
+        ownership_narrative = ""
+        if insider_own_raw is not None:
+            ownership_level = "very little" if insider_own_raw < 0.01 else "a small amount" if insider_own_raw < 0.05 else "a significant stake"
+            implication = "meaning they may not have substantial 'skin in the game' if the company struggles" if insider_own_raw < 0.01 else "which helps align their interests with shareholders"
+            ownership_narrative += (f"Executives and major shareholders own <strong>{ownership_level}</strong> of the company ({share_data.get('Insider Ownership', 'N/A')}), {implication}. ")
+        
+        if inst_own_raw is not None:
+            inst_level = "also small" if inst_own_raw < 0.30 else "significant" if inst_own_raw > 0.7 else "healthy"
+            inst_implication = "This is much less than the averages found in widely held stocks. If big-money investors are avoiding the stock, it could be due to concerns about performance or simply a lack of focus on the company." if inst_own_raw < 0.30 else "This level of institutional backing provides a degree of stability and confidence in the stock."
+            ownership_narrative += (f"The level of ownership by institutions is <strong>{inst_level}</strong>, coming in at <strong>{share_data.get('Institutional Ownership', 'N/A')}</strong>. {inst_implication}")
+        
+        if ownership_narrative:
+            p1_parts.append(ownership_narrative)
+
+        # Paragraph 2: Short Interest and Synthesis
+        short_narrative = ""
+        if shares_short_raw is not None and short_float_raw is not None:
+            short_level_text = "bears are not expressing much concern for the company"
+            if short_float_raw > 0.10:
+                short_level_text = "a significant portion of the market is betting against the stock, indicating high perceived risk"
+            elif short_float_raw > 0.03:
+                short_level_text = "there is a notable level of bearish sentiment"
+
+            short_narrative = (
+                f"We will now look into the impact of short interest on the market. At the current level of <strong>{short_data.get('Shares Short', 'N/A')}</strong> shorted shares ({short_data.get('Short % of Float', 'N/A')} of the float), it suggests that {short_level_text}. "
+                "Watch for changes in short interest, as a sharp increase may indicate that more investors are becoming doubtful. Conversely, very low short interest during positive news can sometimes discourage a 'short squeeze'."
+            )
+            p2_parts.append(short_narrative)
+        
+        synthesis = ""
+        if (shares_float_raw is not None and shares_float_raw > 50_000_000) and (inst_own_raw is not None and inst_own_raw < 0.30):
+            synthesis = "When we look at all of these factors, we can see that while the stock is liquid and easy to trade, its price may not see sustained growth unless it gains stronger support from large institutional traders or company insiders."
+        elif (insider_own_raw is not None and insider_own_raw > 0.10) and (inst_own_raw is not None and inst_own_raw > 0.70):
+            synthesis = "Overall, the combination of high insider and institutional ownership suggests strong internal and external confidence, creating a solid foundation for the stock's stability and potential growth."
+        
+        if synthesis:
+            p2_parts.append(synthesis)
+
+        # --- 4. Assemble Final HTML ---
+        paragraph1_html = '<p>' + ' '.join(p1_parts) + '</p>' if p1_parts else ''
+        paragraph2_html = '<p>' + ' '.join(p2_parts) + '</p>' if p2_parts else ''
+        full_narrative_html = f'<div class="narrative">{paragraph1_html}{paragraph2_html}</div>'
+        
+        # Combine data for the table view
+        combined_data_for_table = {**share_data, **short_data}
+        table_html = generate_metrics_section_content(combined_data_for_table)
+        
+        return full_narrative_html + table_html
+
     except Exception as e:
+        logging.error(f"Error in generate_share_statistics_html for {ticker}: {e}", exc_info=True)
         return _generate_error_html("Share Statistics", str(e))
+    
 
 def generate_stock_price_statistics_html(ticker, rdata):
     """Generates Stock Price Statistics section with a default narrative focus."""
