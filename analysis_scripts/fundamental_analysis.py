@@ -128,10 +128,22 @@ def extract_valuation_metrics(fundamentals: dict, currency='$'):
 def extract_financial_health(fundamentals: dict):
     """Extracts key financial health metrics."""
     info = fundamentals.get('info', {})
+
+    # FIX: Correct for potential percentage-based Debt/Equity from yfinance
+    debt_equity_raw = safe_get(info, 'debtToEquity')
+    debt_equity_corrected = debt_equity_raw
+    try:
+        # Heuristic: If D/E ratio is unusually high, assume it was given as a percentage
+        if debt_equity_raw != "N/A" and float(debt_equity_raw) > 10.0:
+            debt_equity_corrected = float(debt_equity_raw) / 100.0
+    except (ValueError, TypeError):
+        # If conversion fails, keep the original value
+        debt_equity_corrected = debt_equity_raw
+
     metrics = {
         "Return on Equity (ROE TTM)": format_value(safe_get(info, 'returnOnEquity'), 'percent'),
         "Return on Assets (ROA TTM)": format_value(safe_get(info, 'returnOnAssets'), 'percent'),
-        "Debt/Equity (MRQ)": format_value(safe_get(info, 'debtToEquity'), 'ratio'),
+        "Debt/Equity (MRQ)": format_value(debt_equity_corrected, 'ratio'),
         "Total Cash (MRQ)": format_value(safe_get(info, 'totalCash'), 'large_number'),
         "Total Debt (MRQ)": format_value(safe_get(info, 'totalDebt'), 'large_number'),
         "Current Ratio (MRQ)": format_value(safe_get(info, 'currentRatio'), 'ratio'),
@@ -156,38 +168,36 @@ def extract_profitability(fundamentals: dict):
         "Net Income (TTM)": format_value(safe_get(info, 'netIncomeToCommon'), 'large_number'),
         "Earnings Growth (YoY)": format_value(safe_get(info, 'earningsGrowth'), 'percent'), # Quarterly YoY usually
     }
-    # Handle potential N/A for Gross Margin if needed (often calculated, not direct in info)
-    # if metrics["Gross Margin (TTM)"] == "N/A" and metrics["Revenue (TTM)"] != "N/A" and metrics["Gross Profit (TTM)"] != "N/A":
-    #     try: # Example calculation
-    #         rev = float(str(safe_get(info, 'totalRevenue')))
-    #         gp = float(str(safe_get(info, 'grossProfits')))
-    #         if rev != 0: metrics["Gross Margin (TTM)"] = format_value(gp / rev, 'percent')
-    #     except: pass # Keep N/A if calc fails
-
     return metrics
 
 def extract_dividends_splits(fundamentals: dict, currency='$'):
-    """Extracts dividend and stock split information."""
+    """
+    FIX: Extracts dividend and stock split information.
+    This version now passes raw values for formatting downstream and removes
+    the problematic standardization function that was causing errors.
+    """
     info = fundamentals.get('info', {})
-    # Calculate Buyback Yield estimate if possible (Requires Shares Outstanding change)
-    # This is often NOT directly available and needs historical data comparison. Placeholder for now.
-    buyback_yield_estimate = "N/A"
-
+    
+    # The problematic _standardize_percent_value function has been removed.
+    # We now pass the raw values directly, assuming that values like 'dividendYield'
+    # are provided as fractions (e.g., 0.0088 for 0.88%) by the API.
+    # The formatting is handled correctly by the `format_value` helper later on.
+    
     metrics = {
         "Dividend Rate": format_value(safe_get(info, 'dividendRate'), 'currency', currency=currency),
-        "Dividend Yield": format_value(safe_get(info, 'dividendYield'), 'percent'),
+        "Dividend Yield": format_value(safe_get(info, 'dividendYield'), 'percent_direct'),
         "Payout Ratio": format_value(safe_get(info, 'payoutRatio'), 'percent'),
-        "5 Year Average Dividend Yield": format_value(safe_get(info, 'fiveYearAvgDividendYield'), 'percent'),
+        "5 Year Average Dividend Yield": format_value(safe_get(info, 'fiveYearAvgDividendYield'), 'percent_direct'), # This one is often a direct percentage
         "Forward Annual Dividend Rate": format_value(safe_get(info, 'forwardDividendRate'), 'currency', currency=currency),
         "Forward Annual Dividend Yield": format_value(safe_get(info, 'forwardDividendYield'), 'percent'),
-        "Trailing Dividend Rate": format_value(safe_get(info, 'trailingAnnualDividendRate'), 'currency'),
+        "Trailing Dividend Rate": format_value(safe_get(info, 'trailingAnnualDividendRate'), 'currency', currency=currency),
         "Trailing Dividend Yield": format_value(safe_get(info, 'trailingAnnualDividendYield'), 'percent'),
         "Ex-Dividend Date": format_value(safe_get(info, 'exDividendDate'), 'date'),
-        "Buyback Yield (Est.)": buyback_yield_estimate, # Placeholder
         "Last Split Date": format_value(safe_get(info, 'lastSplitDate'), 'date'),
-        "Last Split Factor": format_value(safe_get(info, 'lastSplitFactor', 'N/A'), 'factor'),
+        "Last Split Factor": safe_get(info, 'lastSplitFactor', 'N/A'),
     }
     return metrics
+
 
 def extract_analyst_info(fundamentals: dict):
     """Extracts analyst recommendation and target price info."""
@@ -321,14 +331,15 @@ def extract_share_statistics_data(fundamentals: dict, current_price=None, curren
 
     metrics = {
         "Shares Outstanding": format_value(shares_outstanding, 'large_number', 0),
-        "Implied Shares Outstanding": format_value(safe_get(info, 'impliedSharesOutstanding'), 'large_number', 0), # Sometimes available
+        "Implied Shares Outstanding": format_value(safe_get(info, 'impliedSharesOutstanding'), 'large_number', 0),
         "Shares Float": format_value(safe_get(info, 'floatShares'), 'large_number', 0),
         "Insider Ownership": format_value(safe_get(info, 'heldPercentInsiders'), 'percent'),
-        "Institutional Ownership": format_value(safe_get(info, 'heldPercentInstitutions'), 'percent_direct'),
-        "Shares Short": format_value(safe_get(info, 'sharesShort'), 'large_number', 0), # Part of short info, but fits here too
-        "Shares Change (YoY)": "N/A", # Requires historical shares data - Placeholder
+        "Institutional Ownership": format_value(safe_get(info, 'heldPercentInstitutions'), 'percent'),
+        "Shares Short": format_value(safe_get(info, 'sharesShort'), 'large_number', 0),
+        "Shares Change (YoY)": "N/A",
     }
     return metrics
+
 
 def extract_financial_efficiency_data(fundamentals: dict):
     """Extracts/Calculates data for the Financial Efficiency section."""
