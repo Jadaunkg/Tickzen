@@ -319,8 +319,10 @@ def generate_metrics_summary_html(ticker, rdata):
         volatility_fmt = format_html_value(volatility_val, 'percent_direct', 1)
         beta_fmt = f"{format_html_value(beta_val, 'ratio')} (High Sensitivity)" if beta_val and beta_val > 1.2 else f"{format_html_value(beta_val, 'ratio')}"
         green_days_fmt = f"{int(green_days_val)}/{int(total_days_val)} ({green_days_pct:.0f}%)"
-        inst_own_fmt = format_html_value(inst_own_val, 'percent')
-        short_float_fmt = f"{format_html_value(short_float_val, 'percent')} (Low Bearish Bets)" if short_float_val and short_float_val < 2.0 else f"{format_html_value(short_float_val, 'percent')}"
+        inst_own_fmt = format_html_value(inst_own_val, 'percent_direct')
+        short_float_fmt = (f"{format_html_value(short_float_val, 'percent')} (Low Bearish Bets)" if short_float_val and short_float_val < 2.0 else f"{format_html_value(short_float_val, 'percent')}"
+)
+
         
         # --- 2. Dynamic Text Generation ---
         
@@ -791,7 +793,8 @@ def generate_metrics_section_content(metrics):
                 format_type = "string" 
                 k_lower = str(k).lower()
                 if "date" in k_lower: format_type = "date"
-                elif "yield" in k_lower or "ratio" in k_lower or "beta" in k_lower: format_type = "ratio"
+                elif "yield" in k_lower or "payout ratio" in k_lower: format_type = "percent_direct"
+                elif "ratio" in k_lower or "beta" in k_lower: format_type = "ratio"
                 elif "margin" in k_lower or "ownership" in k_lower or "growth" in k_lower or "%" in k_lower: format_type = "percent_direct"
                 elif "price" in k_lower or "value" in k_lower or "dividend rate" in k_lower: format_type = "currency"
                 elif "volume" in k_lower or "shares" in k_lower or "employees" in k_lower: format_type = "integer"

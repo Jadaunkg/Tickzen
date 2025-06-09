@@ -189,9 +189,9 @@ def extract_dividends_splits(fundamentals: dict, currency='$'):
         "Payout Ratio": format_value(safe_get(info, 'payoutRatio'), 'percent'),
         "5 Year Average Dividend Yield": format_value(safe_get(info, 'fiveYearAvgDividendYield'), 'percent_direct'), # This one is often a direct percentage
         "Forward Annual Dividend Rate": format_value(safe_get(info, 'forwardDividendRate'), 'currency', currency=currency),
-        "Forward Annual Dividend Yield": format_value(safe_get(info, 'forwardDividendYield'), 'percent'),
+        "Forward Annual Dividend Yield": format_value(safe_get(info, 'forwardDividendYield'), 'percent_direct'), 
         "Trailing Dividend Rate": format_value(safe_get(info, 'trailingAnnualDividendRate'), 'currency', currency=currency),
-        "Trailing Dividend Yield": format_value(safe_get(info, 'trailingAnnualDividendYield'), 'percent'),
+        "Trailing Dividend Yield": format_value(safe_get(info, 'trailingAnnualDividendYield'), 'percent_direct'),
         "Ex-Dividend Date": format_value(safe_get(info, 'exDividendDate'), 'date'),
         "Last Split Date": format_value(safe_get(info, 'lastSplitDate'), 'date'),
         "Last Split Factor": safe_get(info, 'lastSplitFactor', 'N/A'),
@@ -334,7 +334,7 @@ def extract_share_statistics_data(fundamentals: dict, current_price=None, curren
         "Implied Shares Outstanding": format_value(safe_get(info, 'impliedSharesOutstanding'), 'large_number', 0),
         "Shares Float": format_value(safe_get(info, 'floatShares'), 'large_number', 0),
         "Insider Ownership": format_value(safe_get(info, 'heldPercentInsiders'), 'percent'),
-        "Institutional Ownership": format_value(safe_get(info, 'heldPercentInstitutions'), 'percent'),
+        "Institutional Ownership": format_value(safe_get(info, 'heldPercentInstitutions'), 'percent'),  
         "Shares Short": format_value(safe_get(info, 'sharesShort'), 'large_number', 0),
         "Shares Change (YoY)": "N/A",
     }
