@@ -151,7 +151,7 @@ def generate_introduction_html(ticker, rdata):
         volatility_fmt = format_html_value(volatility_val, 'percent_direct', 1)
 
         rev_growth_val = _safe_float(profit_data.get('Revenue Growth (YoY)'))
-        rev_growth_fmt = format_html_value(rev_growth_val, 'percent')
+        rev_growth_fmt = format_html_value(rev_growth_val, 'percent_direct')
         
         debt_equity_val = _safe_float(health_data.get('Debt/Equity (MRQ)'))
         debt_equity_fmt = format_html_value(debt_equity_val, 'ratio')
@@ -320,7 +320,7 @@ def generate_metrics_summary_html(ticker, rdata):
         beta_fmt = f"{format_html_value(beta_val, 'ratio')} (High Sensitivity)" if beta_val and beta_val > 1.2 else f"{format_html_value(beta_val, 'ratio')}"
         green_days_fmt = f"{int(green_days_val)}/{int(total_days_val)} ({green_days_pct:.0f}%)"
         inst_own_fmt = format_html_value(inst_own_val, 'percent_direct')
-        short_float_fmt = (f"{format_html_value(short_float_val, 'percent')} (Low Bearish Bets)" if short_float_val and short_float_val < 2.0 else f"{format_html_value(short_float_val, 'percent')}"
+        short_float_fmt = (f"{format_html_value(short_float_val, 'percent_direct')} (Low Bearish Bets)" if short_float_val and short_float_val < 2.0 else f"{format_html_value(short_float_val, 'percent_direct')}"
 )
 
         
@@ -764,7 +764,7 @@ def generate_metrics_summary_html(ticker, rdata):
                     <div class="metric-row">
                         <span class="metric-label">Short % of Float:</span>
                         <span class="metric-value {'positive-value' if short_float_val and short_float_val < 2 else 'neutral-value' if short_float_val and short_float_val < 5 else 'negative-value'}">
-                            {format_html_value(short_float_val, 'percent')}% {'😊' if short_float_val and short_float_val < 2 else '😐' if short_float_val and short_float_val < 5 else '😰'}
+                            {format_html_value(short_float_val, 'percent_direct')} {'😊' if short_float_val and short_float_val < 2 else '😐' if short_float_val and short_float_val < 5 else '😰'}
                             {' (Low Bearish Bets)' if short_float_val and short_float_val < 2 else ' (Moderate Bets)' if short_float_val and short_float_val < 5 else ' (High Bearish Bets)'}
                         </span>
                     </div>

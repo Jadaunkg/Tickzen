@@ -389,7 +389,7 @@ def extract_short_selling_data(fundamentals: dict):
     metrics = {
         "Shares Short": format_value(safe_get(info, 'sharesShort'), 'large_number', 0),
         "Short Ratio (Days To Cover)": format_value(safe_get(info, 'shortRatio'), 'ratio', 1),
-        "Short % of Float": format_value(safe_get(info, 'shortPercentOfFloat'), 'percent_direct'),
+        "Short % of Float": format_value(safe_get(info, 'shortPercentOfFloat'), 'percent'),
         "Shares Short (Prior Month)": format_value(safe_get(info, 'sharesShortPriorMonth'), 'large_number', 0),
         "Short Date": format_value(safe_get(info, 'dateShortInterest'), 'date'), # Date of last short interest report
     }
