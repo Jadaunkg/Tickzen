@@ -142,6 +142,8 @@ Desktop.ini
 # Log files
 *.log
 auto_publisher.log
+.venv310/
+
 
 # Data cache
 generated_data/data_cache/
