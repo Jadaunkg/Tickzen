@@ -205,7 +205,7 @@ def generate_introduction_html(ticker, rdata):
         else:
             earnings_growth_val = _safe_float(profit_data.get('Earnings Growth (YoY)'))
             if earnings_growth_val is not None and earnings_growth_val < 0:
-                negative_fundamental = f"a recent contraction in earnings (down {format_html_value(earnings_growth_val, 'percent')} YoY)"
+                negative_fundamental = f"a recent contraction in earnings (down {format_html_value(earnings_growth_val, 'percent_direct')} YoY)"
             else:
                 negative_fundamental = "intense competition in its sector"
 

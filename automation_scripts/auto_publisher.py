@@ -765,7 +765,8 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                     article_title = generate_dynamic_headline(ticker_to_process, profile_name)
                     feature_img_dir = os.path.join(APP_ROOT, "..", "generated_data", "temp_images", profile_id)
                     os.makedirs(feature_img_dir, exist_ok=True)
-                    feature_img_filename = f"{re.sub(r'[^\\w]', '_', ticker_to_process)}_{int(time.time())}.png"
+                    sanitized_ticker = re.sub(r'[^\w]', '_', ticker_to_process)
+                    feature_img_filename = f"{sanitized_ticker}_{int(time.time())}.png"
                     feature_img_path = os.path.join(feature_img_dir, feature_img_filename)
 
                     _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Publishing", "Image Gen", "Generating feature image...", "info")
