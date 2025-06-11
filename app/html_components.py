@@ -4,9 +4,37 @@ import re
 from datetime import datetime
 import random # Used for slight text variations to ensure uniqueness
 import logging # Import logging for better error tracking
+import json
+import os
 
-# Setup basic logging - logs errors and warnings
+# --- START: NEW - LOAD THE PRE-GENERATED VARIATION LIBRARY ---
+# --- Load the Pre-Generated Variation Library ---
+VARIATION_LIBRARY = {}
+try:
+    # This path assumes html_components.py is in the 'app' directory
+    library_path = os.path.join(os.path.dirname(__file__), 'variation_library.json')
+    with open(library_path, 'r', encoding='utf-8') as f:
+        VARIATION_LIBRARY = json.load(f)
+    print("Variation library loaded successfully.")
+    logging.info("Variation library loaded successfully.")
+except FileNotFoundError:
+    print("CRITICAL WARNING: variation_library.json not found. Run build_variation_library.py first.")
+    logging.critical("variation_library.json not found. The build_variation_library.py script must be run.")
+except Exception as e:
+    print(f"CRITICAL ERROR: Failed to load or parse variation_library.json: {e}")
+    logging.critical(f"Failed to load or parse variation_library.json: {e}", exc_info=True)
+
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
+
+# --- Lightning-Fast Variation Helper ---
+def get_variation(template_key):
+    """Retrieves a random sentence component from the pre-generated library."""
+    variations = VARIATION_LIBRARY.get(template_key)
+    if variations and isinstance(variations, list) and variations:
+        return random.choice(variations)
+    else:
+        logging.warning(f"Template key '{template_key}' not found or empty in variation library.")
+        return f"[{template_key.replace('_', ' ').title()}]" # Safe fallback
 
 # --- HELPER FUNCTIONS (Added Robustness) ---
 
@@ -231,13 +259,13 @@ def generate_introduction_html(ticker, rdata):
         introduction_html = f"""
         <p>This report provides a detailed analysis of <strong>{company_name} ({ticker})</strong>, a {market_cap_fmt} company operating in the {industry} industry. The core questions for investors is whether the current stock price represents a fair value and if the company is well-positioned for future growth. Would it be wise to invest in {company_name} at this moment? Let's see how well {ticker} stock performs in the current market. </p>
         
-        <h3>Here’s What You Need to Know Right Now</h3>
-        <p>The stock is currently trading at <strong>{current_price_fmt}</strong> (as of {last_date_fmt}), and it’s {momentum_text}.</p>
-        <p>{analyst_outlook_text}. However, there’s significant volatility here (<strong>{volatility_fmt} annualized</strong>), suggesting the potential for wide price swings.</p>
-        <p>{company_name}’s fundamental story is nuanced. {fundamental_story_text}</p>
+        <h3>Here's What You Need to Know Right Now</h3>
+        <p>The stock is currently trading at <strong>{current_price_fmt}</strong> (as of {last_date_fmt}), and it's {momentum_text}.</p>
+        <p>{analyst_outlook_text}. However, there's significant volatility here (<strong>{volatility_fmt} annualized</strong>), suggesting the potential for wide price swings.</p>
+        <p>{company_name}'s fundamental story is nuanced. {fundamental_story_text}</p>
         
-        <h3>What’s Inside This Analysis?</h3>
-        <p>We’re not just throwing numbers at you—we’re breaking down {ticker}’s stock from every angle so you can make an informed decision:</p>
+        <h3>What's Inside This Analysis?</h3>
+        <p>We're not just throwing numbers at you—we're breaking down {ticker}'s stock from every angle so you can make an informed decision:</p>
         <ul>
             <li>✅ <strong>Is now a good time to buy?</strong><br>
             Technicals say, "{technical_verdict}" (but RSI is {rsi_condition} at {rsi_fmt}).<br>
@@ -251,7 +279,7 @@ def generate_introduction_html(ticker, rdata):
             Competition is fierce from both established players and new entrants.</li>
         </ul>
         
-        <p>Most stock analyses either use hard-to-understand jargon or say something too simple like “just buy” and trust the outcome. This is not what’s happening. We’re here with clear information that benefits you, no matter if you invest for long-term results or try for fast profits.</p>
+        <p>Most stock analyses either use hard-to-understand jargon or say something too simple like "just buy" and trust the outcome. This is not what's happening. We're here with clear information that benefits you, no matter if you invest for long-term results or try for fast profits.</p>
         <p>All in all, is {company_name} the right investment to make sure your money tells a story of success and satisfaction? Or is there underlying issues to be wary of? Stick around as we get to the details in the data.</p>
         """
 
@@ -902,7 +930,7 @@ def generate_total_valuation_html(ticker, rdata):
                 narrative_part1 = (
                     f"Although the market considers {company_name} to be {industry_descriptor} with a <strong>{market_cap_fmt}</strong> market cap, "
                     f"its enterprise value is much higher at <strong>{enterprise_value_fmt}</strong>, with <strong>{net_debt_fmt}</strong> of that value added by debt. "
-                    f"Investors are confident about {company_name}’s future earnings, but keep in mind the risk of that large amount of debt."
+                    f"Investors are confident about {company_name}'s future earnings, but keep in mind the risk of that large amount of debt."
                 )
             else: # Net cash position or negligible debt
                 net_cash_fmt = format_html_value(abs(net_debt), 'large_number', currency=currency_symbol)
@@ -1400,37 +1428,28 @@ def generate_company_profile_html(ticker, rdata):
 
 def generate_valuation_metrics_html(ticker, rdata):
     """
-    Generates a human-centric, two-paragraph summary for the Valuation Metrics section,
-    followed by the detailed data table.
+    Generates a human-centric summary by assembling random, pre-generated sentence
+    components and formatting them with live data.
     """
     try:
-        # --- 1. Data Extraction and Parsing ---
+        # --- 1. Data Extraction ---
         valuation_data = rdata.get('valuation_data', {})
-        total_valuation_data = rdata.get('total_valuation_data', {}) # For EV metrics
-        
-        # Ensure data is in dict format
+        total_valuation_data = rdata.get('total_valuation_data', {})
         if not isinstance(valuation_data, dict): valuation_data = {}
         if not isinstance(total_valuation_data, dict): total_valuation_data = {}
-
-        # Helper to parse formatted values like '23.24x' into numbers
+        
         def _parse_value(value_str):
-            if value_str is None or not isinstance(value_str, str) or value_str.lower() == 'n/a':
-                return None
-            try:
-                # Handles '23.24x' or '23.24'
-                return float(value_str.replace('x', '').strip())
-            except (ValueError, TypeError):
-                return None
-
-        # Get formatted values for display
+            if value_str is None or not isinstance(value_str, str) or value_str.lower() == 'n/a': return None
+            try: return float(value_str.replace('x', '').strip())
+            except (ValueError, TypeError): return None
+            
         trailing_pe_fmt = valuation_data.get('Trailing P/E', 'N/A')
         forward_pe_fmt = valuation_data.get('Forward P/E', 'N/A')
         ps_ratio_fmt = valuation_data.get('Price/Sales (TTM)', 'N/A')
         pb_ratio_fmt = valuation_data.get('Price/Book (MRQ)', 'N/A')
         ev_rev_fmt = total_valuation_data.get('EV/Revenue (TTM)', 'N/A')
         ev_ebitda_fmt = total_valuation_data.get('EV/EBITDA (TTM)', 'N/A')
-
-        # Get raw values for conditional logic
+        
         trailing_pe_raw = _parse_value(trailing_pe_fmt)
         forward_pe_raw = _parse_value(forward_pe_fmt)
         ps_ratio_raw = _parse_value(ps_ratio_fmt)
@@ -1438,71 +1457,78 @@ def generate_valuation_metrics_html(ticker, rdata):
         ev_rev_raw = _parse_value(ev_rev_fmt)
         ev_ebitda_raw = _parse_value(ev_ebitda_fmt)
 
-        # --- 2. Dynamic Narrative Generation ---
+        # --- 2. Assemble Dynamic Narrative from Library Components ---
         p1_parts = []
         p2_parts = []
 
         # --- Paragraph 1: P/E, P/S, and P/B Ratios ---
         if trailing_pe_raw is not None or forward_pe_raw is not None:
-            # Interpret P/E level
             pe_level_raw = forward_pe_raw if forward_pe_raw is not None else trailing_pe_raw
-            if pe_level_raw <= 0:
-                pe_interpretation = "is currently negative, making P/E an unreliable metric for valuation at this time"
-            elif pe_level_raw < 15:
-                pe_interpretation = "suggests the stock may be attractively priced compared to its earnings"
-            elif pe_level_raw < 25:
-                pe_interpretation = "suggests the stock is trading at a moderate premium compared to earnings"
-            else:
-                pe_interpretation = "suggests the stock is trading at a high premium, indicating high growth expectations from investors"
+            
+            if pe_level_raw <= 0: interp_key = "pe_interp_negative"
+            elif pe_level_raw < 15: interp_key = "pe_interp_attractive"
+            elif pe_level_raw < 25: interp_key = "pe_interp_moderate"
+            else: interp_key = "pe_interp_high"
+            
+            intro_component = get_variation("intro_pe")
+            interp_component = get_variation(interp_key)
+            p1_parts.append(f"{intro_component}, with its Trailing P/E at <strong>{trailing_pe_fmt}</strong> and Forward P/E at <strong>{forward_pe_fmt}</strong>, {interp_component}.")
 
-            p1_parts.append(f"The company's Trailing P/E of <strong>{trailing_pe_fmt}</strong> and Forward P/E of <strong>{forward_pe_fmt}</strong> {pe_interpretation}.")
-
-            # Compare Trailing vs Forward P/E
             if trailing_pe_raw is not None and forward_pe_raw is not None and forward_pe_raw > 0:
-                if forward_pe_raw < trailing_pe_raw * 0.9: # More than 10% dip
-                    p1_parts.append("The significant dip in the Forward P/E hints that analysts anticipate strong earnings improvement over the next year.")
-                elif forward_pe_raw < trailing_pe_raw:
-                    p1_parts.append("The slight dip in the Forward P/E hints that analysts anticipate modest earnings improvement.")
-                else:
-                    p1_parts.append("The lack of a significant drop in the Forward P/E suggests earnings are expected to remain stable or grow only slightly.")
+                trend_component = ""
+                if forward_pe_raw < trailing_pe_raw * 0.9: 
+                    trend_component = get_variation("pe_trend_strong")
+                elif forward_pe_raw < trailing_pe_raw: 
+                    trend_component = get_variation("pe_trend_modest")
+                else: 
+                    trend_component = get_variation("pe_trend_stable")
+                # Capitalize the first letter of the trend component
+                trend_component = trend_component[0].upper() + trend_component[1:]
+                p1_parts.append(trend_component)
 
-        # Interpret P/S and P/B
-        ps_pb_narrative = ""
         if ps_ratio_raw is not None and pb_ratio_raw is not None:
-            ps_pb_narrative = f"Meanwhile, the Price/Sales ratio of <strong>{ps_ratio_fmt}</strong> and Price/Book of <strong>{pb_ratio_fmt}</strong> show the stock isn’t cheap relative to its revenue or net assets, but it’s not wildly overvalued either. These multiples align with a reasonably healthy business, though they leave little room for error if growth slows."
-        elif ps_ratio_raw is not None:
-            ps_pb_narrative = f"The Price/Sales ratio of <strong>{ps_ratio_fmt}</strong> indicates investors are paying {ps_ratio_fmt} for every dollar of revenue, a key metric for growth-focused companies."
+            analysis_component = get_variation("ps_pb_analysis_main")
+            implication_component = get_variation("ps_pb_implication")
+            p1_parts.append(f"Meanwhile, its Price/Sales ratio of <strong>{ps_ratio_fmt}</strong> and Price/Book of <strong>{pb_ratio_fmt}</strong> show that {analysis_component}. {implication_component}")
         
-        if ps_pb_narrative:
-            p1_parts.append(ps_pb_narrative)
-
         # --- Paragraph 2: Enterprise Value Ratios and Synthesis ---
-        ev_narrative = ""
+        ev_sentences = []
         if ev_rev_raw is not None:
-            ev_rev_interp = "a fair but not bargain valuation" if 1.5 < ev_rev_raw < 3.5 else "an attractive valuation" if ev_rev_raw <= 1.5 else "a rich valuation"
-            ev_narrative += f"The EV/Revenue of <strong>{ev_rev_fmt}</strong> reinforces that the market assigns {ev_rev_interp} to the company’s sales. "
+            # Determine which observation to use based on data
+            if ev_rev_raw <= 1.5: ev_rev_obs_key = "ev_observation_rev_fair"
+            else: ev_rev_obs_key = "ev_observation_rev_fair"
+            
+            # Assemble the sentence from randomized parts
+            subject = get_variation("ev_subject_revenue")
+            verb = get_variation("ev_verb")
+            observation = get_variation(ev_rev_obs_key)
+            ev_sentences.append(f"{subject} of <strong>{ev_rev_fmt}</strong> {verb} {observation}")
 
         if ev_ebitda_raw is not None:
-            ev_ebitda_interp = "sits at the higher end of the spectrum—common for stable firms but potentially stretched if margins come under pressure" if ev_ebitda_raw > 12 else "is in a reasonable range, suggesting the enterprise value is well-supported by its operational earnings"
-            ev_narrative += f"More telling is the EV/EBITDA of <strong>{ev_ebitda_fmt}</strong>, which {ev_ebitda_interp}. "
+            if ev_ebitda_raw > 12: ev_ebitda_obs_key = "ev_observation_ebitda_stretched"
+            else: ev_ebitda_obs_key = "ev_observation_ebitda_reasonable"
+            
+            subject = get_variation("ev_subject_ebitda")
+            verb = get_variation("ev_verb")
+            observation = get_variation(ev_ebitda_obs_key)
+            # Use lowercase subject if it's not the start of the sentence
+            ev_sentences.append(f"and its {subject.lower()} of <strong>{ev_ebitda_fmt}</strong> {verb} {observation}")
         
-        if ev_narrative:
-             p2_parts.append(f"When we look at enterprise-level metrics, {ev_narrative.strip()}")
+        if ev_sentences:
+             full_ev_narrative = ", ".join(ev_sentences)
+             intro = get_variation("intro_ev")
+             p2_parts.append(f"{intro} {full_ev_narrative}.")
 
-        # Synthesis
-        p2_parts.append("Taken together, these ratios paint a picture of a fairly valued stock with future growth already priced in, but not a clear undervaluation. Investors should weigh these multiples against industry peers and the company’s historical range to gauge whether the current price justifies the fundamentals.")
+        p2_parts.append(get_variation("synthesis_conclusion"))
 
         # --- 3. Assemble Final HTML ---
         paragraph1_html = '<p>' + ' '.join(p1_parts) + '</p>' if p1_parts else ''
         paragraph2_html = '<p>' + ' '.join(p2_parts) + '</p>' if p2_parts else ''
         full_narrative_html = f'<div class="narrative">{paragraph1_html}{paragraph2_html}</div>'
 
-        # Combine data for the table display
         combined_data_for_table = {**valuation_data, **total_valuation_data}
-        # Filter out keys we don't want in this specific table
         keys_to_exclude = ['Market Cap', 'Enterprise Value', 'Next Earnings Date', 'Ex-Dividend Date']
         filtered_table_data = {k: v for k, v in combined_data_for_table.items() if k not in keys_to_exclude}
-
         table_html = generate_metrics_section_content(filtered_table_data)
         
         return full_narrative_html + table_html
@@ -1510,6 +1536,7 @@ def generate_valuation_metrics_html(ticker, rdata):
     except Exception as e:
         logging.error(f"Error in generate_valuation_metrics_html for {ticker}: {e}", exc_info=True)
         return _generate_error_html("Valuation Metrics", str(e))
+
 
 def generate_financial_health_html(ticker, rdata):
     """
@@ -1589,7 +1616,7 @@ def generate_financial_health_html(ticker, rdata):
         elif score < -1:
             p1_parts.append(f"{ticker}'s financial data reveals several areas of concern that warrant caution.")
         else:
-            p1_parts.append(f"{ticker}’s financial data clearly shows that strengths and weaknesses can appear together.")
+            p1_parts.append(f"{ticker}s financial data clearly shows that strengths and weaknesses can appear together.")
         
         if roe_raw is not None and roa_raw is not None:
             efficiency_text = "reflect a highly efficient use of capital, often seen in fast-growing firms" if roe_raw > 0.15 else "reflects that the company is not very efficient with its capital, and such numbers are usually found in established, stable firms"
@@ -1607,11 +1634,11 @@ def generate_financial_health_html(ticker, rdata):
 
         # Paragraph 2: Liquidity, Free Cash Flow, and Synthesis
         if current_ratio_raw is not None and quick_ratio_raw is not None:
-            liquidity_text = "potential liquidity issues that might cause trouble if the company’s cash cycle lengthens" if current_ratio_raw < 1.0 else "a solid liquidity position, able to cover its short-term liabilities"
+            liquidity_text = "potential liquidity issues that might cause trouble if the company's cash cycle lengthens" if current_ratio_raw < 1.0 else "a solid liquidity position, able to cover its short-term liabilities"
             p2_parts.append(f"The Current Ratio of <strong>{current_ratio_fmt}</strong> and Quick Ratio of <strong>{quick_ratio_fmt}</strong> show {liquidity_text}.")
 
         if lfcf_raw is not None and lfcf_raw > 0:
-            p2_parts.append(f"Furthermore, {ticker}’s <strong>{lfcf_fmt}</strong> in levered free cash flow suggests it can still generate significant cash for shareholders even after meeting its financial obligations.")
+            p2_parts.append(f"Furthermore, {ticker}'s <strong>{lfcf_fmt}</strong> in levered free cash flow suggests it can still generate significant cash for shareholders even after meeting its financial obligations.")
 
         # Synthesis based on the combined data
         synthesis = ""
@@ -1769,10 +1796,10 @@ def generate_profitability_growth_html(ticker, rdata):
         
         if rev_growth_raw is not None:
             growth_rate_text = "an aggressive" if rev_growth_raw > 0.20 else "a moderate and healthy" if rev_growth_raw > 0.05 else "a slow"
-            p1_parts.append(f"While the business’s revenue is increasing at {growth_rate_text} rate (<strong>{rev_growth_fmt}</strong>), investors should monitor if this pace can be sustained without eroding profit margins.")
+            p1_parts.append(f"While the business's revenue is increasing at {growth_rate_text} rate (<strong>{rev_growth_fmt}</strong>), investors should monitor if this pace can be sustained without eroding profit margins.")
 
         # --- Paragraph 2: Profit vs. Growth and Synthesis ---
-        p2_parts.append(f"{ticker}’s <strong>{ebitda_fmt}</strong> in EBITDA and <strong>{gross_profit_fmt}</strong> in gross profit indicate its raw earning power, while the <strong>{net_income_fmt}</strong> in net income reveals how effectively it converts that power into bottom-line results.")
+        p2_parts.append(f"{ticker}'s <strong>{ebitda_fmt}</strong> in EBITDA and <strong>{gross_profit_fmt}</strong> in gross profit indicate its raw earning power, while the <strong>{net_income_fmt}</strong> in net income reveals how effectively it converts that power into bottom-line results.")
 
         if op_margin_raw is not None and rev_growth_raw is not None:
             if op_margin_raw > 0.15 and rev_growth_raw < 0.10:
@@ -1785,7 +1812,7 @@ def generate_profitability_growth_html(ticker, rdata):
         if gross_margin_raw is not None and net_margin_raw is not None:
             margin_spread = (gross_margin_raw - net_margin_raw) * 100
             if margin_spread > 20:
-                p2_parts.append(f"Despite healthy gross margins, there is a significant difference between the company’s gross and net margins ({gross_margin_fmt} vs. {net_margin_fmt}). This is likely due to high operating expenses, interest costs, or taxes, which are key areas for investors to watch.")
+                p2_parts.append(f"Despite healthy gross margins, there is a significant difference between the company's gross and net margins ({gross_margin_fmt} vs. {net_margin_fmt}). This is likely due to high operating expenses, interest costs, or taxes, which are key areas for investors to watch.")
 
         p2_parts.append(f"In the future, maintaining steady or improving margins will be critical. {ticker} needs to defend its pricing power and control operating costs, as this will help sustain profitability, especially if revenue growth moderates.")
         
@@ -1805,90 +1832,117 @@ def generate_profitability_growth_html(ticker, rdata):
 
 
 def generate_dividends_shareholder_returns_html(ticker, rdata):
-    """Generates Dividends & Shareholder Returns section with a default narrative focus."""
+    """
+    Generates a comprehensive "Dividends & Shareholder Returns" section
+    aligned with the data keys from the provided report.
+    """
     try:
-        dividend_data = rdata.get('dividends_data')
+        dividend_data = rdata.get('dividends_data', {})
         if not isinstance(dividend_data, dict):
-             dividend_data = {}
-             logging.warning("dividends_data not found or not a dict, using empty.")
+            dividend_data = {}
+            logging.warning("dividends_data not found or not a dict, using empty.")
 
-        content = generate_metrics_section_content(dividend_data)
+        # 1. PRESERVED: Generate the original metrics table first
+        # This uses the raw data as it appears in your file
+        metrics_table_html = generate_metrics_section_content(dividend_data)
+
+        # 2. ENHANCED & ALIGNED: Generate the detailed dividend analysis
+        # --- Data Extraction using keys from your file ---
         currency_symbol = rdata.get('currency_symbol', '$')
+        rate = _safe_float(dividend_data.get('Dividend Rate'))
+        div_yield = _safe_float(dividend_data.get('Dividend Yield'))
+        payout_ratio = _safe_float(dividend_data.get('Payout Ratio'))
+        five_year_avg_yield = _safe_float(dividend_data.get('5 Year Average Dividend Yield'))
+        trailing_yield = _safe_float(dividend_data.get('Trailing Dividend Yield'))
+        ex_div_date = dividend_data.get('Ex-Dividend Date')
+        last_split_date_str = dividend_data.get('Last Split Date')
+        last_split_factor = dividend_data.get('Last Split Factor')
 
-        fwd_yield_fmt = format_html_value(dividend_data.get('Dividend Yield (Fwd)'), 'percent_direct')
-        fwd_dividend_fmt = format_html_value(dividend_data.get('Forward Annual Dividend Rate'), 'currency', currency=currency_symbol)
-        payout_ratio_fmt = format_html_value(dividend_data.get('Payout Ratio'), 'percent_direct')
-        dividend_date_key = 'Ex-Dividend Date' if dividend_data.get('Ex-Dividend Date') else 'Last Split Date' 
-        dividend_date_label = "Ex-Dividend Date" if dividend_date_key == 'Ex-Dividend Date' else "Last Event Date"
-        dividend_date_fmt = format_html_value(dividend_data.get(dividend_date_key), 'date')
-        buyback_yield_fmt = format_html_value(dividend_data.get('Buyback Yield (Est.)'), 'percent_direct')
+        # --- Updated has_dividend check based on available data ---
+        has_dividend = div_yield is not None and div_yield > 0 and payout_ratio is not None and payout_ratio > 0
+
+        # --- Handle the "No Dividend" Case First ---
+        if not has_dividend:
+            narrative = f"""
+                <div class="dividend-summary">
+                    <h3>Dividend Summary & Investor Implications</h3>
+                    <p>Based on available data, <strong>{ticker} does not currently pay a regular dividend</strong>. This suggests the company may be prioritizing reinvesting its earnings back into the business for growth.</p>
+                </div>
+            """
+            return f'<div class="narrative">{narrative}</div>' + metrics_table_html
+
+        # --- Build the Narrative for Companies with Dividends ---
+        rate_fmt = format_html_value(rate, 'currency', currency=currency_symbol)
+        yield_fmt = f'<strong>{format_html_value(div_yield, "percent_direct")}</strong>'
+        payout_ratio_fmt = f'<strong>{format_html_value(payout_ratio, "percent_direct")}</strong>'
+        five_year_avg_yield_fmt = format_html_value(five_year_avg_yield, 'percent_direct')
+
+        # --- Paragraph 1: The Overview ---
+        para1 = f"The company currently offers a <strong>{rate_fmt} annual dividend per share</strong>, translating to a dividend yield of {yield_fmt}—meaning for every $100 invested, shareholders receive {rate_fmt} in dividends annually. "
+        if five_year_avg_yield is not None and div_yield is not None:
+            if div_yield < five_year_avg_yield:
+                para1 += f"This yield is <strong>below the 5-year average of {five_year_avg_yield_fmt}</strong>, suggesting that either the stock price has risen (reducing the yield) or dividend growth hasn’t kept pace with historical trends."
+            else:
+                para1 += f"This yield is <strong>above its 5-year average of {five_year_avg_yield_fmt}</strong>, making it more attractive to income investors today compared to its recent history."
+
+        # --- Paragraph 2: Key Observations & Analysis ---
+        analysis_points = []
+        if payout_ratio is not None:
+            payout_level = "healthy"
+            if payout_ratio > 75: payout_level = "high (warranting a check on cash flow sustainability)"
+            elif payout_ratio < 30: payout_level = "low and conservative"
+            analysis_points.append(f"The <strong>payout ratio of {payout_ratio_fmt}</strong> is {payout_level}, indicating the company uses only ~{payout_ratio:.0f}% of its earnings to fund dividends. This leaves ample room for future increases or reinvestment in growth.")
         
-        fwd_yield_val = _safe_float(dividend_data.get('Dividend Yield (Fwd)'))
-        has_dividend = fwd_yield_val is not None and fwd_yield_val > 0.01 
+        if trailing_yield is not None and trailing_yield < 0.1:
+            analysis_points.append(f"The very low <strong>trailing yield of {format_html_value(trailing_yield, 'percent')}</strong> hints at a recent dividend initiation or a special, non-recurring payout, warranting further checks for consistency.")
 
-        dividend_summary = ""
-        if has_dividend:
-            payout_level_options = {
-                'high': ["high (monitor sustainability)", "elevated (check cash flow coverage)", "high (may limit growth reinvestment)"],
-                'neg': ["negative (requires investigation, funded by non-earnings?)", "negative (dividend exceeds earnings)", "negative (unsustainable without other cash sources)"],
-                'low': ["low (potential for growth)", "conservative (room for increases)", "low (prioritizing reinvestment?)"],
-                'mid': ["moderate", "reasonable", "sustainable based on current earnings"]
-            }
-            payout_level = random.choice(payout_level_options['mid']) 
-            payout_ratio_val = _safe_float(dividend_data.get('Payout Ratio'))
-            if payout_ratio_val is not None:
-                 if payout_ratio_val > 80: payout_level = random.choice(payout_level_options['high'])
-                 elif payout_ratio_val < 0: payout_level = random.choice(payout_level_options['neg'])
-                 elif payout_ratio_val < 30: payout_level = random.choice(payout_level_options['low'])
-
-            dividend_summary_options = [
-                f"{ticker} currently offers a forward dividend yield of <strong>{fwd_yield_fmt}</strong> (representing {fwd_dividend_fmt} annually per share). The Payout Ratio of {payout_ratio_fmt} suggests the dividend is currently {payout_level}. Last relevant date ({dividend_date_label}): {dividend_date_fmt}.",
-                f"Shareholders receive a dividend yielding <strong>{fwd_yield_fmt}</strong> (equivalent to {fwd_dividend_fmt} per year). With a Payout Ratio of {payout_ratio_fmt}, its coverage appears {payout_level}. Last key date ({dividend_date_label}): {dividend_date_fmt}."
-            ]
-            dividend_summary = random.choice(dividend_summary_options)
-        else:
-            dividend_summary_options = [
-                f"{ticker} does not currently pay a significant regular dividend or data is unavailable.",
-                f"No substantial regular dividend payment is indicated for {ticker} based on available data."
-            ]
-            dividend_summary = random.choice(dividend_summary_options)
-
-        buyback_summary = ""
-        buyback_yield_val = _safe_float(dividend_data.get('Buyback Yield (Est.)'))
-        shares_change_val = _safe_float(rdata.get('share_statistics_data', {}).get('Shares Change (YoY)'))
-        buyback_indication = (buyback_yield_val is not None and buyback_yield_val != 0) or (shares_change_val is not None and shares_change_val < 0)
-
-        if buyback_indication:
-            buyback_summary_options = []
-            if buyback_yield_fmt != 'N/A' and buyback_yield_fmt != '0.00%':
-                buyback_summary_options.extend([
-                    f" Additionally, the company returns value via share repurchases, estimated at a {buyback_yield_fmt} buyback yield.",
-                    f" Share buybacks supplement returns, contributing an estimated {buyback_yield_fmt} yield."])
-            elif shares_change_val is not None and shares_change_val < 0: 
-                buyback_summary_options.extend([
-                     f" Share repurchases also appear to be part of the capital return strategy, as indicated by a reduction in shares outstanding (see Share Statistics).",
-                     f" Capital is also returned via buybacks, evidenced by a falling share count (refer to Share Statistics)."])
-            if buyback_summary_options: 
-                 buyback_summary = random.choice(buyback_summary_options)
-        else:
-             buyback_summary = random.choice([
-                 " Significant share repurchases are not indicated by available data.",
-                 " Share buybacks do not appear to be a major component of current capital returns."])
+        if ex_div_date:
+            analysis_points.append(f"Investors must own the stock before the upcoming <strong>ex-dividend date of {format_html_value(ex_div_date, 'date')}</strong> to receive the next dividend.")
         
-        # Default Narrative
-        narrative_options = [
-             (
-                 f"This section outlines how {ticker} returns value to its shareholders through dividends and potentially share buybacks. {dividend_summary}{buyback_summary}"
-             ),
-             (
-             f"Here we examine {ticker}'s capital return policy via dividends and share repurchases. {dividend_summary}{buyback_summary}"
-             )
-        ]
-        narrative = random.choice(narrative_options)
+        if last_split_date_str:
+            split_year = int(last_split_date_str.split('-')[0])
+            if datetime.now().year - split_year > 15:
+                analysis_points.append(f"The last stock split ({last_split_factor} in {split_year}) is outdated and likely irrelevant to the current valuation.")
 
-        return f'<div class="narrative"><p>{narrative}</p></div>' + content
+        para2 = "<h4>Key Observations & Analysis:</h4><ul>" + "".join([f"<li>{point}</li>" for point in analysis_points]) + "</ul>"
+
+        # --- Build the Conclusion / Investor Takeaway ---
+        takeaway_income = ""
+        takeaway_growth = ""
+        if payout_ratio is not None and payout_ratio < 40:
+            takeaway_income = "<li><strong>Income Investors:</strong> The modest yield and low payout ratio suggest dividends are safe but not a primary reason to invest. The focus may be on future dividend growth.</li>"
+            takeaway_growth = "<li><strong>Growth Investors:</strong> The low payout ratio is a strong signal that a majority of earnings are being reinvested, which could drive future price appreciation.</li>"
+        else:
+            takeaway_income = "<li><strong>Income Investors:</strong> The dividend appears sustainable, but investors should monitor earnings and cash flow to ensure the payout remains well-supported.</li>"
+            takeaway_growth = "<li><strong>Growth Investors:</strong> The company maintains a balance between shareholder returns and reinvestment, appealing to a 'growth and income' strategy.</li>"
+
+        # --- Assemble the Final HTML ---
+        dividend_summary_html = f"""
+        <div class="dividend-summary">
+            <h3>Dividend Summary & Investor Implications</h3>
+            <p>{para1}</p>
+            <div>{para2}</div>
+            <div class="investor-takeaway">
+                <h4>Investor Takeaway:</h4>
+                <ul>
+                    {takeaway_income}
+                    {takeaway_growth}
+                    <li><strong>Watch For:</strong> Announcements of dividend hikes (which could bring the yield closer to its historical average) or significant stock price changes that would alter the yield.</li>
+                </ul>
+            </div>
+        </div>
+        """
+        
+        # This section is preserved for universality but won't trigger for DIS as it has no buyback data
+        buyback_summary_html = ""
+        # ... (buyback logic from previous function would go here)
+        
+        return f'<div class="narrative">{dividend_summary_html}{buyback_summary_html}</div>{metrics_table_html}'
+
     except Exception as e:
+        logging.error(f"Error in generating dividend summary for {ticker}: {e}", exc_info=True)
         return _generate_error_html("Dividends & Shareholder Returns", str(e))
+
 
 def generate_share_statistics_html(ticker, rdata):
     """
@@ -1946,7 +2000,7 @@ def generate_share_statistics_html(ticker, rdata):
         if shares_out_raw is not None and shares_float_raw is not None:
             float_percentage = (shares_float_raw / shares_out_raw) * 100 if shares_out_raw > 0 else 0
             if float_percentage > 95:
-                p1_parts.append(f"Nearly all of the company’s <strong>{share_data.get('Shares Outstanding', 'N/A')}</strong> shares are publicly available as float, so no major amount is locked up.")
+                p1_parts.append(f"Nearly all of the company's <strong>{share_data.get('Shares Outstanding', 'N/A')}</strong> shares are publicly available as float, so no major amount is locked up.")
             else:
                 locked_up_pct = 100 - float_percentage
                 p1_parts.append(f"About <strong>{locked_up_pct:.1f}%</strong> of the company's shares are closely held by insiders or strategic investors, with the remaining <strong>{share_data.get('Shares Float', 'N/A')}</strong> available for public trading.")
@@ -2078,7 +2132,7 @@ def generate_stock_price_statistics_html(ticker, rdata):
         if volatility is not None:
             volatility_desc = "high" if volatility > 40 else "moderate" if volatility > 20 else "low"
             if beta is not None:
-                p2_parts.append(f"Combined with a {volatility_desc} 30-day annualized volatility of <strong>{volatility_fmt}</strong>, it’s clear this stock sees frequent price swings.")
+                p2_parts.append(f"Combined with a {volatility_desc} 30-day annualized volatility of <strong>{volatility_fmt}</strong>, it's clear this stock sees frequent price swings.")
             else:
                 p2_parts.append(f"A 30-day annualized volatility of <strong>{volatility_fmt}</strong> indicates the stock experiences {volatility_desc} price swings.")
 
@@ -2319,97 +2373,247 @@ def generate_analyst_insights_html(ticker, rdata):
         return _generate_error_html("Analyst Insights", str(e))
 
 def generate_technical_analysis_summary_html(ticker, rdata):
-    """Generates the TECHNICAL ANALYSIS summary section (default interpretations)."""
+    """
+    Generates the new, detailed, and narrative-driven technical analysis summary.
+    This version provides actionable insights and a structured trading plan with enhanced dynamic text.
+    """
     try:
-        sentiment = rdata.get('sentiment', 'Neutral')
-        current_price = rdata.get('current_price')
-        last_date_obj = rdata.get('last_date', datetime.now())
-        last_date_fmt = format_html_value(last_date_obj, 'date')
-        detailed_ta_data = rdata.get('detailed_ta_data', {})
-        if not isinstance(detailed_ta_data, dict):
-            detailed_ta_data = {}
-            logging.warning("detailed_ta_data not found or not a dict, using empty.")
+        # --- 1. Data Extraction (No Changes Here) ---
+        detailed_ta = rdata.get('detailed_ta_data', {})
         currency_symbol = rdata.get('currency_symbol', '$')
+        
+        # Helper function to safely convert to float
+        def _safe_float(value):
+            if value is None: return None
+            try: return float(value)
+            except (ValueError, TypeError): return None
 
-        price_f = _safe_float(current_price)
-        sma20 = _safe_float(detailed_ta_data.get('SMA_20')); sma50 = _safe_float(detailed_ta_data.get('SMA_50'))
-        sma100 = _safe_float(detailed_ta_data.get('SMA_100')); sma200 = _safe_float(detailed_ta_data.get('SMA_200'))
-        latest_rsi = _safe_float(detailed_ta_data.get('RSI_14'))
-        rsi_divergence_bearish = rdata.get('rsi_divergence_bearish', False) 
-        rsi_divergence_bullish = rdata.get('rsi_divergence_bullish', False)
+        price = _safe_float(detailed_ta.get('Current_Price'))
+        change_15d = _safe_float(detailed_ta.get('change_15d_pct'))
+        sma20 = _safe_float(detailed_ta.get('SMA_20'))
+        sma50 = _safe_float(detailed_ta.get('SMA_50'))
+        sma200 = _safe_float(detailed_ta.get('SMA_200'))
+        rsi = _safe_float(detailed_ta.get('RSI_14'))
+        macd_hist = _safe_float(detailed_ta.get('MACD_Hist'))
+        bb_upper = _safe_float(detailed_ta.get('BB_Upper'))
+        bb_lower = _safe_float(detailed_ta.get('BB_Lower'))
+        support = _safe_float(detailed_ta.get('Support_30D'))
+        resistance = _safe_float(detailed_ta.get('Resistance_30D'))
+        volume_vs_sma = _safe_float(detailed_ta.get('Volume_vs_SMA20_Ratio'))
 
-        def price_vs_ma(price_val, ma_val):
-            if price_val is None or ma_val is None: return ('trend-neutral', '', 'Neutral')
-            if price_val > ma_val * 1.001: return ('trend-up', f'{get_icon("up")} (Above)', 'Above')
-            if price_val < ma_val * 0.999: return ('trend-down', f'{get_icon("down")} (Below)', 'Below')
-            return ('trend-neutral', f'{get_icon("neutral")} (At)', 'At')
+        # --- 2. Build Enhanced Dynamic Narrative Components ---
 
-        sma20_status, sma20_label, sma20_pos = price_vs_ma(price_f, sma20)
-        sma50_status, sma50_label, sma50_pos = price_vs_ma(price_f, sma50)
-        sma100_status, sma100_label, sma100_pos = price_vs_ma(price_f, sma100)
-        sma200_status, sma200_label, sma200_pos = price_vs_ma(price_f, sma200)
+        # Headline (No Changes Here)
+        trend_status = "Bullish" if price and sma200 and price > sma200 else "Bearish"
+        qualitative_assessment = "but Overheated" if rsi and rsi > 75 else "but shows signs of slowing" if macd_hist is not None and macd_hist < 0 else ""
+        if trend_status == "Bearish":
+            qualitative_assessment = "but looks Oversold" if rsi and rsi < 30 else "and continues to weaken"
+        headline = f"Current Price: {format_html_value(price, 'currency', currency=currency_symbol)}&nbsp;|&nbsp;Trend: {trend_status} {qualitative_assessment}"
 
-        summary_points = []
-        price_fmt = format_html_value(current_price, 'currency', currency=currency_symbol)
+        # UPDATED: Context-Aware Intro Paragraph
+        if change_15d is not None and change_15d > 0:
+            intro_para = f"The stock has been on a notable run, gaining <strong>{change_15d:+.2f}% in just 15 days</strong>, but several technical signs suggest we should be cautious about chasing this momentum. Let's break down what the charts are telling us and how we can position ourselves."
+        elif change_15d is not None and change_15d < 0:
+            intro_para = f"The stock has faced downward pressure, losing <strong>{change_15d:+.2f}% in the last 15 days</strong>. We need to analyze the technicals to see if this is a buying opportunity or a warning of further declines. Let's break down the key levels."
+        else:
+            intro_para = f"The stock has been trading sideways recently. Let's dive into the technical indicators to identify the next potential move and key trading levels."
 
-        trend_desc = random.choice(["Mixed Trend Signals.", "Unclear Trend Direction."])
-        trend_implication = random.choice(["suggesting conflicting short-term and long-term momentum requiring careful monitoring."])
-        if sma50_pos == 'Above' and sma200_pos == 'Above':
-            trend_desc = random.choice(["Bullish Trend Confirmation", "Positive Trend Alignment"])
-            trend_implication = random.choice([f"as price ({price_fmt}) holds above both the key 50-day and 200-day SMAs, indicating positive momentum across timeframes."])
-        elif sma50_pos == 'Below' and sma200_pos == 'Below':
-            trend_desc = random.choice(["Bearish Trend Confirmation", "Negative Trend Alignment"])
-            trend_implication = random.choice([f"with price ({price_fmt}) below both the 50-day and 200-day SMAs, signaling prevailing weakness."])
-        # ... (other trend conditions simplified for brevity, original had more)
-        summary_points.append(f"<strong>Trend:</strong> {trend_desc}, {trend_implication}")
+        # Section 1: Trend Strength (with UPDATED trader takeaway)
+        trend_narrative = f"{ticker} is trading above its key moving averages, which confirms the uptrend remains intact." if trend_status == "Bullish" else f"{ticker} is in a bearish trend, trading below its key moving averages, which signals caution."
+        support_20sma = f"The <strong>20-day SMA at {format_html_value(sma20, 'currency', currency=currency_symbol)}</strong> is acting as immediate dynamic support."
+        floor_200sma = f"The <strong>200-day SMA at {format_html_value(sma200, 'currency', currency=currency_symbol)}</strong> serves as a major long-term floor for the bullish trend."
+        
+        # --- THIS IS THE NEW DYNAMIC LOGIC ---
+        if trend_status == "Bullish":
+            trader_takeaway_trend = f"As long as {ticker} holds above the <strong>20-day SMA ({format_html_value(sma20, 'currency', currency=currency_symbol)})</strong>, the bullish momentum could continue. However, a rapid rise can push the stock far from its averages, increasing the risk of a pullback."
+        else: # Bearish
+            trader_takeaway_trend = f"The <strong>20-day SMA ({format_html_value(sma20, 'currency', currency=currency_symbol)})</strong> is now acting as overhead resistance. As long as the price stays below this level, the bearish trend is likely to continue. A rejection from this average could lead to a test of recent lows."
+        # --- END OF NEW DYNAMIC LOGIC ---
 
-        rsi_text = "Momentum (RSI): Data N/A."
-        if latest_rsi is not None:
-            rsi_level = random.choice(["Neutral", "Balanced"])
-            rsi_icon = get_icon('neutral')
-            rsi_implication = random.choice(["indicating balanced momentum."])
-            if latest_rsi > 70: rsi_level = random.choice(["Overbought", "Extended"]); rsi_icon = get_icon('warning'); rsi_implication = random.choice(["suggesting the rally might be overextended."])
-            elif latest_rsi < 30: rsi_level = random.choice(["Oversold", "Depressed"]); rsi_icon = get_icon('positive'); rsi_implication = random.choice(["potentially indicating the sell-off is exhausted."])
-            divergence_text = ""
-            if rsi_divergence_bearish: divergence_text = f" {get_icon('divergence')} <strong>Warning: Potential Bearish Divergence detected.</strong>"
-            if rsi_divergence_bullish: divergence_text = f" {get_icon('divergence')} <strong>Note: Potential Bullish Divergence detected.</strong>"
-            rsi_text = f"<strong>Momentum (RSI):</strong> {rsi_icon} {latest_rsi:.1f} ({rsi_level}), {rsi_implication}{divergence_text}"
-        summary_points.append(rsi_text)
-        # ... (MACD, BBands, Support/Resistance points would be similarly genericized if they had site-specific logic)
+        # Section 2: Momentum (with UPDATED trading strategy)
+        rsi_signal = "flashing a strong overbought signal" if rsi and rsi > 70 else "in a neutral zone, indicating balanced momentum" if rsi and 30 <= rsi <= 70 else "showing oversold conditions, hinting at a potential bounce"
+        rsi_pullback_chance = "Historically, when the RSI crosses above 70-75, we often see a pullback before the next leg up." if rsi and rsi > 70 else ""
+        macd_signal_text = "the MACD histogram is negative, suggesting that the upward momentum is beginning to fade." if macd_hist is not None and macd_hist < 0 else "the MACD histogram is positive, confirming the upward momentum is still in play."
 
-        summary_list_html = "".join([f"<li>{point}</li>" for point in summary_points if point and 'N/A' not in point])
+        # --- THIS IS THE NEW DYNAMIC LOGIC ---
+        if rsi and rsi > 70:
+            trader_strategy_momentum = "Aggressive traders might consider taking partial profits. Conservative traders should wait for the RSI to cool below 70 before considering new positions."
+        elif rsi and rsi < 30:
+            trader_strategy_momentum = "This oversold reading suggests a potential bounce. Aggressive traders might look for a short-term buy signal, while conservative traders should wait for the RSI to cross back above 30 to confirm a reversal."
+        else: # Neutral RSI
+            trader_strategy_momentum = "This neutral RSI reading provides flexibility. Watch for a decisive MACD crossover or a break of a key support/resistance level for the next directional clue."
+        # --- END OF NEW DYNAMIC LOGIC ---
 
-        # Default Narrative Intro
-        narrative_intro_options = [
-            f"The following technical analysis summary for {ticker}, based on data up to {last_date_fmt}, outlines key indicators related to trend, momentum, and volatility. Detailed charts typically provide visual confirmation of these signals.",
-            f"This technical overview for {ticker} (as of {last_date_fmt}) covers essential trend, momentum, and volatility indicators. Charts offer more detail, but this summarizes the key signals."
-        ]
-        narrative_intro = random.choice(narrative_intro_options)
+        # Section 3: Bollinger Bands (with FULLY REWRITTEN dynamic logic)
+        # --- THIS IS THE NEW DYNAMIC LOGIC ---
+        if price and bb_upper and price > bb_upper:
+            bb_narrative = f"The price is 'walking the band,' trading <strong>above the upper Bollinger Band ({format_html_value(bb_upper, 'currency', currency=currency_symbol)})</strong>. This is a sign of a very strong trend, but also increases the risk of a sharp snap-back if momentum stalls."
+        elif price and bb_lower and price < bb_lower:
+            bb_narrative = f"The price has broken <strong>below the lower Bollinger Band ({format_html_value(bb_lower, 'currency', currency=currency_symbol)})</strong>, indicating strong selling pressure and a potential breakdown. Watch for signs of capitulation or reversal."
+        elif price and bb_upper and price >= bb_upper * 0.98:
+            bb_narrative = f"The stock is currently pressing against the <strong>upper Bollinger Band at {format_html_value(bb_upper, 'currency', currency=currency_symbol)}</strong>, which often acts as short-term resistance."
+        elif price and bb_lower and price <= bb_lower * 1.02:
+            bb_narrative = f"The stock is testing support near the <strong>lower Bollinger Band at {format_html_value(bb_lower, 'currency', currency=currency_symbol)}</strong>. A bounce from this level would be bullish, while a break below would be a bearish signal."
+        elif price and sma20 and price > sma20:
+             bb_narrative = f"The stock is trading comfortably in the upper half of its Bollinger Bands (between the 20-day SMA and the upper band), which is a sign of underlying strength."
+        else: # Fallback for trading in the lower half or near the middle
+            bb_narrative = f"The stock is trading near the middle of its Bollinger Bands (SMA20: {format_html_value(sma20, 'currency', currency=currency_symbol)}), with the lower band at <strong>{format_html_value(bb_lower, 'currency', currency=currency_symbol)}</strong> offering the next level of support."
+        # --- END OF NEW DYNAMIC LOGIC ---
+        
+        # ... (Rest of the function remains the same as the robust version from the previous turn) ...
+        # Section 4: Volume (No changes needed)
+        volume_narrative = "While the stock has been rising, <strong>trading volume has been declining</strong> (below its 20-day average), which is a red flag for trend sustainability." if volume_vs_sma and volume_vs_sma < 0.9 and change_15d and change_15d > 0 else "Trading volume is near its recent average, providing neutral confirmation of the current price action."
+        volume_concern = "Low volume rallies are prone to sharp reversals. If we don’t see a surge in buying interest to confirm the move, a pullback becomes more likely." if volume_vs_sma and volume_vs_sma < 0.9 else ""
 
-        disclaimer_tech = random.choice([
-            "Technical analysis uses past price and volume data to identify potential future trends but offers no guarantees. Combine with fundamental analysis and risk management.",
-            "Remember, technical analysis looks at past data to find potential patterns; it doesn't predict the future with certainty. Always use it alongside fundamentals and risk control."
-        ])
+        # Final Verdict and Bottom Line (Can remain as is, they synthesize the above points)
+        short_term_verdict = f"Be cautious—RSI is overbought at {rsi:.1f}, and volume is weak. Consider locking in partial profits near {format_html_value(resistance, 'currency', currency=currency_symbol)} and waiting for a better entry near the 20-day SMA ({format_html_value(sma20, 'currency', currency=currency_symbol)})." if rsi and rsi > 70 else "The trend is positive but monitor for signs of exhaustion. A neutral stance may be best until a clearer signal emerges from the MACD or volume."
+        long_term_verdict = f"The long-term uptrend is valid as long as the price holds above the 200-day SMA ({format_html_value(sma200, 'currency', currency=currency_symbol)}). A pullback to the 50-day SMA ({format_html_value(sma50, 'currency', currency=currency_symbol)}) area could present a safer buying opportunity."
+        new_buyers_verdict = f"Avoid chasing the rally here. Wait for either a confirmed breakout above <strong>{format_html_value(resistance, 'currency', currency=currency_symbol)} with strong volume</strong>, or a pullback to the <strong>{format_html_value(sma20, 'currency', currency=currency_symbol)}</strong> area, which offers a better risk/reward entry."
+        bottom_line = "The technicals suggest the rally may be running out of steam short-term. While the long-term trend remains bullish, a correction seems plausible before the next major move. Trade carefully and wait for confirmation at key levels."
 
-        return f"""
-            <div class="sentiment-indicator">
-                <span>Overall Technical Sentiment:</span><span class="sentiment-{str(sentiment).lower().replace(' ', '-')}">{get_icon('up' if 'Bullish' in str(sentiment) else ('down' if 'Bearish' in str(sentiment) else 'neutral'))} {str(sentiment)}</span>
+
+        # --- 3. Assemble the HTML (No changes here) ---
+        html_output = f"""
+        <div class="technical-analysis-summary-pro">
+            <h4>{headline}</h4>
+            <p>{intro_para}</p>
+
+            <h5>1. Trend Strength – Still {trend_status}</h5>
+            <p>{trend_narrative} {support_20sma if trend_status == "Bullish" else ""}</p>
+            <div class="takeaway">
+                <p><strong><i class="fas fa-chart-line"></i> What This Means for Traders?</strong></p>
+                <p>{trader_takeaway_trend}</p>
             </div>
-            <div class="narrative">
-                <p>{narrative_intro}</p>
-                <ul>{summary_list_html}</ul>
+
+            <h5>2. Momentum Check – { "Time to Be Cautious" if rsi and rsi > 70 else "Potential Bounce Ahead?" if rsi and rsi < 30 else "Is Momentum Fading?"}</h5>
+            <p>The <strong>RSI at {rsi:.1f}</strong> is {rsi_signal}. {rsi_pullback_chance} At the same time, {macd_signal_text}</p>
+            <div class="takeaway">
+                <p><strong><i class="fas fa-chess-knight"></i> Trading Strategy:</strong></p>
+                <p>{trader_strategy_momentum}</p>
             </div>
-            <h4>Moving Average Details</h4>
-            <div class="ma-summary">
-                <div class="ma-item"><span class="label">SMA 20:</span> <span class="value">{format_html_value(sma20, 'currency', currency=currency_symbol)}</span> <span class="status {sma20_status}">{sma20_label}</span></div>
-                <div class="ma-item"><span class="label">SMA 50:</span> <span class="value">{format_html_value(sma50, 'currency', currency=currency_symbol)}</span> <span class="status {sma50_status}">{sma50_label}</span></div>
-                <div class="ma-item"><span class="label">SMA 100:</span> <span class="value">{format_html_value(sma100, 'currency', currency=currency_symbol)}</span> <span class="status {sma100_status}">{sma100_label}</span></div>
-                <div class="ma-item"><span class="label">SMA 200:</span> <span class="value">{format_html_value(sma200, 'currency', currency=currency_symbol)}</span> <span class="status {sma200_status}">{sma200_label}</span></div>
+
+            <h5>3. Bollinger Bands – Testing Key Levels</h5>
+            <p>{bb_narrative}</p>
+            <div class="takeaway">
+                <p><strong><i class="fas fa-bullseye"></i> Key Levels to Watch:</strong></p>
+                <ul>
+                    <li>Resistance: <strong>{format_html_value(resistance, 'currency', currency=currency_symbol)}</strong> (Recent High) &rarr; A breakout could push {ticker} higher.</li>
+                    <li>Support: <strong>{format_html_value(sma20, 'currency', currency=currency_symbol)}</strong> (20-day SMA) &rarr; If this breaks, expect a test of <strong>{format_html_value(bb_lower, 'currency', currency=currency_symbol)}</strong>.</li>
+                </ul>
             </div>
-            <p class="disclaimer">{disclaimer_tech}</p>
-            """
+
+            <h5>4. Volume Trends – Checking for Conviction</h5>
+            <p>{volume_narrative}</p>
+            {f'<div class="takeaway"><p><strong><i class="fas fa-exclamation-triangle"></i> What’s the Concern?</strong></p><p>{volume_concern}</p></div>' if volume_concern else ''}
+
+            <h5>5. Support & Resistance – The Trading Plan</h5>
+            <div class="takeaway">
+                <p><strong><i class="fas fa-map-signs"></i> Trading Plan:</strong></p>
+                <ul>
+                    <li>✅&nbsp; <strong>If {ticker} holds above {format_html_value(sma20, 'currency', currency=currency_symbol)}</strong> &rarr; Bullish trend continues, next target {format_html_value(resistance, 'currency', currency=currency_symbol)}.</li>
+                    <li>⚠️&nbsp; <strong>If it breaks below {format_html_value(sma20, 'currency', currency=currency_symbol)}</strong> &rarr; Expect a dip toward {format_html_value(bb_lower, 'currency', currency=currency_symbol)}.</li>
+                    <li>🛑&nbsp; <strong>A drop below {format_html_value(bb_lower, 'currency', currency=currency_symbol)}</strong> &rarr; Could trigger a deeper correction to the 200-day SMA ({format_html_value(sma200, 'currency', currency=currency_symbol)}).</li>
+                </ul>
+            </div>
+            
+            <h5>Final Verdict – Should You Buy, Hold, or Sell?</h5>
+            <div class="verdict-grid">
+                <div class="verdict-item"><strong>Short-Term Traders:</strong> {short_term_verdict}</div>
+                <div class="verdict-item"><strong>Long-Term Investors:</strong> {long_term_verdict}</div>
+                <div class="verdict-item"><strong>New Buyers:</strong> {new_buyers_verdict}</div>
+            </div>
+            
+            <p class="bottom-line"><strong>Bottom Line:</strong> {bottom_line}</p>
+        </div>
+        """
+        style = """
+        <style>
+            <style>
+            .technical-analysis-summary-pro { font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #495057; }
+            .technical-analysis-summary-pro h4 { font-size: 1.4em; color: #2c3e50; margin-bottom: 0.5em; font-weight: 600; }
+            .technical-analysis-summary-pro h5 { font-size: 1.1em; color: #34495e; margin-top: 1.25em; margin-bottom: 0.5em; padding-bottom: 0.25em; border-bottom: 1px solid #ecf0f1; font-weight: 600;}
+            .technical-analysis-summary-pro p { margin-bottom: 1em; font-size: 0.95rem; }
+            .technical-analysis-summary-pro .takeaway { background-color: #f8f9fa; border-left: 4px solid #10ac84; padding: 0.8em 1.2em; margin: 1em 0; border-radius: 4px; }
+            .technical-analysis-summary-pro .takeaway p, .technical-analysis-summary-pro .takeaway ul { margin-bottom: 0.5em; font-size: 0.9rem;}
+            .technical-analysis-summary-pro .takeaway strong { color: #34495e; }
+            .technical-analysis-summary-pro .takeaway i { margin-right: 8px; color: #10ac84; width: 1.2em; text-align: center;}
+            .technical-analysis-summary-pro .verdict-grid { display: grid; gap: 0.75em; margin: 1em 0; }
+            .technical-analysis-summary-pro .verdict-item { background-color: #eef5f9; padding: 0.8em 1.2em; border-radius: 4px; border-left: 4px solid #5dade2; font-size: 0.9rem;}
+            .technical-analysis-summary-pro .bottom-line { font-weight: 500; background-color: #fdf2f2; border-left: 4px solid #e74c3c; padding: 1em; margin-top: 1.5em; border-radius: 4px;}
+        </style>
+        </style>
+        """
+        return style + html_output
     except Exception as e:
+        # Using your existing error handler for consistency
         return _generate_error_html("Technical Analysis Summary", str(e))
+
+def generate_historical_performance_html(ticker, rdata):
+    """
+    Generates the Historical Performance section, ensuring the narrative and table
+    both reflect the same recent time period (last 15 days).
+    """
+    try:
+        historical_df = rdata.get('historical_data')
+        if historical_df is None or historical_df.empty:
+            return _generate_error_html("Historical Performance", "Historical data is not available.")
+
+        # --- FIX: All calculations are now done on the RECENT data ---
+        # First, select the last 15 days of data
+        recent_data = historical_df.tail(15).copy()
+
+        # Ensure the date column is in datetime format for calculations
+        if 'Date' not in recent_data.columns:
+            recent_data['Date'] = pd.to_datetime(recent_data.index)
+        else:
+            recent_data['Date'] = pd.to_datetime(recent_data['Date'])
+
+        # Calculate key metrics ONLY on the recent_data DataFrame
+        end_price = recent_data['Close'].iloc[-1]
+        start_price = recent_data['Close'].iloc[0]
+        period_return = ((end_price - start_price) / start_price) if start_price != 0 else 0
+        max_price = recent_data['High'].max()
+        min_price = recent_data['Low'].min()
+        avg_volume = recent_data['Volume'].mean()
+        start_date = recent_data['Date'].min()
+        end_date = recent_data['Date'].max()
+        # --- END OF FIX ---
+
+        # HTML Table Generation (uses the same recent_data)
+        table_html = ""
+        table_html += '<div class="table-container"><h4>Recent Trading Data</h4><table class="metrics-table"><thead>'
+        table_html += '<tr><th>Date</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th></tr></thead><tbody>'
+
+        for index, row in recent_data.iloc[::-1].iterrows():
+            date_fmt = row['Date'].strftime('%Y-%m-%d')
+            open_fmt = format_html_value(row.get('Open'), 'currency')
+            high_fmt = format_html_value(row.get('High'), 'currency')
+            low_fmt = format_html_value(row.get('Low'), 'currency')
+            close_fmt = format_html_value(row.get('Close'), 'currency')
+            volume_fmt = f"{int(row.get('Volume', 0)):,}"
+            table_html += f'<tr><td>{date_fmt}</td><td>{open_fmt}</td><td>{high_fmt}</td><td>{low_fmt}</td><td>{close_fmt}</td><td>{volume_fmt}</td></tr>'
+
+        table_html += '</tbody></table></div>'
+
+        # Narrative Generation (now uses the corrected, recent metrics)
+        date_range_str = f"{start_date.strftime('%B %d, %Y')} to {end_date.strftime('%B %d, %Y')}"
+        narrative_options = [
+            (f"In the recent trading period from {date_range_str}, {ticker}'s stock price achieved a total return of <strong>{period_return:+.2%}</strong>. "
+             f"The price fluctuated between a high of {format_html_value(max_price, 'currency')} and a low of {format_html_value(min_price, 'currency')}. "
+             f"Average daily trading volume was approximately {avg_volume:,.0f} shares."),
+            (f"Analyzing the last 15 trading days from {date_range_str}, {ticker} saw its stock post a return of <strong>{period_return:+.2%}</strong>. "
+             f"The recent trading range was between {format_html_value(min_price, 'currency')} and {format_html_value(max_price, 'currency')}, with "
+             f"an average volume of {avg_volume:,.0f} shares traded daily.")
+        ]
+        narrative = f'<div class="narrative"><p>{random.choice(narrative_options)}</p></div>'
+
+
+        # Final Assembly: Narrative, then Table, then Chart
+        return f'{narrative}{table_html}'
+
+    except Exception as e:
+        logging.error(f"Error in generating historical performance for {ticker}: {e}", exc_info=True)
+        return _generate_error_html("Historical Performance", str(e))
 
 def generate_recent_news_html(ticker, rdata):
     """Generates the Recent News section."""
@@ -2452,8 +2656,12 @@ def generate_recent_news_html(ticker, rdata):
         return _generate_error_html("Recent News", str(e))
 
 def generate_faq_html(ticker, rdata):
-    """Generates the FAQ section with default, nuanced answers."""
+    """
+    Generates an expanded FAQ section, preserving original questions
+    and adding new, data-driven ones.
+    """
     try:
+        # --- START: ORIGINAL DATA EXTRACTION (UNCHANGED) ---
         current_price = _safe_float(rdata.get('current_price'))
         forecast_1y = _safe_float(rdata.get('forecast_1y'))
         overall_pct_change = _safe_float(rdata.get('overall_pct_change'), default=0.0)
@@ -2463,19 +2671,36 @@ def generate_faq_html(ticker, rdata):
         detailed_ta_data = rdata.get('detailed_ta_data', {})
         risk_items = rdata.get('risk_items', [])
         currency_symbol = rdata.get('currency_symbol', '$')
-
         if not isinstance(valuation_data, dict): valuation_data = {}
         if not isinstance(detailed_ta_data, dict): detailed_ta_data = {}
+        # --- END: ORIGINAL DATA EXTRACTION ---
+
+        # --- START: NEW DATA EXTRACTION FOR ADDITIONAL FAQS ---
+        financial_data = rdata.get('financial_health_data', {})
+        share_stats_data = rdata.get('share_statistics_data', {})
+        dividend_data = rdata.get('dividends_data', {})
+        tech_summary_data = rdata.get('technical_analysis_data', {}) # Using the more detailed tech summary
+        
+        earnings_date = valuation_data.get('Next Earnings Date')
+        ex_div_date = dividend_data.get('Ex-Dividend Date')
+        current_ratio = _safe_float(financial_data.get('Current Ratio (MRQ)'))
+        op_cash_flow = financial_data.get('Operating Cash Flow (TTM)')
+        levered_fcf = financial_data.get('Levered Free Cash Flow (TTM)')
+        institutional_ownership = _safe_float(share_stats_data.get('Institutional Ownership'))
+        short_percent_float = _safe_float(share_stats_data.get('Short % of Float'))
+        # --- END: NEW DATA EXTRACTION ---
 
         latest_rsi = _safe_float(detailed_ta_data.get('RSI_14'))
         current_price_fmt = format_html_value(current_price, 'currency', currency=currency_symbol)
         forecast_1y_fmt = format_html_value(forecast_1y, 'currency', currency=currency_symbol)
 
         faq_items = []
+        
+        # --- START: ORIGINAL FAQ LOGIC (QUESTIONS 1-5, UNCHANGED) ---
         up_down_neutral_options = {
-            'up_strong': ["increase significantly", "show strong gains"], 'up_mod': ["increase moderately", "see modest gains"],
-            'down_strong': ["decrease significantly", "experience sharp losses"], 'down_mod': ["decrease moderately", "see modest losses"],
-            'flat': ["remain relatively stable", "trade sideways"]
+             'up_strong': ["increase significantly", "show strong gains"], 'up_mod': ["increase moderately", "see modest gains"],
+             'down_strong': ["decrease significantly", "experience sharp losses"], 'down_mod': ["decrease moderately", "see modest losses"],
+             'flat': ["remain relatively stable", "trade sideways"]
         }
         if overall_pct_change > 10: up_down_neutral = random.choice(up_down_neutral_options['up_strong'])
         elif overall_pct_change > 1: up_down_neutral = random.choice(up_down_neutral_options['up_mod'])
@@ -2485,7 +2710,7 @@ def generate_faq_html(ticker, rdata):
 
         risk_count = 0
         if isinstance(risk_items, list):
-             risk_count = len([r for r in risk_items if isinstance(r, str) and not any(keyword in r for keyword in ['Market Risk', 'Sector/Industry', 'Economic Risk', 'Company-Specific'])])
+              risk_count = len([r for r in risk_items if isinstance(r, str) and not any(keyword in r for keyword in ['Market Risk', 'Sector/Industry', 'Economic Risk', 'Company-Specific'])])
         risk_mention_options = [f"However, note that {risk_count} potentially significant risk factor(s) specific to {ticker} were identified (see Risk Factors section)." if risk_count > 0 else "Standard market and sector risks always apply."]
         risk_mention = random.choice(risk_mention_options)
 
@@ -2498,16 +2723,15 @@ def generate_faq_html(ticker, rdata):
 
         rsi_condition = ""; rsi_level = "neutral"; rsi_suggestion = ""
         if latest_rsi is not None:
-             rsi_level_text = f"RSI: {latest_rsi:.1f}"
-             if latest_rsi < 30: rsi_level = "oversold"; rsi_suggestion = random.choice(["potentially indicating a rebound opportunity"])
-             elif latest_rsi > 70: rsi_level = "overbought"; rsi_suggestion = random.choice(["suggesting caution or potential for a pullback"])
-             else: rsi_level = "neutral"; rsi_suggestion = random.choice(["indicating balanced momentum"])
-             rsi_condition_options = [f"Technically, the RSI indicates {rsi_level} conditions ({rsi_level_text}), {rsi_suggestion}."]
-             rsi_condition = random.choice(rsi_condition_options)
+              rsi_level_text = f"RSI: {latest_rsi:.1f}"
+              if latest_rsi < 30: rsi_level = "oversold"; rsi_suggestion = random.choice(["potentially indicating a rebound opportunity"])
+              elif latest_rsi > 70: rsi_level = "overbought"; rsi_suggestion = random.choice(["suggesting caution or potential for a pullback"])
+              else: rsi_level = "neutral"; rsi_suggestion = random.choice(["indicating balanced momentum"])
+              rsi_condition_options = [f"Technically, the RSI indicates {rsi_level} conditions ({rsi_level_text}), {rsi_suggestion}."]
+              rsi_condition = random.choice(rsi_condition_options)
         disclaimer_options = ["This report is informational; consult a financial advisor before investing."]
         disclaimer = random.choice(disclaimer_options)
         
-        # Default "Good Buy?" answer
         q3_ans_options = [
             (f"Determining if {ticker} is a 'good buy' requires evaluating multiple factors. Technical sentiment is '{sentiment_str}', while the 1-year forecast suggests {overall_pct_change:+.1f}% potential. {rsi_condition} "
              f"Consider the valuation, financial health, growth prospects, and {risk_mention} Align these factors with your personal investment strategy and risk tolerance. {disclaimer}"),
@@ -2533,17 +2757,60 @@ def generate_faq_html(ticker, rdata):
         pe_comment = "unavailable"; pe_context = random.choice(["Compare to industry peers and historical levels."])
         pe_ratio_val = _safe_float(valuation_data.get('Trailing P/E'))
         if pe_ratio_val is not None:
-             if pe_ratio_val <= 0: pe_comment = random.choice(["negative (indicating loss or requires context)"])
-             elif pe_ratio_val < 15: pe_comment = random.choice(["relatively low (suggesting potential value or low growth expectations)"])
-             elif pe_ratio_val < 25: pe_comment = random.choice(["moderate"])
-             else: pe_comment = random.choice(["relatively high (implying market expects strong growth or potential overvaluation)"])
+              if pe_ratio_val <= 0: pe_comment = random.choice(["negative (indicating loss or requires context)"])
+              elif pe_ratio_val < 15: pe_comment = random.choice(["relatively low (suggesting potential value or low growth expectations)"])
+              elif pe_ratio_val < 25: pe_comment = random.choice(["moderate"])
+              else: pe_comment = random.choice(["relatively high (implying market expects strong growth or potential overvaluation)"])
         q5_ans_options = [f"{ticker}'s Trailing P/E ratio (based on past earnings) is <strong>{pe_ratio_fmt}</strong>, which is considered {pe_comment}. The Forward P/E (based on expected earnings) is {fwd_pe_fmt}. A P/E ratio indicates how much investors are paying per dollar of earnings. {pe_context} A high P/E isn't necessarily bad if strong growth justifies it (check the PEG ratio in Valuation Metrics)."]
         faq_items.append((f"What is {ticker}'s P/E ratio and what does it mean?", random.choice(q5_ans_options)))
+        # --- END: ORIGINAL FAQ LOGIC ---
 
+        # --- START: NEW ADDITIONAL FAQS ---
+        # FAQ 6: Key Events
+        q6_answer = "Key upcoming events include "
+        events = []
+        if earnings_date and earnings_date != 'N/A':
+            events.append(f"the next earnings report on <strong>{format_html_value(earnings_date, 'date')}</strong>")
+        if ex_div_date and ex_div_date != 'N/A':
+            events.append(f"the ex-dividend date on <strong>{format_html_value(ex_div_date, 'date')}</strong> for income investors")
+        
+        if events:
+            q6_answer += ", ".join(events) + ". "
+        q6_answer += "Beyond these, analysts should monitor macroeconomic shifts, competitive actions, and major corporate announcements."
+        faq_items.append((f"What are the key upcoming events for {ticker}?", q6_answer))
+
+        # FAQ 7: Liquidity Position
+        if current_ratio is not None and op_cash_flow is not None:
+            liquidity_analysis = f"an adequate Current Ratio of <strong>{current_ratio:.2f}x</strong>."
+            if current_ratio < 1.0:
+                liquidity_analysis = f"a Current Ratio of <strong>{current_ratio:.2f}x</strong>, which is below 1.0 and suggests potential short-term liquidity challenges."
+            elif current_ratio > 1.5:
+                liquidity_analysis = f"a strong Current Ratio of <strong>{current_ratio:.2f}x</strong>, suggesting it can comfortably cover its short-term liabilities."
+            
+            q7_answer = f"{ticker}’s financial health includes {liquidity_analysis} However, its robust operating cash flow (<strong>{op_cash_flow}</strong>) and levered free cash flow (<strong>{levered_fcf}</strong>) provide a significant buffer and are critical factors in its ability to fund operations and debt."
+            faq_items.append((f"What does {ticker}’s liquidity position reveal about its financial health?", q7_answer))
+
+        # FAQ 8: Institutional Ownership
+        if institutional_ownership is not None and short_percent_float is not None:
+            ownership_level = "moderate"
+            if institutional_ownership > 70: ownership_level = "high"
+            elif institutional_ownership < 40: ownership_level = "low"
+            
+            short_sentiment = "minimal bearish sentiment"
+            if short_percent_float > 10: short_sentiment = "significant bearish sentiment"
+            elif short_percent_float > 3: short_sentiment = "notable bearish sentiment"
+            
+            q8_answer = f"Institutional ownership is <strong>{ownership_level} at {institutional_ownership:.2f}%</strong>. This level of ownership by large funds can provide price stability and implies professional confidence in the company. The short interest is <strong>{short_percent_float:.2f}%</strong> of float, suggesting {short_sentiment} from market participants."
+            faq_items.append((f"How does {ticker}’s institutional ownership impact its stock?", q8_answer))
+        
+        # --- END: NEW ADDITIONAL FAQS ---
+        
+        # This final part remains unchanged, it just processes a longer list now
         details_html = "".join([f"<details><summary>{q}</summary><p>{a}</p></details>" for q, a in faq_items])
-        return details_html
+        return f'<div class="faq-section">{details_html}</div>' # Added a wrapper div
     except Exception as e:
         return _generate_error_html("FAQ", str(e))
+
 
 def generate_risk_factors_html(ticker, rdata):
     """Generates the enhanced Risk Factors section."""

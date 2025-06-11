@@ -22,6 +22,7 @@ import firebase_admin
 from firebase_admin import firestore
 # Note: `storage` is not directly imported here anymore at the top level.
 # We will use get_storage_bucket from firebase_admin_setup
+
 import pandas as pd
 
 FIREBASE_INITIALIZED_SUCCESSFULLY = True
@@ -269,7 +270,7 @@ def get_all_report_section_keys():
                 "valuation_metrics", "total_valuation", "profitability_growth", "analyst_insights",
                 "financial_health", "technical_analysis_summary", "short_selling_info",
                 "stock_price_statistics", "dividends_shareholder_returns", "conclusion_outlook",
-                "risk_factors", "faq"]
+                "risk_factors", "faq", "historical_performance"] 
 ALL_SECTIONS = get_all_report_section_keys()
 
 def login_required(f):

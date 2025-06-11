@@ -316,6 +316,12 @@ def calculate_detailed_ta(df):
     last_row = None
     if not df.empty:
         last_row = df.iloc[-1]
+        
+    if len(df) >= 16:
+        change_15d = df['Close'].pct_change(periods=15).iloc[-1]
+        ta_summary['change_15d_pct'] = change_15d * 100 if pd.notna(change_15d) else None
+    else:
+        ta_summary['change_15d_pct'] = None
 
     # SMAs
     for period in [20, 50, 100, 200]:

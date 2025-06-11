@@ -33,11 +33,13 @@ ALL_REPORT_SECTIONS = {
     "profitability_growth": hc.generate_profitability_growth_html,
     "analyst_insights": hc.generate_analyst_insights_html,
     "financial_health": hc.generate_financial_health_html,
+    "historical_performance": hc.generate_historical_performance_html,
     "technical_analysis_summary": hc.generate_technical_analysis_summary_html,
     "short_selling_info": hc.generate_short_selling_info_html,
     "stock_price_statistics": hc.generate_stock_price_statistics_html,
     "dividends_shareholder_returns": hc.generate_dividends_shareholder_returns_html,
     "conclusion_outlook": hc.generate_conclusion_outlook_html,
+    
     "risk_factors": hc.generate_risk_factors_html,
     "faq": hc.generate_faq_html
     # Add more if html_components.py has more generators

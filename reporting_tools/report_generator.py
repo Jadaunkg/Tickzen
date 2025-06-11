@@ -62,6 +62,7 @@ from app.html_components import (
     generate_technical_analysis_summary_html, generate_stock_price_statistics_html,
     generate_short_selling_info_html, generate_risk_factors_html,
     generate_analyst_insights_html, generate_recent_news_html,
+    generate_historical_performance_html,
     generate_conclusion_outlook_html, generate_faq_html,
     generate_report_info_disclaimer_html
 )
@@ -739,7 +740,7 @@ def create_full_report(
     historical_data,
     fundamentals,
     ts,
-    aggregation=None, # No longer used here
+    aggregation=None, 
     app_root=None,
     plot_period_years=3
     # removed evaluation_metrics - handled internally now
@@ -843,12 +844,13 @@ def create_full_report(
         financial_efficiency_html = generate_financial_efficiency_html(ticker, rdata)
         profitability_growth_html = generate_profitability_growth_html(ticker, rdata)
         dividends_shareholder_returns_html = generate_dividends_shareholder_returns_html(ticker, rdata)
-        technical_analysis_summary_html = generate_technical_analysis_summary_html(ticker, rdata)
+        technical_analysis_summary_html = generate_technical_analysis_summary_html(ticker, rdata) 
         stock_price_statistics_html = generate_stock_price_statistics_html(ticker, rdata)
         short_selling_info_html = generate_short_selling_info_html(ticker, rdata)
         risk_factors_html = generate_risk_factors_html(ticker, rdata)
         analyst_insights_html = generate_analyst_insights_html(ticker, rdata)
         recent_news_html = generate_recent_news_html(ticker, rdata)
+        
         conclusion_outlook_html = generate_conclusion_outlook_html(ticker, rdata)
         faq_html = generate_faq_html(ticker, rdata)
         report_info_disclaimer_html = generate_report_info_disclaimer_html(datetime.now(pytz.utc))
@@ -870,14 +872,14 @@ def create_full_report(
             ("Profitability and Growth", profitability_growth_html, "profitability-growth"),
             ("Dividends and Shareholder Returns", dividends_shareholder_returns_html, "dividends-shareholder-returns"),
             ("Technical Analysis", technical_analysis_summary_html, "technical-analysis-summary"),
-            ("Bollinger Bands Chart", bb_chart_html, "tech-chart-bb", None, bb_conclusion),
-            ("RSI Chart", rsi_chart_html, "tech-chart-rsi", None, rsi_conclusion),
+            ("Bollinger Bands Chart", bb_chart_html, "tech-chart-bb"),
+            ("RSI Chart", rsi_chart_html, "tech-chart-rsi"),
             ("MACD Charts",
              f'<div class="indicator-chart-container">{macd_lines_chart_html or ""}</div>' +
-             f'<div class="indicator-chart-container">{macd_hist_chart_html or ""}</div>' +
-             (f'<div class="indicator-conclusion">{macd_conclusion}</div>' if macd_conclusion else "<div class='indicator-conclusion'>MACD data not available or insufficient.</div>"),
+             f'<div class="indicator-chart-container">{macd_hist_chart_html or ""}</div>',
              "tech-chart-macd-combined"),
             ("Historical Price & Volume Chart", historical_chart_html, "historical-chart", "<div class=\"narrative\"><p>Historical closing price and volume (with 20d avg). Use buttons above chart to change range.</p></div>"),
+            ("Historical Performance", generate_historical_performance_html(ticker, rdata), "historical-performance"),
             ("Stock Price Statistics", stock_price_statistics_html, "stock-price-statistics"),
             ("Short Selling Information", short_selling_info_html, "short-selling-information"),
             ("Risk Factors", risk_factors_html, "risk-factors"),
