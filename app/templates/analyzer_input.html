@@ -26,45 +26,267 @@
     }
 
     .analyzer-card {
-        background-color: #ffffff;
+        background-color: var(--light, #f5f6fa);
         border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         padding: 2.5rem;
         text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .analyzer-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 35px rgba(var(--primary-rgb, 16, 172, 132), 0.15);
     }
 
     .analyzer-header { margin-bottom: 2rem; }
-    .analyzer-header .icon { font-size: 3.5em; color: var(--primary, #10ac84); margin-bottom: 1rem; display: block; }
-    .analyzer-header h1 { font-size: 2.2em; color: var(--dark, #2d3436); font-weight: 600; margin-bottom: 0.5rem; }
+    .analyzer-header h1 { font-size: 3.2em; color: var(--dark, #2d3436); font-weight: 700; margin-bottom: 0.5rem; }
+    .analyzer-header h1 i { color: var(--primary, var(--green-600)); margin-left: 0.1em; }
+    .analyzer-header .intro-line { font-size: 1em; color: var(--primary, var(--green-600)); font-weight: 500; margin-bottom: 1rem; line-height: 1.4; }
     .analyzer-header p { font-size: 1.1em; color: #555; line-height: 1.6; }
     .form-group { margin-bottom: 1.5rem; text-align: left; }
     .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: #333; font-size: 1em; }
-    .form-control { width: 100%; padding: 0.875rem 1rem; font-size: 1rem; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-    .form-control:focus { border-color: var(--primary, #10ac84); box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb, 16, 172, 132), 0.25); outline: none; }
-    .btn-analyze { background-color: var(--primary, #10ac84); color: white; padding: 0.875rem 1.5rem; font-size: 1.1em; font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease, transform 0.2s ease; display: inline-block; width: auto; min-width: 200px; }
-    .btn-analyze:hover { background-color: #138d75; transform: translateY(-2px); }
+    
+    /* Search Container Styles */
+    .search-container { position: relative; }
+    .search-input { 
+        width: 100%; 
+        padding: 1rem 3rem 1rem 1.5rem; 
+        font-size: 1.1rem; 
+        border: 2px solid #000000; 
+        border-radius: 12px; 
+        box-sizing: border-box; 
+        background-color: #ffffff;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .search-input:focus { 
+        border-color: var(--primary, var(--green-600)); 
+        outline: none; 
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+    }
+    .search-icon { 
+        position: absolute; 
+        right: 1.2rem; 
+        top: 50%; 
+        transform: translateY(-50%); 
+        color: #999; 
+        font-size: 1.2rem; 
+        pointer-events: none; 
+    }
+    .search-input:focus + .search-icon { color: var(--primary, var(--green-600)); }
+    .btn-analyze { background-color: var(--primary, var(--green-600)); color: white; padding: 0.875rem 1.5rem; font-size: 1.1em; font-weight: 500; border: none; border-radius: 8px; cursor: pointer; display: inline-block; width: auto; min-width: 200px; }
+    .btn-analyze:hover { background-color: var(--green-700); }
     .btn-analyze:disabled { background-color: #ccc; cursor: not-allowed; }
     .flash-messages-container { width: 100%; max-width: 650px; margin: 0 auto 1.5rem auto; padding: 0 1rem; position: sticky; top: 10px; z-index: 1050; }
-    .alert { border-radius: 8px; font-size: 1em; box-shadow: 0 4px 15px rgba(0,0,0,0.07); display: flex; justify-content: space-between; align-items: center; }
+    .alert { border-radius: 8px; font-size: 1em; border: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
     .alert .btn-close { padding: 0.75rem 1rem; background-color: transparent; border: none; font-size: 1.2rem; opacity: 0.7; }
     .alert .btn-close:hover { opacity: 1; }
-    .progress-container-wrapper { display: none; width: 100%; max-width: 600px; margin: 2rem auto; padding: 2rem; background-color: #ffffff; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); text-align: center; }
+    .progress-container-wrapper { display: none; width: 100%; max-width: 600px; margin: 2rem auto; padding: 2rem; background-color: #ffffff; border-radius: 12px; border: 1px solid #e0e0e0; text-align: center; }
     .progress-container-wrapper h2 { font-size: 1.8em; color: var(--dark, #2d3436); margin-bottom: 0.5rem; }
     .progress-container-wrapper p { font-size: 1em; color: #555; margin-bottom: 1.5rem; }
     .progress-bar-custom { width: 100%; background-color: #e9ecef; border-radius: 25px; padding: 4px; margin-bottom: 1rem; height: 30px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-    .progress-bar-custom .progress-bar-inner { height: 100%; width: 0%; background-color: var(--success, #27ae60); background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem; border-radius: 20px; transition: width 0.4s ease-in-out, background-color 0.4s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 500; font-size: 0.9em; }
+    .progress-bar-custom .progress-bar-inner { height: 100%; width: 0%; background-color: var(--success, #27ae60); background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 500; font-size: 0.9em; }
     .progress-text { font-size: 1.1em; color: var(--dark, #2d3436); font-weight: 500; margin-bottom: 0.5rem; }
-    .time-eta-container { display: flex; justify-content: space-between; font-size: 0.9em; color: #555; margin-bottom: 1rem; padding: 0 0.5rem; }
-    .time-display, .eta-display { background-color: var(--light, #f5f6fa); padding: 5px 10px; border-radius: 6px; }
+    .time-eta-container { display: flex; justify-content: center; font-size: 0.9em; color: #555; margin-bottom: 1rem; padding: 0 0.5rem; }
+    .time-display { background-color: var(--light, #f5f6fa); padding: 5px 10px; border-radius: 6px; }
     .progress-message-custom { font-size: 0.95em; color: #444; margin-top: 1rem; min-height: 20px; }
     #errorMessageArea { display: none; margin-top: 1.5rem; padding: 1rem; color: var(--danger-text, #721c24); background-color: var(--danger-bg, #f8d7da); border: 1px solid var(--danger, #e74c3c); border-radius: 8px; text-align: left; }
-    @media (max-width: 768px) { .analyzer-card { padding: 2rem; } .analyzer-header h1 { font-size: 1.8em; } .analyzer-header p { font-size: 1em; } .progress-container-wrapper { padding: 1.5rem; } }
+    
+    /* Autocomplete Styles */
+    .autocomplete-suggestions { 
+        position: absolute; 
+        top: 100%; 
+        left: 0; 
+        right: 0; 
+        background: white; 
+        border: 1px solid #ced4da; 
+        border-top: none; 
+        border-radius: 0 0 12px 12px; 
+        z-index: 1000; 
+        max-height: 300px; 
+        overflow-y: auto; 
+        display: none; 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .autocomplete-suggestion { 
+        padding: 0.75rem 1rem; 
+        cursor: pointer; 
+        border-bottom: 1px solid #f8f9fa; 
+    }
+    .autocomplete-suggestion:hover { background-color: #f8f9fa; }
+    .autocomplete-suggestion:last-child { border-bottom: none; }
+    .autocomplete-suggestion.selected { background-color: var(--primary, #16ac84); color: white; }
+    .suggestion-symbol { font-weight: 600; color: inherit; }
+    .suggestion-company { font-size: 0.9em; opacity: 0.8; color: inherit; }
+    .highlight-match { 
+        background-color: rgba(22, 163, 74, 0.1); 
+        padding: 0.1rem 0.2rem; 
+        border-radius: 0.2rem; 
+        font-weight: 500; 
+    }
+    
+    /* Popular Tickers Section */
+    .popular-tickers-section { 
+        margin-top: 2rem; 
+        text-align: center; 
+    }
+    .popular-tickers-section h3 { 
+        font-size: 1.1em; 
+        color: #666; 
+        margin-bottom: 1rem; 
+        font-weight: 500; 
+    }
+    .popular-tickers { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 0.8rem; 
+        justify-content: center; 
+    }
+    .ticker-btn { 
+        padding: 0.6rem 1.2rem; 
+        background-color: #ffffff; 
+        border: 2px solid var(--primary, var(--green-600)); 
+        border-radius: 20px; 
+        color: var(--primary, var(--green-600)); 
+        font-weight: 600; 
+        font-size: 0.9em; 
+        cursor: pointer; 
+        transition: all 0.3s ease; 
+        min-width: 60px; 
+    }
+    .ticker-btn:hover { 
+        background-color: var(--primary, var(--green-600)); 
+        color: white; 
+        transform: translateY(-2px); 
+    }
+    .ticker-btn:active { 
+        transform: translateY(0); 
+    }
+    
+    @media (max-width: 768px) { 
+        .analyzer-card { padding: 2rem; } 
+        .analyzer-header h1 { font-size: 2.2em; } 
+        .analyzer-header .intro-line { font-size: 0.9em; }
+        .analyzer-header p { font-size: 1em; } 
+        .progress-container-wrapper { padding: 1.5rem; } 
+        .popular-tickers { gap: 0.6rem; }
+        .ticker-btn { padding: 0.5rem 1rem; font-size: 0.85em; }
+    }
+    
+    /* Comparison Table Styles */
+    .comparison-section {
+        width: 100%;
+        max-width: 1400px;
+        margin: 3rem auto 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    .comparison-container {
+        background-color: var(--light, #f5f6fa);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .comparison-headline {
+        font-size: 2.2em;
+        color: var(--dark, #2d3436);
+        font-weight: 700;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .table-wrapper {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
+    }
+    
+    .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #ffffff;
+        font-size: 0.9em;
+    }
+    
+    .comparison-table th {
+        background-color: var(--primary, var(--green-600));
+        color: white;
+        padding: 1rem 0.8rem;
+        text-align: center;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .comparison-table th:first-child {
+        text-align: left;
+        min-width: 180px;
+    }
+    
+    .comparison-table td {
+        padding: 0.8rem;
+        border: 1px solid #e0e0e0;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    .comparison-table td:first-child {
+        text-align: left;
+        font-weight: 600;
+        background-color: #f8f9fa;
+        min-width: 180px;
+    }
+    
+    .comparison-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+    
+    .comparison-table tr:hover {
+        background-color: #e9ecef;
+    }
+    
+    .check {
+        color: #28a745;
+        font-weight: 600;
+    }
+    
+    .cross {
+        color: #dc3545;
+        font-weight: 600;
+    }
+    
+    .warning {
+        color: #ffc107;
+        font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+        .comparison-headline {
+            font-size: 1.8em;
+        }
+        
+        .comparison-container {
+            padding: 1rem;
+        }
+        
+        .comparison-section {
+            padding: 0 0.5rem;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        .comparison-table {
+            font-size: 0.75em;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 0.5rem 0.3rem;
+        }
+        
+        .comparison-table th:first-child,
+        .comparison-table td:first-child {
+            min-width: 120px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -86,21 +308,38 @@
     <div class="analyzer-container" id="analyzerFormSection">
         <div class="analyzer-card">
             <div class="analyzer-header">
-                <span class="icon"><i class="fas fa-chart-line"></i></span>
-                <h1>Stock Analyzer</h1>
-                <p>Enter a stock ticker symbol to generate an in-depth AI-powered analysis and price prediction report.</p>
+                <h1>Tickzen <i class="fas fa-search-dollar"></i></h1>
+                <p class="intro-line">Your AI analyst - Generate expert-grade stock reports, With Deep analysis under a minute</p>
             </div>
 
             <form method="POST" action="{{ url_for('start_stock_analysis') }}" id="analyzeForm">
                 <input type="hidden" name="client_sid" id="clientSidInput"> {# To send client SID with form if needed #}
                 <div class="form-group">
-                    <label for="tickerInput">Stock Ticker Symbol</label>
-                    <input type="text" class="form-control" id="tickerInput" name="ticker" placeholder="e.g., AAPL, MSFT, GOOGL" required>
+                    <label for="tickerInput"></label>
+                    <div class="search-container">
+                        <input type="text" class="search-input" id="tickerInput" name="ticker" placeholder="Enter a Stock ticker" required autocomplete="off">
+                        <i class="fas fa-search search-icon"></i>
+                        <div class="autocomplete-suggestions" id="autocompleteSuggestions"></div>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-analyze" id="analyzeButton">
                     <i class="fas fa-cogs"></i> Analyze Stock
                 </button>
             </form>
+            
+            <div class="popular-tickers-section">
+                <h3>Starts with:</h3>
+                <div class="popular-tickers">
+                    <button type="button" class="ticker-btn" data-ticker="AAPL">AAPL</button>
+                    <button type="button" class="ticker-btn" data-ticker="TSLA">TSLA</button>
+                    <button type="button" class="ticker-btn" data-ticker="GOOGL">GOOGL</button>
+                    <button type="button" class="ticker-btn" data-ticker="MSFT">MSFT</button>
+                    <button type="button" class="ticker-btn" data-ticker="AMZN">AMZN</button>
+                    <button type="button" class="ticker-btn" data-ticker="NVDA">NVDA</button>
+                    <button type="button" class="ticker-btn" data-ticker="META">META</button>
+                    <button type="button" class="ticker-btn" data-ticker="NFLX">NFLX</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -113,13 +352,107 @@
         <p class="progress-text" id="progressText">Initializing...</p>
         <div class="time-eta-container">
             <span class="time-display">Elapsed Time: <strong id="elapsedTime">0s</strong></span>
-            <span class="eta-display">Est. Time Remaining: <strong id="etaTime">Calculating...</strong></span>
         </div>
         <p class="progress-message-custom" id="progressMessage">Fetching data and warming up the AI hamsters...</p>
         <div id="errorMessageArea" class="alert alert-danger" style="display: none; text-align:left;"></div>
          <p style="margin-top: 1.5rem; font-size: 0.85em; color: #777;">
             <i class="fas fa-info-circle"></i> Please do not close or refresh this page. You will be redirected automatically once the report is ready.
         </p>
+    </div>
+
+    <!-- Comparison Table Section -->
+    <div class="comparison-section">
+        <div class="comparison-container">
+            <h2 class="comparison-headline">Why Tickzen's Analysis?</h2>
+            <div class="table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature / Tool</th>
+                            <th>Your Platform</th>
+                            <th>Seeking Alpha</th>
+                            <th>Gurufocus</th>
+                            <th>Simply Wall St</th>
+                            <th>ChatGPT / AI Tools</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ticker-Based Dynamic Input</td>
+                            <td><span class="check">✅ Yes (live input)</span></td>
+                            <td><span class="cross">❌ Mostly static</span></td>
+                            <td><span class="cross">❌ Static</span></td>
+                            <td><span class="warning">⚠️ Partially dynamic</span></td>
+                            <td><span class="check">✅ Prompt-based</span></td>
+                        </tr>
+                        <tr>
+                            <td>Technical Analysis Section</td>
+                            <td><span class="check">✅ Included</span></td>
+                            <td><span class="warning">⚠️ Partial (charts only)</span></td>
+                            <td><span class="cross">❌ No</span></td>
+                            <td><span class="check">✅ Simplified visuals</span></td>
+                            <td><span class="warning">⚠️ If prompted</span></td>
+                        </tr>
+                        <tr>
+                            <td>Fundamental Analysis</td>
+                            <td><span class="check">✅ Detailed</span></td>
+                            <td><span class="check">✅ Yes</span></td>
+                            <td><span class="check">✅ Very Detailed</span></td>
+                            <td><span class="check">✅ Yes</span></td>
+                            <td><span class="warning">⚠️ Basic ratios if asked</span></td>
+                        </tr>
+                        <tr>
+                            <td>Macro Indicator Integration</td>
+                            <td><span class="check">✅ Included</span></td>
+                            <td><span class="warning">⚠️ Minimal</span></td>
+                            <td><span class="warning">⚠️ Sector trends only</span></td>
+                            <td><span class="cross">❌ Not available</span></td>
+                            <td><span class="warning">⚠️ Only if specified</span></td>
+                        </tr>
+                        <tr>
+                            <td>Risk Factors</td>
+                            <td><span class="check">✅ Dedicated Section</span></td>
+                            <td><span class="warning">⚠️ General</span></td>
+                            <td><span class="check">✅ Yes</span></td>
+                            <td><span class="warning">⚠️ High-level only</span></td>
+                            <td><span class="warning">⚠️ Not always relevant</span></td>
+                        </tr>
+                        <tr>
+                            <td>10-Year Price History Analysis</td>
+                            <td><span class="check">✅ Integrated</span></td>
+                            <td><span class="warning">⚠️ Charts only</span></td>
+                            <td><span class="check">✅ Charts</span></td>
+                            <td><span class="check">✅ Visual-based</span></td>
+                            <td><span class="warning">⚠️ Requires manual effort</span></td>
+                        </tr>
+                        <tr>
+                            <td>Forecast & Valuation Models</td>
+                            <td><span class="check">✅ Included with explanation</span></td>
+                            <td><span class="check">✅ Yes</span></td>
+                            <td><span class="check">✅ Yes</span></td>
+                            <td><span class="check">✅ Yes</span></td>
+                            <td><span class="warning">⚠️ No direct prediction</span></td>
+                        </tr>
+                        <tr>
+                            <td>Overall Assessment Summary</td>
+                            <td><span class="check">✅ Clear and comprehensive</span></td>
+                            <td><span class="warning">⚠️ Mixed opinion pieces</span></td>
+                            <td><span class="check">✅ Numerical-based</span></td>
+                            <td><span class="warning">⚠️ Graph summary only</span></td>
+                            <td><span class="warning">⚠️ Prompt dependent</span></td>
+                        </tr>
+                        <tr>
+                            <td>Auto-Generated 2500–3000 Word Report</td>
+                            <td><span class="check">✅ Yes, ready-to-publish</span></td>
+                            <td><span class="cross">❌ No</span></td>
+                            <td><span class="cross">❌ No</span></td>
+                            <td><span class="cross">❌ No</span></td>
+                            <td><span class="warning">⚠️ Not consistently detailed</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
     </div>
 {% endblock %}
@@ -133,12 +466,159 @@ document.addEventListener('DOMContentLoaded', function () {
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
     const elapsedTimeDisplay = document.getElementById('elapsedTime');
-    const etaTimeDisplay = document.getElementById('etaTime');
     const progressMessage = document.getElementById('progressMessage');
     const errorMessageArea = document.getElementById('errorMessageArea');
     const tickerInput = document.getElementById('tickerInput');
     const analyzeButton = document.getElementById('analyzeButton');
     const clientSidInput = document.getElementById('clientSidInput');
+    
+    // Enhanced Autocomplete functionality
+    const autocompleteSuggestions = document.getElementById('autocompleteSuggestions');
+    let currentSuggestions = [];
+    let selectedIndex = -1;
+    let searchTimeout = null;
+    
+    // Function to fetch ticker suggestions with enhanced search
+    async function fetchTickerSuggestions(query) {
+        if (!query || query.length < 1) {
+            hideSuggestions();
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/ticker-suggestions?q=${encodeURIComponent(query)}`);
+            const suggestions = await response.json();
+            currentSuggestions = suggestions;
+            displaySuggestions(suggestions, query);
+        } catch (error) {
+            console.error('Error fetching ticker suggestions:', error);
+            hideSuggestions();
+        }
+    }
+    
+    // Function to display suggestions with enhanced styling
+    function displaySuggestions(suggestions, query) {
+        if (!suggestions || suggestions.length === 0) {
+            hideSuggestions();
+            return;
+        }
+        
+        autocompleteSuggestions.innerHTML = '';
+        suggestions.forEach((suggestion, index) => {
+            const div = document.createElement('div');
+            div.className = 'autocomplete-suggestion';
+            div.setAttribute('data-index', index);
+            
+            // Create different styling based on match type
+            let symbolClass = 'suggestion-symbol';
+            let companyClass = 'suggestion-company';
+            
+            if (suggestion.match_type === 'company') {
+                // Highlight company name for company matches
+                const companyMatch = suggestion.company.toLowerCase().includes(query.toLowerCase());
+                if (companyMatch) {
+                    companyClass += ' highlight-match';
+                }
+            }
+            
+            div.innerHTML = `
+                <div class="${symbolClass}">${suggestion.symbol}</div>
+                <div class="${companyClass}">${suggestion.company}</div>
+            `;
+            
+            div.addEventListener('click', () => selectSuggestion(suggestion));
+            div.addEventListener('mouseenter', () => {
+                selectedIndex = index;
+                updateSelectedSuggestion();
+            });
+            
+            autocompleteSuggestions.appendChild(div);
+        });
+        
+        autocompleteSuggestions.style.display = 'block';
+        selectedIndex = -1;
+    }
+    
+    // Function to hide suggestions
+    function hideSuggestions() {
+        autocompleteSuggestions.style.display = 'none';
+        selectedIndex = -1;
+    }
+    
+    // Function to select a suggestion
+    function selectSuggestion(suggestion) {
+        tickerInput.value = suggestion.symbol;
+        hideSuggestions();
+        tickerInput.focus();
+    }
+    
+    // Function to update selected suggestion
+    function updateSelectedSuggestion() {
+        const suggestions = autocompleteSuggestions.querySelectorAll('.autocomplete-suggestion');
+        suggestions.forEach((suggestion, index) => {
+            if (index === selectedIndex) {
+                suggestion.classList.add('selected');
+            } else {
+                suggestion.classList.remove('selected');
+            }
+        });
+    }
+    
+    // Enhanced event listeners for autocomplete
+    tickerInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Clear previous timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        // Debounce the search (300ms delay)
+        searchTimeout = setTimeout(() => {
+            fetchTickerSuggestions(query);
+        }, 300);
+    });
+    
+    tickerInput.addEventListener('keydown', function(e) {
+        if (currentSuggestions.length === 0) return;
+        
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, currentSuggestions.length - 1);
+                updateSelectedSuggestion();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelectedSuggestion();
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (selectedIndex >= 0 && currentSuggestions[selectedIndex]) {
+                    selectSuggestion(currentSuggestions[selectedIndex]);
+                } else {
+                    // Submit form if no suggestion is selected
+                    analyzeForm.dispatchEvent(new Event('submit'));
+                }
+                break;
+            case 'Escape':
+                hideSuggestions();
+                break;
+        }
+    });
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!tickerInput.contains(e.target) && !autocompleteSuggestions.contains(e.target)) {
+            hideSuggestions();
+        }
+    });
+    
+    // Hide suggestions when input loses focus (with delay to allow for clicks)
+    tickerInput.addEventListener('blur', function() {
+        setTimeout(hideSuggestions, 150);
+    });
 
     let timerInterval;
     let elapsedTime = 0;
@@ -191,7 +671,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.progress >= 100) {
                  progressBar.style.backgroundColor = 'var(--success, #27ae60)';
             } else {
-                 progressBar.style.backgroundColor = 'var(--primary, #10ac84)'; // Or a different progress color
+                 progressBar.style.backgroundColor = 'var(--primary, var(--green-600))'; // Or a different progress color
             }
         }
         if (progressText) {
@@ -200,9 +680,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (progressMessage) {
             progressMessage.textContent = data.message;
         }
-        if (data.eta !== undefined && etaTimeDisplay) {
-            etaTimeDisplay.textContent = data.eta > 0 ? `${data.eta}s` : (data.progress < 100 ? 'Finalizing...' : 'Done!');
-        }
+
     });
     
     socket.on('analysis_complete', function(data) {
@@ -256,11 +734,10 @@ document.addEventListener('DOMContentLoaded', function () {
             progressBar.style.width = '0%';
             progressBar.textContent = '0%';
             progressBar.setAttribute('aria-valuenow', '0');
-            progressBar.style.backgroundColor = 'var(--primary, #10ac84)'; // Reset to progress color
+            progressBar.style.backgroundColor = 'var(--primary, var(--green-600))'; // Reset to progress color
         }
         if (progressText) progressText.textContent = 'Initializing...';
         if (elapsedTimeDisplay) elapsedTimeDisplay.textContent = '0s';
-        if (etaTimeDisplay) etaTimeDisplay.textContent = 'Calculating...';
         if (progressMessage) progressMessage.textContent = 'Ready to start.';
         if (errorMessageArea) {
             errorMessageArea.style.display = 'none';
@@ -298,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 progressBar.style.width = '0%';
                 progressBar.textContent = '0%';
                 progressBar.setAttribute('aria-valuenow', '0');
-                progressBar.style.backgroundColor = 'var(--primary, #10ac84)';
+                progressBar.style.backgroundColor = 'var(--primary, var(--green-600))';
             }
             if (progressText) progressText.textContent = 'Initializing...';
             if (progressMessage) progressMessage.textContent = 'Connecting to analysis service...';
@@ -364,18 +841,31 @@ document.addEventListener('DOMContentLoaded', function () {
         if (analyzeButton && analyzeButton.disabled) analyzeButton.disabled = false;
     });
 
-    // Auto-dismiss non-danger flash messages
-    const allAlerts = document.querySelectorAll('.flash-messages-container .alert');
-    allAlerts.forEach(function(alert) {
-        if (!alert.classList.contains('alert-danger')) {
-            setTimeout(function() {
-                // Basic dismiss, assuming no Bootstrap JS for alerts by default
-                alert.style.transition = 'opacity 0.5s ease-out';
-                alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 500);
-            }, 7000);
-        }
+    // Popular ticker buttons functionality
+    const tickerButtons = document.querySelectorAll('.ticker-btn');
+    tickerButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const ticker = this.getAttribute('data-ticker');
+            tickerInput.value = ticker;
+            tickerInput.focus();
+            hideSuggestions(); // Hide any open autocomplete suggestions
+        });
     });
+
+    
+        
+        // Auto-dismiss non-danger flash messages
+        const allAlerts = document.querySelectorAll('.flash-messages-container .alert');
+        allAlerts.forEach(function(alert) {
+            if (!alert.classList.contains('alert-danger')) {
+                setTimeout(function() {
+                    // Basic dismiss, assuming no Bootstrap JS for alerts by default
+                    alert.style.transition = 'opacity 0.5s ease-out';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
+                }, 7000);
+            }
+        });
 });
 </script>
 {% endblock %}

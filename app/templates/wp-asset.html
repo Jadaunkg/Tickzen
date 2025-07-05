@@ -18,7 +18,7 @@
     }
     .wp-asset-card h1 {
         text-align: center;
-        color: #10ac84;
+        color: var(--green-600);
         margin-bottom: 0.75rem;
         font-size: 2em;
         font-weight: 600;
@@ -46,8 +46,8 @@
         transition: border-color 0.2s, box-shadow 0.2s;
     }
     #wp-ticker-form input[type="text"]:focus {
-        border-color: #10ac84;
-        box-shadow: 0 0 0 3px rgba(16,172,132,0.15);
+        border-color: var(--green-600);
+        box-shadow: 0 0 0 3px rgba(22,163,74,0.15);
         outline: none;
     }
     #wp-generate-button {
@@ -93,10 +93,10 @@
     #wp-error-message strong { display:block; margin-bottom:0.5rem }
     #wp-results-content { display:none }
     #wp-results-content h2 {
-        font-size:1.6em; color:#10ac84;
+        font-size:1.6em; color:var(--green-600);
         margin-top:0; margin-bottom:1.5rem;
         padding-bottom:0.75rem;
-        border-bottom:2px solid #a1dac8;
+        border-bottom:2px solid var(--green-200);
     }
     #wp-results-content h3 {
         margin:2rem 0 1rem;
@@ -137,7 +137,7 @@
     #chart-urls-output li a {
         color:#2e86de; text-decoration:underline;
     }
-    #chart-urls-output li a:hover { color:#10ac84 }
+    #chart-urls-output li a:hover { color:var(--green-600) }
     @media (max-width:600px) {
         .wp-asset-card { padding:1.5rem }
         #wp-ticker-form { flex-direction:column }

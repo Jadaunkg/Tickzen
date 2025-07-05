@@ -1,10 +1,10 @@
 /* WP Automator Authentication Pages CSS - Simple Version */
-/* Accent Color: #10ac84 */
+/* Accent Color: var(--green-600) */
 
 :root {
-  --primary-color: #10ac84;
-  --primary-dark: #0e9670;
-  --primary-light: #2bb896;
+  --primary-color: var(--green-600);
+  --primary-dark: var(--green-700);
+  --primary-light: var(--green-500);
   --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   --border-radius: 8px;
   --transition: all 0.3s ease;
@@ -105,7 +105,7 @@ body {
 .form-control:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(16, 172, 132, 0.1);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
 }
 
 .form-control:hover {
@@ -261,23 +261,78 @@ body {
 }
 
 .flash-success {
-  background: rgba(16, 172, 132, 0.1);
+  background: rgba(22, 163, 74, 0.1);
   color: var(--success-color);
-  border: 1px solid rgba(16, 172, 132, 0.2);
+  border: 1px solid rgba(22, 163, 74, 0.2);
 }
 
-/* Loading Spinner - Only Animation Kept */
+/* Loading Spinner - Enhanced Animation */
 .fa-spinner {
-  animation: spin 1s linear infinite;
+  animation: none; /* Default: no animation */
+  display: none; /* Default: hidden */
+}
+
+/* Only animate when spinner is visible */
+.fa-spinner[style*="display: inline-block"],
+.fa-spinner[style*="display:inline-block"] {
+  animation: spin 1s linear infinite !important;
+  display: inline-block !important;
 }
 
 @keyframes spin {
-  from {
+  0% {
     transform: rotate(0deg);
   }
-  to {
+  100% {
     transform: rotate(360deg);
   }
+}
+
+/* Ensure spinner animation works even with Font Awesome conflicts */
+.btn-auth .fa-spinner,
+.btn-google .fa-spinner {
+  animation: none; /* Default: no animation */
+}
+
+/* Only animate when spinner is visible in buttons */
+.btn-auth .fa-spinner[style*="display: inline-block"],
+.btn-auth .fa-spinner[style*="display:inline-block"],
+.btn-google .fa-spinner[style*="display: inline-block"],
+.btn-google .fa-spinner[style*="display:inline-block"] {
+  animation: spin 1s linear infinite !important;
+  transform-origin: center center !important;
+}
+
+/* Alternative spinner class for better compatibility */
+.spinner-rotate {
+  animation: none; /* Default: no animation */
+  display: none; /* Default: hidden */
+}
+
+/* Only animate when spinner-rotate is visible */
+.spinner-rotate[style*="display: inline-block"],
+.spinner-rotate[style*="display:inline-block"] {
+  animation: spin 1s linear infinite !important;
+  display: inline-block !important;
+}
+
+/* Global spinner fix for all pages - only when visible */
+.fas.fa-spinner.fa-spin[style*="display: inline-block"],
+.fas.fa-spinner.fa-spin[style*="display:inline-block"],
+.fa-spinner.fa-spin[style*="display: inline-block"],
+.fa-spinner.fa-spin[style*="display:inline-block"] {
+  animation: spin 1s linear infinite !important;
+  transform-origin: center center !important;
+  display: inline-block !important;
+}
+
+/* Fix for automation page spinners - only when visible */
+.icon .fa-spinner[style*="display: inline-block"],
+.icon .fa-spinner[style*="display:inline-block"],
+span .fa-spinner[style*="display: inline-block"],
+span .fa-spinner[style*="display:inline-block"] {
+  animation: spin 1s linear infinite !important;
+  transform-origin: center center !important;
 }
 
 /* Page-specific styles */

@@ -106,7 +106,7 @@
 .form-control:focus {
   outline: none !important;
   border-color: var(--primary) !important;
-  box-shadow: 0 0 0 3px rgba(16, 172, 132, 0.15) !important;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15) !important;
   transform: translateY(-1px) !important;
 }
 
@@ -192,7 +192,7 @@
 
 .password-toggle:hover {
   color: var(--primary);
-  background-color: rgba(16, 172, 132, 0.1);
+  background-color: rgba(22, 163, 74, 0.1);
   /* REMOVED: transform: scale(1.1); - This was causing the movement issue */
 }
 
@@ -337,7 +337,7 @@
   display: inline-block;
   width: 1rem;
   height: 1rem;
-  border: 2px solid rgba(16, 172, 132, 0.2);
+  border: 2px solid rgba(22, 163, 74, 0.2);
   border-radius: 50%;
   border-top-color: var(--primary);
   animation: spin 1s linear infinite;
@@ -369,7 +369,7 @@
 .loading-spinner {
   width: 3rem;
   height: 3rem;
-  border: 4px solid rgba(16, 172, 132, 0.2);
+  border: 4px solid rgba(22, 163, 74, 0.2);
   border-radius: 50%;
   border-top-color: var(--primary);
   animation: spin 1s linear infinite;
@@ -406,7 +406,7 @@
 }
 
 .table tbody tr:hover {
-  background-color: rgba(16, 172, 132, 0.05);
+  background-color: rgba(22, 163, 74, 0.05);
   transform: translateX(2px);
 }
 
@@ -726,7 +726,7 @@
 
 .breadcrumb-item a:hover {
   color: var(--primary-dark);
-  background: rgba(16, 172, 132, 0.1);
+  background: rgba(22, 163, 74, 0.1);
 }
 
 .breadcrumb-item.active {
@@ -841,9 +841,9 @@ input[type="tel"]:focus,
 input[type="search"]:focus,
 textarea:focus,
 select:focus {
-  border-color: #10ac84 !important;
+  border-color: var(--green-600) !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba(16, 172, 132, 0.15) !important;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15) !important;
 }
 
 /* Enhanced Flash Messages for Auth */
@@ -1085,7 +1085,7 @@ select:focus {
 .tool-card .btn-launch-tool:hover {
   background: var(--primary-dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 172, 132, 0.3);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
 }
 
 /* Enhanced Report History Styles */
@@ -1433,6 +1433,59 @@ select:focus {
 }
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+/* Comprehensive Spinner Fix for Font Awesome - Only when visible */
+.fa-spinner,
+.fas.fa-spinner,
+.fa-spinner.fa-spin,
+.fas.fa-spinner.fa-spin {
+  animation: none; /* Default: no animation */
+  display: none; /* Default: hidden */
+}
+
+/* Only animate when spinner is visible */
+.fa-spinner[style*="display: inline-block"],
+.fa-spinner[style*="display:inline-block"],
+.fas.fa-spinner[style*="display: inline-block"],
+.fas.fa-spinner[style*="display:inline-block"],
+.fa-spinner.fa-spin[style*="display: inline-block"],
+.fa-spinner.fa-spin[style*="display:inline-block"],
+.fas.fa-spinner.fa-spin[style*="display: inline-block"],
+.fas.fa-spinner.fa-spin[style*="display:inline-block"] {
+  animation: spin 1s linear infinite !important;
+  transform-origin: center center !important;
+  display: inline-block !important;
+}
+
+/* Ensure spinner animation works in all contexts - Only when visible */
+.btn .fa-spinner[style*="display: inline-block"],
+.btn .fa-spinner[style*="display:inline-block"],
+.btn .fas.fa-spinner[style*="display: inline-block"],
+.btn .fas.fa-spinner[style*="display:inline-block"],
+.icon .fa-spinner[style*="display: inline-block"],
+.icon .fa-spinner[style*="display:inline-block"],
+.icon .fas.fa-spinner[style*="display: inline-block"],
+.icon .fas.fa-spinner[style*="display:inline-block"],
+span .fa-spinner[style*="display: inline-block"],
+span .fa-spinner[style*="display:inline-block"],
+span .fas.fa-spinner[style*="display: inline-block"],
+span .fas.fa-spinner[style*="display:inline-block"] {
+  animation: spin 1s linear infinite !important;
+  transform-origin: center center !important;
+  display: inline-block !important;
+}
+
+/* Alternative spinner class for better compatibility - Only when visible */
+.spinner-rotate {
+  animation: none; /* Default: no animation */
+  display: none; /* Default: hidden */
+}
+
+.spinner-rotate[style*="display: inline-block"],
+.spinner-rotate[style*="display:inline-block"] {
+  animation: spin 1s linear infinite !important;
+  display: inline-block !important;
 }
 
 /* Hover Effects */

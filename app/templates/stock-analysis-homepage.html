@@ -2603,8 +2603,320 @@
 {% endblock %}
 
 {% block scripts_extra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Socket.IO setup for real-time communication
+        let socket;
+        let currentAnalysisRoom = null;
+        
+        // Initialize socket connection
+        function initializeSocket() {
+            if (typeof io === 'undefined') {
+                console.error("Socket.IO client library not loaded. Real-time updates disabled.");
+                return false;
+            }
+            
+            socket = io();
+            
+            socket.on('connect', function() {
+                console.log('WebSocket Connected. SID: ' + socket.id);
+            });
+            
+            socket.on('disconnect', function() {
+                console.log('WebSocket Disconnected.');
+            });
+            
+            socket.on('connect_error', (error) => {
+                console.error('WebSocket Connection Error:', error);
+                showError('Real-time update connection failed. Please refresh the page.');
+            });
+            
+            // Handle analysis progress updates
+            socket.on('analysis_progress', function(data) {
+                console.log('Analysis progress received:', data);
+                updateAnalysisProgress(data);
+            });
+            
+            // Handle analysis completion
+            socket.on('analysis_complete', function(data) {
+                console.log('Analysis complete received:', data);
+                handleAnalysisComplete(data);
+            });
+            
+            // Handle analysis errors
+            socket.on('analysis_error', function(data) {
+                console.error('Analysis error received:', data);
+                handleAnalysisError(data);
+            });
+            
+            return true;
+        }
+        
+        // Initialize socket on page load
+        initializeSocket();
+        
+        // Analysis progress mapping
+        const analysisStages = {
+            'Initialization': 0,
+            'Introduction & Key Metrics': 1,
+            'Data Collection': 2,
+            '15-Year Price History & Charts': 3,
+            'Preprocessing': 4,
+            'Technical Indicators (RSI, MACD, Histogram)': 5,
+            'Model Training': 6,
+            'Fundamental Analysis & Ratios': 7,
+            'Fundamentals': 8,
+            'Analyst Consensus & Recommendations': 9,
+            'Macro Economic Indicators': 10,
+            'Forecast Table & Price Targets': 11,
+            'Report Generation': 12,
+            'Risk Factors & Assessment': 13,
+            'Complete': 14
+        };
+        
+        const sectionMapping = {
+            0: 'Introduction & Key Metrics',
+            1: '15-Year Price History & Charts',
+            2: 'Technical Indicators (RSI, MACD, Histogram)',
+            3: 'Fundamental Analysis & Ratios',
+            4: 'Analyst Consensus & Recommendations',
+            5: 'Macro Economic Indicators',
+            6: 'Forecast Table & Price Targets',
+            7: 'Risk Factors & Assessment'
+        };
+        
+        // Update analysis progress based on backend data
+        function updateAnalysisProgress(data) {
+            const reportStatus = document.getElementById('reportStatus');
+            const wordCount = document.getElementById('wordCount');
+            const sections = document.querySelectorAll('.section-status');
+            
+            if (reportStatus) {
+                reportStatus.textContent = data.stage || 'Processing...';
+                reportStatus.className = 'badge status-processing';
+            }
+            
+            // Update progress based on stage
+            const stageIndex = analysisStages[data.stage] || 0;
+            
+            // Map pipeline stages to UI sections (0-7)
+            let uiSectionIndex = 0;
+            if (stageIndex >= 1) uiSectionIndex = 0; // Introduction & Key Metrics
+            if (stageIndex >= 3) uiSectionIndex = 1; // 15-Year Price History & Charts
+            if (stageIndex >= 5) uiSectionIndex = 2; // Technical Indicators
+            if (stageIndex >= 7) uiSectionIndex = 3; // Fundamental Analysis
+            if (stageIndex >= 9) uiSectionIndex = 4; // Analyst Consensus
+            if (stageIndex >= 10) uiSectionIndex = 5; // Macro Economic Indicators
+            if (stageIndex >= 11) uiSectionIndex = 6; // Forecast Table
+            if (stageIndex >= 13) uiSectionIndex = 7; // Risk Factors
+            
+            // Update sections based on progress
+            sections.forEach((section, index) => {
+                if (index < uiSectionIndex) {
+                    section.textContent = 'Complete';
+                    section.className = 'section-status status-complete';
+                } else if (index === uiSectionIndex) {
+                    section.textContent = 'Processing';
+                    section.className = 'section-status status-processing';
+                } else {
+                    section.textContent = 'Pending';
+                    section.className = 'section-status';
+                }
+            });
+            
+            // Update word count progressively
+            const baseWords = 2500;
+            const wordsPerStage = 100;
+            const currentWords = baseWords + (uiSectionIndex * wordsPerStage);
+            if (wordCount) {
+                wordCount.textContent = `${currentWords.toLocaleString()} words`;
+            }
+        }
+        
+        // Handle analysis completion
+        function handleAnalysisComplete(data) {
+            const reportStatus = document.getElementById('reportStatus');
+            const sections = document.querySelectorAll('.section-status');
+            const wordCount = document.getElementById('wordCount');
+            
+            if (reportStatus) {
+                reportStatus.textContent = 'Complete';
+                reportStatus.className = 'badge status-complete';
+            }
+            
+            // Mark all sections as complete
+            sections.forEach(section => {
+                section.textContent = 'Complete';
+                section.className = 'section-status status-complete';
+            });
+            
+            // Final word count
+            if (wordCount) {
+                const finalWords = Math.floor(Math.random() * 500) + 2800;
+                wordCount.textContent = `${finalWords.toLocaleString()} words`;
+            }
+            
+            // Show success message briefly, then redirect
+            setTimeout(() => {
+                if (data.report_url) {
+                    showSuccess('Analysis complete! Redirecting to report...');
+                    // Redirect after a brief delay to show the success message
+                    setTimeout(() => {
+                        window.location.href = data.report_url;
+                    }, 1500);
+                } else {
+                    showSuccess('Analysis complete!');
+                }
+            }, 1000);
+        }
+        
+        // Handle analysis errors
+        function handleAnalysisError(data) {
+            const reportStatus = document.getElementById('reportStatus');
+            const sections = document.querySelectorAll('.section-status');
+            
+            if (reportStatus) {
+                reportStatus.textContent = 'Error';
+                reportStatus.className = 'badge';
+                reportStatus.style.background = '#dc3545';
+            }
+            
+            // Reset sections
+            sections.forEach(section => {
+                section.textContent = 'Failed';
+                section.className = 'section-status';
+                section.style.color = '#dc3545';
+            });
+            
+            showError(data.message || 'Analysis failed. Please try again.');
+        }
+        
+        // Show success message
+        function showSuccess(message) {
+            const demoOutput = document.querySelector('.demo-output');
+            if (demoOutput) {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'mt-4 p-3';
+                successDiv.style.background = 'var(--green-50)';
+                successDiv.style.border = '1px solid var(--green-100)';
+                successDiv.style.color = 'var(--green-800)';
+                successDiv.style.borderRadius = '0.5rem';
+                successDiv.innerHTML = message;
+                demoOutput.appendChild(successDiv);
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            const demoOutput = document.querySelector('.demo-output');
+            if (demoOutput) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'mt-4 p-3';
+                errorDiv.style.background = '#fef2f2';
+                errorDiv.style.border = '1px solid #fecaca';
+                errorDiv.style.color = '#dc2626';
+                errorDiv.style.borderRadius = '0.5rem';
+                errorDiv.textContent = message;
+                demoOutput.appendChild(errorDiv);
+            }
+        }
+        
+        // Real analysis function
+        function startAnalysis() {
+            const ticker = document.getElementById('tickerInput').value.toUpperCase();
+            if (!ticker) {
+                showError('Please enter a stock ticker symbol.');
+                return;
+            }
+            
+            // Validate ticker format
+            const validTickerPattern = /^[A-Z0-9\^.\-$&/]+(\.[A-Z]{1,2})?$/;
+            if (!validTickerPattern.test(ticker)) {
+                showError('Invalid ticker format. Please use standard stock symbols (e.g., AAPL, MSFT, GOOGL).');
+                return;
+            }
+            
+            // Clear previous messages
+            const demoOutput = document.querySelector('.demo-output');
+            const existingMessages = demoOutput.querySelectorAll('.mt-4');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // Reset UI
+            const reportStatus = document.getElementById('reportStatus');
+            const sections = document.querySelectorAll('.section-status');
+            const wordCount = document.getElementById('wordCount');
+            
+            if (reportStatus) {
+                reportStatus.textContent = 'Initializing...';
+                reportStatus.className = 'badge status-processing';
+            }
+            
+            // Reset all sections
+            sections.forEach(section => {
+                section.textContent = 'Pending';
+                section.className = 'section-status';
+                section.style.color = '';
+            });
+            
+            if (wordCount) {
+                wordCount.textContent = '0 words';
+            }
+            
+            // Create unique room for this analysis
+            currentAnalysisRoom = 'demo_analysis_' + Date.now();
+            
+            // Join the analysis room
+            if (socket) {
+                socket.emit('join_task_room', { room_id: currentAnalysisRoom });
+            }
+            
+            // Send analysis request
+            const formData = new FormData();
+            formData.append('ticker', ticker);
+            if (socket && socket.id) {
+                formData.append('client_sid', socket.id);
+            }
+            
+            fetch('/start-analysis', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || `Server error: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Analysis initiated:', data);
+                if (data.status === 'error') {
+                    throw new Error(data.message || 'Failed to start analysis.');
+                }
+            })
+            .catch(error => {
+                console.error('Error starting analysis:', error);
+                handleAnalysisError({ message: error.message });
+            });
+        }
+        
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('active');
+            }
+        }
+        
+        // Make startAnalysis globally available
+        window.startAnalysis = startAnalysis;
+        window.toggleMobileMenu = toggleMobileMenu;
+        
         // FAQ Accordion
         const faqQuestions = document.querySelectorAll('.faq-question');
         faqQuestions.forEach(question => {
@@ -2669,159 +2981,93 @@
                 }
             });
         });
-    });
-
-
-    // new javascript 
-     // Initialize Lucide icons
-     lucide.createIcons();
-
-// Mobile menu toggle
-function toggleMobileMenu() {
-    const mobileMenu = document.getElementById('mobileMenu');
-    mobileMenu.classList.toggle('active');
-}
-
-// Demo functionality
-function startAnalysis() {
-    const ticker = document.getElementById('tickerInput').value.toUpperCase();
-    if (!ticker) return;
-
-    const reportStatus = document.getElementById('reportStatus');
-    const wordCount = document.getElementById('wordCount');
-    const sections = document.querySelectorAll('.section-status');
-    
-    reportStatus.textContent = 'Analyzing...';
-    reportStatus.className = 'badge status-processing';
-    
-    // Reset all sections to processing
-    sections.forEach(section => {
-        section.textContent = 'Processing';
-        section.className = 'section-status status-processing';
-    });
-    
-    // Simulate analysis progress
-    let currentSection = 0;
-    const interval = setInterval(() => {
-        if (currentSection < sections.length) {
-            sections[currentSection].textContent = 'Complete';
-            sections[currentSection].className = 'section-status status-complete';
-            currentSection++;
-            
-            // Update word count progressively
-            const words = Math.floor(Math.random() * 300) + 2500 + (currentSection * 50);
-            wordCount.textContent = `${words.toLocaleString()} words`;
-        } else {
-            clearInterval(interval);
-            reportStatus.textContent = 'Complete';
-            reportStatus.className = 'badge status-complete';
-            
-            // Final word count
-            const finalWords = Math.floor(Math.random() * 500) + 2800;
-            wordCount.textContent = `${finalWords.toLocaleString()} words`;
-        }
-    }, 800);
-}
-
-// Smooth scrolling for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-});
-
-// Close mobile menu when clicking outside
-document.addEventListener('click', function(e) {
-    const mobileMenu = document.getElementById('mobileMenu');
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    
-    if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-        mobileMenu.classList.remove('active');
-    }
-});
-
-// Add scroll effect to header
-window.addEventListener('scroll', function() {
-    const header = document.querySelector('.header');
-    if (window.scrollY > 100) {
-        header.style.background = 'rgba(255, 255, 255, 0.95)';
-    } else {
-        header.style.background = 'rgba(255, 255, 255, 0.8)';
-    }
-});
-
-// Animate elements on scroll
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver(function(entries) {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-// Observe elements for animation
-document.querySelectorAll('.card, .feature-preview, .demo-input, .demo-output, .testimonial-card, .pricing-card, .faq-item').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(el);
-});
-
-// Add hover effects to buttons
-document.querySelectorAll('.btn').forEach(btn => {
-    btn.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-2px)';
-    });
-    
-    btn.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
-    });
-});
-
-// Auto-populate ticker input with examples
-const examples = ['AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'NFLX'];
-let exampleIndex = 0;
-
-setInterval(() => {
-    const input = document.getElementById('tickerInput');
-    if (input && !input.value && !input.matches(':focus')) {
-        input.placeholder = examples[exampleIndex];
-        exampleIndex = (exampleIndex + 1) % examples.length;
-    }
-}, 2500);
-
-// Add click tracking for analytics (placeholder)
-document.querySelectorAll('.btn-primary').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        // Add your analytics tracking here
-        console.log('CTA clicked:', this.textContent.trim());
-    });
-});
-
-// Writer rotation animation
-setInterval(() => {
-    const writers = document.querySelectorAll('.writer-avatar');
-    if (writers.length > 0) {
-        // Remove active class from all
-        writers.forEach(w => w.classList.remove('active'));
         
-        // Add active class to next writer
-        const currentActive = Math.floor(Math.random() * writers.length);
-        writers[currentActive].classList.add('active');
-    }
-}, 5000);
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (mobileMenu && mobileMenuBtn && !mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+            }
+        });
+        
+        // Add scroll effect to header
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (header && window.scrollY > 100) {
+                header.style.background = 'rgba(255, 255, 255, 0.95)';
+            } else if (header) {
+                header.style.background = 'rgba(255, 255, 255, 0.8)';
+            }
+        });
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe elements for animation
+        document.querySelectorAll('.card, .feature-preview, .demo-input, .demo-output, .testimonial-card, .pricing-card, .faq-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+        
+        // Add hover effects to buttons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Auto-populate ticker input with examples
+        const examples = ['AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'NFLX'];
+        let exampleIndex = 0;
+        
+        setInterval(() => {
+            const input = document.getElementById('tickerInput');
+            if (input && !input.value && !input.matches(':focus')) {
+                input.placeholder = examples[exampleIndex];
+                exampleIndex = (exampleIndex + 1) % examples.length;
+            }
+        }, 2500);
+        
+        // Add click tracking for analytics (placeholder)
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                // Add your analytics tracking here
+                console.log('CTA clicked:', this.textContent.trim());
+            });
+        });
+        
+        // Writer rotation animation
+        setInterval(() => {
+            const writers = document.querySelectorAll('.writer-avatar');
+            if (writers.length > 0) {
+                // Remove active class from all
+                writers.forEach(w => w.classList.remove('active'));
+                
+                // Add active class to next writer
+                const currentActive = Math.floor(Math.random() * writers.length);
+                writers[currentActive].classList.add('active');
+            }
+        }, 5000);
+    });
 </script>
 {% endblock %}

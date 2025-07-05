@@ -256,8 +256,20 @@ def generate_introduction_html(ticker, rdata):
             fundamental_verdict = "looking solid"
 
         # --- 3. Construct the Final, Fully Dynamic HTML ---
+        # Build the summary sentence only with available data
+        summary_parts = []
+        if company_name not in [None, '', 'N/A']:
+            summary_parts.append(f"<strong>{company_name} ({ticker})</strong>")
+        else:
+            summary_parts.append(f"<strong>{ticker}</strong>")
+        if market_cap_fmt not in [None, '', 'N/A']:
+            summary_parts.append(f"a {market_cap_fmt} company")
+        if industry not in [None, '', 'N/A', 'its']:
+            summary_parts.append(f"operating in the {industry} industry")
+        summary_sentence = "This report provides a detailed analysis of " + ", ".join(summary_parts) + "."
+
         introduction_html = f"""
-        <p>This report provides a detailed analysis of <strong>{company_name} ({ticker})</strong>, a {market_cap_fmt} company operating in the {industry} industry. The core questions for investors is whether the current stock price represents a fair value and if the company is well-positioned for future growth. Would it be wise to invest in {company_name} at this moment? Let's see how well {ticker} stock performs in the current market. </p>
+        <p>{summary_sentence} The core questions for investors is whether the current stock price represents a fair value and if the company is well-positioned for future growth. Would it be wise to invest in {company_name} at this moment? Let's see how well {ticker} stock performs in the current market. </p>
         
         <h3>Here's What You Need to Know Right Now</h3>
         <p>The stock is currently trading at <strong>{current_price_fmt}</strong> (as of {last_date_fmt}), and it's {momentum_text}.</p>
@@ -1881,7 +1893,7 @@ def generate_dividends_shareholder_returns_html(ticker, rdata):
         para1 = f"The company currently offers a <strong>{rate_fmt} annual dividend per share</strong>, translating to a dividend yield of {yield_fmt}—meaning for every $100 invested, shareholders receive {rate_fmt} in dividends annually. "
         if five_year_avg_yield is not None and div_yield is not None:
             if div_yield < five_year_avg_yield:
-                para1 += f"This yield is <strong>below the 5-year average of {five_year_avg_yield_fmt}</strong>, suggesting that either the stock price has risen (reducing the yield) or dividend growth hasn’t kept pace with historical trends."
+                para1 += f"This yield is <strong>below the 5-year average of {five_year_avg_yield_fmt}</strong>, suggesting that either the stock price has risen (reducing the yield) or dividend growth hasn't kept pace with historical trends."
             else:
                 para1 += f"This yield is <strong>above its 5-year average of {five_year_avg_yield_fmt}</strong>, making it more attractive to income investors today compared to its recent history."
 
@@ -2463,7 +2475,7 @@ def generate_technical_analysis_summary_html(ticker, rdata):
         # ... (Rest of the function remains the same as the robust version from the previous turn) ...
         # Section 4: Volume (No changes needed)
         volume_narrative = "While the stock has been rising, <strong>trading volume has been declining</strong> (below its 20-day average), which is a red flag for trend sustainability." if volume_vs_sma and volume_vs_sma < 0.9 and change_15d and change_15d > 0 else "Trading volume is near its recent average, providing neutral confirmation of the current price action."
-        volume_concern = "Low volume rallies are prone to sharp reversals. If we don’t see a surge in buying interest to confirm the move, a pullback becomes more likely." if volume_vs_sma and volume_vs_sma < 0.9 else ""
+        volume_concern = "Low volume rallies are prone to sharp reversals. If we don't see a surge in buying interest to confirm the move, a pullback becomes more likely." if volume_vs_sma and volume_vs_sma < 0.9 else ""
 
         # Final Verdict and Bottom Line (Can remain as is, they synthesize the above points)
         short_term_verdict = f"Be cautious—RSI is overbought at {rsi:.1f}, and volume is weak. Consider locking in partial profits near {format_html_value(resistance, 'currency', currency=currency_symbol)} and waiting for a better entry near the 20-day SMA ({format_html_value(sma20, 'currency', currency=currency_symbol)})." if rsi and rsi > 70 else "The trend is positive but monitor for signs of exhaustion. A neutral stance may be best until a clearer signal emerges from the MACD or volume."
@@ -2504,8 +2516,7 @@ def generate_technical_analysis_summary_html(ticker, rdata):
 
             <h5>4. Volume Trends – Checking for Conviction</h5>
             <p>{volume_narrative}</p>
-            {f'<div class="takeaway"><p><strong><i class="fas fa-exclamation-triangle"></i> What’s the Concern?</strong></p><p>{volume_concern}</p></div>' if volume_concern else ''}
-
+              {f"<div class='takeaway'><p><strong><i class='fas fa-exclamation-triangle'></i> What's the Concern?</strong></p><p>{volume_concern}</p></div>" if volume_concern else ''}
             <h5>5. Support & Resistance – The Trading Plan</h5>
             <div class="takeaway">
                 <p><strong><i class="fas fa-map-signs"></i> Trading Plan:</strong></p>
@@ -2787,8 +2798,8 @@ def generate_faq_html(ticker, rdata):
             elif current_ratio > 1.5:
                 liquidity_analysis = f"a strong Current Ratio of <strong>{current_ratio:.2f}x</strong>, suggesting it can comfortably cover its short-term liabilities."
             
-            q7_answer = f"{ticker}’s financial health includes {liquidity_analysis} However, its robust operating cash flow (<strong>{op_cash_flow}</strong>) and levered free cash flow (<strong>{levered_fcf}</strong>) provide a significant buffer and are critical factors in its ability to fund operations and debt."
-            faq_items.append((f"What does {ticker}’s liquidity position reveal about its financial health?", q7_answer))
+            q7_answer = f"{ticker}'s financial health includes {liquidity_analysis} However, its robust operating cash flow (<strong>{op_cash_flow}</strong>) and levered free cash flow (<strong>{levered_fcf}</strong>) provide a significant buffer and are critical factors in its ability to fund operations and debt."
+            faq_items.append((f"What does {ticker}'s liquidity position reveal about its financial health?", q7_answer))
 
         # FAQ 8: Institutional Ownership
         if institutional_ownership is not None and short_percent_float is not None:
@@ -2801,7 +2812,7 @@ def generate_faq_html(ticker, rdata):
             elif short_percent_float > 3: short_sentiment = "notable bearish sentiment"
             
             q8_answer = f"Institutional ownership is <strong>{ownership_level} at {institutional_ownership:.2f}%</strong>. This level of ownership by large funds can provide price stability and implies professional confidence in the company. The short interest is <strong>{short_percent_float:.2f}%</strong> of float, suggesting {short_sentiment} from market participants."
-            faq_items.append((f"How does {ticker}’s institutional ownership impact its stock?", q8_answer))
+            faq_items.append((f"How does {ticker}'s institutional ownership impact its stock?", q8_answer))
         
         # --- END: NEW ADDITIONAL FAQS ---
         

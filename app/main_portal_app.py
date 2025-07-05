@@ -117,14 +117,29 @@ ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
-socketio = SocketIO(app,
-                    async_mode='eventlet',
-                    cors_allowed_origins="*",
-                    ping_timeout=60,
-                    ping_interval=25,
-                    logger=True,
-                    engineio_logger=True
-                   )
+# --- ENVIRONMENT SWITCH FOR DEV/PROD ---
+APP_ENV = os.getenv('APP_ENV', 'development').lower()  # 'development' or 'production'
+
+if APP_ENV == 'production':
+    import eventlet
+    import eventlet.wsgi
+    socketio = SocketIO(app,
+                        async_mode='eventlet',
+                        cors_allowed_origins="*",
+                        ping_timeout=60,
+                        ping_interval=25,
+                        logger=True,
+                        engineio_logger=True
+                       )
+else:
+    # Werkzeug (default Flask dev server) for development with auto-reload
+    socketio = SocketIO(app,
+                        cors_allowed_origins="*",
+                        ping_timeout=60,
+                        ping_interval=25,
+                        logger=True,
+                        engineio_logger=True
+                       )
 
 
 for folder_path in [UPLOAD_FOLDER, STATIC_FOLDER_PATH, STOCK_REPORTS_PATH]:
@@ -134,6 +149,32 @@ for folder_path in [UPLOAD_FOLDER, STATIC_FOLDER_PATH, STOCK_REPORTS_PATH]:
             app.logger.info(f"Created directory: {folder_path}")
         except OSError as e:
             app.logger.error(f"Could not create directory {folder_path}: {e}")
+
+# --- Ticker Data Loading and Caching ---
+_ticker_data_cache = None
+_ticker_data_last_loaded = None
+
+def load_ticker_data():
+    """Load ticker data from JSON file with caching"""
+    global _ticker_data_cache, _ticker_data_last_loaded
+    
+    # Check if we need to reload (every 5 minutes)
+    current_time = time.time()
+    if (_ticker_data_cache is not None and 
+        _ticker_data_last_loaded is not None and 
+        current_time - _ticker_data_last_loaded < 300):  # 5 minutes cache
+        return _ticker_data_cache
+    
+    try:
+        ticker_file_path = os.path.join(PROJECT_ROOT, 'all-us-tickers.json')
+        with open(ticker_file_path, 'r', encoding='utf-8') as f:
+            _ticker_data_cache = json.load(f)
+        _ticker_data_last_loaded = current_time
+        app.logger.info(f"Loaded {len(_ticker_data_cache)} tickers from JSON file")
+        return _ticker_data_cache
+    except Exception as e:
+        app.logger.error(f"Error loading ticker data: {e}")
+        return []
 
 # --- Helper Functions for Firebase Storage and Ticker Parsing ---
 
@@ -579,6 +620,70 @@ def dashboard_page():
 def analyzer_input_page():
     return render_template('analyzer_input.html', title="Stock Analyzer Input")
 
+@app.route('/api/ticker-suggestions')
+def ticker_suggestions():
+    """API endpoint for ticker autocomplete suggestions with both symbol and company name search"""
+    query = request.args.get('q', '').strip()
+    
+    if not query or len(query) < 1:
+        return jsonify([])
+    
+    try:
+        ticker_data = load_ticker_data()
+        if not ticker_data:
+            return jsonify([])
+        
+        query_upper = query.upper()
+        query_lower = query.lower()
+        
+        # Filter tickers that match by symbol or company name
+        matches = []
+        for ticker_info in ticker_data:
+            symbol = ticker_info.get('symbol', '').upper()
+            company = ticker_info.get('company', '')
+            company_lower = company.lower()
+            
+            # Check if query matches symbol (exact start match)
+            symbol_match = symbol.startswith(query_upper)
+            
+            # Check if query matches company name (partial match, case insensitive)
+            company_match = query_lower in company_lower
+            
+            if symbol_match or company_match:
+                # Determine match type for display
+                if symbol_match and company_match:
+                    match_type = "both"
+                    display = f"{symbol} - {company} (Symbol & Company)"
+                elif symbol_match:
+                    match_type = "symbol"
+                    display = f"{symbol} - {company}"
+                else:
+                    match_type = "company"
+                    display = f"{symbol} - {company} (Company match)"
+                
+                matches.append({
+                    'symbol': symbol,
+                    'company': company,
+                    'display': display,
+                    'match_type': match_type
+                })
+        
+        # Sort results: symbol matches first, then company matches
+        # Within each group, sort by symbol length (shorter first)
+        def sort_key(item):
+            match_type_order = {"symbol": 0, "both": 1, "company": 2}
+            return (match_type_order.get(item['match_type'], 3), len(item['symbol']))
+        
+        matches.sort(key=sort_key)
+        matches = matches[:10]  # Increased limit to 10 for better coverage
+        
+        app.logger.info(f"Ticker suggestions for '{query}': {len(matches)} matches")
+        return jsonify(matches)
+        
+    except Exception as e:
+        app.logger.error(f"Error in ticker suggestions: {e}")
+        return jsonify([])
+
 @app.route('/start-analysis', methods=['POST'])
 def start_stock_analysis():
     ticker = request.form.get('ticker', '').strip().upper()
@@ -595,10 +700,11 @@ def start_stock_analysis():
 
     app.logger.info(f"\n--- Received /start-analysis for ticker: {ticker} (Target Room: {room_id}) ---")
 
-    valid_ticker_pattern = r'^[A-Z0-9\^.-]+(\.[A-Z]{1,2})?$'
+    # More permissive ticker pattern that allows common special characters
+    valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/]+(\.[A-Z]{1,2})?$'
     if not ticker or not re.match(valid_ticker_pattern, ticker):
-        flash(f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, ADANIPOWER.NS).", "danger")
-        socketio.emit('analysis_error', {'message': f"Invalid ticker format: '{ticker}'.", 'ticker': ticker}, room=room_id)
+        flash(f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, MSFT, GOOGL).", "danger")
+        socketio.emit('analysis_error', {'message': f"Invalid ticker format: '{ticker}'. Please use standard stock symbols.", 'ticker': ticker}, room=room_id)
         return redirect(url_for('analyzer_input_page'))
 
     if not PIPELINE_IMPORTED_SUCCESSFULLY:
@@ -618,6 +724,11 @@ def start_stock_analysis():
         report_filename_for_url = None
         absolute_report_filepath_on_disk = None
 
+        # Check if pipeline returned None (indicating data not found or other critical errors)
+        if pipeline_result is None:
+            # Pipeline already sent the error via WebSocket, just return
+            return jsonify({'status': 'error', 'message': 'Analysis failed - check WebSocket for details'}), 500
+        
         if pipeline_result and isinstance(pipeline_result, tuple) and len(pipeline_result) >= 4:
             model_obj, forecast_obj, path_info_from_pipeline, report_html_content_from_pipeline = pipeline_result[:4]
 
@@ -651,16 +762,21 @@ def start_stock_analysis():
                     else: app.logger.warning(f"Report file from path_info '{path_info_from_pipeline}' as '{potential_filename_for_url}' not found.")
 
             if not report_filename_for_url:
-                error_detail = f"Pipeline output unclear or report file missing. Path: '{path_info_from_pipeline}'"
-                socketio.emit('analysis_error', {'message': "Report generation failed (file path issue).", 'ticker': ticker}, room=room_id)
-                raise ValueError("Stock analysis report path issue: " + error_detail)
+                # Only show this error if we didn't already show a data not found error
+                error_detail = f"Report generation failed for {ticker}. Please try again."
+                socketio.emit('analysis_error', {'message': error_detail, 'ticker': ticker}, room=room_id)
+                return jsonify({'status': 'error', 'message': error_detail}), 500
         else:
-            socketio.emit('analysis_error', {'message': "Pipeline did not return expected result.", 'ticker': ticker}, room=room_id)
-            raise ValueError("Stock analysis pipeline did not return the expected result.")
+            # Only show this error if we didn't already show a data not found error
+            error_detail = f"Analysis failed for {ticker}. Please try again."
+            socketio.emit('analysis_error', {'message': error_detail, 'ticker': ticker}, room=room_id)
+            return jsonify({'status': 'error', 'message': error_detail}), 500
 
         if not (report_filename_for_url and absolute_report_filepath_on_disk and os.path.exists(absolute_report_filepath_on_disk)):
-            socketio.emit('analysis_error', {'message': "Report file invalid post-generation.", 'ticker': ticker}, room=room_id)
-            raise ValueError("Report generation unsuccessful or final report path invalid.")
+            # Only show this error if we didn't already show a data not found error
+            error_detail = f"Report generation failed for {ticker}. Please try again."
+            socketio.emit('analysis_error', {'message': error_detail, 'ticker': ticker}, room=room_id)
+            return jsonify({'status': 'error', 'message': error_detail}), 500
 
         user_uid_for_history = session.get('firebase_user_uid')
         if user_uid_for_history and report_filename_for_url:
@@ -675,9 +791,19 @@ def start_stock_analysis():
 
     except Exception as e:
         app.logger.error(f"Error during stock analysis for {ticker}: {e}", exc_info=True)
-        socketio.emit('analysis_error', {'message': str(e)[:150] + "...", 'ticker': ticker}, room=room_id)
-        flash(f"An error occurred while analyzing {ticker}: {str(e)[:150]}...", "danger")
-        return jsonify({'status': 'error', 'message': f"Error analyzing {ticker}: {str(e)[:150]}..."}), 500
+        
+        # Check if this is a data not found error and provide better messaging
+        error_message = str(e)
+        if "No data found for ticker" in error_message or "Unable to process data" in error_message or "Unable to generate predictions" in error_message:
+            # These are user-friendly error messages from the pipeline
+            display_message = error_message
+        else:
+            # For other errors, truncate and add generic message
+            display_message = f"An error occurred while analyzing {ticker}: {error_message[:150]}..."
+        
+        socketio.emit('analysis_error', {'message': display_message, 'ticker': ticker}, room=room_id)
+        # Remove flash() to prevent page refresh popups - WebSocket will handle the error display
+        return jsonify({'status': 'error', 'message': display_message}), 500
 
 @app.route('/view-report/<ticker>/<path:filename>')
 @login_required
@@ -977,7 +1103,13 @@ def edit_site_profile(profile_id_from_firestore):
 
     profile_data_original = profile_snap.to_dict()
     profile_data_original['profile_id'] = profile_id_from_firestore 
-    profile_data_original.setdefault('authors', []) 
+    profile_data_original.setdefault('authors', [])
+    
+    # Debug logging for authors data
+    app.logger.info(f"Edit profile - Profile ID: {profile_id_from_firestore}")
+    app.logger.info(f"Edit profile - Authors data type: {type(profile_data_original.get('authors'))}")
+    app.logger.info(f"Edit profile - Authors count: {len(profile_data_original.get('authors', []))}")
+    app.logger.info(f"Edit profile - Authors raw data: {profile_data_original.get('authors')}") 
 
 
     if request.method == 'POST':
@@ -1531,7 +1663,8 @@ def generate_wp_assets():
     app.logger.info(f"WP Asset request for {ticker} (Room: {room_id})")
 
 
-    valid_ticker_pattern = r'^[A-Z0-9\^.-]{1,10}$'
+    # More permissive ticker pattern that allows common special characters
+    valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/]{1,15}$'
     if not ticker or not re.match(valid_ticker_pattern, ticker):
         socketio.emit('wp_asset_error', {'message': f"Invalid ticker: '{ticker}'.", 'ticker': ticker}, room=room_id)
         return jsonify({'status': 'error', 'message': f"Invalid ticker symbol: '{ticker}'. Please use standard symbols."}), 400
@@ -1569,8 +1702,19 @@ def generate_wp_assets():
 
     except Exception as e:
         app.logger.error(f"Error in /generate-wp-assets for ticker {ticker}: {e}", exc_info=True)
-        socketio.emit('wp_asset_error', {'message': f"Server error for {ticker}.", 'ticker': ticker}, room=room_id)
-        return jsonify({'status': 'error', 'message': f"A server error occurred while generating assets for {ticker}."}), 500
+        
+        # Check if this is a data not found error and provide better messaging
+        error_message = str(e)
+        if "No data found for ticker" in error_message or "Unable to process data" in error_message or "Unable to generate predictions" in error_message:
+            # These are user-friendly error messages from the pipeline
+            display_message = error_message
+        else:
+            # For other errors, provide generic message
+            display_message = f"A server error occurred while generating assets for {ticker}."
+        
+        socketio.emit('wp_asset_error', {'message': display_message, 'ticker': ticker}, room=room_id)
+        # Remove flash() to prevent page refresh popups - WebSocket will handle the error display
+        return jsonify({'status': 'error', 'message': display_message}), 500
 
 @socketio.on('connect')
 def handle_connect():
@@ -1730,13 +1874,17 @@ if __name__ == '__main__':
     else: app.logger.info("Pipeline Imported Successfully.")
 
     port = int(os.environ.get("PORT", 5000))
-    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
+    debug_mode = os.getenv("FLASK_DEBUG", "True").lower() in ("true", "1", "t")
+    use_reloader = True if APP_ENV == 'development' else False
 
-    app.logger.info(f"Attempting to start Flask-SocketIO server on http://0.0.0.0:{port} (Debug: {debug_mode})")
+    app.logger.info(f"Attempting to start Flask-SocketIO server on http://0.0.0.0:{port} (Debug: {debug_mode}, Reloader: {use_reloader})")
     try:
-        socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode,
-                     use_reloader=debug_mode,
-                     allow_unsafe_werkzeug=True if debug_mode else False)
+        if APP_ENV == 'production':
+            # Use eventlet WSGI server in production
+            socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader, allow_unsafe_werkzeug=False)
+        else:
+            # Werkzeug dev server with reloader
+            socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader)
     except Exception as e_run:
         app.logger.error(f"CRITICAL: Failed to start Flask-SocketIO server: {e_run}", exc_info=True)
         print(f"CRITICAL: Server could not start. Check logs. Error: {e_run}")

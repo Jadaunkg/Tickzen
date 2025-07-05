@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const authorId = (existingAuthor && existingAuthor.id) ? existingAuthor.id : `new_${Date.now()}_${writerCount}`;
         const wpUsername = (existingAuthor && existingAuthor.wp_username) ? existingAuthor.wp_username : '';
         const wpUserId = (existingAuthor && existingAuthor.wp_user_id) ? existingAuthor.wp_user_id : '';
-        const appPassword = (formType === 'add' && existingAuthor && existingAuthor.app_password) ? existingAuthor.app_password : '';
+        const appPassword = (existingAuthor && existingAuthor.app_password) ? existingAuthor.app_password : '';
         writerEntry.innerHTML = `
             <h4>Writer ${writerCount + 1} <button type="button" class="remove-writer-btn" title="Remove this writer"><i class="fas fa-trash-alt"></i> Remove</button></h4>
             <input type="hidden" name="author_id_${writerCount}" value="${authorId}">
@@ -253,17 +253,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('authorsContainerAdd') && document.getElementById('addAuthorBtn')) {
         initializeAuthorManagement('authorsContainerAdd', 'addAuthorBtn', [], 'add');
     }
-    const editAuthorsContainer = document.getElementById('authorsContainerEdit');
-    if (editAuthorsContainer && document.getElementById('addAuthorBtnEdit')) {
-        try {
-            const existingAuthorsJson = editAuthorsContainer.dataset.existingAuthors;
-            const existingAuthors = (existingAuthorsJson && existingAuthorsJson !== 'null' && existingAuthorsJson.trim() !== '') ? JSON.parse(existingAuthorsJson) : [];
-            initializeAuthorManagement('authorsContainerEdit', 'addAuthorBtnEdit', existingAuthors, 'edit');
-        } catch (e) {
-            console.error("Error parsing existing authors data for edit form:", e, editAuthorsContainer ? editAuthorsContainer.dataset.existingAuthors : 'Container not found');
-            initializeAuthorManagement('authorsContainerEdit', 'addAuthorBtnEdit', [], 'edit'); 
-        }
-    }
+    // Comment out or remove the edit profile JS initialization that clears authors
+    // const editAuthorsContainer = document.getElementById('authorsContainerEdit');
+    // if (editAuthorsContainer && document.getElementById('addAuthorBtnEdit')) {
+    //     try {
+    //         const existingAuthorsJson = editAuthorsContainer.dataset.existingAuthors;
+    //         const existingAuthors = (existingAuthorsJson && existingAuthorsJson !== 'null' && existingAuthorsJson.trim() !== '') ? JSON.parse(existingAuthorsJson) : [];
+    //         initializeAuthorManagement('authorsContainerEdit', 'addAuthorBtnEdit', existingAuthors, 'edit');
+    //     } catch (e) {
+    //         console.error("Error parsing existing authors data for edit form:", e, editAuthorsContainer ? editAuthorsContainer.dataset.existingAuthors : 'Container not found');
+    //         initializeAuthorManagement('authorsContainerEdit', 'addAuthorBtnEdit', [], 'edit'); 
+    //     }
+    // }
     
     setupReportSectionControls('Add');
     setupReportSectionControls('Edit');

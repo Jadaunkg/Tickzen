@@ -256,8 +256,6 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
 
         # --- 6. Generate HTML Report Parts (CONDITIONAL ASSEMBLY) ---
         print("Step 6: Generating HTML content based on selected sections...")
-        html_report_parts.append(f"<h3 class='report-title'>{ticker} Stock Analysis and Forecast</h2>")
-
         for section_key in report_sections_to_include:
             generator_func = ALL_REPORT_SECTIONS.get(section_key)
             if generator_func:

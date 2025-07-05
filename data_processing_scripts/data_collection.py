@@ -127,59 +127,44 @@ def fetch_stock_data(
         f"from {start_date or 'the beginning'} to {end_date or 'today'}"
     )
 
-    attempt = 0
-    data = None
-    while attempt < max_retries:
-        try:
-            time.sleep(throttle_secs)
-            yf_ticker = yf.Ticker(ticker)
-            info = yf_ticker.info # Attempt to get info first
-            
-            # A more robust check for valid ticker info.
-            # 'regularMarketPrice' is a common field. 'symbol' should also exist.
-            if not info or not info.get('symbol') or info.get('regularMarketPrice') is None :
-                logger.error(f"Ticker {ticker} appears to be invalid or delisted. yf.Ticker.info was empty or lacked key fields (e.g. regularMarketPrice). Please check the ticker symbol.")
-                return None # Critical: If info suggests invalid ticker, stop.
-            
-            data = yf.download(
-                tickers=ticker,
-                start=start_date,
-                end=end_date,
-                period=period,
-                auto_adjust=True,
-                progress=False,
-                threads=False,
-                timeout=timeout
-            )
-            
-            if data.empty:
-                logger.warning(f"No data returned by yfinance.download for ticker: {ticker}. It might be delisted or no data for the period.")
-                return None # If download returns empty, it's a failure for this ticker.
-            
-            logger.info(f"Successfully downloaded data for {ticker} on attempt {attempt + 1}.")
-            break 
-        except requests.exceptions.HTTPError as http_err: # Catch HTTP errors specifically
-            if http_err.response.status_code == 404:
-                logger.error(f"HTTP Error 404 (Not Found) for ticker {ticker}. This often means the ticker symbol is incorrect or not available on Yahoo Finance. Please verify the symbol (e.g., Nike is NKE, not NIKE STOCK).")
-            else:
-                logger.error(f"HTTP Error during yfinance operation for {ticker} (attempt {attempt+1}/{max_retries}): {http_err}")
-            return None # Stop on 404 or other critical HTTP errors for this ticker
-        except Exception as e:
-            msg = str(e).lower()
-            logger.warning(f"Error fetching '{ticker}' (attempt {attempt+1}/{max_retries}): {e}")
-            attempt += 1
-            if attempt < max_retries:
-                wait = pause_secs * attempt
-                logger.info(f"Retrying in {wait}s...")
-                time.sleep(wait)
-            else:
-                logger.error(f"Failed to download '{ticker}' after {max_retries} retries due to: {e}")
-                return None
-            continue 
-    else: 
-        if data is None or data.empty : 
-            logger.error(f"Failed to download '{ticker}' after {max_retries} retries (loop completed without break).")
-            return None
+    # Optimized single API call approach
+    try:
+        time.sleep(throttle_secs)
+        yf_ticker = yf.Ticker(ticker)
+        info = yf_ticker.info # Attempt to get info first
+        
+        # A more robust check for valid ticker info.
+        # 'regularMarketPrice' is a common field. 'symbol' should also exist.
+        if not info or not info.get('symbol') or info.get('regularMarketPrice') is None :
+            logger.error(f"Ticker {ticker} appears to be invalid or delisted. yf.Ticker.info was empty or lacked key fields (e.g. regularMarketPrice). This could mean the ticker symbol is incorrect, the stock is delisted, or not available on Yahoo Finance.")
+            return None # Critical: If info suggests invalid ticker, stop.
+        
+        data = yf.download(
+            tickers=ticker,
+            start=start_date,
+            end=end_date,
+            period=period,
+            auto_adjust=True,
+            progress=False,
+            threads=False,
+            timeout=timeout
+        )
+        
+        if data.empty:
+            logger.warning(f"No data returned by yfinance.download for ticker: {ticker}. This could mean the ticker symbol is incorrect, the stock is delisted, or there's no trading data available for the requested period.")
+            return None # If download returns empty, it's a failure for this ticker.
+        
+        logger.info(f"Successfully downloaded data for {ticker} in single attempt.")
+        
+    except requests.exceptions.HTTPError as http_err: # Catch HTTP errors specifically
+        if http_err.response.status_code == 404:
+            logger.error(f"HTTP Error 404 (Not Found) for ticker {ticker}. This often means the ticker symbol is incorrect or not available on Yahoo Finance. Please verify the symbol (e.g., Nike is NKE, not NIKE STOCK).")
+        else:
+            logger.error(f"HTTP Error during yfinance operation for {ticker}: {http_err}")
+        return None # Stop on 404 or other critical HTTP errors for this ticker
+    except Exception as e:
+        logger.error(f"Error fetching '{ticker}': {e}")
+        return None
 
     if data is None or data.empty:
          logger.warning(f"Data for {ticker} could not be retrieved or is empty after attempts.")

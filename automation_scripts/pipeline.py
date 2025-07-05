@@ -55,20 +55,23 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
         pipeline_logger.info(f"\n----- Starting ORIGINAL pipeline for {ticker} (Room: {task_room}) -----")
         _emit_progress(socketio_instance, task_room, 0, f"Initiating analysis for {ticker}...", "Initialization", ticker, event_name_progress)
         
-        valid_ticker_pattern = r'^[A-Z0-9\^.-]+(\.[A-Z]{1,2})?$'
+        # More permissive ticker pattern that allows common special characters
+        valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/]+(\.[A-Z]{1,2})?$'
         if not ticker or not re.match(valid_ticker_pattern, ticker):
             raise ValueError(f"Invalid ticker format: {ticker}.")
 
-        _emit_progress(socketio_instance, task_room, 5, "Fetching stock data...", "Data Collection", ticker, event_name_progress)
+        _emit_progress(socketio_instance, task_room, 5, "Fetching stock data and generating introduction...", "Introduction & Key Metrics", ticker, event_name_progress)
         stock_data = fetch_stock_data(ticker, app_root=app_root)
         if stock_data is None or stock_data.empty:
-            raise RuntimeError(f"Failed to fetch/load stock data for {ticker}.")
+            error_msg = f"No data found for ticker '{ticker}'. This could mean:\n• The ticker symbol is incorrect\n• The stock is delisted or not available\n• No trading data exists for this symbol\n\nPlease try again with a different stock symbol (e.g., AAPL, MSFT, GOOGL)."
+            raise RuntimeError(error_msg)
 
         _emit_progress(socketio_instance, task_room, 10, "Fetching macroeconomic data...", "Data Collection", ticker, event_name_progress)
         macro_data = fetch_macro_indicators(app_root=app_root)
         if macro_data is None or macro_data.empty:
             pipeline_logger.warning(f"Macro data fetch failed for {ticker}. Proceeding.")
 
+        _emit_progress(socketio_instance, task_room, 15, "Processing 15-year price history and charts...", "15-Year Price History & Charts", ticker, event_name_progress)
         _emit_progress(socketio_instance, task_room, 20, "Preprocessing data...", "Preprocessing", ticker, event_name_progress)
         processed_filepath = _get_processed_data_filepath(ticker, app_root)
         processed_data = None
@@ -83,18 +86,22 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
             pipeline_logger.info(f"Preprocessing data for {ticker}...")
             processed_data = preprocess_data(stock_data, macro_data if macro_data is not None else None)
             if processed_data is None or processed_data.empty:
-                raise RuntimeError(f"Preprocessing resulted in empty dataset for {ticker}.")
+                error_msg = f"Unable to process data for ticker '{ticker}'. The stock data may be insufficient for analysis.\n\nPlease try again with a different stock symbol that has more trading history."
+                raise RuntimeError(error_msg)
             processed_data.to_csv(processed_filepath, index=False)
             pipeline_logger.info(f"Saved new processed data for {ticker}.")
 
+        _emit_progress(socketio_instance, task_room, 30, "Calculating technical indicators (RSI, MACD, Histogram)...", "Technical Indicators (RSI, MACD, Histogram)", ticker, event_name_progress)
         _emit_progress(socketio_instance, task_room, 40, "Training predictive model...", "Model Training", ticker, event_name_progress)
         model, forecast, actual_df, forecast_df = train_prophet_model(
             processed_data.copy(), ticker, forecast_horizon='1y', timestamp=ts
         )
         if model is None or forecast is None or actual_df is None or forecast_df is None:
-            raise RuntimeError(f"Prophet model training or forecasting failed for {ticker}.")
+            error_msg = f"Unable to generate predictions for ticker '{ticker}'. The stock may not have enough historical data for reliable forecasting.\n\nPlease try again with a more established stock that has longer trading history."
+            raise RuntimeError(error_msg)
         pipeline_logger.info(f"Model trained for {ticker}. Forecast generated.")
 
+        _emit_progress(socketio_instance, task_room, 50, "Analyzing fundamental ratios and metrics...", "Fundamental Analysis & Ratios", ticker, event_name_progress)
         _emit_progress(socketio_instance, task_room, 60, "Fetching fundamental data...", "Fundamentals", ticker, event_name_progress)
         try:
             yf_ticker_obj = yf.Ticker(ticker)
@@ -106,6 +113,9 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
             pipeline_logger.warning(f"yfinance fundamentals error for {ticker}: {yf_err}.")
             fundamentals = {'info': {}, 'recommendations': pd.DataFrame(), 'news': []}
 
+        _emit_progress(socketio_instance, task_room, 65, "Gathering analyst consensus and recommendations...", "Analyst Consensus & Recommendations", ticker, event_name_progress)
+        _emit_progress(socketio_instance, task_room, 70, "Analyzing macro economic indicators...", "Macro Economic Indicators", ticker, event_name_progress)
+        _emit_progress(socketio_instance, task_room, 75, "Generating forecast table and price targets...", "Forecast Table & Price Targets", ticker, event_name_progress)
         _emit_progress(socketio_instance, task_room, 80, "Generating report components...", "Report Generation", ticker, event_name_progress)
         
         # Determine the correct app_root for report generation
@@ -128,6 +138,7 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
         if report_path: pipeline_logger.info(f"Report saved for {ticker} -> {os.path.basename(report_path)}")
         else: pipeline_logger.warning(f"Report HTML for {ticker} generated, but save failed.")
 
+        _emit_progress(socketio_instance, task_room, 90, "Assessing risk factors and finalizing analysis...", "Risk Factors & Assessment", ticker, event_name_progress)
         _emit_progress(socketio_instance, task_room, 100, "Analysis complete! Redirecting soon...", "Complete", ticker, event_name_progress)
         pipeline_logger.info(f"----- ORIGINAL Pipeline successful for {ticker} -----")
         return model, forecast, report_path, report_html
@@ -135,8 +146,8 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
     except Exception as err:
         pipeline_logger.error(f"----- ORIGINAL Pipeline Error for {ticker}: {err} -----", exc_info=True)
         if socketio_instance and task_room:
-             socketio_instance.emit(event_name_error, {'message': str(err)[:150] + "...", 'ticker': ticker}, room=task_room)
-        return None, None, None, None 
+             socketio_instance.emit(event_name_error, {'message': str(err), 'ticker': ticker}, room=task_room)
+        return None, None, None, None
 
 
 def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
@@ -152,13 +163,16 @@ def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None
     model = forecast = None
 
     try:
-        valid_ticker_pattern = r'^[A-Z0-9\^.-]+$'
+        # More permissive ticker pattern that allows common special characters
+        valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/]+$'
         if not ticker or not re.match(valid_ticker_pattern, ticker):
             raise ValueError(f"Invalid ticker format: {ticker}.")
 
         _emit_progress(socketio_instance, task_room, 5, "Fetching stock data for WP...", "WP Data Collection", ticker, event_name_progress)
         stock_data = fetch_stock_data(ticker, app_root=app_root)
-        if stock_data is None or stock_data.empty: raise RuntimeError(f"Failed to fetch/load stock data for {ticker}.")
+        if stock_data is None or stock_data.empty: 
+            error_msg = f"No data found for ticker '{ticker}'. This could mean:\n• The ticker symbol is incorrect\n• The stock is delisted or not available\n• No trading data exists for this symbol\n\nPlease try again with a different stock symbol (e.g., AAPL, MSFT, GOOGL)."
+            raise RuntimeError(error_msg)
 
         _emit_progress(socketio_instance, task_room, 10, "Fetching macro data for WP...", "WP Data Collection", ticker, event_name_progress)
         macro_data = fetch_macro_indicators(app_root=app_root)
@@ -176,14 +190,17 @@ def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None
         if processed_data is None:
             pipeline_logger.info(f"Preprocessing WP data for {ticker}...")
             processed_data = preprocess_data(stock_data, macro_data if macro_data is not None else None)
-            if processed_data is None or processed_data.empty: raise RuntimeError(f"WP Preprocessing failed for {ticker}.")
+            if processed_data is None or processed_data.empty: 
+                error_msg = f"Unable to process data for ticker '{ticker}'. The stock data may be insufficient for analysis.\n\nPlease try again with a different stock symbol that has more trading history."
+                raise RuntimeError(error_msg)
             processed_data.to_csv(processed_filepath, index=False)
             pipeline_logger.info(f"Saved new processed WP data for {ticker}.")
 
         _emit_progress(socketio_instance, task_room, 40, "Training model for WP assets...", "WP Model Training", ticker, event_name_progress)
         model, forecast, actual_df, forecast_df = train_prophet_model(processed_data.copy(), ticker, forecast_horizon='1y', timestamp=ts)
         if model is None or forecast is None or actual_df is None or forecast_df is None:
-            raise RuntimeError(f"WP Prophet model training failed for {ticker}.")
+            error_msg = f"Unable to generate predictions for ticker '{ticker}'. The stock may not have enough historical data for reliable forecasting.\n\nPlease try again with a more established stock that has longer trading history."
+            raise RuntimeError(error_msg)
         pipeline_logger.info(f"WP Model trained for {ticker}.")
         
         _emit_progress(socketio_instance, task_room, 60, "Fetching fundamentals for WP assets...", "WP Fundamentals", ticker, event_name_progress)
@@ -220,7 +237,7 @@ def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None
     except Exception as err:
         pipeline_logger.error(f">>>>> WORDPRESS Pipeline Error for {ticker}: {err} <<<<<", exc_info=True)
         if socketio_instance and task_room: 
-            socketio_instance.emit(event_name_error, {'message': str(err)[:150] + "...", 'ticker': ticker}, room=task_room)
+            socketio_instance.emit(event_name_error, {'message': str(err), 'ticker': ticker}, room=task_room)
         return None, None, None, {}
 
 

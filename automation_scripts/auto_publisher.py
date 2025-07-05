@@ -356,11 +356,15 @@ def upload_image_to_wordpress(image_path, site_url, author, title="Featured Imag
         response.raise_for_status(); return response.json().get('id')
     except Exception as e: app_logger.error(f"Image upload error to {site_url} for {title}: {e}"); return None
 
-def create_wordpress_post(site_url, author, title, content, sched_time, cat_id=None, media_id=None):
+def create_wordpress_post(site_url, author, title, content, sched_time, cat_id=None, media_id=None, ticker=None, company_name=None):
     url = f"{site_url.rstrip('/')}/wp-json/wp/v2/posts"
     creds = base64.b64encode(f"{author['wp_username']}:{author['app_password']}".encode()).decode('utf-8')
     headers = {"Authorization": f"Basic {creds}", "Content-Type": "application/json"}
-    slug = re.sub(r'[^\w]+', '-', title.lower()).strip('-')[:70]
+    if ticker and company_name:
+        company_slug = re.sub(r'[^\w]+', '-', company_name.lower()).strip('-')
+        slug = f"{ticker.upper()}-{company_slug}"
+    else:
+        slug = re.sub(r'[^\w]+', '-', title.lower()).strip('-')[:70]
     payload = {"title": title, "content": content, "status": "future", "date_gmt": sched_time.isoformat(), "author": author['wp_user_id'], "slug": slug}
     if media_id: payload["featured_media"] = media_id
     if cat_id:
@@ -481,27 +485,55 @@ def load_tickers_from_uploaded_file(storage_path, original_filename, user_uid=No
         return []
 
 
-def generate_dynamic_headline(ticker, profile_name):
-    site_specific_prefix = ""
-    # Example: customize prefix based on profile_name
-    if "Forecast" in profile_name or "Radar" in profile_name or "MoneyStocker" in profile_name: # Added MoneyStocker
-        site_specific_prefix = f"{ticker} Stock Forecast: "
-    elif "Bernini" in profile_name:
-        site_specific_prefix = f"{ticker} Analysis by Bernini Capital: "
-    
-    base_headlines = [
-        f"Is {ticker} a Smart Investment Now?",
-        f"{ticker} Stock Deep Dive: Price Prediction & Analysis",
-        f"Future of {ticker}: Expert Analysis and Forecast", # This was selected in logs
-        f"Should You Buy {ticker} Stock? A detailed Review"
+def generate_dynamic_headline_v2(ticker, profile_name, sector, forecast_direction, recent_performance, unique_feature, market_context):
+    adjectives = ["Leading", "Resilient", "Volatile", "Promising", "Undervalued", "Dynamic", "Innovative", "Established", "Emerging"]
+    headline_templates = [
+        "{ticker} Stock Analysis: {adjective} {sector} Player Eyes {forecast_direction} in {current_year}",
+        "Will {ticker} Outperform the {sector} Sector? {current_month} {current_year} Forecast",
+        "{ticker} Price Update: {recent_performance} – What's Next for Investors?",
+        "{ticker} in {current_month}: {adjective} Fundamentals & {forecast_direction} Outlook",
+        "Is {ticker} Ready for a Breakout? {current_month} {current_year} Technical & Fundamental Review",
+        "{ticker} Stock: {adjective} {sector} Company with {unique_feature}",
+        "How High Can {ticker} Go? {current_year} Price Targets & Analysis",
+        "{ticker} Stock: {adjective} Moves Amid {market_context}",
+        "{ticker} Forecast: {forecast_direction} Expected as {unique_feature}",
+        "Investing in {ticker}: {adjective} {sector} Stock for {current_year}",
+        "Why {ticker} Could Be the Most Exciting {sector} Stock This {current_month}",
+        "{ticker} Stock: Hidden Gem or Overhyped? {current_year} Deep Dive",
+        "{ticker} Bulls vs. Bears: Who Will Win in {current_year}?",
+        "{ticker} Just Hit a Critical Level – What Smart Investors Are Doing Now",
+        "Is {ticker} the Next Big Thing in {sector}? {current_year} Analysis",
+        "{ticker} Stock: 3 Reasons to Watch Right Now ({current_month} {current_year})",
+        "{ticker} Surges – Is It Too Late to Buy? {adjective} Analysis Inside",
+        "{ticker} Stock: What Wall Street Isn't Telling You ({current_year})",
+        "{ticker} in the Spotlight: {unique_feature} & {forecast_direction} Outlook",
+        "Should You Buy, Hold, or Sell {ticker}? {current_year} Guide for Investors",
+        "{ticker} Stock: The Surprising Truth Behind Recent Moves",
+        "{ticker} Price Prediction: Can It Defy the Odds in {current_year}?",
+        "{ticker} vs. the Market: Who Comes Out on Top This {current_month}?",
+        "{ticker} Stock: Opportunity or Trap? {adjective} {sector} Review",
+        "What's Next for {ticker}? {current_year} Forecast & Key Levels to Watch",
+        "{ticker} Stock: {adjective} Fundamentals Meet {market_context} Market",
+        "{ticker} Rockets Higher – Is a Correction Coming?",
+        "{ticker} Stock: Don't Miss These Must-Know Insights for {current_year}",
+        "{ticker} in {current_month}: Is It Time to Buy or Bail?",
+        "{ticker} Stock: The Case for {forecast_direction} in {current_year}"
     ]
-    # If no specific prefix, one of the base headlines might be chosen directly by other logic
-    # This function provides a prefix if applicable, or the caller can use base headlines.
-    # For the log example "Future of AMED: Expert Analysis and Forecast", this implies ticker was AMED
-    # and one of the base_headlines was selected.
-    if site_specific_prefix: #Only return prefixed if site_specific_prefix is non-empty
-        return site_specific_prefix + random.choice(base_headlines)
-    return random.choice(base_headlines) # Fallback to a random base if no prefix
+    template = random.choice(headline_templates)
+    adjective = random.choice(adjectives)
+    now = datetime.now()
+    filled = template.format(
+        ticker=ticker,
+        sector=sector,
+        adjective=adjective,
+        forecast_direction=forecast_direction,
+        current_month=now.strftime("%B"),
+        current_year=now.year,
+        recent_performance=recent_performance,
+        unique_feature=unique_feature,
+        market_context=market_context
+    )
+    return filled
 
 
 _active_runs = {}
@@ -762,7 +794,13 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                         })
                         break 
 
-                    article_title = generate_dynamic_headline(ticker_to_process, profile_name)
+                    # Extract sector and other dynamic data from rdata/profile_data if available
+                    sector = rdata.get('sector') or rdata.get('profile_data', {}).get('Sector', 'N/A')
+                    forecast_direction = 'Upside' if rdata.get('overall_pct_change', 0) > 0 else 'Downside' if rdata.get('overall_pct_change', 0) < 0 else 'Flat'
+                    recent_performance = f"Up {rdata.get('overall_pct_change', 0):.1f}% YTD" if rdata.get('overall_pct_change', 0) > 0 else f"Down {abs(rdata.get('overall_pct_change', 0)):.1f}% YTD" if rdata.get('overall_pct_change', 0) < 0 else 'Flat YTD'
+                    unique_feature = 'Strong Cash Flow' if rdata.get('financial_health_data', {}).get('Operating Cash Flow (TTM)', 0) else 'Growth Potential'
+                    market_context = rdata.get('sentiment', 'Neutral')
+                    article_title = generate_dynamic_headline_v2(ticker_to_process, profile_name, sector, forecast_direction, recent_performance, unique_feature, market_context)
                     feature_img_dir = os.path.join(APP_ROOT, "..", "generated_data", "temp_images", profile_id)
                     os.makedirs(feature_img_dir, exist_ok=True)
                     sanitized_ticker = re.sub(r'[^\w]', '_', ticker_to_process)
@@ -802,8 +840,12 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
 
                     _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Publishing", "Scheduling", f"Scheduling for {next_schedule_time.strftime('%H:%M')} by {writer_name}", "info")
                     
-                    # create_wordpress_post now returns post_id or None
-                    created_post_id = create_wordpress_post(profile_config['site_url'], current_author, article_title, html_content, next_schedule_time, profile_config.get('stockforecast_category_id'), wp_media_id)
+                    # Extract company_name for slug
+                    company_name = rdata.get('profile_data', {}).get('Company Name', ticker_to_process)
+                    created_post_id = create_wordpress_post(
+                        profile_config['site_url'], current_author, article_title, html_content, next_schedule_time,
+                        profile_config.get('stockforecast_category_id'), wp_media_id, ticker_to_process, company_name
+                    )
                     
                     if created_post_id: # If post creation was successful
                         pub_time_iso = next_schedule_time.isoformat() # Use scheduled time as publish time
