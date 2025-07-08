@@ -196,11 +196,12 @@
 
         /* Hero Section */
         .hero {
-            padding: 6rem 0 8rem;
-            background: linear-gradient(135deg, var(--green-50) 0%, var(--blue-50) 100%);
+            padding: 4rem 0 6rem;
+            background: #1e293b;
             position: relative;
             overflow: hidden;
             text-align: center;
+            color: white;
         }
 
         .hero-content {
@@ -248,20 +249,21 @@
         }
 
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 2.75rem;
             font-weight: 800;
             line-height: 1.1;
             margin-bottom: 2rem;
+            color: white;
         }
 
         .hero h1 .highlight {
-            color: var(--green-600);
+            color: #4ade80;
         }
 
         .hero-description {
-            font-size: 1.5rem;
-            color: hsl(var(--muted-foreground));
-            margin-bottom: 3rem;
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
             max-width: 800px;
             margin-left: auto;
             margin-right: auto;
@@ -272,7 +274,7 @@
             flex-direction: column;
             gap: 1rem;
             align-items: center;
-            margin-bottom: 4rem;
+            margin-bottom: 2.5rem;
         }
 
         .hero-stats {
@@ -290,13 +292,13 @@
         .stat-number {
             font-size: 2.5rem;
             font-weight: 700;
-            color: var(--green-600);
+            color: #4ade80;
             margin-bottom: 0.5rem;
         }
 
         .stat-label {
             font-size: 1rem;
-            color: hsl(var(--muted-foreground));
+            color: rgba(255, 255, 255, 0.8);
         }
 
         /* Demo Section */
@@ -1072,44 +1074,92 @@
         .rounded { border-radius: 0.375rem; }
         .shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         
+        /* Modal animations */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Modal overlay: use flexbox for perfect centering */
+        .modal {
+            display: none; /* Hide by default, show with JS */
+            position: fixed;
+            z-index: 9999;
+            left: 0; top: 0;
+            width: 100vw; height: 100vh;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            /* display: flex; <-- removed, JS will set this when needed */
+        }
+        
+        .modal-content {
+            width: 100%;
+            max-width: 500px;
+            min-width: 300px;
+            position: relative;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            padding: 2rem;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
         /* Mobile Responsiveness: Reduce text size and margins for mobile devices */
         @media (max-width: 600px) {
     .container {
-        padding: 0 0.25rem;
+        padding: 0 1rem;
         margin-left: auto;
         margin-right: auto;
     }
     .hero {
-        padding: 1rem 0;
+        padding: 2rem 0 3rem;
     }
     .hero h1 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
     }
     .hero-description {
-        font-size: 1rem;
-        margin-bottom: 1rem;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
     }
     .hero-badges {
-        gap: 0.4rem;
-        margin-bottom: 0.7rem;
-    }
-    .badge {
-        font-size: 0.75rem;
-        padding: 0.2rem 0.5rem;
-    }
-    .hero-actions {
-        gap: 0.4rem;
+        gap: 0.5rem;
         margin-bottom: 1rem;
     }
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.7rem;
+    }
+    .hero-actions {
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
     .hero-stats {
-        gap: 0.8rem;
+        gap: 1rem;
     }
     .stat-number {
-        font-size: 1.2rem;
+        font-size: 1.5rem;
     }
     .stat-label {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
     }
     .section {
         padding: 2rem 0;
@@ -1124,10 +1174,10 @@
     .section-description {
         font-size: 1rem;
     }
-    .card, .report-preview, .demo-input, .demo-output, .testimonial-card, .pricing-card, .faq-item {
+    .card, .report-preview, .demo-input, .demo-output, .testimonial-card, .faq-item {
         padding: 0.8rem;
     }
-    .features-grid, .demo-grid, .pricing-grid, .faq-grid {
+    .features-grid, .demo-grid, .faq-grid {
         gap: 0.8rem;
     }
     .feature-title {
@@ -1146,20 +1196,110 @@
         margin-bottom: 0.8rem;
         padding-bottom: 0.4rem;
     }
-    .pricing-title {
-        font-size: 1.1rem;
-    }
-    .pricing-price {
-        font-size: 1.8rem;
-    }
     .faq-question {
         font-size: 0.95rem;
     }
     .faq-answer {
         font-size: 0.85rem;
     }
+    
+    /* Pricing card mobile optimization */
+    .pricing-card.featured {
+        padding: 0;
+    }
+    
+    .pricing-desktop-layout {
+        display: none !important;
+    }
+    
+    .pricing-mobile-layout {
+        display: flex !important;
+    }
+    
+    .pricing-badge {
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        font-size: 0.9rem !important;
+        padding: 0.4rem 1.5rem !important;
+    }
+    
+    /* Modal mobile optimization */
+    .modal-content {
+        margin: 10% auto !important;
+        width: 95% !important;
+        padding: 1.5rem !important;
+    }
+    
+    .modal-content h3 {
+        font-size: 1.25rem !important;
+    }
+    
+    .modal-content input,
+    .modal-content select {
+        font-size: 0.9rem !important;
+        padding: 0.6rem !important;
+    }
 }
 
+/* Tablet and larger mobile devices */
+@media (min-width: 601px) and (max-width: 768px) {
+    .pricing-desktop-layout {
+        display: flex !important;
+    }
+    
+    .pricing-mobile-layout {
+        display: none !important;
+    }
+    
+    .pricing-card.featured {
+        flex-direction: column !important;
+    }
+    
+    .pricing-card.featured > div {
+        border-right: none !important;
+        border-bottom: 1px solid hsl(var(--border)) !important;
+    }
+}
+
+    </style>
+    <!-- Modal centering and styling fix -->
+    <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.show {
+      display: flex;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 1rem;
+      width: 100%;
+      max-width: 500px;
+      min-width: 300px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      padding: 2rem;
+      position: relative;
+      margin: auto;
+    }
+    .close {
+      position: absolute;
+      right: 1.5rem;
+      top: 1.5rem;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #666;
+    }
     </style>
 {% endblock %}
 
@@ -1192,7 +1332,7 @@
             </h1>
             
             <p class="hero-description">
-                Input any ticker symbol and get comprehensive 3000-word analysis reports with technical indicators, fundamental analysis, risk assessment, and 15-year price history. Automatically publish SEO-optimized content to WordPress with smart writer rotation and intelligent scheduling.
+                Research any stock deeply with technical analysis, fundamentals, macro indicators, forecasting, risk metrics, analyst insights, and smart WordPress automation using writer rotation, scheduling, using only wordpress api endpoints without WordPress login integration.
             </p>
             
             <div class="hero-actions">
@@ -1208,15 +1348,15 @@
             
             <div class="hero-stats">
                 <div class="stat">
-                    <div class="stat-number">3000+</div>
+                    <div class="stat-number" data-target="4000">0</div>
                     <div class="stat-label">Words Per Report</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-number">15</div>
+                    <div class="stat-number" data-target="15">0</div>
                     <div class="stat-label">Years Price History</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-number">12</div>
+                    <div class="stat-number" data-target="17">0</div>
                     <div class="stat-label">Analysis Sections</div>
                 </div>
             </div>
@@ -1390,6 +1530,9 @@
             <p class="section-description">
                 Our AI processes multiple data sources to generate institutional-grade analysis reports with unprecedented depth and accuracy
             </p>
+            <div style="width: 100%; display: flex; justify-content: center; margin: 2rem 0;">
+                <img src="/static/images/Report.png" alt="Sample Report" style="max-width: 100%; height: auto; border-radius: 0.75rem; box-shadow: 0 4px 24px rgba(0,0,0,0.08);" />
+            </div>
         </div>
 
         <div class="features-grid">
@@ -1500,7 +1643,7 @@
                             <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Words Generated</div>
                         </div>
                         <div style="text-align: center;">
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--blue-600);">4</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--green-600);">4</div>
                             <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Chart Indicators</div>
                         </div>
                     </div>
@@ -1636,137 +1779,198 @@
             <div class="section-header">
                 <h3 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">Complete Report Structure</h3>
                 <p style="font-size: 1.125rem; color: hsl(var(--muted-foreground)); max-width: 600px; margin: 0 auto;">
-                    Every analysis report contains 8 comprehensive sections totaling 2500-3000 words
+                    Every analysis report contains 17 comprehensive sections totaling around 4000 words
                 </p>
             </div>
 
-            <div class="report-preview" style="max-width: 800px; margin: 0 auto;">
-                <div class="report-sections">
+            <div class="report-preview" style="max-width: 100%; margin: 0 auto; background: #fff; border-radius: 1.25rem; box-shadow: 0 2px 16px rgba(0,0,0,0.04); padding: 2.5rem 0.5rem;">
+                <div class="report-sections" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
                     <div class="report-section">
                         <div class="report-section-header">
                             <div class="report-section-title">
-                                <i data-lucide="file-text" style="color: var(--green-600);"></i>
-                                <span>Introduction & Executive Summary</span>
+                                <i data-lucide="info" style="color: var(--blue-600);"></i>
+                                <span>Introduction</span>
                             </div>
-                            <span class="report-section-words">~350 words</span>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
-                        <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Company overview, current market position, and key investment thesis</p>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Overview of the company and key investment questions.</p>
                     </div>
-
                     <div class="report-section">
                         <div class="report-section-header">
                             <div class="report-section-title">
-                                <i data-lucide="bar-chart-3" style="color: var(--green-600);"></i>
-                                <span>Key Metrics & Historical Data</span>
+                                <i data-lucide="bar-chart" style="color: var(--green-700);"></i>
+                                <span>Metrics Summary</span>
                             </div>
-                            <span class="report-section-words">~400 words</span>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
-                        <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">15-year price history table and comprehensive financial metrics</p>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Snapshot of price, targets, trend, and key technical levels.</p>
                     </div>
-
                     <div class="report-section">
                         <div class="report-section-header">
                             <div class="report-section-title">
-                                <i data-lucide="activity" style="color: var(--green-600);"></i>
-                                <span>Technical Analysis & Charts</span>
+                                <i data-lucide="table" style="color: var(--purple-700);"></i>
+                                <span>Detailed Forecast Table</span>
                             </div>
-                            <span class="report-section-words">~500 words</span>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
-                        <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">4 technical indicator charts with detailed analysis and signals</p>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Month-by-month price projections and model signals.</p>
                     </div>
-
                     <div class="report-section">
                         <div class="report-section-header">
                             <div class="report-section-title">
-                                <i data-lucide="pie-chart" style="color: var(--green-600);"></i>
-                                <span>Fundamental Analysis</span>
+                                <i data-lucide="building-2" style="color: var(--orange-700);"></i>
+                                <span>Company Profile</span>
                             </div>
-                            <span class="report-section-words">~450 words</span>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
-                        <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Financial ratios, growth metrics, and competitive analysis</p>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Business overview, sector, and operations summary.</p>
                     </div>
-
                     <div class="report-section">
                         <div class="report-section-header">
                             <div class="report-section-title">
-                                <i data-lucide="users" style="color: var(--green-600);"></i>
-                                <span>Analyst Consensus</span>
+                                <i data-lucide="percent" style="color: var(--teal-700);"></i>
+                                <span>Valuation Metrics</span>
                             </div>
-                            <span class="report-section-words">~300 words</span>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
-                        <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Professional analyst ratings, price targets, and recommendations</p>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Key ratios: P/E, P/S, P/B, and valuation multiples.</p>
                     </div>
-
                     <div class="report-section">
                         <div class="report-section-header">
                             <div class="report-section-title">
-                                <i data-lucide="trending-up" style="color: var(--green-600);"></i>
-                                <span>Forecast Table & Price Targets</span>
+                                <i data-lucide="dollar-sign" style="color: var(--green-600);"></i>
+                                <span>Total Valuation</span>
                             </div>
-                            <span class="report-section-words">~400 words</span>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
-                        <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">AI-generated price forecasts with confidence intervals and charts</p>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Market cap, enterprise value, and net cash position.</p>
                     </div>
-
                     <div class="report-section">
                         <div class="report-section-header">
                             <div class="report-section-title">
-                                <i data-lucide="shield-alert" style="color: var(--green-600);"></i>
-                                <span>Risk Factors & Assessment</span>
+                                <i data-lucide="trending-up" style="color: var(--pink-700);"></i>
+                                <span>Profitability Growth</span>
                             </div>
-                            <span class="report-section-words">~350 words</span>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
-                        </div>
-                        <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Comprehensive risk analysis based on technical and fundamental indicators</p>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Margins, revenue, EBITDA, and growth rates.</p>
                     </div>
-
                     <div class="report-section">
                         <div class="report-section-header">
                             <div class="report-section-title">
-                                <i data-lucide="target" style="color: var(--green-600);"></i>
-                                <span>Overall Assessment & Recommendation</span>
+                                <i data-lucide="users" style="color: var(--cyan-700);"></i>
+                                <span>Analyst Insights</span>
                             </div>
-                            <span class="report-section-words">~300 words</span>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill"></div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Wall Street consensus and analyst recommendations.</p>
+                    </div>
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            <div class="report-section-title">
+                                <i data-lucide="shield-check" style="color: var(--green-800);"></i>
+                                <span>Financial Health</span>
+                            </div>
                         </div>
-                        <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Final investment recommendation with clear buy/hold/sell guidance</p>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Balance sheet, debt, cash flow, and liquidity.</p>
+                    </div>
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            <div class="report-section-title">
+                                <i data-lucide="clock" style="color: var(--amber-700);"></i>
+                                <span>Historical Performance</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Recent price and volume trends, 52-week range.</p>
+                    </div>
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            <div class="report-section-title">
+                                <i data-lucide="activity" style="color: var(--red-700);"></i>
+                                <span>Technical Analysis Summary</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Trend, momentum, RSI, MACD, and key levels.</p>
+                    </div>
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            <div class="report-section-title">
+                                <i data-lucide="trending-down" style="color: var(--gray-700);"></i>
+                                <span>Short Selling Info</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Short interest, days to cover, and sentiment.</p>
+                    </div>
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            <div class="report-section-title">
+                                <i data-lucide="bar-chart-2" style="color: var(--indigo-700);"></i>
+                                <span>Stock Price Statistics</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">High/low, moving averages, beta, and volatility.</p>
+                    </div>
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            <div class="report-section-title">
+                                <i data-lucide="gift" style="color: var(--yellow-700);"></i>
+                                <span>Dividends Shareholder Returns</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Dividend policy, payout ratio, and returns.</p>
+                    </div>
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            <div class="report-section-title">
+                                <i data-lucide="target" style="color: var(--green-700);"></i>
+                                <span>Conclusion Outlook</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Final summary and investment guidance.</p>
+                    </div>
+                    <div class="report-section">
+                        <div class="report-section-header">
+                            <div class="report-section-title">
+                                <i data-lucide="alert-triangle" style="color: var(--red-800);"></i>
+                                <span>Risk Factors</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <p style="font-size: 0.85rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Potential risks and risk management tips.</p>
+                    </div>
+                    <div class="report-section" style="grid-column: 1 / -1;">
+                        <div class="report-section-header">
+                            <div class="report-section-title">
+                                <i data-lucide="help-circle" style="color: var(--blue-700);"></i>
+                                <span>Faq</span>
+                            </div>
+                        </div>
+                        <div style="background: var(--blue-50); color: var(--blue-900); padding: 1rem 1.5rem; border-radius: 0.75rem; margin-bottom: 0.75rem; font-size: 0.95rem;">
+                            Have more questions? Here are answers to the most common things investors want to know.
+                        </div>
+                        <p style="font-size: 0.95rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">Answers to common investor questions.</p>
                     </div>
                 </div>
 
                 <div style="margin-top: 2rem; padding: 1.5rem; background: var(--green-50); border-radius: 0.75rem; border: 1px solid var(--green-100);">
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center;">
                         <div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--green-600);">2,850</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--green-600);">4,000</div>
                             <div style="font-size: 0.75rem; color: var(--green-800);">Average Words</div>
                         </div>
                         <div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--green-600);">8</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--green-600);">17</div>
                             <div style="font-size: 0.75rem; color: var(--green-800);">Report Sections</div>
                         </div>
                         <div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--green-600);">4</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--green-600);">5</div>
                             <div style="font-size: 0.75rem; color: var(--green-800);">Technical Charts</div>
                         </div>
                     </div>
@@ -1777,7 +1981,7 @@
 </section>
 
 <!-- WordPress Automation Section -->
-<section id="automation" class="section bg-gray-50">
+<section id="automation" class="section bg-white">
     <div class="container">
         <div class="section-header">
             <div class="section-badge">
@@ -1790,62 +1994,64 @@
         </div>
 
         <div class="features-grid">
-            <div class="feature-content">
-                <h3 class="feature-title">Intelligent Site Management</h3>
-                <p class="feature-description">
-                    Create detailed site profiles with custom configurations for categories, scheduling, and content preferences with advanced automation controls.
-                </p>
-
-                <div class="feature-list">
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i data-lucide="settings" style="color: var(--blue-600);"></i>
+            <!-- Left: Portrait Image -->
+            <div class="feature-content" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
+                <img src="/static/images/Run_automation.png" alt="Run Automation" style="max-width: 340px; width: 100%; height: auto; margin-bottom: 2rem;" />
+                <div style="width: 100%; max-width: 500px; margin: 0 auto;">
+                    <h3 class="feature-title" style="text-align: center;">Intelligent Site Management</h3>
+                    <p class="feature-description" style="text-align: center;">
+                        Create detailed site profiles with custom configurations for categories, scheduling, and content preferences with advanced automation controls.
+                    </p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i data-lucide="settings" style="color: var(--blue-600);"></i>
+                            </div>
+                            <div class="feature-item-content">
+                                <h4>Advanced Site Profile Configuration</h4>
+                                <p>
+                                    Set up category IDs, custom post types, tags, meta descriptions, and publishing preferences for each WordPress site with granular control over content formatting.
+                                </p>
+                            </div>
                         </div>
-                        <div class="feature-item-content">
-                            <h4>Advanced Site Profile Configuration</h4>
-                            <p>
-                                Set up category IDs, custom post types, tags, meta descriptions, and publishing preferences for each WordPress site with granular control over content formatting.
-                            </p>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i data-lucide="clock" style="color: var(--blue-600);"></i>
+                            </div>
+                            <div class="feature-item-content">
+                                <h4>Smart Scheduling System</h4>
+                                <p>
+                                    Configure minimum and maximum posting intervals (hours/days) to prevent spam detection and maintain natural publishing patterns with randomized timing.
+                                </p>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i data-lucide="clock" style="color: var(--blue-600);"></i>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i data-lucide="users" style="color: var(--blue-600);"></i>
+                            </div>
+                            <div class="feature-item-content">
+                                <h4>Writer Rotation System</h4>
+                                <p>
+                                    Add multiple writer profiles that automatically rotate for each article, creating diverse authorship patterns with unique writing styles and expertise areas.
+                                </p>
+                            </div>
                         </div>
-                        <div class="feature-item-content">
-                            <h4>Smart Scheduling System</h4>
-                            <p>
-                                Configure minimum and maximum posting intervals (hours/days) to prevent spam detection and maintain natural publishing patterns with randomized timing.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i data-lucide="users" style="color: var(--blue-600);"></i>
-                        </div>
-                        <div class="feature-item-content">
-                            <h4>Writer Rotation System</h4>
-                            <p>
-                                Add multiple writer profiles that automatically rotate for each article, creating diverse authorship patterns with unique writing styles and expertise areas.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i data-lucide="search" style="color: var(--blue-600);"></i>
-                        </div>
-                        <div class="feature-item-content">
-                            <h4>Advanced SEO Optimization</h4>
-                            <p>
-                                Automatic keyword optimization, 1-2 strategic external links, proper meta descriptions, FAQ sections, and schema markup for maximum search visibility.
-                            </p>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i data-lucide="search" style="color: var(--blue-600);"></i>
+                            </div>
+                            <div class="feature-item-content">
+                                <h4>Advanced SEO Optimization</h4>
+                                <p>
+                                    Automatic keyword optimization, 1-2 strategic external links, proper meta descriptions, FAQ sections, and schema markup for maximum search visibility.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Right: Dashboard and Features (unchanged) -->
 
             <div class="wordpress-demo">
                 <div class="wordpress-header">
@@ -1905,11 +2111,11 @@
                     <h5 style="font-weight: 500; margin-bottom: 1rem; color: var(--purple-700);">Content Section Configuration</h5>
                     <div class="config-grid">
                         <div class="config-item">
-                            <div class="config-number">12</div>
+                            <div class="config-number">17</div>
                             <div class="config-label">Available Sections</div>
                         </div>
                         <div class="config-item">
-                            <div class="config-number">8</div>
+                            <div class="config-number">10</div>
                             <div class="config-label">Selected Sections</div>
                         </div>
                         <div class="config-item">
@@ -1938,21 +2144,25 @@
                             <span>Auto-generated FAQ sections</span>
                         </div>
                         <div class="seo-item">
-                            <i data-lucide="tag" style="color: var(--orange-600);"></i>
-                            <span>Meta descriptions & schema markup</span>
+                            <i data-lucide="link-2" style="color: var(--orange-600);"></i>
+                            <span>Optimised permalink</span>
+                        </div>
+                        <div class="seo-item">
+                            <i data-lucide="image" style="color: var(--orange-600);"></i>
+                            <span>Relevant Feature image</span>
                         </div>
                     </div>
                 </div>
 
-                <button class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--blue-600); font-size: 1rem; padding: 1rem;">
+                <a href="{{ url_for('automation_runner_page') }}" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--blue-600); font-size: 1rem; padding: 1rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                     <i data-lucide="play"></i>
                     Run Automation
-                </button>
+                </a>
             </div>
         </div>
 
         <!-- Section Selection Detail -->
-        <div style="margin-top: 4rem;">
+        <div class="bg-gray-50" style="margin-top: 4rem; padding: 2.5rem 0; border-radius: 1.25rem;">
             <div class="section-header">
                 <h3 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">12 Configurable Content Sections</h3>
                 <p style="font-size: 1.125rem; color: hsl(var(--muted-foreground)); max-width: 600px; margin: 0 auto;">
@@ -2137,228 +2347,210 @@
     <div class="container">
         <div class="section-header">
             <div class="section-badge">
-                <span class="badge badge-green">Pricing Plans</span>
+                <span class="badge badge-green">Currently Free</span>
             </div>
-            <h2 class="section-title">Choose Your Growth Plan</h2>
+            <h2 class="section-title">Free Access - Paid Plans Coming Soon</h2>
             <p class="section-description">
-                Start with our 14-day free trial. No credit card required. Cancel anytime.
+                Enjoy full access to all features completely free. Paid plans with advanced features will be available soon.
             </p>
         </div>
 
         <div class="pricing-grid">
-            <!-- Starter Plan -->
-            <div class="pricing-card">
-                <div class="pricing-header">
-                    <div class="pricing-title">Starter</div>
-                    <div class="pricing-description">Perfect for individual investors</div>
-                    <div>
-                        <span class="pricing-price">$49</span>
-                        <span class="pricing-period">/month</span>
+            <!-- Free Plan -->
+            <div class="pricing-card featured" style="max-width: 1000px; margin: 0 auto; grid-column: 1 / -1; display: flex; flex-direction: column; align-items: stretch; padding: 0; position: relative;">
+                <div class="pricing-badge" style="background: var(--green-600); color: white; position: absolute; top: -22px; left: 50%; transform: translateX(-50%); padding: 0.5rem 2.5rem; border-radius: 999px; font-size: 1.1rem; box-shadow: 0 2px 8px rgba(22,163,74,0.08); z-index: 2;">Currently Free</div>
+                
+                <!-- Desktop Layout -->
+                <div class="pricing-desktop-layout" style="display: flex; flex-direction: row; align-items: stretch;">
+                    <div style="flex: 1; padding: 2.5rem; border-right: 1px solid hsl(var(--border));">
+                        <div class="pricing-header" style="text-align: left; margin-bottom: 2rem;">
+                            <div class="pricing-title" style="font-size: 2rem;">Free Access</div>
+                            <div class="pricing-description" style="font-size: 1.1rem; margin-bottom: 1rem;">Full access to core features with reasonable limits</div>
+                            <div>
+                                <span class="pricing-price" style="color: var(--green-600); font-size: 3rem;">FREE</span>
+                                <span class="pricing-period" style="font-size: 1.2rem;">Forever</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 2rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 1rem; margin-bottom: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid hsl(var(--border));">
+                                <span style="color: hsl(var(--muted-foreground));">Monthly analyses</span>
+                                <span style="font-weight: 600; color: var(--green-600);">30</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 1rem; margin-bottom: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid hsl(var(--border));">
+                                <span style="color: hsl(var(--muted-foreground));">WordPress sites</span>
+                                <span style="font-weight: 600; color: var(--green-600);">2</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 1rem; margin-bottom: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid hsl(var(--border));">
+                                <span style="color: hsl(var(--muted-foreground));">Report length</span>
+                                <span style="font-weight: 600; color: var(--green-600);">Up to 4,000 words</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 1rem; padding: 0.5rem 0;">
+                                <span style="color: hsl(var(--muted-foreground));">Writer profiles</span>
+                                <span style="font-weight: 600; color: var(--green-600);">6 writers</span>
+                            </div>
+                        </div>
+                        
+                        <a href="{{ url_for('analyzer_input_page') }}" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--green-600); font-size: 1.1rem; padding: 1rem;">
+                            <i data-lucide="play"></i>
+                            Start Free Analysis
+                        </a>
+                    </div>
+                    
+                    <div style="flex: 1; padding: 2.5rem; background: hsl(var(--muted));">
+                        <h4 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--green-600);">Included Features</h4>
+                        <div class="pricing-features">
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 1rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1.25rem; height: 1.25rem;"></i>
+                                    <span>All Technical indicators (RSI, MACD, Histogram)</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 1rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1.25rem; height: 1.25rem;"></i>
+                                    <span>15-year price history & charts</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 1rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1.25rem; height: 1.25rem;"></i>
+                                    <span>Advanced fundamental analysis</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 1rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1.25rem; height: 1.25rem;"></i>
+                                    <span>WordPress automation</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 1rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1.25rem; height: 1.25rem;"></i>
+                                    <span>SEO optimization</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 1rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1.25rem; height: 1.25rem;"></i>
+                                    <span>Analyst consensus integration</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 1rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1.25rem; height: 1.25rem;"></i>
+                                    <span>Macro economic indicators</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 1rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1.25rem; height: 1.25rem;"></i>
+                                    <span>Advanced risk assessment</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                        <span style="color: hsl(var(--muted-foreground));">Monthly analyses</span>
-                        <span style="font-weight: 600;">25</span>
+                <!-- Mobile Layout -->
+                <div class="pricing-mobile-layout" style="display: none; flex-direction: column;">
+                    <div style="padding: 1.5rem; border-bottom: 1px solid hsl(var(--border));">
+                        <div class="pricing-header" style="text-align: center; margin-bottom: 1.5rem;">
+                            <div class="pricing-title" style="font-size: 1.5rem;">Free Access</div>
+                            <div class="pricing-description" style="font-size: 1rem; margin-bottom: 1rem;">Full access to core features with reasonable limits</div>
+                            <div>
+                                <span class="pricing-price" style="color: var(--green-600); font-size: 2.5rem;">FREE</span>
+                                <span class="pricing-period" style="font-size: 1rem;">Forever</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid hsl(var(--border));">
+                                <span style="color: hsl(var(--muted-foreground));">Monthly analyses</span>
+                                <span style="font-weight: 600; color: var(--green-600);">30</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid hsl(var(--border));">
+                                <span style="color: hsl(var(--muted-foreground));">WordPress sites</span>
+                                <span style="font-weight: 600; color: var(--green-600);">2</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid hsl(var(--border));">
+                                <span style="color: hsl(var(--muted-foreground));">Report length</span>
+                                <span style="font-weight: 600; color: var(--green-600);">Up to 4,000 words</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; padding: 0.4rem 0;">
+                                <span style="color: hsl(var(--muted-foreground));">Writer profiles</span>
+                                <span style="font-weight: 600; color: var(--green-600);">6 writers</span>
+                            </div>
+                        </div>
+                        
+                        <a href="{{ url_for('analyzer_input_page') }}" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--green-600); font-size: 1rem; padding: 0.8rem;">
+                            <i data-lucide="play"></i>
+                            Start Free Analysis
+                        </a>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                        <span style="color: hsl(var(--muted-foreground));">WordPress sites</span>
-                        <span style="font-weight: 600;">1</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                        <span style="color: hsl(var(--muted-foreground));">Report length</span>
-                        <span style="font-weight: 600;">2,500 words</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
-                        <span style="color: hsl(var(--muted-foreground));">Writer profiles</span>
-                        <span style="font-weight: 600;">2</span>
+                    
+                    <div style="padding: 1.5rem; background: hsl(var(--muted));">
+                        <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--green-600);">Included Features</h4>
+                        <div class="pricing-features">
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; font-size: 0.9rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1rem; height: 1rem;"></i>
+                                    <span>All Technical indicators (RSI, MACD, Histogram)</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; font-size: 0.9rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1rem; height: 1rem;"></i>
+                                    <span>15-year price history & charts</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; font-size: 0.9rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1rem; height: 1rem;"></i>
+                                    <span>Advanced fundamental analysis</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; font-size: 0.9rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1rem; height: 1rem;"></i>
+                                    <span>WordPress automation</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; font-size: 0.9rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1rem; height: 1rem;"></i>
+                                    <span>SEO optimization</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; font-size: 0.9rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1rem; height: 1rem;"></i>
+                                    <span>Analyst consensus integration</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; font-size: 0.9rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1rem; height: 1rem;"></i>
+                                    <span>Macro economic indicators</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; font-size: 0.9rem;">
+                                    <i data-lucide="check-circle" style="color: var(--green-600); width: 1rem; height: 1rem;"></i>
+                                    <span>Advanced risk assessment</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="pricing-features">
-                    <ul>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>4 Technical indicators (RSI, MACD, Histogram)</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>15-year price history & charts</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>Basic fundamental analysis</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>WordPress automation</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>SEO optimization</span>
-                        </li>
-                        <li>
-                            <i data-lucide="x" style="color: #d1d5db;"></i>
-                            <span style="color: hsl(var(--muted-foreground));">Analyst consensus</span>
-                        </li>
-                    </ul>
-                </div>
-                
-                <a href="#" class="btn btn-primary" style="width: 100%; justify-content: center;">Start Free Trial</a>
             </div>
+        </div>
 
-            <!-- Professional Plan -->
-            <div class="pricing-card featured">
-                <div class="pricing-badge">Most Popular</div>
-                <div class="pricing-header">
-                    <div class="pricing-title">Professional</div>
-                    <div class="pricing-description">For financial advisors & bloggers</div>
-                    <div>
-                        <span class="pricing-price">$99</span>
-                        <span class="pricing-period">/month</span>
+        <!-- Coming Soon Plans -->
+        <div style="margin-top: 3rem; text-align: center;">
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 2rem; border-radius: 1rem; max-width: 800px; margin: 0 auto;">
+                <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Paid Plans Coming Soon</h3>
+                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem;">
+                    We're working on premium features including advanced analytics, custom integrations, and dedicated support.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 0.5rem;">
+                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--green-400);">$49</div>
+                        <div style="font-size: 0.875rem;">Starter Plan</div>
                     </div>
-                    <div style="font-size: 0.875rem; color: var(--green-600); margin-top: 0.25rem;">Save $120/year with annual billing</div>
-                </div>
-                
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                        <span style="color: hsl(var(--muted-foreground));">Monthly analyses</span>
-                        <span style="font-weight: 600;">75</span>
+                    <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 0.5rem;">
+                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--green-400);">$99</div>
+                        <div style="font-size: 0.875rem;">Professional Plan</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                        <span style="color: hsl(var(--muted-foreground));">WordPress sites</span>
-                        <span style="font-weight: 600;">3</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                        <span style="color: hsl(var(--muted-foreground));">Report length</span>
-                        <span style="font-weight: 600;">3,000 words</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
-                        <span style="color: hsl(var(--muted-foreground));">Writer profiles</span>
-                        <span style="font-weight: 600;">5</span>
+                    <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 0.5rem;">
+                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--green-400);">$249</div>
+                        <div style="font-size: 0.875rem;">Enterprise Plan</div>
                     </div>
                 </div>
-                
-                <div class="pricing-features">
-                    <ul>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>Everything in Starter</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>Advanced fundamental analysis</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>Analyst consensus integration</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>Macro economic indicators</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>Advanced risk assessment</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>Priority support</span>
-                        </li>
-                    </ul>
-                </div>
-                
-                <a href="#" class="btn btn-primary" style="width: 100%; justify-content: center;">Start Free Trial</a>
-            </div>
-
-            <!-- Enterprise Plan -->
-            <div class="pricing-card">
-                <div style="position: absolute; top: 1rem; right: 1rem;">
-                    <span class="badge badge-outline" style="border-color: var(--green-600); color: var(--green-600);">
-                        <i data-lucide="building-2"></i>
-                        Enterprise
-                    </span>
-                </div>
-                <div class="pricing-header">
-                    <div class="pricing-title">Enterprise</div>
-                    <div class="pricing-description">For investment firms & agencies</div>
-                    <div>
-                        <span class="pricing-price">$249</span>
-                        <span class="pricing-period">/month</span>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                        <span style="color: hsl(var(--muted-foreground));">Monthly analyses</span>
-                        <span style="font-weight: 600; color: var(--green-600);">Unlimited</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                        <span style="color: hsl(var(--muted-foreground));">WordPress sites</span>
-                        <span style="font-weight: 600;">10</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
-                        <span style="color: hsl(var(--muted-foreground));">Report length</span>
-                        <span style="font-weight: 600;">Up to 5,000 words</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
-                        <span style="color: hsl(var(--muted-foreground));">Writer profiles</span>
-                        <span style="font-weight: 600;">Unlimited</span>
-                    </div>
-                </div>
-                
-                <div class="pricing-features">
-                    <ul>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>Everything in Professional</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>API access</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>Custom integrations</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>Dedicated account manager</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>24/7 phone support</span>
-                        </li>
-                        <li>
-                            <i data-lucide="check-circle" style="color: var(--green-600);"></i>
-                            <span>SLA guarantee</span>
-                        </li>
-                    </ul>
-                </div>
-                
-                <a href="#" class="btn btn-primary" style="width: 100%; justify-content: center;">Contact Sales</a>
+                <button data-open-waitlist class="btn" style="background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <i data-lucide="bell"></i>
+                    Get Notified When Available
+                </button>
             </div>
         </div>
 
         <div class="mt-8 text-center">
             <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1rem;">
-                Need a custom plan? <a href="#" style="color: var(--green-600); font-weight: 500;">Contact our sales team</a> for enterprise pricing.
+                Currently offering full access completely free. <a href="javascript:void(0);" style="color: var(--green-600); font-weight: 500; cursor: pointer;" data-open-waitlist>Join our waitlist</a> for early access to premium features.
             </p>
-            <div class="flex items-center justify-center gap-4" style="font-size: 0.875rem; color: hsl(var(--muted-foreground)); flex-wrap: wrap;">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="shield"></i>
-                    <span>14-day free trial</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i data-lucide="credit-card"></i>
-                    <span>No credit card required</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i data-lucide="lock"></i>
-                    <span>Cancel anytime</span>
-                </div>
-            </div>
+            <!-- Removed the free access feature highlights here -->
         </div>
     </div>
 </section>
@@ -2441,7 +2633,7 @@
                     <i data-lucide="activity" style="color: #4ade80; width: 2rem; height: 2rem;"></i>
                     <div>
                         <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem;">Enhanced Technical Indicators</h3>
-                        <span class="preview-badge">Q2 2024</span>
+                        <!-- <span class="preview-badge">Q2 2024</span> -->
                     </div>
                 </div>
                 
@@ -2474,7 +2666,7 @@
                     <i data-lucide="calendar" style="color: #4ade80; width: 2rem; height: 2rem;"></i>
                     <div>
                         <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem;">Historical Events Analyzer</h3>
-                        <span class="preview-badge">Q3 2024</span>
+                        <!-- <span class="preview-badge">Q3 2024</span> -->
                     </div>
                 </div>
                 
@@ -2549,57 +2741,86 @@
         </div>
 
         <div style="text-align: center; margin-top: 3rem;">
-            <a href="#" class="btn" style="background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2);">
+            <button data-open-waitlist class="btn" style="background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2);">
                 <i data-lucide="bell"></i>
                 Get Notified When Available
-            </a>
+            </button>
         </div>
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="section" style="background: linear-gradient(135deg, var(--green-600) 0%, var(--blue-600) 100%); color: white; text-align: center;">
-    <div class="container">
-        <div style="max-width: 800px; margin: 0 auto;">
-            <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border-radius: 50%; width: 8rem; height: 8rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
-                <i data-lucide="rocket" style="width: 4rem; height: 4rem; color: white;"></i>
+<!-- Waitlist Modal -->
+<div id="waitlistModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeModalBtn">&times;</span>
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="background: var(--green-100); width: 4rem; height: 4rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                <i data-lucide="bell" style="color: var(--green-600); width: 2rem; height: 2rem;"></i>
             </div>
-            
-            <h2 style="font-size: 3rem; font-weight: 700; margin-bottom: 1.5rem;">
-                Start Generating Professional Stock Analysis Today
-            </h2>
-            
-            <p style="font-size: 1.25rem; color: rgba(255, 255, 255, 0.9); margin-bottom: 3rem;">
-                Transform any stock ticker into comprehensive 3000-word analysis reports with 15-year historical data, 4 technical indicators, and automate your WordPress publishing workflow with intelligent scheduling
-            </p>
-            
-            <div style="display: flex; flex-direction: column; gap: 1rem; align-items: center; margin-bottom: 3rem;">
-                <a href="#" class="btn btn-lg" style="background: white; color: var(--green-600);">
-                    Start 14-Day Free Trial
-                    <i data-lucide="arrow-right"></i>
-                </a>
-                <a href="#" class="btn btn-lg" style="background: transparent; border: 1px solid white; color: white;">
-                    Schedule Live Demo
-                </a>
+            <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; color: hsl(var(--foreground));">Join Our Waitlist</h3>
+            <p style="color: hsl(var(--muted-foreground)); font-size: 1rem;">Be the first to know when premium features launch!</p>
+        </div>
+        <form id="waitlistForm" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+                <label for="waitlistName" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: hsl(var(--foreground));">Name</label>
+                <input type="text" id="waitlistName" name="name" required style="width: 100%; padding: 0.75rem; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; font-size: 1rem;">
             </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; max-width: 600px; margin: 0 auto;">
-                <div style="text-align: center;">
-                    <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">14 days</div>
-                    <div style="font-size: 1rem; color: rgba(255, 255, 255, 0.8);">Free trial</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">No CC</div>
-                    <div style="font-size: 1rem; color: rgba(255, 255, 255, 0.8);">Required</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">24/7</div>
-                    <div style="font-size: 1rem; color: rgba(255, 255, 255, 0.8);">Support</div>
-                </div>
+            <div>
+                <label for="waitlistEmail" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: hsl(var(--foreground));">Email Address</label>
+                <input type="email" id="waitlistEmail" name="email" required style="width: 100%; padding: 0.75rem; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; font-size: 1rem;">
             </div>
+            <div>
+                <label for="waitlistInterests" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: hsl(var(--foreground));">Interests (Optional)</label>
+                <select id="waitlistInterests" name="interests" style="width: 100%; padding: 0.75rem; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; font-size: 1rem;">
+                    <option value="">Select your primary interest</option>
+                    <option value="technical-analysis">Advanced Technical Analysis</option>
+                    <option value="wordpress-automation">WordPress Automation</option>
+                    <option value="premium-features">Premium Features</option>
+                    <option value="enterprise">Enterprise Solutions</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--green-600); font-size: 1rem; padding: 1rem; margin-top: 1rem;">
+                <i data-lucide="send" style="width: 1rem; height: 1rem;"></i>
+                Join Waitlist
+            </button>
+        </form>
+        <div id="waitlistSuccess" style="display: none; text-align: center; padding: 2rem;">
+            <div style="background: var(--green-100); width: 4rem; height: 4rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                <i data-lucide="check" style="color: var(--green-600); width: 2rem; height: 2rem;"></i>
+            </div>
+            <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--green-600);">Success!</h3>
+            <p style="color: hsl(var(--muted-foreground)); font-size: 1rem;">You've been added to our waitlist. We'll notify you when premium features are available!</p>
         </div>
     </div>
-</section>
+</div>
+
+<!-- Modal open/close logic (new, only keep this) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('waitlistModal');
+  const openBtns = document.querySelectorAll('[data-open-waitlist]');
+  const closeBtn = document.getElementById('closeModalBtn');
+
+  openBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  closeBtn.addEventListener('click', function() {
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+  });
+
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      modal.classList.remove('show');
+      document.body.style.overflow = 'auto';
+    }
+  });
+});
+</script>
 {% endblock %}
 
 {% block scripts_extra %}
@@ -2635,14 +2856,28 @@
                 showError('Real-time update connection failed. Please refresh the page.');
             });
             
-            // Handle analysis progress updates
-            socket.on('analysis_progress', function(data) {
-                console.log('Analysis progress received:', data);
-                updateAnalysisProgress(data);
-            });
-            
-            // Handle analysis completion
-            socket.on('analysis_complete', function(data) {
+                    // Handle analysis progress updates
+        socket.on('analysis_progress', function(data) {
+            console.log('Analysis progress received:', data);
+            updateAnalysisProgress(data);
+        });
+        
+                // Handle word count updates
+        socket.on('word_count_update', function(data) {
+            console.log('Word count update received:', data);
+            updateWordCount(data.word_count);
+        });
+        
+        // Update word count function
+        function updateWordCount(wordCount) {
+            const wordCountElement = document.getElementById('wordCount');
+            if (wordCountElement && wordCount) {
+                wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
+            }
+        }
+        
+        // Handle analysis completion
+        socket.on('analysis_complete', function(data) {
                 console.log('Analysis complete received:', data);
                 handleAnalysisComplete(data);
             });
@@ -2728,12 +2963,20 @@
                 }
             });
             
-            // Update word count progressively
-            const baseWords = 2500;
-            const wordsPerStage = 100;
-            const currentWords = baseWords + (uiSectionIndex * wordsPerStage);
-            if (wordCount) {
-                wordCount.textContent = `${currentWords.toLocaleString()} words`;
+                    // Update word count progressively
+        const baseWords = 2500;
+        const wordsPerStage = 100;
+        const currentWords = baseWords + (uiSectionIndex * wordsPerStage);
+        if (wordCount) {
+            wordCount.textContent = `${currentWords.toLocaleString()} words`;
+        }
+    }
+    
+        // Update word count function
+        function updateWordCount(wordCount) {
+            const wordCountElement = document.getElementById('wordCount');
+            if (wordCountElement && wordCount) {
+                wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
             }
         }
         
@@ -2754,8 +2997,8 @@
                 section.className = 'section-status status-complete';
             });
             
-            // Final word count
-            if (wordCount) {
+            // Final word count - keep existing count if available, otherwise use default
+            if (wordCount && !wordCount.textContent.includes('words')) {
                 const finalWords = Math.floor(Math.random() * 500) + 2800;
                 wordCount.textContent = `${finalWords.toLocaleString()} words`;
             }
@@ -2913,9 +3156,11 @@
             }
         }
         
-        // Make startAnalysis globally available
+        // Make functions globally available
         window.startAnalysis = startAnalysis;
         window.toggleMobileMenu = toggleMobileMenu;
+        window.openWaitlistModal = openWaitlistModal;
+        window.closeWaitlistModal = closeWaitlistModal;
         
         // FAQ Accordion
         const faqQuestions = document.querySelectorAll('.faq-question');
@@ -3036,6 +3281,40 @@
             });
         });
         
+        // Animated counter function
+        function animateCounter(element, target, duration = 2000) {
+            const start = 0;
+            const increment = target / (duration / 16); // 60fps
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                
+                // Format the number
+                if (target >= 1000) {
+                    element.textContent = Math.floor(current).toLocaleString() + '+';
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 16);
+        }
+        
+        // Animate stats when they come into view
+        function animateStats() {
+            const stats = document.querySelectorAll('.stat-number[data-target]');
+            stats.forEach(stat => {
+                const target = parseInt(stat.getAttribute('data-target'));
+                animateCounter(stat, target);
+            });
+        }
+        
+        // Start animation when page loads
+        animateStats();
+        
         // Auto-populate ticker input with examples
         const examples = ['AAPL', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'NFLX'];
         let exampleIndex = 0;
@@ -3068,6 +3347,154 @@
                 writers[currentActive].classList.add('active');
             }
         }, 5000);
+        
+        // Handle pricing card responsive behavior
+        function handlePricingResponsive() {
+            const desktopLayout = document.querySelector('.pricing-desktop-layout');
+            const mobileLayout = document.querySelector('.pricing-mobile-layout');
+            
+            if (window.innerWidth <= 600) {
+                // Mobile layout
+                if (desktopLayout) desktopLayout.style.display = 'none';
+                if (mobileLayout) mobileLayout.style.display = 'flex';
+            } else if (window.innerWidth <= 768) {
+                // Tablet layout - stack vertically
+                if (desktopLayout) {
+                    desktopLayout.style.display = 'flex';
+                    desktopLayout.style.flexDirection = 'column';
+                }
+                if (mobileLayout) mobileLayout.style.display = 'none';
+            } else {
+                // Desktop layout
+                if (desktopLayout) {
+                    desktopLayout.style.display = 'flex';
+                    desktopLayout.style.flexDirection = 'row';
+                }
+                if (mobileLayout) mobileLayout.style.display = 'none';
+            }
+        }
+        
+        // Initialize pricing responsive behavior
+        handlePricingResponsive();
+        
+        // Handle window resize for pricing
+        window.addEventListener('resize', handlePricingResponsive);
+        
+        // Debug: Check if modal exists
+        console.log('Modal element exists:', !!document.getElementById('waitlistModal'));
+        console.log('Waitlist form exists:', !!document.getElementById('waitlistForm'));
+        
+        // Waitlist Modal Functions
+        function openWaitlistModal() {
+            console.log('openWaitlistModal called');
+            const modal = document.getElementById('waitlistModal');
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                // Reinitialize Lucide icons for the modal
+                lucide.createIcons();
+                console.log('Modal opened successfully');
+            } else {
+                console.error('Modal element not found');
+            }
+        }
+        
+        function closeWaitlistModal() {
+            const modal = document.getElementById('waitlistModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restore scrolling
+                // Reset form
+                document.getElementById('waitlistForm').reset();
+                document.getElementById('waitlistForm').style.display = 'flex';
+                document.getElementById('waitlistSuccess').style.display = 'none';
+            }
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('waitlistModal');
+            if (event.target === modal) {
+                closeWaitlistModal();
+            }
+        });
+        
+        // Handle waitlist form submission
+        document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            
+            // Show loading state
+            submitButton.innerHTML = '<i data-lucide="loader-2" style="width: 1rem; height: 1rem; animation: spin 1s linear infinite;"></i> Joining...';
+            submitButton.disabled = true;
+            lucide.createIcons();
+            
+            // Simulate API call (replace with actual endpoint)
+            setTimeout(() => {
+                // Show success message
+                document.getElementById('waitlistForm').style.display = 'none';
+                document.getElementById('waitlistSuccess').style.display = 'block';
+                
+                // Store in localStorage as backup
+                const waitlistData = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    interests: formData.get('interests'),
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('waitlist_signup', JSON.stringify(waitlistData));
+                
+                // Optional: Send to your backend
+                fetch('/api/waitlist-signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        interests: formData.get('interests')
+                    })
+                }).catch(error => {
+                    console.log('Waitlist signup saved locally (backend unavailable)');
+                });
+                
+                // Auto-close after 3 seconds
+                setTimeout(() => {
+                    closeWaitlistModal();
+                }, 3000);
+                
+            }, 1500);
+        });
     });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('waitlistModal');
+  const openBtns = document.querySelectorAll('[data-open-waitlist]');
+  const closeBtn = document.getElementById('closeModalBtn');
+
+  openBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  closeBtn.addEventListener('click', function() {
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+  });
+
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      modal.classList.remove('show');
+      document.body.style.overflow = 'auto';
+    }
+  });
+});
 </script>
 {% endblock %}

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth-styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-optimized.css') }}">
     {% block head_extra %}{% endblock %}
     <style>
         :root {
@@ -404,11 +405,11 @@
                 <div class="navbar-left">
                     {% if is_user_logged_in %}
                         <a href="{{ url_for('dashboard_page') }}" class="navbar-brand">
-                            <i class="fas fa-rocket"></i> Tickzen
+                            Tickzen&nbsp;<i class="fas fa-chart-line"></i>
                         </a>
                     {% else %}
                         <a href="{{ url_for('stock_analysis_homepage_route') }}" class="navbar-brand">
-                            <i class="fas fa-rocket"></i> Tickzen
+                            Tickzen&nbsp;<i class="fas fa-chart-line"></i>
                         </a>
                     {% endif %}
                 </div>

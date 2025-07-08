@@ -25,6 +25,14 @@ from firebase_admin import firestore
 
 import pandas as pd
 
+# Import dashboard analytics
+try:
+    from dashboard_analytics import register_dashboard_routes
+    DASHBOARD_ANALYTICS_AVAILABLE = True
+except ImportError as e:
+    print(f"Dashboard analytics not available: {e}")
+    DASHBOARD_ANALYTICS_AVAILABLE = False
+
 FIREBASE_INITIALIZED_SUCCESSFULLY = True
 AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True
 PIPELINE_IMPORTED_SUCCESSFULLY = True
@@ -327,13 +335,15 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def get_user_site_profiles_from_firestore(user_uid):
+def get_user_site_profiles_from_firestore(user_uid, limit_profiles=20):
     if not FIREBASE_INITIALIZED_SUCCESSFULLY: return []
     db = get_firestore_client()
-    if not db: app.logger.error(f"Firestore client not available for get_user_site_profiles_from_firestore (user: {user_uid})."); return []
+    if not db:
+        app.logger.error(f"Firestore client not available for get_user_site_profiles_from_firestore (user: {user_uid}).")
+        return []
     profiles = []
     try:
-        profiles_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').order_by(u'profile_name').stream()
+        profiles_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').order_by(u'profile_name').limit(limit_profiles).stream()
         for profile_doc in profiles_ref:
             profile_data = profile_doc.to_dict()
             profile_data['profile_id'] = profile_doc.id
@@ -343,7 +353,7 @@ def get_user_site_profiles_from_firestore(user_uid):
             profile_data.setdefault('ticker_file_uploaded_at', None)
             profile_data.setdefault('ticker_count_from_file', None)
             profile_data.setdefault('ticker_preview_from_file', [])
-            profile_data.setdefault('all_tickers_from_file', []) 
+            profile_data.setdefault('all_tickers_from_file', [])
             profiles.append(profile_data)
     except Exception as e:
         app.logger.error(f"Error fetching site profiles for user {user_uid} from Firestore: {e}", exc_info=True)
@@ -548,25 +558,22 @@ def get_previous_ticker_status(user_uid, profile_id, ticker_symbol):
 # --- END NEW HELPER FUNCTIONS ---
 
 
-def get_automation_shared_context(user_uid, profiles_list): # Modified
+def get_automation_shared_context(user_uid, profiles_list, ticker_status_limit=5):
     context = {}
     try:
         current_profile_ids = [p['profile_id'] for p in profiles_list if 'profile_id' in p]
         state = auto_publisher.load_state(user_uid=user_uid, current_profile_ids_from_run=current_profile_ids) if AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY else {}
         context['posts_today_by_profile'] = state.get('posts_today_by_profile', {})
         context['last_run_date_for_counts'] = state.get('last_run_date', 'N/A')
-        context['processed_tickers_log_map'] = state.get('processed_tickers_detailed_log_by_profile', {}) 
+        context['processed_tickers_log_map'] = state.get('processed_tickers_detailed_log_by_profile', {})
         context['absolute_max_posts_cap'] = getattr(auto_publisher, 'ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP', 10)
-
         context.setdefault('persisted_file_info', {})
-        context.setdefault('persisted_ticker_statuses_map', {}) # For the new section
-
-        for profile in profiles_list: 
+        context.setdefault('persisted_ticker_statuses_map', {})
+        for profile in profiles_list:
             pid = profile.get('profile_id')
             if pid:
                 all_tickers = profile.get('all_tickers_from_file', [])
                 total_count = len(all_tickers)
-                # Get processed count from state
                 processed_count = 0
                 if 'last_processed_ticker_index_by_profile' in state and pid in state['last_processed_ticker_index_by_profile']:
                     processed_count = state['last_processed_ticker_index_by_profile'][pid] + 1
@@ -580,8 +587,30 @@ def get_automation_shared_context(user_uid, profiles_list): # Modified
                     'processed_count': processed_count,
                     'total_count': total_count
                 }
-                context['persisted_ticker_statuses_map'][pid] = get_persisted_ticker_statuses_for_profile(user_uid, pid) #
-                
+                # Only fetch the most recent ticker statuses (limit)
+                try:
+                    db = get_firestore_client()
+                    statuses = {}
+                    if db:
+                        docs_stream = db.collection(u'userSiteProfiles').document(user_uid)\
+                            .collection(u'profiles').document(pid)\
+                            .collection(u'processedTickers').order_by(u'last_updated_at', direction='DESCENDING').limit(ticker_status_limit).stream()
+                        for doc in docs_stream:
+                            status_data = doc.to_dict()
+                            for time_key in ['last_updated_at', 'generation_time', 'publish_time']:
+                                if time_key in status_data and hasattr(status_data[time_key], 'isoformat'):
+                                    status_data[time_key] = status_data[time_key].isoformat()
+                                elif time_key in status_data and isinstance(status_data[time_key], (int,float)):
+                                    if status_data[time_key] > 10**10:
+                                        status_data[time_key] = datetime.fromtimestamp(status_data[time_key]/1000, timezone.utc).isoformat()
+                                    else:
+                                        status_data[time_key] = datetime.fromtimestamp(status_data[time_key], timezone.utc).isoformat()
+                            original_ticker_symbol = doc.id.replace('_SLASH_', '/')
+                            statuses[original_ticker_symbol] = status_data
+                    context['persisted_ticker_statuses_map'][pid] = statuses
+                except Exception as e:
+                    app.logger.error(f"Error fetching limited ticker statuses for profile '{pid}': {e}", exc_info=True)
+                    context['persisted_ticker_statuses_map'][pid] = {}
     except Exception as e:
         app.logger.error(f"Error loading shared_context (user: {user_uid}): {e}", exc_info=True)
         context.update({'posts_today_by_profile': {}, 'last_run_date_for_counts': "Error",
@@ -606,15 +635,28 @@ def stock_analysis_homepage_route():
 @app.route('/dashboard')
 @login_required
 def dashboard_page():
+    start = time.time()
     user_uid = session.get('firebase_user_uid')
     report_history, total_reports = [], 0
     if user_uid:
+        t1 = time.time()
         report_history, total_reports = get_report_history_for_user(user_uid, display_limit=10)
-    return render_template('dashboard.html',
+        t2 = time.time()
+        app.logger.info(f"get_report_history_for_user took {t2-t1:.3f} seconds")
+    t3 = time.time()
+    result = render_template('dashboard.html',
                            title="Dashboard - Tickzen",
                            report_history=report_history,
                            total_reports=total_reports)
+    t4 = time.time()
+    app.logger.info(f"render_template took {t4-t3:.3f} seconds")
+    app.logger.info(f"/dashboard total time: {t4-start:.3f} seconds")
+    return result
 
+@app.route('/dashboard-charts')
+def dashboard_charts():
+    """Dashboard with interactive charts and analytics"""
+    return render_template('dashboard_charts.html')
 
 @app.route('/analyzer', methods=['GET'])
 def analyzer_input_page():
@@ -742,6 +784,17 @@ def start_stock_analysis():
                         f.write(report_html_content_from_pipeline)
                     report_filename_for_url = generated_filename
                     app.logger.info(f"HTML content from pipeline saved to: {absolute_report_filepath_on_disk}")
+                    
+                    # Calculate actual word count
+                    word_count = count_words_in_html(report_html_content_from_pipeline)
+                    app.logger.info(f"Generated report for {ticker} contains {word_count} words")
+                    
+                    # Emit word count update to client
+                    socketio.emit('word_count_update', {
+                        'word_count': word_count,
+                        'ticker': ticker
+                    }, room=room_id)
+                    
                 except Exception as e_save:
                     app.logger.error(f"Could not save HTML content for {ticker}: {e_save}. Will try path_info.")
 
@@ -1339,29 +1392,29 @@ def get_report_history_for_user(user_uid, display_limit=10):
 
     try:
         base_query = db.collection(u'userGeneratedReports').where(u'user_uid', u'==', user_uid)
+        # Try to use Firestore's count() aggregate if available
         try:
             count_query = base_query.count()
             count_result = count_query.get()
             total_user_reports_count = count_result[0][0].value if count_result else 0
-        except AttributeError: 
-            app.logger.warning("Firestore count() aggregate not available, falling back to streaming for count.")
-            all_user_reports_stream = base_query.stream()
-            all_user_reports_docs = list(all_user_reports_stream)
-            total_user_reports_count = len(all_user_reports_docs)
+        except AttributeError:
+            # Fallback: Use a cached count if available, else estimate
+            app.logger.warning("Firestore count() aggregate not available, using estimated count.")
+            total_user_reports_count = 0  # Optionally, store and update a count in user profile for accuracy
 
+        # Only fetch the latest N reports for display
         display_query = base_query.order_by(u'generated_at', direction='DESCENDING').limit(display_limit)
         docs_for_display_stream = display_query.stream()
-
         for doc_snapshot in docs_for_display_stream:
             report_data = doc_snapshot.to_dict()
             report_data['id'] = doc_snapshot.id
             generated_at_val = report_data.get('generated_at')
-            if hasattr(generated_at_val, 'seconds'): 
-                 report_data['generated_at'] = datetime.fromtimestamp(generated_at_val.seconds + generated_at_val.nanoseconds / 1e9, timezone.utc)
-            elif isinstance(generated_at_val, (int, float)): 
-                if generated_at_val > 10**10: 
+            if hasattr(generated_at_val, 'seconds'):
+                report_data['generated_at'] = datetime.fromtimestamp(generated_at_val.seconds + generated_at_val.nanoseconds / 1e9, timezone.utc)
+            elif isinstance(generated_at_val, (int, float)):
+                if generated_at_val > 10**10:
                     report_data['generated_at'] = datetime.fromtimestamp(generated_at_val / 1000, timezone.utc)
-                else: 
+                else:
                     report_data['generated_at'] = datetime.fromtimestamp(generated_at_val, timezone.utc)
             reports_for_display.append(report_data)
         app.logger.info(f"Fetched {len(reports_for_display)} reports for user {user_uid} (Limit: {display_limit}, Total: {total_user_reports_count}).")
@@ -1379,14 +1432,24 @@ def wordpress_automation_portal_route():
 
 @app.route('/automation-runner')
 @login_required
-def automation_runner_page(): # Modified
+def automation_runner_page():
+    start = time.time()
     user_uid = session['firebase_user_uid']
+    t1 = time.time()
     user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
-    shared_context = get_automation_shared_context(user_uid, user_site_profiles) # This now includes persisted_ticker_statuses_map
-    return render_template('run_automation_page.html',
+    t2 = time.time()
+    app.logger.info(f"get_user_site_profiles_from_firestore took {t2-t1:.3f} seconds")
+    shared_context = get_automation_shared_context(user_uid, user_site_profiles)
+    t3 = time.time()
+    app.logger.info(f"get_automation_shared_context took {t3-t2:.3f} seconds")
+    result = render_template('run_automation_page.html',
                            title="Run Automation - Tickzen",
                            user_site_profiles=user_site_profiles,
                            **shared_context)
+    t4 = time.time()
+    app.logger.info(f"render_template took {t4-t3:.3f} seconds")
+    app.logger.info(f"/automation-runner total time: {t4-start:.3f} seconds")
+    return result
 
 @app.route('/run-automation-now', methods=['POST'])
 @login_required
@@ -1789,10 +1852,172 @@ def update_user_profile():
         app.logger.error(f"Error updating user profile: {str(e)}")
         return jsonify({'success': False, 'message': 'Failed to update profile'}), 500
 
-@app.route('/change-password')
+# --- WAITLIST MANAGEMENT ---
+@app.route('/api/waitlist-signup', methods=['POST'])
+def waitlist_signup():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'message': 'No data provided'}), 400
+        
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        interests = data.get('interests', '').strip()
+        
+        if not name or not email:
+            return jsonify({'success': False, 'message': 'Name and email are required'}), 400
+        
+        # Validate email format
+        import re
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, email):
+            return jsonify({'success': False, 'message': 'Invalid email format'}), 400
+        
+        # Store in Firestore if available
+        db = get_firestore_client()
+        if db:
+            try:
+                waitlist_ref = db.collection('waitlist').document()
+                waitlist_data = {
+                    'name': name,
+                    'email': email,
+                    'interests': interests,
+                    'created_at': firestore.SERVER_TIMESTAMP,
+                    'status': 'active'
+                }
+                waitlist_ref.set(waitlist_data)
+                app.logger.info(f"Waitlist signup stored in Firestore: {email}")
+            except Exception as e:
+                app.logger.error(f"Error storing waitlist signup in Firestore: {e}")
+        
+        # Also store in a simple JSON file as backup
+        import json
+        import os
+        waitlist_file = os.path.join(app.root_path, '..', 'generated_data', 'waitlist.json')
+        
+        try:
+            if os.path.exists(waitlist_file):
+                with open(waitlist_file, 'r') as f:
+                    waitlist_entries = json.load(f)
+            else:
+                waitlist_entries = []
+            
+            # Check if email already exists
+            if not any(entry.get('email') == email for entry in waitlist_entries):
+                waitlist_entries.append({
+                    'name': name,
+                    'email': email,
+                    'interests': interests,
+                    'created_at': datetime.now(timezone.utc).isoformat(),
+                    'status': 'active'
+                })
+                
+                with open(waitlist_file, 'w') as f:
+                    json.dump(waitlist_entries, f, indent=2)
+                
+                app.logger.info(f"Waitlist signup stored in file: {email}")
+            else:
+                app.logger.info(f"Waitlist signup already exists: {email}")
+                
+        except Exception as e:
+            app.logger.error(f"Error storing waitlist signup in file: {e}")
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Successfully joined waitlist!'
+        }), 200
+        
+    except Exception as e:
+        app.logger.error(f"Error in waitlist signup: {e}")
+        return jsonify({'success': False, 'message': 'An error occurred. Please try again.'}), 500
+
+@app.route('/change-password', methods=['GET', 'POST'])
 @login_required
 def change_password():
-    return render_template('change_password.html', title="Change Password - Tickzen")
+    if request.method == 'GET':
+        return render_template('change_password.html', title="Change Password - Tickzen")
+    
+    if request.method == 'POST':
+        try:
+            user_uid = session['firebase_user_uid']
+            current_password = request.form.get('current_password')
+            new_password = request.form.get('new_password')
+            confirm_password = request.form.get('confirm_password')
+            
+            # Validation
+            if not all([current_password, new_password, confirm_password]):
+                return jsonify({'success': False, 'message': 'All fields are required'}), 400
+            
+            if new_password != confirm_password:
+                return jsonify({'success': False, 'message': 'New passwords do not match'}), 400
+            
+            if len(new_password) < 8:
+                return jsonify({'success': False, 'message': 'Password must be at least 8 characters long'}), 400
+            
+            # Import Firebase Auth
+            from firebase_admin import auth
+            import requests
+            import json
+            
+            try:
+                # Get user by UID to get email
+                user = auth.get_user(user_uid)
+                user_email = user.email
+                
+                if not user_email:
+                    return jsonify({'success': False, 'message': 'User email not found. Cannot verify current password.'}), 400
+                
+                # Verify current password using Firebase Auth REST API
+                # We need to sign in with current credentials to verify the password
+                firebase_api_key = os.getenv('FIREBASE_API_KEY')
+                if not firebase_api_key:
+                    app.logger.error("FIREBASE_API_KEY not found in environment variables")
+                    return jsonify({'success': False, 'message': 'Server configuration error'}), 500
+                
+                # Attempt to sign in with current password to verify it
+                verify_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={firebase_api_key}"
+                verify_data = {
+                    "email": user_email,
+                    "password": current_password,
+                    "returnSecureToken": True
+                }
+                
+                verify_response = requests.post(verify_url, json=verify_data)
+                verify_result = verify_response.json()
+                
+                if verify_response.status_code != 200:
+                    # Password verification failed
+                    if "INVALID_PASSWORD" in str(verify_result):
+                        return jsonify({'success': False, 'message': 'Current password is incorrect'}), 400
+                    elif "EMAIL_NOT_FOUND" in str(verify_result):
+                        return jsonify({'success': False, 'message': 'User account not found'}), 404
+                    else:
+                        app.logger.error(f"Firebase Auth verification error: {verify_result}")
+                        return jsonify({'success': False, 'message': 'Failed to verify current password'}), 500
+                
+                # If we reach here, current password is correct
+                # Now update the password
+                auth.update_user(
+                    user_uid,
+                    password=new_password
+                )
+                
+                return jsonify({
+                    'success': True, 
+                    'message': 'Password updated successfully'
+                })
+                
+            except auth.UserNotFoundError:
+                return jsonify({'success': False, 'message': 'User not found'}), 404
+            except auth.InvalidPasswordError:
+                return jsonify({'success': False, 'message': 'Invalid password format'}), 400
+            except Exception as e:
+                app.logger.error(f"Firebase Auth error: {str(e)}")
+                return jsonify({'success': False, 'message': 'Failed to update password'}), 500
+                
+        except Exception as e:
+            app.logger.error(f"Error in change password: {str(e)}")
+            return jsonify({'success': False, 'message': 'An error occurred while updating password'}), 500
 
 @app.route('/activity-log')
 @login_required
@@ -1854,6 +2079,64 @@ def view_activity_log():
                          title="Activity Log - Tickzen",
                          activity_log=activity_log,
                          member_since=member_since)
+
+def count_words_in_html(html_content):
+    """
+    Count words in HTML content using simple, accurate method.
+    Returns the word count as an integer.
+    """
+    if not html_content or not isinstance(html_content, str):
+        return 0
+    
+    try:
+        import re
+        
+        # Step 1: Remove script and style content FIRST (case-insensitive)
+        text_only = re.sub(r'<script[^>]*>.*?</script>', '', html_content, flags=re.DOTALL | re.IGNORECASE)
+        text_only = re.sub(r'<style[^>]*>.*?</style>', '', text_only, flags=re.DOTALL | re.IGNORECASE)
+        
+        # Step 2: Remove HTML comments
+        text_only = re.sub(r'<!--.*?-->', '', text_only, flags=re.DOTALL)
+        
+        # Step 3: Remove HTML tags
+        text_only = re.sub(r'<[^>]+>', ' ', text_only)
+        
+        # Step 4: Decode HTML entities
+        import html
+        text_only = html.unescape(text_only)
+        
+        # Step 5: Normalize whitespace
+        text_only = re.sub(r'\s+', ' ', text_only).strip()
+        
+        # Step 6: Simple word count: split by spaces and count non-empty strings
+        words = text_only.split()
+        
+        # Step 7: Filter out pure numbers, symbols, and very short strings
+        filtered_words = []
+        for word in words:
+            # Remove leading/trailing punctuation
+            clean_word = word.strip('.,!?;:()[]{}"\'-')
+            
+            # Skip if empty, pure numbers, or very short
+            if (clean_word and 
+                len(clean_word) > 1 and 
+                not clean_word.isdigit() and
+                not re.match(r'^[0-9.,%$€£¥]+$', clean_word)):
+                filtered_words.append(clean_word)
+        
+        return len(filtered_words)
+        
+    except Exception as e:
+        app.logger.error(f"Error counting words in HTML: {e}")
+        return 0
+
+# Register dashboard analytics routes if available
+if DASHBOARD_ANALYTICS_AVAILABLE:
+    try:
+        register_dashboard_routes(app)
+        app.logger.info("Dashboard analytics routes registered successfully")
+    except Exception as e:
+        app.logger.error(f"Failed to register dashboard analytics routes: {e}")
 
 if __name__ == '__main__':
     try:

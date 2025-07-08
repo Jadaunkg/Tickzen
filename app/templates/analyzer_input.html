@@ -42,21 +42,7 @@
     
     /* Search Container Styles */
     .search-container { position: relative; }
-    .search-input { 
-        width: 100%; 
-        padding: 1rem 3rem 1rem 1.5rem; 
-        font-size: 1.1rem; 
-        border: 2px solid #000000; 
-        border-radius: 12px; 
-        box-sizing: border-box; 
-        background-color: #ffffff;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    .search-input:focus { 
-        border-color: var(--primary, var(--green-600)); 
-        outline: none; 
-        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
-    }
+    /* Removed .search-input and .search-input:focus to prevent inner border */
     .search-icon { 
         position: absolute; 
         right: 1.2rem; 
@@ -316,9 +302,11 @@
                 <input type="hidden" name="client_sid" id="clientSidInput"> {# To send client SID with form if needed #}
                 <div class="form-group">
                     <label for="tickerInput"></label>
-                    <div class="search-container">
-                        <input type="text" class="search-input" id="tickerInput" name="ticker" placeholder="Enter a Stock ticker" required autocomplete="off">
-                        <i class="fas fa-search search-icon"></i>
+                    <div class="search-container" style="display: flex; align-items: center; width: 100%; background-color: #fff; border: 2.5px solid var(--primary, #16a34a); border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); position: relative;">
+                        <input type="text" class="search-input" id="tickerInput" name="ticker" placeholder="Enter a stock ticker to get free analysis" required autocomplete="off" style="flex: 1; border: none !important; border-radius: 0 !important; outline: none; font-size: 1.1rem; color: #555; background: transparent; box-shadow: none !important; padding: 0;">
+                        <button type="button" class="search-button" tabindex="-1" style="background-color: var(--primary, #16a34a); border: none; padding: 10px; border-radius: 50%; cursor: default; display: flex; align-items: center; justify-content: center; margin-left: 8px; pointer-events: none;">
+                          <i class="fas fa-search" style="color: #fff; font-size: 18px;"></i>
+                        </button>
                         <div class="autocomplete-suggestions" id="autocompleteSuggestions"></div>
                     </div>
                 </div>

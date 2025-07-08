@@ -1705,3 +1705,20 @@ button:focus,
   }
 }
 
+@media (min-width: 1025px) {
+  .container {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  html, body {
+    font-size: 15px;
+  }
+  /* Optionally, you can also scale down container max-widths or paddings if needed */
+  .navbar .nav-link, .navbar .menu-item, .navbar-nav .nav-link, .navbar-nav .menu-item {
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+}
+
