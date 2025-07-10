@@ -49,3 +49,4 @@ htmlcov/
 # Other
 *.sqlite3
 *.db
+firebase_service_account_base64.txt
