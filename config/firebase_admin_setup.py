@@ -4,6 +4,8 @@ from firebase_admin import storage # <-- Import Firebase Storage
 import os
 from dotenv import load_dotenv
 import logging
+import base64
+import json
 
 # Load environment variables from .env file at the very beginning
 load_dotenv()
@@ -60,9 +62,20 @@ def initialize_firebase_admin():
             logger.warning("FIREBASE_STORAGE_BUCKET not set in .env. Firebase Storage will use the default bucket associated with the project if permissions allow, or operations might fail if a specific bucket is expected but not configured here.")
 
 
+        service_account_b64 = os.getenv('FIREBASE_SERVICE_ACCOUNT_BASE64')
         service_account_key_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 
-        if service_account_key_path:
+        if service_account_b64:
+            logger.info("Attempting to load Firebase credentials from FIREBASE_SERVICE_ACCOUNT_BASE64 environment variable.")
+            try:
+                key_json = base64.b64decode(service_account_b64).decode("utf-8")
+                cred = credentials.Certificate(json.loads(key_json))
+                _firebase_app = firebase_admin.initialize_app(cred, options)
+                logger.info("Firebase Admin SDK initialized successfully using service account key from environment variable.")
+            except Exception as e:
+                logger.error(f"Failed to initialize Firebase Admin SDK from FIREBASE_SERVICE_ACCOUNT_BASE64: {e}")
+                _firebase_app = None
+        elif service_account_key_path:
             logger.info(f"Attempting to load Firebase credentials from GOOGLE_APPLICATION_CREDENTIALS path: {service_account_key_path}")
             if os.path.exists(service_account_key_path):
                 cred = credentials.Certificate(service_account_key_path)

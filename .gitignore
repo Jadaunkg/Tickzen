@@ -1,163 +1,51 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
+*.pyd
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib60/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a CI server
-#  and deployed from there.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# PEP 582; __pypackages__
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
+# Virtual environments
 venv/
+.venv/
 ENV/
-env.bak/
-venv.bak/
+env/
+Env/
+ENV/
+.venv310
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# macOS specific
-.DS_Store
-._*
-
-# Windows specific
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# IDE specific folders
-.idea/
-.vscode/
-*.swp
-*.swo
-# Custom Project Files
-# ---------------------
-/generated_data/
-/logs/
-# Log files
-*.log
-auto_publisher.log
-.venv310/
-
-
-# Data cache
-generated_data/data_cache/
-*.csv
-
-# Reports
-reports/
-generated_data/stock_reports/
-*.html  # Be cautious with this if you have essential HTML files not in templates
-
-# Configuration files containing secrets
+# Environment variables and secrets
+.env
+.env.*
 config/firebase-service-account-key.json
 
+# VS Code settings
+.vscode/
 
-# If you have other local configuration files not meant for the repo
-# local_config.py
-# settings.local.py
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Compiled C extensions
+*.so
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+
+# MyPy
+.mypy_cache/
+
+# Other
+*.sqlite3
+*.db
