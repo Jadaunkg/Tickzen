@@ -36,6 +36,24 @@ document.addEventListener('DOMContentLoaded', function() {
             return; 
         }
 
+        if (auth) {
+            // Global listener to refresh token and handle sign-out
+            auth.onIdTokenChanged(async (user) => {
+                if (user) {
+                    try {
+                        // Force refresh the token to avoid expiry issues
+                        await user.getIdToken(true);
+                    } catch (err) {
+                        console.error('Error refreshing ID token:', err);
+                    }
+                } else {
+                    // User is signed out, optionally clear session or redirect
+                    console.log('User is signed out (onIdTokenChanged).');
+                    // Optionally, redirect to login or clear UI
+                }
+            });
+        }
+
         // --- Helper to display messages on auth pages ---
         function displayAuthMessage(message, type = 'error', isGlobal = false) {
             const errorDiv = document.getElementById('auth-error-message');

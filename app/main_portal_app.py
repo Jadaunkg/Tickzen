@@ -39,7 +39,7 @@ PIPELINE_IMPORTED_SUCCESSFULLY = True
 
 try:
     # Ensure get_storage_bucket is imported from your setup file
-    from config.firebase_admin_setup import initialize_firebase_admin, verify_firebase_token, get_firestore_client, get_storage_bucket
+    from config.firebase_admin_setup import initialize_firebase_admin, verify_firebase_token, get_firestore_client, get_storage_bucket, get_firebase_app
     initialize_firebase_admin()
     from config.firebase_admin_setup import _firebase_app_initialized
     FIREBASE_INITIALIZED_SUCCESSFULLY = _firebase_app_initialized
@@ -889,14 +889,32 @@ def register():
 
 @app.route('/verify-token', methods=['POST'])
 def verify_token_route():
+    # --- DEBUGGING: Log backend Firebase project ID ---
+    try:
+        app_instance = get_firebase_app()
+        if app_instance:
+            app.logger.info(f"[DEBUG] Backend Firebase project ID: {getattr(app_instance, 'project_id', None)}")
+        else:
+            app.logger.warning("[DEBUG] Backend Firebase app instance is None.")
+    except Exception as e:
+        app.logger.error(f"[DEBUG] Error getting backend Firebase app/project ID: {e}")
+
     if not FIREBASE_INITIALIZED_SUCCESSFULLY:
         app.logger.error("Token verification failed: Firebase Admin SDK not initialized.")
         return jsonify({"error": "Authentication service is currently unavailable."}), 503
     data = request.get_json()
     if not data or 'idToken' not in data:
+        app.logger.warning(f"[DEBUG] No ID token provided in request data: {data}")
         return jsonify({"error": "No ID token provided."}), 400
     id_token = data['idToken']
+    # --- DEBUGGING: Log the received token and its length ---
+    app.logger.info(f"[DEBUG] ID Token received from frontend: {id_token[:40]}... (length: {len(id_token)})")
     decoded_token = verify_firebase_token(id_token)
+    # --- DEBUGGING: Log decoded token claims if available ---
+    if decoded_token:
+        app.logger.info(f"[DEBUG] Decoded token claims: {json.dumps(decoded_token, default=str)[:500]}...")
+    else:
+        app.logger.warning(f"[DEBUG] Token verification failed. Decoded token: {decoded_token}")
     if decoded_token and 'uid' in decoded_token:
         session['firebase_user_uid'] = decoded_token['uid']
         session['firebase_user_email'] = decoded_token.get('email')
@@ -937,7 +955,7 @@ def verify_token_route():
 
         return jsonify({"status": "success", "uid": decoded_token['uid'], "next_url": url_for('dashboard_page')}), 200
     else:
-        app.logger.warning(f"Token verification failed. Decoded token: {decoded_token}")
+        app.logger.warning(f"[DEBUG] Token verification failed. Decoded token: {decoded_token}")
         return jsonify({"error": "Invalid or expired token."}), 401
 
 @app.route('/logout')
