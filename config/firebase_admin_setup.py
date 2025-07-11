@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import logging
 import base64
 import json
+import requests
+from firebase_admin import _auth_utils
 
 # Load environment variables from .env file at the very beginning
 load_dotenv()
@@ -149,11 +151,30 @@ def get_firebase_app():
             return None
     return _firebase_app
 
+# Patch: Replace default certificate fetcher
+class CustomCertificateFetcher(_auth_utils.CertificateFetcher):
+    def fetch_certificates(self):
+        url = self._CERT_URL  # default: https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.json()
+
+# Patch firebase_admin to use our fetcher
+from firebase_admin import auth
+auth._certificate_fetcher = CustomCertificateFetcher()
+
 def verify_firebase_token(id_token):
     """
     Verifies a Firebase ID token using the initialized Firebase app.
     Returns the decoded token (user information) if valid, otherwise None.
     """
+    # Manual cert fetch test for diagnostics
+    try:
+        cert_test = requests.get("https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com")
+        if cert_test.ok:
+            logger.info("Manual cert fetch succeeded.")
+    except Exception as cert_ex:
+        logger.warning(f"Manual cert fetch failed: {cert_ex}")
     app = get_firebase_app()
     if not app:
         logger.error("Cannot verify token: Firebase app is not available.")

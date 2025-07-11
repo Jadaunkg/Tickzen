@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // --- START: Firebase Configuration ---
         // IMPORTANT: Replace these with your project's actual Firebase configuration.
         const firebaseConfig = {
-            apiKey: "AIzaSyAm-1IWTApPgJNmCsaUQtO0Waa1im12ZR0", // <<< REPLACE THIS WITH YOUR REAL API KEY
+            apiKey: "AIzaSyAm-1IWTApPgJNmCsaUQtO0Waa1im12ZR0", // 
             authDomain: "stock-report-automation.firebaseapp.com",
             projectId: "stock-report-automation",
             storageBucket: "stock-report-automation.appspot.com",
