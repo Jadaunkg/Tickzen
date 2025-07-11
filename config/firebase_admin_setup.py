@@ -7,7 +7,6 @@ import logging
 import base64
 import json
 import requests
-from firebase_admin import _auth_utils
 
 # Load environment variables from .env file at the very beginning
 load_dotenv()
@@ -54,6 +53,7 @@ def initialize_firebase_admin():
         if project_id_from_env:
             options['projectId'] = project_id_from_env
             logger.info(f"Firebase options using explicit projectId from .env: {project_id_from_env}")
+            logger.info(f"[DEBUG] Using Firebase Project ID: {project_id_from_env}")
         if database_url_from_env:
             options['databaseURL'] = database_url_from_env
             logger.info(f"Firebase options using explicit databaseURL from .env: {database_url_from_env}")
@@ -151,18 +151,6 @@ def get_firebase_app():
             return None
     return _firebase_app
 
-# Patch: Replace default certificate fetcher
-class CustomCertificateFetcher(_auth_utils.CertificateFetcher):
-    def fetch_certificates(self):
-        url = self._CERT_URL  # default: https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        return response.json()
-
-# Patch firebase_admin to use our fetcher
-from firebase_admin import auth
-auth._certificate_fetcher = CustomCertificateFetcher()
-
 def verify_firebase_token(id_token):
     """
     Verifies a Firebase ID token using the initialized Firebase app.
@@ -187,6 +175,7 @@ def verify_firebase_token(id_token):
     try:
         decoded_token = auth.verify_id_token(id_token, app=app)
         logger.info(f"Successfully verified token for UID: {decoded_token.get('uid')}")
+        logger.info(f"[DEBUG] Decoded token audience (aud): {decoded_token.get('aud')}")
         return decoded_token
     except firebase_admin.auth.ExpiredIdTokenError:
         logger.warning("Firebase ID token has expired.")
