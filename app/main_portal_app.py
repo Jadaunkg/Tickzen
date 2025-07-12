@@ -1,4 +1,11 @@
 # main_portal_app.py
+# 
+# OPTIMIZATIONS FOR AZURE DEPLOYMENT:
+# - Fast fallback authentication: Network timeouts reduced to 1-3 seconds
+# - Single retry attempt for faster fallback to offline token verification
+# - 10-second frontend timeout for backend verification
+# - Automatic redirect to dashboard after successful login
+# - Fallback token verification works without network access
 
 import sys
 import os

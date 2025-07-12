@@ -9,35 +9,64 @@ import json
 import requests
 import socket
 
+# Global variables
+azure_session = None
+_firebase_app_initialized = False
+_firebase_app = None  # To store the initialized app instance
+
 # Azure App Service network configuration
 def configure_azure_network_settings():
-    """Configure network settings for Azure App Service deployment"""
+    """
+    Configure network settings optimized for Azure App Service deployment.
+    Handles DNS resolution timeouts and connection issues common in Azure.
+    """
+    global azure_session
+    
     try:
-        # Set socket timeout for Azure network issues
-        socket.setdefaulttimeout(30)
-        
-        # Configure requests session with Azure-friendly timeouts
-        session = requests.Session()
-        session.timeout = (10, 30)  # (connect_timeout, read_timeout)
-        
-        # Add retry strategy for Azure network issues
+        import requests
         from requests.adapters import HTTPAdapter
         from urllib3.util.retry import Retry
         
-        retry_strategy = Retry(
-            total=3,
-            backoff_factor=1,
-            status_forcelist=[429, 500, 502, 503, 504],
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
+        # Create a session with Azure-optimized settings
+        azure_session = requests.Session()
         
-        logger.info("Azure network settings configured successfully")
-        return session
+        # Configure retry strategy with very short timeouts for fast fallback
+        retry_strategy = Retry(
+            total=1,  # Only 1 retry for fast fallback
+            backoff_factor=0.1,  # Very short backoff
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["HEAD", "GET", "OPTIONS", "POST"]
+        )
+        
+        # Configure adapter with very short timeouts
+        adapter = HTTPAdapter(
+            max_retries=retry_strategy,
+            pool_connections=10,
+            pool_maxsize=10
+        )
+        
+        # Apply adapter to both HTTP and HTTPS
+        azure_session.mount("http://", adapter)
+        azure_session.mount("https://", adapter)
+        
+        # Set very short default timeouts for Azure deployment
+        azure_session.timeout = (2, 5)  # (connect_timeout, read_timeout) - very short for fast fallback
+        
+        # Set headers to avoid some Azure-specific issues
+        azure_session.headers.update({
+            'User-Agent': 'Tickzen-Azure-App/1.0',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive'
+        })
+        
+        logger.info("Azure network settings configured with fast fallback timeouts")
+        return True
+        
     except Exception as e:
-        logger.warning(f"Failed to configure Azure network settings: {e}")
-        return None
+        logger.error(f"Failed to configure Azure network settings: {e}")
+        azure_session = None
+        return False
 
 # Load environment variables from .env file at the very beginning
 load_dotenv()
@@ -53,9 +82,6 @@ if not logger.handlers:
 
 # Configure Azure network settings
 azure_session = configure_azure_network_settings()
-
-_firebase_app_initialized = False
-_firebase_app = None  # To store the initialized app instance
 
 def initialize_firebase_admin():
     """
@@ -246,27 +272,35 @@ def verify_firebase_token(id_token):
     """
     Verifies a Firebase ID token using the initialized Firebase app.
     Returns the decoded token (user information) if valid, otherwise None.
+    Optimized for Azure deployment with fast fallback.
     """
-    # Manual cert fetch test for diagnostics with timeout
+    # Quick network connectivity test with very short timeout
+    network_available = False
     try:
         # Use Azure-configured session if available, otherwise use default requests
         session_to_use = azure_session if azure_session else requests
         
-        # Add timeout for Azure deployment network issues
+        # Very short timeout for quick network check (1 second connect, 3 seconds read)
         cert_test = session_to_use.get(
             "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
-            timeout=(10, 30)  # (connect_timeout, read_timeout)
+            timeout=(1, 3)  # Very short timeouts for fast fallback
         )
         if cert_test.ok:
-            logger.info("Manual cert fetch succeeded.")
+            logger.info("Network connectivity confirmed - proceeding with standard verification.")
+            network_available = True
         else:
-            logger.warning(f"Manual cert fetch returned status code: {cert_test.status_code}")
-    except requests.exceptions.Timeout as timeout_ex:
-        logger.warning(f"Manual cert fetch timed out (network issue): {timeout_ex}")
-    except requests.exceptions.ConnectionError as conn_ex:
-        logger.warning(f"Manual cert fetch connection error (network issue): {conn_ex}")
+            logger.warning(f"Network test returned status code: {cert_test.status_code} - using fallback")
+    except requests.exceptions.Timeout:
+        logger.warning("Network test timed out quickly - using fallback verification")
+    except requests.exceptions.ConnectionError:
+        logger.warning("Network connection error - using fallback verification")
     except Exception as cert_ex:
-        logger.warning(f"Manual cert fetch failed: {cert_ex}")
+        logger.warning(f"Network test failed: {cert_ex} - using fallback verification")
+    
+    # If network is not available, go directly to fallback
+    if not network_available:
+        logger.info("Network unavailable - using fallback token verification immediately")
+        return verify_firebase_token_fallback(id_token)
     
     app = get_firebase_app()
     if not app:
@@ -278,6 +312,7 @@ def verify_firebase_token(id_token):
         return None
 
     try:
+        # Single attempt with timeout - no retries for faster fallback
         decoded_token = auth.verify_id_token(id_token, app=app)
         logger.info(f"Successfully verified token for UID: {decoded_token.get('uid')}")
         logger.info(f"[DEBUG] Decoded token audience (aud): {decoded_token.get('aud')}")
@@ -292,16 +327,16 @@ def verify_firebase_token(id_token):
         logger.warning(f"Firebase ID token is invalid: {e}")
         return None
     except firebase_admin.auth.CertificateFetchError:
-        logger.error("Failed to fetch public key certificates to verify token. Check network or Firebase Auth status.")
-        # Try fallback verification for Azure deployment issues
-        logger.info("Attempting fallback token verification...")
+        logger.warning("Certificate fetch failed - using fallback verification immediately")
         return verify_firebase_token_fallback(id_token)
     except ValueError as ve:
-        logger.error(f"ValueError verifying Firebase ID token (often project ID or app config issue): {ve}", exc_info=True)
+        logger.error(f"ValueError verifying Firebase ID token: {ve}")
         return None
     except Exception as e:
-        logger.error(f"General error verifying Firebase ID token: {e}", exc_info=True)
-        return None
+        logger.error(f"General error verifying Firebase ID token: {e}")
+        # Try fallback as last resort
+        logger.info("Attempting fallback token verification due to general error...")
+        return verify_firebase_token_fallback(id_token)
 
 def get_firestore_client():
     """Returns a Firestore client using the initialized Firebase app."""
