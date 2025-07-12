@@ -24,6 +24,7 @@ from firebase_admin import firestore
 # We will use get_storage_bucket from firebase_admin_setup
 
 import pandas as pd
+import jwt  # For debugging token payload without verification
 
 # Import dashboard analytics
 try:
@@ -321,6 +322,15 @@ def get_all_report_section_keys():
                 "stock_price_statistics", "dividends_shareholder_returns", "conclusion_outlook",
                 "risk_factors", "faq", "historical_performance"] 
 ALL_SECTIONS = get_all_report_section_keys()
+
+def debug_decode_token(token):
+    """Debug function to decode JWT token without signature verification"""
+    try:
+        decoded = jwt.decode(token, options={"verify_signature": False})
+        return decoded
+    except Exception as e:
+        app.logger.warning(f"Failed to decode token payload (debug): {e}")
+        return None
 
 def login_required(f):
     @wraps(f)
@@ -909,6 +919,24 @@ def verify_token_route():
     id_token = data['idToken']
     # --- DEBUGGING: Log the received token and its length ---
     app.logger.info(f"[DEBUG] ID Token received from frontend: {id_token[:40]}... (length: {len(id_token)})")
+    
+    # --- DEBUGGING: Decode token payload without verification to inspect claims ---
+    debug_decoded = debug_decode_token(id_token)
+    if debug_decoded:
+        app.logger.info(f"[DEBUG] Token payload (no verification): aud={debug_decoded.get('aud')}, iss={debug_decoded.get('iss')}, exp={debug_decoded.get('exp')}, iat={debug_decoded.get('iat')}, sub={debug_decoded.get('sub')}")
+        app.logger.info(f"[DEBUG] Token email_verified: {debug_decoded.get('email_verified')}, email: {debug_decoded.get('email')}")
+        
+        # Check if token is expired
+        import time
+        current_time = int(time.time())
+        exp_time = debug_decoded.get('exp', 0)
+        if exp_time and exp_time < current_time:
+            app.logger.warning(f"[DEBUG] Token is expired! Current time: {current_time}, Token exp: {exp_time}, Difference: {current_time - exp_time} seconds")
+        else:
+            app.logger.info(f"[DEBUG] Token is not expired. Current time: {current_time}, Token exp: {exp_time}")
+    else:
+        app.logger.warning("[DEBUG] Could not decode token payload for inspection")
+    
     decoded_token = verify_firebase_token(id_token)
     # --- DEBUGGING: Log decoded token claims if available ---
     if decoded_token:
