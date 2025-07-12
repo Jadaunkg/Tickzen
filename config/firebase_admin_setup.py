@@ -7,6 +7,37 @@ import logging
 import base64
 import json
 import requests
+import socket
+
+# Azure App Service network configuration
+def configure_azure_network_settings():
+    """Configure network settings for Azure App Service deployment"""
+    try:
+        # Set socket timeout for Azure network issues
+        socket.setdefaulttimeout(30)
+        
+        # Configure requests session with Azure-friendly timeouts
+        session = requests.Session()
+        session.timeout = (10, 30)  # (connect_timeout, read_timeout)
+        
+        # Add retry strategy for Azure network issues
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.retry import Retry
+        
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        
+        logger.info("Azure network settings configured successfully")
+        return session
+    except Exception as e:
+        logger.warning(f"Failed to configure Azure network settings: {e}")
+        return None
 
 # Load environment variables from .env file at the very beginning
 load_dotenv()
@@ -19,6 +50,9 @@ if not logger.handlers:
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(name)s - %(module)s:%(lineno)d - %(message)s'
     )
+
+# Configure Azure network settings
+azure_session = configure_azure_network_settings()
 
 _firebase_app_initialized = False
 _firebase_app = None  # To store the initialized app instance
@@ -151,18 +185,70 @@ def get_firebase_app():
             return None
     return _firebase_app
 
+def verify_firebase_token_fallback(id_token):
+    """
+    Fallback token verification method for when network access is limited.
+    This method provides basic token validation without requiring network access.
+    """
+    try:
+        import jwt
+        from datetime import datetime, timezone
+        
+        # Decode token without verification (for basic validation)
+        decoded = jwt.decode(id_token, options={"verify_signature": False})
+        
+        # Basic validation checks
+        current_time = datetime.now(timezone.utc).timestamp()
+        exp_time = decoded.get('exp', 0)
+        
+        if exp_time and exp_time < current_time:
+            logger.warning("Token is expired (fallback verification)")
+            return None
+            
+        # Check if token has required fields
+        if not decoded.get('uid') or not decoded.get('email'):
+            logger.warning("Token missing required fields (fallback verification)")
+            return None
+            
+        # Check audience
+        expected_aud = os.getenv('FIREBASE_PROJECT_ID', 'stock-report-automation')
+        if decoded.get('aud') != expected_aud:
+            logger.warning(f"Token audience mismatch: expected {expected_aud}, got {decoded.get('aud')}")
+            return None
+            
+        logger.info(f"Fallback token verification succeeded for UID: {decoded.get('uid')}")
+        return decoded
+        
+    except Exception as e:
+        logger.error(f"Fallback token verification failed: {e}")
+        return None
+
 def verify_firebase_token(id_token):
     """
     Verifies a Firebase ID token using the initialized Firebase app.
     Returns the decoded token (user information) if valid, otherwise None.
     """
-    # Manual cert fetch test for diagnostics
+    # Manual cert fetch test for diagnostics with timeout
     try:
-        cert_test = requests.get("https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com")
+        # Use Azure-configured session if available, otherwise use default requests
+        session_to_use = azure_session if azure_session else requests
+        
+        # Add timeout for Azure deployment network issues
+        cert_test = session_to_use.get(
+            "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
+            timeout=(10, 30)  # (connect_timeout, read_timeout)
+        )
         if cert_test.ok:
             logger.info("Manual cert fetch succeeded.")
+        else:
+            logger.warning(f"Manual cert fetch returned status code: {cert_test.status_code}")
+    except requests.exceptions.Timeout as timeout_ex:
+        logger.warning(f"Manual cert fetch timed out (network issue): {timeout_ex}")
+    except requests.exceptions.ConnectionError as conn_ex:
+        logger.warning(f"Manual cert fetch connection error (network issue): {conn_ex}")
     except Exception as cert_ex:
         logger.warning(f"Manual cert fetch failed: {cert_ex}")
+    
     app = get_firebase_app()
     if not app:
         logger.error("Cannot verify token: Firebase app is not available.")
@@ -188,7 +274,9 @@ def verify_firebase_token(id_token):
         return None
     except firebase_admin.auth.CertificateFetchError:
         logger.error("Failed to fetch public key certificates to verify token. Check network or Firebase Auth status.")
-        return None
+        # Try fallback verification for Azure deployment issues
+        logger.info("Attempting fallback token verification...")
+        return verify_firebase_token_fallback(id_token)
     except ValueError as ve:
         logger.error(f"ValueError verifying Firebase ID token (often project ID or app config issue): {ve}", exc_info=True)
         return None

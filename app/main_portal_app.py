@@ -141,13 +141,14 @@ if APP_ENV == 'production':
                         engineio_logger=True
                        )
 else:
-    # Werkzeug (default Flask dev server) for development with auto-reload
+    # Development configuration with better timeout handling
     socketio = SocketIO(app,
                         cors_allowed_origins="*",
-                        ping_timeout=60,
-                        ping_interval=25,
+                        ping_timeout=120,  # Increased timeout for development
+                        ping_interval=30,  # Increased interval
                         logger=True,
-                        engineio_logger=True
+                        engineio_logger=True,
+                        async_mode='threading'  # Use threading instead of eventlet for development
                        )
 
 
@@ -1826,39 +1827,58 @@ def generate_wp_assets():
         return jsonify({'status': 'error', 'message': display_message}), 500
 
 @socketio.on('connect')
-def handle_connect():
+def handle_connect(*args, **kwargs):
     user_uid = session.get('firebase_user_uid')
     client_sid = request.sid
 
-    if user_uid:
-        join_room(user_uid)
-        app.logger.info(f"Client {client_sid} connected and joined user room: {user_uid}")
-        emit('status', {'message': f'Connected to real-time updates! User Room: {user_uid}. Your SID: {client_sid}'}, room=client_sid)
-    else:
-        app.logger.info(f"Client {client_sid} connected (anonymous or pre-login).")
-        emit('status', {'message': f'Connected! Your SID is {client_sid}. Login for personalized features.'}, room=client_sid)
+    try:
+        if user_uid:
+            join_room(user_uid)
+            app.logger.info(f"Client {client_sid} connected and joined user room: {user_uid}")
+            emit('status', {'message': f'Connected to real-time updates! User Room: {user_uid}. Your SID: {client_sid}'}, room=client_sid)
+        else:
+            app.logger.info(f"Client {client_sid} connected (anonymous or pre-login).")
+            emit('status', {'message': f'Connected! Your SID is {client_sid}. Login for personalized features.'}, room=client_sid)
+    except Exception as e:
+        app.logger.error(f"Error in handle_connect for client {client_sid}: {e}")
 
 
 @socketio.on('disconnect')
-def handle_disconnect():
+def handle_disconnect(*args, **kwargs):
     user_uid = session.get('firebase_user_uid')
     client_sid = request.sid
-    if user_uid:
-        leave_room(user_uid)
-        app.logger.info(f"Client {client_sid} disconnected and left user room: {user_uid}")
-    else:
-        app.logger.info(f"Client {client_sid} disconnected (anonymous or pre-login).")
+    try:
+        if user_uid:
+            leave_room(user_uid)
+            app.logger.info(f"Client {client_sid} disconnected and left user room: {user_uid}")
+        else:
+            app.logger.info(f"Client {client_sid} disconnected (anonymous or pre-login).")
+    except Exception as e:
+        app.logger.error(f"Error in handle_disconnect for client {client_sid}: {e}")
 
 
 @socketio.on('join_task_room')
-def handle_join_task_room(data):
+def handle_join_task_room(data, *args, **kwargs):
     task_room_id = data.get('room_id')
     client_sid = request.sid
-    if task_room_id:
-        join_room(task_room_id)
-        app.logger.info(f"Client {client_sid} explicitly joined task room: {task_room_id}")
-        emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=client_sid)
+    try:
+        if task_room_id:
+            join_room(task_room_id)
+            app.logger.info(f"Client {client_sid} explicitly joined task room: {task_room_id}")
+            emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=client_sid)
+    except Exception as e:
+        app.logger.error(f"Error in handle_join_task_room for client {client_sid}: {e}")
 
+
+@socketio.on_error()
+def error_handler(e):
+    """Global error handler for SocketIO events"""
+    client_sid = request.sid if hasattr(request, 'sid') else 'unknown'
+    app.logger.error(f"SocketIO error for client {client_sid}: {e}")
+    try:
+        emit('error', {'message': 'An error occurred with the real-time connection.'}, room=client_sid)
+    except:
+        pass  # Don't let error handler cause more errors
 
 @app.route('/update-user-profile', methods=['POST'])
 @login_required
@@ -2212,8 +2232,16 @@ if __name__ == '__main__':
             # Use eventlet WSGI server in production
             socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader, allow_unsafe_werkzeug=False)
         else:
-            # Werkzeug dev server with reloader
-            socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader)
+            # Development server with better error handling
+            try:
+                socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader, allow_unsafe_werkzeug=True)
+            except KeyboardInterrupt:
+                app.logger.info("Server stopped by user (Ctrl+C)")
+            except Exception as dev_error:
+                app.logger.error(f"Development server error: {dev_error}")
+                # Fallback to production mode if development fails
+                app.logger.info("Attempting fallback to production mode...")
+                socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False, allow_unsafe_werkzeug=False)
     except Exception as e_run:
         app.logger.error(f"CRITICAL: Failed to start Flask-SocketIO server: {e_run}", exc_info=True)
         print(f"CRITICAL: Server could not start. Check logs. Error: {e_run}")
