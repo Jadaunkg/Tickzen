@@ -205,9 +205,12 @@ def verify_firebase_token_fallback(id_token):
             logger.warning("Token is expired (fallback verification)")
             return None
             
-        # Check if token has required fields
-        if not decoded.get('uid') or not decoded.get('email'):
-            logger.warning("Token missing required fields (fallback verification)")
+        # Check if token has required fields - Firebase uses 'user_id' or 'sub' for UID
+        uid = decoded.get('uid') or decoded.get('user_id') or decoded.get('sub')
+        email = decoded.get('email')
+        
+        if not uid or not email:
+            logger.warning(f"Token missing required fields (fallback verification). UID: {uid}, Email: {email}")
             return None
             
         # Check audience
@@ -216,8 +219,24 @@ def verify_firebase_token_fallback(id_token):
             logger.warning(f"Token audience mismatch: expected {expected_aud}, got {decoded.get('aud')}")
             return None
             
-        logger.info(f"Fallback token verification succeeded for UID: {decoded.get('uid')}")
-        return decoded
+        # Create a properly formatted token response
+        fallback_token = {
+            'uid': uid,
+            'email': email,
+            'name': decoded.get('name', ''),
+            'email_verified': decoded.get('email_verified', False),
+            'aud': decoded.get('aud'),
+            'iss': decoded.get('iss'),
+            'iat': decoded.get('iat'),
+            'exp': decoded.get('exp'),
+            'auth_time': decoded.get('auth_time'),
+            'firebase': decoded.get('firebase', {}),
+            'picture': decoded.get('picture', ''),
+            'sub': decoded.get('sub')
+        }
+            
+        logger.info(f"Fallback token verification succeeded for UID: {uid}")
+        return fallback_token
         
     except Exception as e:
         logger.error(f"Fallback token verification failed: {e}")

@@ -19,7 +19,7 @@ def safe_get(data_dict, key, default="N/A"):
         return default
     return value
 
-def format_value(value, value_type="number", precision=2, currency='$'):
+def format_value(value, value_type="number", precision=2):
     """Formats values for display, handling 'N/A' and potential errors."""
     if value == "N/A" or value is None or (isinstance(value, float) and np.isnan(value)):
         return "N/A"
@@ -32,7 +32,8 @@ def format_value(value, value_type="number", precision=2, currency='$'):
             num = value # Keep as original type for date/string
 
         if value_type == "currency":
-            return f"{currency}{num:,.{precision}f}"
+            # Remove currency formatting - just use number formatting
+            return f"{num:,.{precision}f}"
         elif value_type == "percent":
             # Assumes input is a fraction (e.g., 0.25 for 25%)
             return f"{num * 100:.{precision}f}%"
@@ -46,13 +47,13 @@ def format_value(value, value_type="number", precision=2, currency='$'):
              return f"{num:.{precision}f}x"
         elif value_type == "large_number":
             # Handles formatting large numbers with B, M, K suffixes
-            # If currency symbol needed, apply it here or pass formatted string
+            # Remove currency symbols from large number formatting
             num = float(value) # Ensure it's float for comparison
-            if abs(num) >= 1e12: return f"{currency}{num / 1e12:.{precision}f} T"
-            elif abs(num) >= 1e9: return f"{currency}{num / 1e9:.{precision}f} B"
-            elif abs(num) >= 1e6: return f"{currency}{num / 1e6:.{precision}f} M"
-            elif abs(num) >= 1e3: return f"{currency}{num / 1e3:.{precision}f} K"
-            else: return f"{currency}{num:,.0f}" # No decimals for small large numbers
+            if abs(num) >= 1e12: return f"{num / 1e12:.{precision}f} T"
+            elif abs(num) >= 1e9: return f"{num / 1e9:.{precision}f} B"
+            elif abs(num) >= 1e6: return f"{num / 1e6:.{precision}f} M"
+            elif abs(num) >= 1e3: return f"{num / 1e3:.{precision}f} K"
+            else: return f"{num:,.0f}" # No decimals for small large numbers
         elif value_type == "integer":
              return f"{int(float(num)):,}" # Convert via float first for safety
         elif value_type == "date":
@@ -91,7 +92,7 @@ def extract_company_profile(fundamentals: dict):
     }
     return profile
 
-def extract_valuation_metrics(fundamentals: dict, currency='$'):
+def extract_valuation_metrics(fundamentals: dict):
     """Extracts key valuation metrics."""
     info = fundamentals.get('info', {})
 
@@ -170,7 +171,7 @@ def extract_profitability(fundamentals: dict):
     }
     return metrics
 
-def extract_dividends_splits(fundamentals: dict, currency='$'):
+def extract_dividends_splits(fundamentals: dict):
     """
     FIX: Extracts dividend and stock split information.
     This version now passes raw values for formatting downstream and removes
@@ -184,13 +185,13 @@ def extract_dividends_splits(fundamentals: dict, currency='$'):
     # The formatting is handled correctly by the `format_value` helper later on.
     
     metrics = {
-        "Dividend Rate": format_value(safe_get(info, 'dividendRate'), 'currency', currency=currency),
+        "Dividend Rate": format_value(safe_get(info, 'dividendRate'), 'currency'),
         "Dividend Yield": format_value(safe_get(info, 'dividendYield'), 'percent_direct'),
         "Payout Ratio": format_value(safe_get(info, 'payoutRatio'), 'percent'),
         "5 Year Average Dividend Yield": format_value(safe_get(info, 'fiveYearAvgDividendYield'), 'percent_direct'), # This one is often a direct percentage
-        "Forward Annual Dividend Rate": format_value(safe_get(info, 'forwardDividendRate'), 'currency', currency=currency),
+        "Forward Annual Dividend Rate": format_value(safe_get(info, 'forwardDividendRate'), 'currency'),
         "Forward Annual Dividend Yield": format_value(safe_get(info, 'forwardDividendYield'), 'percent_direct'), 
-        "Trailing Dividend Rate": format_value(safe_get(info, 'trailingAnnualDividendRate'), 'currency', currency=currency),
+        "Trailing Dividend Rate": format_value(safe_get(info, 'trailingAnnualDividendRate'), 'currency'),
         "Trailing Dividend Yield": format_value(safe_get(info, 'trailingAnnualDividendYield'), 'percent_direct'),
         "Ex-Dividend Date": format_value(safe_get(info, 'exDividendDate'), 'date'),
         "Last Split Date": format_value(safe_get(info, 'lastSplitDate'), 'date'),
@@ -268,7 +269,7 @@ def extract_news(fundamentals: dict):
 
 # --- NEW Extraction Functions ---
 
-def extract_total_valuation_data(fundamentals: dict, current_price=None, currency='$'):
+def extract_total_valuation_data(fundamentals: dict, current_price=None):
     """Extracts/Calculates data for the Total Valuation section."""
     info = fundamentals.get('info', {})
     market_cap = safe_get(info, 'marketCap')
@@ -282,7 +283,7 @@ def extract_total_valuation_data(fundamentals: dict, current_price=None, currenc
     if market_cap != "N/A" and total_debt != "N/A" and total_cash != "N/A":
         try:
             ev = float(market_cap) + float(total_debt) - float(total_cash)
-            enterprise_value = format_value(ev, 'large_number', currency=currency)
+            enterprise_value = format_value(ev, 'large_number')
         except (ValueError, TypeError):
             enterprise_value = "N/A (Calc Error)"
 
@@ -307,8 +308,8 @@ def extract_total_valuation_data(fundamentals: dict, current_price=None, currenc
 
 
     metrics = {
-        "Market Cap": format_value(market_cap, 'large_number', currency=currency),
-        "Enterprise Value": format_value(enterprise_value, 'large_number', currency=currency),
+        "Market Cap": format_value(market_cap, 'large_number'),
+        "Enterprise Value": format_value(enterprise_value, 'large_number'),
         "EV/Revenue (TTM)": format_value(ev_revenue, 'ratio') if ev_revenue != "N/A" else "N/A",
         "EV/EBITDA (TTM)": format_value(ev_ebitda, 'ratio') if ev_ebitda != "N/A" else "N/A",
         "Next Earnings Date": format_value(safe_get(info, 'earningsTimestamp'), 'date'), # Approximation
@@ -316,7 +317,7 @@ def extract_total_valuation_data(fundamentals: dict, current_price=None, currenc
     }
     return metrics
 
-def extract_share_statistics_data(fundamentals: dict, current_price=None, currency='$'):
+def extract_share_statistics_data(fundamentals: dict, current_price=None):
     """Extracts/Calculates data for the Share Statistics section."""
     info = fundamentals.get('info', {})
     shares_outstanding = safe_get(info, 'sharesOutstanding')
@@ -369,14 +370,14 @@ def extract_financial_efficiency_data(fundamentals: dict):
     return metrics
 
 
-def extract_stock_price_stats_data(fundamentals: dict, currency='$'):
+def extract_stock_price_stats_data(fundamentals: dict):
     """Extracts data for the Stock Price Statistics section."""
     info = fundamentals.get('info', {})
     metrics = {
-        "52 Week High": format_value(safe_get(info, 'fiftyTwoWeekHigh'), 'currency', currency=currency),
-        "52 Week Low": format_value(safe_get(info, 'fiftyTwoWeekLow'), 'currency', currency=currency),
-        "50 Day MA": format_value(safe_get(info, 'fiftyDayAverage'), 'currency', currency=currency),
-        "200 Day MA": format_value(safe_get(info, 'twoHundredDayAverage'), 'currency', currency=currency),
+        "52 Week High": format_value(safe_get(info, 'fiftyTwoWeekHigh'), 'currency'),
+        "52 Week Low": format_value(safe_get(info, 'fiftyTwoWeekLow'), 'currency'),
+        "50 Day MA": format_value(safe_get(info, 'fiftyDayAverage'), 'currency'),
+        "200 Day MA": format_value(safe_get(info, 'twoHundredDayAverage'), 'currency'),
         "52 Week Change": format_value(safe_get(info, 'fiftyTwoWeekChange'), 'percent_direct'),
         "Beta": format_value(safe_get(info, 'beta'), 'ratio'),
         "Average Volume (3 month)": format_value(safe_get(info, 'averageVolume3Month'), 'integer')

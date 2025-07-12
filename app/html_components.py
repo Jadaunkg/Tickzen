@@ -85,16 +85,16 @@ def _safe_float(value, default=None):
         logging.debug(f"Could not convert '{value}' to float.", exc_info=False) # Log as debug, not warning
         return default
 
-def format_html_value(value, format_type="number", precision=2, currency='$'):
+def format_html_value(value, format_type="number", precision=2):
     """Safely formats values for HTML display with enhanced error handling."""
     original_value_repr = repr(value) # For logging
-    # print(f"DEBUG: format_html_value called with currency={currency}, format_type={format_type}, value={original_value_repr}") # Kept for your debugging if needed
+    # print(f"DEBUG: format_html_value called with format_type={format_type}, value={original_value_repr}") # Kept for your debugging if needed
     
     if value is None or value == "N/A" or (isinstance(value, float) and pd.isna(value)):
         return "N/A"
     try:
-        if isinstance(value, str) and value.startswith(currency) and format_type != "string":
-             if re.match(r'^[$₹€£¥][0-9,.]+[ KMBT]?$', value):
+        if isinstance(value, str) and value.startswith('$') and format_type != "string":
+             if re.match(r'^[$][0-9,.]+[ KMBT]?$', value):
                  # print(f"DEBUG: Value already formatted with currency: {value}")
                  return value
              else:
@@ -106,29 +106,22 @@ def format_html_value(value, format_type="number", precision=2, currency='$'):
             num_value = _safe_float(value, default=None)
             if num_value is None and format_type != "string": 
                  # print(f"DEBUG: Failed numeric conversion for value {original_value_repr}")
-                 return str(value) 
+                 return str(value)
 
         if format_type == "currency": 
-            if currency == '₹':
-                formatted = f"{num_value:,.{precision}f}"
-                parts = formatted.split('.')
-                whole = parts[0].replace(',', '')
-                whole_formatted_indian = ','.join([whole[-3:]] + [whole[i:i+2] for i in range(len(whole)-3, 0, -2)][::-1])
-                result = f"{currency}{whole_formatted_indian}{'.' + parts[1] if len(parts) > 1 else ''}"
-                # print(f"DEBUG: Formatted Indian currency value: {result}")
-                return result
-            result = f"{currency}{num_value:,.{precision}f}"
+            # Remove currency formatting - just use number formatting
+            result = f"{num_value:,.{precision}f}"
             # print(f"DEBUG: Formatted currency value: {result}")
             return result
         elif format_type == "percent": return f"{num_value * 100:.{precision}f}%"
         elif format_type == "percent_direct": return f"{num_value:.{precision}f}%"
         elif format_type == "ratio": return f"{num_value:.{precision}f}x"
         elif format_type == "large_number":
-            if abs(num_value) >= 1e12: return f"{currency}{num_value/1e12:.{precision}f}T"
-            elif abs(num_value) >= 1e9: return f"{currency}{num_value/1e9:.{precision}f}B"
-            elif abs(num_value) >= 1e6: return f"{currency}{num_value/1e6:.{precision}f}M"
-            elif abs(num_value) >= 1e3: return f"{currency}{num_value/1e3:.{precision}f}K"
-            else: return f"{currency}{num_value:,.{precision}f}"
+            if abs(num_value) >= 1e12: return f"{num_value/1e12:.{precision}f}T"
+            elif abs(num_value) >= 1e9: return f"{num_value/1e9:.{precision}f}B"
+            elif abs(num_value) >= 1e6: return f"{num_value/1e6:.{precision}f}M"
+            elif abs(num_value) >= 1e3: return f"{num_value/1e3:.{precision}f}K"
+            else: return f"{num_value:,.{precision}f}"
         elif format_type == "integer": return f"{int(num_value):,}"
         elif format_type == "date": return str(value) 
         elif format_type == "string": return str(value) 
@@ -152,25 +145,24 @@ def generate_introduction_html(ticker, rdata):
         health_data = rdata.get('financial_health_data', {})
         analyst_data = rdata.get('analyst_info_data', {})
         profit_data = rdata.get('profitability_data', {})
-        currency_symbol = rdata.get('currency_symbol', '$')
 
         company_name = profile_data.get('Company Name', ticker)
         industry = profile_data.get('Industry', 'its')
         market_cap_fmt = profile_data.get('Market Cap', 'N/A')
 
         current_price_val = rdata.get('current_price')
-        current_price_fmt = format_html_value(current_price_val, 'currency', currency=currency_symbol)
+        current_price_fmt = format_html_value(current_price_val, 'currency')
 
         last_date_obj = rdata.get('last_date', datetime.now())
         last_date_fmt = last_date_obj.strftime('%B %Y')
 
         sma50_val = detailed_ta_data.get('SMA_50')
-        sma50_fmt = format_html_value(sma50_val, 'currency', currency=currency_symbol)
+        sma50_fmt = format_html_value(sma50_val, 'currency')
         sma200_val = detailed_ta_data.get('SMA_200')
-        sma200_fmt = format_html_value(sma200_val, 'currency', currency=currency_symbol)
+        sma200_fmt = format_html_value(sma200_val, 'currency')
         
         analyst_target_val = _safe_float(analyst_data.get('Mean Target Price')) # Use _safe_float for calculations
-        analyst_target_fmt = format_html_value(analyst_target_val, 'currency', currency=currency_symbol)
+        analyst_target_fmt = format_html_value(analyst_target_val, 'currency')
         
         upside_pct_val = rdata.get('overall_pct_change', 0.0)
         upside_pct_fmt = f"{upside_pct_val:+.1f}%"
@@ -315,7 +307,6 @@ def generate_metrics_summary_html(ticker, rdata):
         price_stats_data = rdata.get('stock_price_stats_data', {})
         short_data = rdata.get('short_selling_data', {})
         historical_data = rdata.get('historical_data', pd.DataFrame())
-        currency_symbol = rdata.get('currency_symbol', '$')
 
         # Raw Values
         current_price_val = _safe_float(rdata.get('current_price'))
@@ -347,15 +338,15 @@ def generate_metrics_summary_html(ticker, rdata):
         forecast_1y_pct = rdata.get('overall_pct_change', 0.0)
         analyst_target_pct = ((analyst_target_val - current_price_val) / current_price_val) * 100 if analyst_target_val and current_price_val else 0.0
         # Formatted Strings for Display
-        current_price_fmt = format_html_value(current_price_val, 'currency', currency=currency_symbol)
-        forecast_1m_fmt = f"{format_html_value(forecast_1m_val, 'currency', currency=currency_symbol)} ({'▲' if forecast_1m_pct > 0 else '▼'} {forecast_1m_pct:+.1f}%)"
-        forecast_1y_fmt = f"{format_html_value(forecast_1y_val, 'currency', currency=currency_symbol)} ({'▲' if forecast_1y_pct > 0 else '▼'} {forecast_1y_pct:+.1f}%)"
-        analyst_target_fmt = f"{format_html_value(analyst_target_val, 'currency', currency=currency_symbol)} ({'▲' if analyst_target_pct > 0 else '▼'} {analyst_target_pct:+.1f}%)"
-        sma50_fmt = format_html_value(sma50_val, 'currency', currency=currency_symbol)
-        sma200_fmt = format_html_value(sma200_val, 'currency', currency=currency_symbol)
+        current_price_fmt = format_html_value(current_price_val, 'currency')
+        forecast_1m_fmt = f"{format_html_value(forecast_1m_val, 'currency')} ({'▲' if forecast_1m_pct > 0 else '▼'} {forecast_1m_pct:+.1f}%)"
+        forecast_1y_fmt = f"{format_html_value(forecast_1y_val, 'currency')} ({'▲' if forecast_1y_pct > 0 else '▼'} {forecast_1y_pct:+.1f}%)"
+        analyst_target_fmt = f"{format_html_value(analyst_target_val, 'currency')} ({'▲' if analyst_target_pct > 0 else '▼'} {analyst_target_pct:+.1f}%)"
+        sma50_fmt = format_html_value(sma50_val, 'currency')
+        sma200_fmt = format_html_value(sma200_val, 'currency')
         rsi_fmt = f"{rsi_val:.1f}" if rsi_val else "N/A"
         macd_hist_fmt = f"({macd_hist_val:.2f})" if macd_hist_val else ""
-        range_52wk_fmt = f"{format_html_value(low_52wk_val, 'currency', currency=currency_symbol)} - {format_html_value(high_52wk_val, 'currency', currency=currency_symbol)}"
+        range_52wk_fmt = f"{format_html_value(low_52wk_val, 'currency')} - {format_html_value(high_52wk_val, 'currency')}"
         volatility_fmt = format_html_value(volatility_val, 'percent_direct', 1)
         beta_fmt = f"{format_html_value(beta_val, 'ratio')} (High Sensitivity)" if beta_val and beta_val > 1.2 else f"{format_html_value(beta_val, 'ratio')}"
         green_days_fmt = f"{int(green_days_val)}/{int(total_days_val)} ({green_days_pct:.0f}%)"
@@ -684,7 +675,7 @@ def generate_metrics_summary_html(ticker, rdata):
                     <div class="metric-row">
                         <span class="metric-label">1-Month Forecast:</span>
                         <div class="metric-value">
-                            <span>{format_html_value(forecast_1m_val, 'currency', currency=currency_symbol)}</span>
+                            <span>{format_html_value(forecast_1m_val, 'currency')}</span>
                             <span class="{'positive-value' if forecast_1m_pct > 0 else 'negative-value'}">
                                 {'📈' if forecast_1m_pct > 0 else '📉'} {forecast_1m_pct:+.1f}%
                             </span>
@@ -693,7 +684,7 @@ def generate_metrics_summary_html(ticker, rdata):
                     <div class="metric-row">
                         <span class="metric-label">1-Year Forecast:</span>
                         <div class="metric-value">
-                            <span>{format_html_value(forecast_1y_val, 'currency', currency=currency_symbol)}</span>
+                            <span>{format_html_value(forecast_1y_val, 'currency')}</span>
                             <span class="{'positive-value' if forecast_1y_pct > 0 else 'negative-value'}">
                                 {'📈' if forecast_1y_pct > 0 else '📉'} {forecast_1y_pct:+.1f}%
                             </span>
@@ -702,7 +693,7 @@ def generate_metrics_summary_html(ticker, rdata):
                     <div class="metric-row border-top">
                         <span class="metric-label">Analyst Mean Target:</span>
                         <div class="metric-value">
-                            <span>{format_html_value(analyst_target_val, 'currency', currency=currency_symbol)}</span>
+                            <span>{format_html_value(analyst_target_val, 'currency')}</span>
                             <span class="{'positive-value' if analyst_target_pct > 0 else 'negative-value'}">
                                 {'📈' if analyst_target_pct > 0 else '📉'} {analyst_target_pct:+.1f}%
                             </span>
@@ -814,7 +805,7 @@ def generate_metrics_summary_html(ticker, rdata):
 
         <div class="metrics-narrative">
             <p>Right now, {ticker}'s stock is trading at <strong>{current_price_fmt}</strong>. The technical indicators are showing a <strong>{technical_pattern_text}</strong> because the price is holding relative to both the 50-day ({sma50_fmt}) and 200-day ({sma200_fmt}) moving averages. This suggests the stock has been gaining momentum recently. However, the Relative Strength Index (RSI) at <strong>{rsi_fmt}</strong> is {rsi_condition_text}—neither overbought nor oversold—while the MACD indicator shows a {macd_trend_text}, meaning there could be some minor pullbacks before the next upward move.</p>
-            <p>Over the past year, {ticker}'s stock has traded between <strong>{format_html_value(low_52wk_val, 'currency', currency=currency_symbol)} and {format_html_value(high_52wk_val, 'currency', currency=currency_symbol)}</strong>, which tells us two things: First, {recovery_status_text}. Second, {range_position_text}, meaning big swings are less likely unless something major happens. Analysts expect modest growth ahead, with a <strong>1-year target of {format_html_value(forecast_1y_val, 'currency', currency=currency_symbol)} ({forecast_1y_pct:+.1f}%)</strong> and an average consensus target of <strong>{format_html_value(analyst_target_val, 'currency', currency=currency_symbol)} ({analyst_target_pct:+.1f}%)</strong>. Plus, with <strong>{inst_own_fmt} institutional ownership</strong> and very low short interest ({short_float_fmt}), it seems {investor_bets_text}.</p>
+            <p>Over the past year, {ticker}'s stock has traded between <strong>{format_html_value(low_52wk_val, 'currency')} and {format_html_value(high_52wk_val, 'currency')}</strong>, which tells us two things: First, {recovery_status_text}. Second, {range_position_text}, meaning big swings are less likely unless something major happens. Analysts expect modest growth ahead, with a <strong>1-year target of {format_html_value(forecast_1y_val, 'currency')} ({forecast_1y_pct:+.1f}%)</strong> and an average consensus target of <strong>{format_html_value(analyst_target_val, 'currency')} ({analyst_target_pct:+.1f}%)</strong>. Plus, with <strong>{inst_own_fmt} institutional ownership</strong> and very low short interest ({short_float_fmt}), it seems {investor_bets_text}.</p>
         </div>
         """
         
@@ -874,7 +865,6 @@ def generate_total_valuation_html(ticker, rdata):
         profile_data = rdata.get('profile_data', {})
         valuation_data = rdata.get('total_valuation_data', {})
         dividend_data = rdata.get('dividends_data', {})
-        currency_symbol = rdata.get('currency_symbol', '$')
 
         # Helper to parse formatted numbers like '$204.76B' back to a float
         def _parse_formatted_value(value_str):
@@ -884,7 +874,7 @@ def generate_total_valuation_html(ticker, rdata):
             value_str = str(value_str) # Convert non-string to string for processing
             
             # Clean the string
-            value_str = value_str.strip().upper().replace(currency_symbol, '').replace(',', '').replace('X', '')
+            value_str = value_str.strip().upper().replace('$', '').replace(',', '').replace('X', '')
             
             multiplier = 1
             if value_str.endswith('T'):
@@ -938,14 +928,14 @@ def generate_total_valuation_html(ticker, rdata):
         if market_cap_raw is not None and enterprise_value_raw is not None:
             net_debt = enterprise_value_raw - market_cap_raw
             if net_debt > 0.01 * market_cap_raw: # Check if debt is more than 1% of market cap
-                net_debt_fmt = format_html_value(net_debt, 'large_number', currency=currency_symbol)
+                net_debt_fmt = format_html_value(net_debt, 'large_number')
                 narrative_part1 = (
                     f"Although the market considers {company_name} to be {industry_descriptor} with a <strong>{market_cap_fmt}</strong> market cap, "
                     f"its enterprise value is much higher at <strong>{enterprise_value_fmt}</strong>, with <strong>{net_debt_fmt}</strong> of that value added by debt. "
                     f"Investors are confident about {company_name}'s future earnings, but keep in mind the risk of that large amount of debt."
                 )
             else: # Net cash position or negligible debt
-                net_cash_fmt = format_html_value(abs(net_debt), 'large_number', currency=currency_symbol)
+                net_cash_fmt = format_html_value(abs(net_debt), 'large_number')
                 narrative_part1 = (
                     f"While {company_name} has a market cap of <strong>{market_cap_fmt}</strong>, its enterprise value of <strong>{enterprise_value_fmt}</strong> is lower, "
                     f"reflecting a strong net cash position of approximately {net_cash_fmt}. This financial strength provides a cushion and flexibility for future investments."
@@ -1064,7 +1054,6 @@ def generate_conclusion_outlook_html(ticker, rdata):
         rsi_divergence_bullish = rdata.get('rsi_divergence_bullish', False)
         roe_trend = rdata.get('roe_trend', None)
         debt_equity_trend = rdata.get('debt_equity_trend', None)
-        currency_symbol = rdata.get('currency_symbol', '$')
         # Added for default narrative logic:
         fundamental_strength_summary = "Moderate" # Default
         if roe is not None and debt_equity is not None and op_cash_flow is not None:
@@ -1099,14 +1088,14 @@ def generate_conclusion_outlook_html(ticker, rdata):
         
         sr_text = "N/A"
         if support is not None and resistance is not None:
-            sr_text = f"~{format_html_value(support,'currency', currency=currency_symbol)} / ~{format_html_value(resistance,'currency', currency=currency_symbol)}"
+            sr_text = f"~{format_html_value(support,'currency')} / ~{format_html_value(resistance,'currency')}"
         st_points_data['sr'] = {'label': 'Support / Resistance (30d)', 'value': sr_text, 'icon': get_icon('chart')}
 
 
         forecast_icon = get_icon('neutral'); forecast_text = "N/A"
         if forecast_1y is not None:
             forecast_icon = get_icon('up' if overall_pct_change > 1 else ('down' if overall_pct_change < -1 else 'neutral'))
-            forecast_text = f"~{overall_pct_change:+.1f}% avg. change to ≈{format_html_value(forecast_1y, 'currency', currency=currency_symbol)}"
+            forecast_text = f"~{overall_pct_change:+.1f}% avg. change to ≈{format_html_value(forecast_1y, 'currency')}"
         lt_points_data['forecast'] = {'label': '1-Year Avg. Forecast', 'value': forecast_text, 'icon': forecast_icon}
 
         val_text = "Moderate"; val_icon = get_icon('neutral')
@@ -1122,7 +1111,7 @@ def generate_conclusion_outlook_html(ticker, rdata):
 
         health_text = "Moderate"; health_icon = get_icon('neutral')
         op_cf_pos = op_cash_flow is not None and op_cash_flow > 0
-        roe_fmt = format_html_value(roe, 'percent_direct'); de_fmt = format_html_value(debt_equity, 'ratio'); ocf_fmt = format_html_value(op_cash_flow, 'large_number', currency=currency_symbol)
+        roe_fmt = format_html_value(roe, 'percent_direct'); de_fmt = format_html_value(debt_equity, 'ratio'); ocf_fmt = format_html_value(op_cash_flow, 'large_number')
         if roe is not None and debt_equity is not None and op_cash_flow is not None:
             if roe > 15 and debt_equity < 1.5 and op_cf_pos: health_icon = get_icon('up'); health_text = f"Strong (ROE: {roe_fmt}, D/E: {de_fmt}, +OCF)"
             elif roe < 5 or debt_equity > 2.5 or not op_cf_pos: health_icon = get_icon('down'); health_text = f"Potential Weakness (ROE: {roe_fmt}, D/E: {de_fmt}, OCF: {ocf_fmt})"
@@ -1147,7 +1136,7 @@ def generate_conclusion_outlook_html(ticker, rdata):
         analyst_text = "N/A"; analyst_icon = get_icon('neutral')
         if analyst_rec != 'N/A':
              analyst_icon = get_icon('up' if 'Buy' in analyst_rec else ('down' if 'Sell' in analyst_rec or 'Underperform' in analyst_rec else 'neutral'))
-             mean_target_fmt = format_html_value(mean_target, 'currency', currency=currency_symbol)
+             mean_target_fmt = format_html_value(mean_target, 'currency')
              analyst_text = f"{analyst_rec} (Target: {mean_target_fmt})"
         lt_points_data['analyst'] = {'label': 'Analyst Consensus', 'value': analyst_text, 'icon': analyst_icon}
 
@@ -1222,7 +1211,7 @@ def generate_conclusion_outlook_html(ticker, rdata):
             "the potential risks outlined earlier and their strategic goals."
         ]
         forecast_direction_summary = "relatively flat"
-        forecast_1y_fmt = format_html_value(forecast_1y, 'currency', currency=currency_symbol)
+        forecast_1y_fmt = format_html_value(forecast_1y, 'currency')
         if overall_pct_change > 5: forecast_direction_summary = f"potential upside ({overall_pct_change:+.1f}%)"
         elif overall_pct_change < -5: forecast_direction_summary = f"potential downside ({overall_pct_change:+.1f}%)"
         
@@ -1263,8 +1252,7 @@ def generate_detailed_forecast_table_html(ticker, rdata):
     try:
         monthly_forecast_table_data = rdata.get('monthly_forecast_table_data', pd.DataFrame())
         current_price = _safe_float(rdata.get('current_price'))
-        currency_symbol = rdata.get('currency_symbol', '$')
-        current_price_fmt = format_html_value(current_price, 'currency', currency=currency_symbol)
+        current_price_fmt = format_html_value(current_price, 'currency')
         forecast_time_col = rdata.get('time_col', 'Period') 
         period_label = rdata.get('period_label', 'Period') 
         table_rows = ""
@@ -1292,9 +1280,10 @@ def generate_detailed_forecast_table_html(ticker, rdata):
                 first_range_width = forecast_df['RangeWidth'].iloc[0]
                 last_range_width = forecast_df['RangeWidth'].iloc[-1]
 
-                first_row = forecast_df.iloc[0]; last_row = forecast_df.iloc[-1]
-                first_range_str = f"{format_html_value(first_row['Low'], 'currency', currency=currency_symbol)} – {format_html_value(first_row['High'], 'currency', currency=currency_symbol)}"
-                last_range_str = f"{format_html_value(last_row['Low'], 'currency', currency=currency_symbol)} – {format_html_value(last_row['High'], 'currency', currency=currency_symbol)}"
+                first_row = forecast_df.iloc[0]
+                last_row = forecast_df.iloc[-1]
+                first_range_str = f"{format_html_value(first_row['Low'], 'currency')} – {format_html_value(first_row['High'], 'currency')}"
+                last_range_str = f"{format_html_value(last_row['Low'], 'currency')} – {format_html_value(last_row['High'], 'currency')}"
                 
                 width_change_ratio = last_range_width / first_range_width if first_range_width and first_range_width != 0 else 1
                 range_trend_options = {
@@ -1341,9 +1330,9 @@ def generate_detailed_forecast_table_html(ticker, rdata):
                            roi_icon = get_icon('up' if roi_val > 1 else ('down' if roi_val < -1 else 'neutral'))
                            roi_fmt = format_html_value(roi_val, 'percent_direct', 1)
 
-                        low_fmt = format_html_value(row.get('Low'), 'currency', currency=currency_symbol)
-                        avg_fmt = format_html_value(row.get('Average'), 'currency', currency=currency_symbol)
-                        high_fmt = format_html_value(row.get('High'), 'currency', currency=currency_symbol)
+                        low_fmt = format_html_value(row.get('Low'), 'currency')
+                        avg_fmt = format_html_value(row.get('Average'), 'currency')
+                        high_fmt = format_html_value(row.get('High'), 'currency')
                         action_display = row.get('Action', 'N/A')
                         time_period_fmt = str(row.get(forecast_time_col, 'N/A')) 
 
@@ -1356,7 +1345,7 @@ def generate_detailed_forecast_table_html(ticker, rdata):
                      logging.warning(f"Missing required columns in forecast data: {missing_cols}")
                      table_rows = f"<tr><td colspan='6' style='text-align:center;'>Detailed forecast data incomplete.</td></tr>"
             
-            min_max_summary = f"""<p>Over the forecast horizon ({forecast_df[forecast_time_col].iloc[0]} to {forecast_df[forecast_time_col].iloc[-1]}), {ticker}'s price is projected by the model to fluctuate between approximately <strong>{format_html_value(min_price_overall, 'currency', currency=currency_symbol)}</strong> and <strong>{format_html_value(max_price_overall, 'currency', currency=currency_symbol)}</strong>.</p>""" if min_price_overall is not None else "<p>Overall forecast range could not be determined.</p>"
+            min_max_summary = f"""<p>Over the forecast horizon ({forecast_df[forecast_time_col].iloc[0]} to {forecast_df[forecast_time_col].iloc[-1]}), {ticker}'s price is projected by the model to fluctuate between approximately <strong>{format_html_value(min_price_overall, 'currency')}</strong> and <strong>{format_html_value(max_price_overall, 'currency')}</strong>.</p>""" if min_price_overall is not None else "<p>Overall forecast range could not be determined.</p>"
             table_html = f"""<div class="table-container"><table><thead><tr><th>{period_label} ({forecast_time_col})</th><th>Min. Price</th><th>Avg. Price</th><th>Max. Price</th><th>Potential ROI vs Current ({current_price_fmt})</th><th>Model Signal</th></tr></thead><tbody>{table_rows}</tbody></table></div>"""
         else:
             min_max_summary = f"<p>No detailed {period_label.lower()}-by-{period_label.lower()} forecast data is currently available for {ticker}.</p>"
@@ -1364,8 +1353,8 @@ def generate_detailed_forecast_table_html(ticker, rdata):
             range_trend_comment = ""
 
         # Default Narrative
-        min_fmt = format_html_value(min_price_overall, 'currency', currency=currency_symbol)
-        max_fmt = format_html_value(max_price_overall, 'currency', currency=currency_symbol)
+        min_fmt = format_html_value(min_price_overall, 'currency')
+        max_fmt = format_html_value(max_price_overall, 'currency')
         range_narrative = f"{min_fmt} to {max_fmt}" if min_price_overall is not None else "an undetermined range"
         narrative_options = [
             (f"The detailed {period_label.lower()}y forecast below outlines the model's expectations for {ticker}'s price evolution ({range_narrative}). It includes projected ranges (Min, Avg, Max), potential ROI based on the average projection versus the current price, and a derived model signal for each period."),
@@ -1408,7 +1397,7 @@ def generate_company_profile_html(ticker, rdata):
         profile_items = []
         if profile_data.get('Sector'): profile_items.append(f"<div class='profile-item'><span>Sector: </span> {format_html_value(profile_data['Sector'], 'string')}</div>")
         if profile_data.get('Industry'): profile_items.append(f"<div class='profile-item'><span>Industry: </span>{format_html_value(profile_data['Industry'], 'string')}</div>")
-        if profile_data.get('Market Cap'): profile_items.append(f"<div class='profile-item'><span>Market Cap: </span>{format_html_value(profile_data['Market Cap'], 'large_number', currency=rdata.get('currency_symbol', '$'))}</div>")
+        if profile_data.get('Market Cap'): profile_items.append(f"<div class='profile-item'><span>Market Cap: </span>{format_html_value(profile_data['Market Cap'], 'large_number')}</div>")
         if profile_data.get('Employees'): profile_items.append(f"<div class='profile-item'><span>Employees: </span>{format_html_value(profile_data.get('Employees'), 'integer')}</div>")
 
         if website_link != '#':
@@ -1562,11 +1551,11 @@ def generate_financial_health_html(ticker, rdata):
             return _generate_error_html("Financial Health", "No financial health data available.")
 
         # Helper to parse formatted values like '8.89%' or '$42.89B' into numbers
-        def _parse_value(value_str, currency_symbol='$'):
+        def _parse_value(value_str):
             if value_str is None or not isinstance(value_str, str) or value_str.lower() == 'n/a':
                 return None
             
-            cleaned_str = value_str.strip().upper().replace(currency_symbol, '').replace(',', '')
+            cleaned_str = value_str.strip().upper().replace('$', '').replace(',', '')
             multiplier = 1
             
             if cleaned_str.endswith('%'):
@@ -1739,11 +1728,11 @@ def generate_profitability_growth_html(ticker, rdata):
             return _generate_error_html("Profitability & Growth", "No profitability data available.")
 
         # Helper to parse formatted values like '37.10%' or '$18.08B' into numbers
-        def _parse_value(value_str, currency_symbol='$'):
+        def _parse_value(value_str):
             if value_str is None or not isinstance(value_str, str) or value_str.lower() == 'n/a':
                 return None
             
-            cleaned_str = value_str.strip().upper().replace(currency_symbol, '').replace(',', '')
+            cleaned_str = value_str.strip().upper().replace('$', '').replace(',', '')
             multiplier = 1
             
             if cleaned_str.endswith('%'):
@@ -1860,7 +1849,6 @@ def generate_dividends_shareholder_returns_html(ticker, rdata):
 
         # 2. ENHANCED & ALIGNED: Generate the detailed dividend analysis
         # --- Data Extraction using keys from your file ---
-        currency_symbol = rdata.get('currency_symbol', '$')
         rate = _safe_float(dividend_data.get('Dividend Rate'))
         div_yield = _safe_float(dividend_data.get('Dividend Yield'))
         payout_ratio = _safe_float(dividend_data.get('Payout Ratio'))
@@ -1884,7 +1872,7 @@ def generate_dividends_shareholder_returns_html(ticker, rdata):
             return f'<div class="narrative">{narrative}</div>' + metrics_table_html
 
         # --- Build the Narrative for Companies with Dividends ---
-        rate_fmt = format_html_value(rate, 'currency', currency=currency_symbol)
+        rate_fmt = format_html_value(rate, 'currency')
         yield_fmt = f'<strong>{format_html_value(div_yield, "percent_direct")}</strong>'
         payout_ratio_fmt = f'<strong>{format_html_value(payout_ratio, "percent_direct")}</strong>'
         five_year_avg_yield_fmt = format_html_value(five_year_avg_yield, 'percent_direct')
@@ -1965,14 +1953,12 @@ def generate_share_statistics_html(ticker, rdata):
         # --- 1. Data Extraction and Helper Function ---
         share_data = rdata.get('share_statistics_data', {})
         short_data = rdata.get('short_selling_data', {})
-        currency_symbol = rdata.get('currency_symbol', '$')
-
         # Helper to parse formatted values like '$2B' or '1.1%' into numbers
         def _parse_value(value_str):
             if value_str is None or not isinstance(value_str, str) or value_str.lower() == 'n/a':
                 return None
             
-            cleaned_str = value_str.strip().upper().replace(currency_symbol, '').replace(',', '')
+            cleaned_str = value_str.strip().upper().replace('$', '').replace(',', '')
             multiplier = 1
             
             if cleaned_str.endswith('%'):
@@ -2083,7 +2069,6 @@ def generate_stock_price_statistics_html(ticker, rdata):
     try:
         # --- 1. Data Extraction and Parsing ---
         stats_data = rdata.get('stock_price_stats_data', {})
-        currency_symbol = rdata.get('currency_symbol', '$')
 
         # Get raw values for logic
         high_52wk = _safe_float(stats_data.get('52 Week High'), default=None)
@@ -2094,10 +2079,10 @@ def generate_stock_price_statistics_html(ticker, rdata):
         volatility = _safe_float(rdata.get('volatility'), default=None)
 
         # Get formatted values for display
-        high_52wk_fmt = format_html_value(high_52wk, 'currency', currency=currency_symbol)
-        low_52wk_fmt = format_html_value(low_52wk, 'currency', currency=currency_symbol)
-        sma_50_fmt = format_html_value(sma_50, 'currency', currency=currency_symbol)
-        sma_200_fmt = format_html_value(sma_200, 'currency', currency=currency_symbol)
+        high_52wk_fmt = format_html_value(high_52wk, 'currency')
+        low_52wk_fmt = format_html_value(low_52wk, 'currency')
+        sma_50_fmt = format_html_value(sma_50, 'currency')
+        sma_200_fmt = format_html_value(sma_200, 'currency')
         beta_fmt = format_html_value(beta, 'ratio')
         volatility_fmt = format_html_value(volatility, 'percent_direct', 1)
 
@@ -2336,15 +2321,14 @@ def generate_analyst_insights_html(ticker, rdata):
              logging.warning("analyst_info_data not found or not a dict, using empty.")
 
         grid_html = generate_analyst_grid_html(analyst_data) 
-        currency_symbol = rdata.get('currency_symbol', '$')
 
         recommendation = format_html_value(analyst_data.get('Recommendation'), 'factor') 
-        mean_target_fmt = format_html_value(analyst_data.get('Mean Target Price'), 'currency', currency=currency_symbol)
-        high_target_fmt = format_html_value(analyst_data.get('High Target Price'), 'currency', currency=currency_symbol)
-        low_target_fmt = format_html_value(analyst_data.get('Low Target Price'), 'currency', currency=currency_symbol)
+        mean_target_fmt = format_html_value(analyst_data.get('Mean Target Price'), 'currency')
+        high_target_fmt = format_html_value(analyst_data.get('High Target Price'), 'currency')
+        low_target_fmt = format_html_value(analyst_data.get('Low Target Price'), 'currency')
         num_analysts_fmt = format_html_value(analyst_data.get('Number of Analyst Opinions'), 'integer')
         current_price = _safe_float(rdata.get('current_price'))
-        current_price_fmt = format_html_value(current_price, 'currency', currency=currency_symbol)
+        current_price_fmt = format_html_value(current_price, 'currency')
 
         potential_summary = ""
         mean_potential_fmt = "N/A"
@@ -2392,7 +2376,6 @@ def generate_technical_analysis_summary_html(ticker, rdata):
     try:
         # --- 1. Data Extraction (No Changes Here) ---
         detailed_ta = rdata.get('detailed_ta_data', {})
-        currency_symbol = rdata.get('currency_symbol', '$')
         
         # Helper function to safely convert to float
         def _safe_float(value):
@@ -2420,7 +2403,7 @@ def generate_technical_analysis_summary_html(ticker, rdata):
         qualitative_assessment = "but Overheated" if rsi and rsi > 75 else "but shows signs of slowing" if macd_hist is not None and macd_hist < 0 else ""
         if trend_status == "Bearish":
             qualitative_assessment = "but looks Oversold" if rsi and rsi < 30 else "and continues to weaken"
-        headline = f"Current Price: {format_html_value(price, 'currency', currency=currency_symbol)}&nbsp;|&nbsp;Trend: {trend_status} {qualitative_assessment}"
+        headline = f"Current Price: {format_html_value(price, 'currency', )}&nbsp;|&nbsp;Trend: {trend_status} {qualitative_assessment}"
 
         # UPDATED: Context-Aware Intro Paragraph
         if change_15d is not None and change_15d > 0:
@@ -2432,14 +2415,14 @@ def generate_technical_analysis_summary_html(ticker, rdata):
 
         # Section 1: Trend Strength (with UPDATED trader takeaway)
         trend_narrative = f"{ticker} is trading above its key moving averages, which confirms the uptrend remains intact." if trend_status == "Bullish" else f"{ticker} is in a bearish trend, trading below its key moving averages, which signals caution."
-        support_20sma = f"The <strong>20-day SMA at {format_html_value(sma20, 'currency', currency=currency_symbol)}</strong> is acting as immediate dynamic support."
-        floor_200sma = f"The <strong>200-day SMA at {format_html_value(sma200, 'currency', currency=currency_symbol)}</strong> serves as a major long-term floor for the bullish trend."
+        support_20sma = f"The <strong>20-day SMA at {format_html_value(sma20, 'currency', )}</strong> is acting as immediate dynamic support."
+        floor_200sma = f"The <strong>200-day SMA at {format_html_value(sma200, 'currency', )}</strong> serves as a major long-term floor for the bullish trend."
         
         # --- THIS IS THE NEW DYNAMIC LOGIC ---
         if trend_status == "Bullish":
-            trader_takeaway_trend = f"As long as {ticker} holds above the <strong>20-day SMA ({format_html_value(sma20, 'currency', currency=currency_symbol)})</strong>, the bullish momentum could continue. However, a rapid rise can push the stock far from its averages, increasing the risk of a pullback."
+            trader_takeaway_trend = f"As long as {ticker} holds above the <strong>20-day SMA ({format_html_value(sma20, 'currency', )})</strong>, the bullish momentum could continue. However, a rapid rise can push the stock far from its averages, increasing the risk of a pullback."
         else: # Bearish
-            trader_takeaway_trend = f"The <strong>20-day SMA ({format_html_value(sma20, 'currency', currency=currency_symbol)})</strong> is now acting as overhead resistance. As long as the price stays below this level, the bearish trend is likely to continue. A rejection from this average could lead to a test of recent lows."
+            trader_takeaway_trend = f"The <strong>20-day SMA ({format_html_value(sma20, 'currency', )})</strong> is now acting as overhead resistance. As long as the price stays below this level, the bearish trend is likely to continue. A rejection from this average could lead to a test of recent lows."
         # --- END OF NEW DYNAMIC LOGIC ---
 
         # Section 2: Momentum (with UPDATED trading strategy)
@@ -2459,17 +2442,17 @@ def generate_technical_analysis_summary_html(ticker, rdata):
         # Section 3: Bollinger Bands (with FULLY REWRITTEN dynamic logic)
         # --- THIS IS THE NEW DYNAMIC LOGIC ---
         if price and bb_upper and price > bb_upper:
-            bb_narrative = f"The price is 'walking the band,' trading <strong>above the upper Bollinger Band ({format_html_value(bb_upper, 'currency', currency=currency_symbol)})</strong>. This is a sign of a very strong trend, but also increases the risk of a sharp snap-back if momentum stalls."
+            bb_narrative = f"The price is 'walking the band,' trading <strong>above the upper Bollinger Band ({format_html_value(bb_upper, 'currency', )})</strong>. This is a sign of a very strong trend, but also increases the risk of a sharp snap-back if momentum stalls."
         elif price and bb_lower and price < bb_lower:
-            bb_narrative = f"The price has broken <strong>below the lower Bollinger Band ({format_html_value(bb_lower, 'currency', currency=currency_symbol)})</strong>, indicating strong selling pressure and a potential breakdown. Watch for signs of capitulation or reversal."
+            bb_narrative = f"The price has broken <strong>below the lower Bollinger Band ({format_html_value(bb_lower, 'currency', )})</strong>, indicating strong selling pressure and a potential breakdown. Watch for signs of capitulation or reversal."
         elif price and bb_upper and price >= bb_upper * 0.98:
-            bb_narrative = f"The stock is currently pressing against the <strong>upper Bollinger Band at {format_html_value(bb_upper, 'currency', currency=currency_symbol)}</strong>, which often acts as short-term resistance."
+            bb_narrative = f"The stock is currently pressing against the <strong>upper Bollinger Band at {format_html_value(bb_upper, 'currency', )}</strong>, which often acts as short-term resistance."
         elif price and bb_lower and price <= bb_lower * 1.02:
-            bb_narrative = f"The stock is testing support near the <strong>lower Bollinger Band at {format_html_value(bb_lower, 'currency', currency=currency_symbol)}</strong>. A bounce from this level would be bullish, while a break below would be a bearish signal."
+            bb_narrative = f"The stock is testing support near the <strong>lower Bollinger Band at {format_html_value(bb_lower, 'currency', )}</strong>. A bounce from this level would be bullish, while a break below would be a bearish signal."
         elif price and sma20 and price > sma20:
              bb_narrative = f"The stock is trading comfortably in the upper half of its Bollinger Bands (between the 20-day SMA and the upper band), which is a sign of underlying strength."
         else: # Fallback for trading in the lower half or near the middle
-            bb_narrative = f"The stock is trading near the middle of its Bollinger Bands (SMA20: {format_html_value(sma20, 'currency', currency=currency_symbol)}), with the lower band at <strong>{format_html_value(bb_lower, 'currency', currency=currency_symbol)}</strong> offering the next level of support."
+            bb_narrative = f"The stock is trading near the middle of its Bollinger Bands (SMA20: {format_html_value(sma20, 'currency', )}), with the lower band at <strong>{format_html_value(bb_lower, 'currency', )}</strong> offering the next level of support."
         # --- END OF NEW DYNAMIC LOGIC ---
         
         # ... (Rest of the function remains the same as the robust version from the previous turn) ...
@@ -2478,9 +2461,9 @@ def generate_technical_analysis_summary_html(ticker, rdata):
         volume_concern = "Low volume rallies are prone to sharp reversals. If we don't see a surge in buying interest to confirm the move, a pullback becomes more likely." if volume_vs_sma and volume_vs_sma < 0.9 else ""
 
         # Final Verdict and Bottom Line (Can remain as is, they synthesize the above points)
-        short_term_verdict = f"Be cautious—RSI is overbought at {rsi:.1f}, and volume is weak. Consider locking in partial profits near {format_html_value(resistance, 'currency', currency=currency_symbol)} and waiting for a better entry near the 20-day SMA ({format_html_value(sma20, 'currency', currency=currency_symbol)})." if rsi and rsi > 70 else "The trend is positive but monitor for signs of exhaustion. A neutral stance may be best until a clearer signal emerges from the MACD or volume."
-        long_term_verdict = f"The long-term uptrend is valid as long as the price holds above the 200-day SMA ({format_html_value(sma200, 'currency', currency=currency_symbol)}). A pullback to the 50-day SMA ({format_html_value(sma50, 'currency', currency=currency_symbol)}) area could present a safer buying opportunity."
-        new_buyers_verdict = f"Avoid chasing the rally here. Wait for either a confirmed breakout above <strong>{format_html_value(resistance, 'currency', currency=currency_symbol)} with strong volume</strong>, or a pullback to the <strong>{format_html_value(sma20, 'currency', currency=currency_symbol)}</strong> area, which offers a better risk/reward entry."
+        short_term_verdict = f"Be cautious—RSI is overbought at {rsi:.1f}, and volume is weak. Consider locking in partial profits near {format_html_value(resistance, 'currency', )} and waiting for a better entry near the 20-day SMA ({format_html_value(sma20, 'currency', )})." if rsi and rsi > 70 else "The trend is positive but monitor for signs of exhaustion. A neutral stance may be best until a clearer signal emerges from the MACD or volume."
+        long_term_verdict = f"The long-term uptrend is valid as long as the price holds above the 200-day SMA ({format_html_value(sma200, 'currency', )}). A pullback to the 50-day SMA ({format_html_value(sma50, 'currency', )}) area could present a safer buying opportunity."
+        new_buyers_verdict = f"Avoid chasing the rally here. Wait for either a confirmed breakout above <strong>{format_html_value(resistance, 'currency', )} with strong volume</strong>, or a pullback to the <strong>{format_html_value(sma20, 'currency', )}</strong> area, which offers a better risk/reward entry."
         bottom_line = "The technicals suggest the rally may be running out of steam short-term. While the long-term trend remains bullish, a correction seems plausible before the next major move. Trade carefully and wait for confirmation at key levels."
 
 
@@ -2509,8 +2492,8 @@ def generate_technical_analysis_summary_html(ticker, rdata):
             <div class="takeaway">
                 <p><strong><i class="fas fa-bullseye"></i> Key Levels to Watch:</strong></p>
                 <ul>
-                    <li>Resistance: <strong>{format_html_value(resistance, 'currency', currency=currency_symbol)}</strong> (Recent High) &rarr; A breakout could push {ticker} higher.</li>
-                    <li>Support: <strong>{format_html_value(sma20, 'currency', currency=currency_symbol)}</strong> (20-day SMA) &rarr; If this breaks, expect a test of <strong>{format_html_value(bb_lower, 'currency', currency=currency_symbol)}</strong>.</li>
+                    <li>Resistance: <strong>{format_html_value(resistance, 'currency', )}</strong> (Recent High) &rarr; A breakout could push {ticker} higher.</li>
+                    <li>Support: <strong>{format_html_value(sma20, 'currency', )}</strong> (20-day SMA) &rarr; If this breaks, expect a test of <strong>{format_html_value(bb_lower, 'currency', )}</strong>.</li>
                 </ul>
             </div>
 
@@ -2521,9 +2504,9 @@ def generate_technical_analysis_summary_html(ticker, rdata):
             <div class="takeaway">
                 <p><strong><i class="fas fa-map-signs"></i> Trading Plan:</strong></p>
                 <ul>
-                    <li>✅&nbsp; <strong>If {ticker} holds above {format_html_value(sma20, 'currency', currency=currency_symbol)}</strong> &rarr; Bullish trend continues, next target {format_html_value(resistance, 'currency', currency=currency_symbol)}.</li>
-                    <li>⚠️&nbsp; <strong>If it breaks below {format_html_value(sma20, 'currency', currency=currency_symbol)}</strong> &rarr; Expect a dip toward {format_html_value(bb_lower, 'currency', currency=currency_symbol)}.</li>
-                    <li>🛑&nbsp; <strong>A drop below {format_html_value(bb_lower, 'currency', currency=currency_symbol)}</strong> &rarr; Could trigger a deeper correction to the 200-day SMA ({format_html_value(sma200, 'currency', currency=currency_symbol)}).</li>
+                    <li>✅&nbsp; <strong>If {ticker} holds above {format_html_value(sma20, 'currency', )}</strong> &rarr; Bullish trend continues, next target {format_html_value(resistance, 'currency', )}.</li>
+                    <li>⚠️&nbsp; <strong>If it breaks below {format_html_value(sma20, 'currency', )}</strong> &rarr; Expect a dip toward {format_html_value(bb_lower, 'currency', )}.</li>
+                    <li>🛑&nbsp; <strong>A drop below {format_html_value(bb_lower, 'currency', )}</strong> &rarr; Could trigger a deeper correction to the 200-day SMA ({format_html_value(sma200, 'currency', )}).</li>
                 </ul>
             </div>
             
@@ -2681,7 +2664,6 @@ def generate_faq_html(ticker, rdata):
         valuation_data = rdata.get('valuation_data', {})
         detailed_ta_data = rdata.get('detailed_ta_data', {})
         risk_items = rdata.get('risk_items', [])
-        currency_symbol = rdata.get('currency_symbol', '$')
         if not isinstance(valuation_data, dict): valuation_data = {}
         if not isinstance(detailed_ta_data, dict): detailed_ta_data = {}
         # --- END: ORIGINAL DATA EXTRACTION ---
@@ -2702,8 +2684,8 @@ def generate_faq_html(ticker, rdata):
         # --- END: NEW DATA EXTRACTION ---
 
         latest_rsi = _safe_float(detailed_ta_data.get('RSI_14'))
-        current_price_fmt = format_html_value(current_price, 'currency', currency=currency_symbol)
-        forecast_1y_fmt = format_html_value(forecast_1y, 'currency', currency=currency_symbol)
+        current_price_fmt = format_html_value(current_price, 'currency')
+        forecast_1y_fmt = format_html_value(forecast_1y, 'currency')
 
         faq_items = []
         
