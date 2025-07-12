@@ -129,6 +129,18 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 # --- ENVIRONMENT SWITCH FOR DEV/PROD ---
 APP_ENV = os.getenv('APP_ENV', 'development').lower()  # 'development' or 'production'
 
+# Check if we're in Azure App Service (production)
+if os.getenv('WEBSITE_SITE_NAME') or os.getenv('WEBSITE_INSTANCE_ID'):
+    APP_ENV = 'production'
+    app.logger.info("Detected Azure App Service environment - using production settings")
+    app.logger.info(f"Azure Site Name: {os.getenv('WEBSITE_SITE_NAME', 'N/A')}")
+    app.logger.info(f"Azure Instance ID: {os.getenv('WEBSITE_INSTANCE_ID', 'N/A')}")
+
+# Log environment configuration
+app.logger.info(f"Application Environment: {APP_ENV}")
+app.logger.info(f"Flask Debug Mode: {os.getenv('FLASK_DEBUG', 'Not Set')}")
+app.logger.info(f"Port: {os.getenv('PORT', '5000')}")
+
 if APP_ENV == 'production':
     import eventlet
     import eventlet.wsgi
@@ -2229,11 +2241,13 @@ if __name__ == '__main__':
     app.logger.info(f"Attempting to start Flask-SocketIO server on http://0.0.0.0:{port} (Debug: {debug_mode}, Reloader: {use_reloader})")
     try:
         if APP_ENV == 'production':
-            # Use eventlet WSGI server in production
-            socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader, allow_unsafe_werkzeug=False)
+            # Use eventlet WSGI server in production (Azure)
+            app.logger.info("Starting production server with eventlet...")
+            socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False, allow_unsafe_werkzeug=False)
         else:
             # Development server with better error handling
             try:
+                app.logger.info("Starting development server with threading...")
                 socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader, allow_unsafe_werkzeug=True)
             except KeyboardInterrupt:
                 app.logger.info("Server stopped by user (Ctrl+C)")
