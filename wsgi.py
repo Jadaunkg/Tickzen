@@ -1,0 +1,1 @@
+from app.main_portal_app import app 
