@@ -1,2 +1,0 @@
-[config]
-command = gunicorn --bind=0.0.0.0 --timeout 600 app.main_portal_app:app
