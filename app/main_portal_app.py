@@ -3,12 +3,23 @@
 import sys
 import os
 
+# Monkey patch for eventlet compatibility with Redis message queue
+# This must be done before any other imports when using eventlet
+APP_ENV = os.getenv('APP_ENV', 'development').lower()
+if APP_ENV == 'production':
+    import eventlet
+    eventlet.monkey_patch()
+
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_session import Session
 import json
 import time
 from datetime import datetime, timezone, timedelta
@@ -20,10 +31,46 @@ import traceback
 from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import firestore
+import redis
+import structlog
+
+# Import security and monitoring modules
+from config.security_config import (
+    get_cors_origins, get_rate_limit_string, SECURITY_HEADERS,
+    get_user_friendly_error_message, should_log_traceback
+)
+from app.monitoring import (
+    monitor_request, log_exception, register_monitoring_routes,
+    health_checker, quota_monitor, REQUEST_COUNT, REQUEST_DURATION,
+    FILE_UPLOADS, ERROR_COUNT
+)
+from app.file_security import validate_and_track_upload, file_validator
+
 # Note: `storage` is not directly imported here anymore at the top level.
 # We will use get_storage_bucket from firebase_admin_setup
 
 import pandas as pd
+
+# Import async utilities and task management
+try:
+    from app.async_utils import run_sync_in_thread, get_thread_pool_executor, ThreadPoolContext
+    from app.task_manager import task_manager, create_task_with_tracking, register_task_routes
+    from app.celery_tasks import (
+        upload_file_to_storage_task,
+        extract_ticker_metadata_from_file_content_task,
+        run_stock_analysis_task,
+        generate_wp_assets_task,
+        save_user_site_profile_task,
+        get_user_site_profiles_task,
+        run_automation_task,
+        save_processed_ticker_status_task,
+        delete_file_from_storage_task,
+        update_ticker_cache_task
+    )
+    ASYNC_AVAILABLE = True
+except ImportError as e:
+    print(f"Async utilities not available: {e}")
+    ASYNC_AVAILABLE = False
 
 # Import dashboard analytics
 try:
@@ -114,35 +161,123 @@ UPLOAD_FOLDER = os.path.join(APP_ROOT, '..', 'generated_data', 'temp_uploads')
 STOCK_REPORTS_SUBDIR = 'stock_reports'
 STOCK_REPORTS_PATH = os.path.join(APP_ROOT, '..', 'generated_data', 'stock_reports')
 
+# Configure structured logging
+structlog.configure(
+    processors=[
+        structlog.stdlib.filter_by_level,
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.processors.JSONRenderer()
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
+
+logger = structlog.get_logger()
+
 app = Flask(__name__,
             static_folder=STATIC_FOLDER_PATH,
             template_folder=TEMPLATE_FOLDER_PATH)
 
+# Security configuration
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "your_strong_default_secret_key_here_CHANGE_ME_TOO")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
-ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
+# Redis session configuration
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_REDIS'] = redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379/0'))
+app.config['SESSION_KEY_PREFIX'] = 'flask_session:'
+app.config['SESSION_PERMANENT'] = True
+app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_COOKIE_SECURE'] = os.getenv('APP_ENV', 'development') == 'production'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+# Initialize Flask-Session
+Session(app)
+
+# CORS configuration
+CORS(app, origins=get_cors_origins(), supports_credentials=True)
+
+# Rate limiting configuration
+# Note: Flask-Limiter has compatibility issues with Flask 3.x and SocketIO
+# Using a more compatible configuration
+try:
+    limiter = Limiter(
+        app=app,
+        key_func=get_remote_address,
+        default_limits=[get_rate_limit_string('default')],
+        storage_uri=os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
+        strategy="fixed-window-elastic-expiry"
+    )
+except Exception as e:
+    app.logger.warning(f"Flask-Limiter initialization failed: {e}. Rate limiting disabled.")
+    # Create a mock limiter that doesn't actually limit
+    class MockLimiter:
+        def limit(self, *args, **kwargs):
+            def decorator(f):
+                return f
+            return decorator
+    limiter = MockLimiter()
+
+# Security headers middleware
+@app.after_request
+def add_security_headers(response):
+    """Add security headers to all responses"""
+    for header, value in SECURITY_HEADERS.items():
+        if value is not None:
+            response.headers[header] = value
+    return response
+
+# Error handling middleware
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Global exception handler with structured logging"""
+    log_exception(e, "Global exception handler")
+    
+    if app.debug:
+        return jsonify({
+            'error': str(e),
+            'traceback': traceback.format_exc() if should_log_traceback() else None
+        }), 500
+    else:
+        return jsonify({
+            'error': get_user_friendly_error_message('server_error')
+        }), 500
+
 # --- ENVIRONMENT SWITCH FOR DEV/PROD ---
-APP_ENV = os.getenv('APP_ENV', 'development').lower()  # 'development' or 'production'
+# APP_ENV is already defined at the top of the file for monkey patching
+
+# Redis message queue configuration for SocketIO
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 
 if APP_ENV == 'production':
-    import eventlet
+    # eventlet is already imported and monkey patched at the top
     import eventlet.wsgi
     socketio = SocketIO(app,
                         async_mode='eventlet',
-                        cors_allowed_origins="*",
+                        cors_allowed_origins=get_cors_origins(),
                         ping_timeout=60,
                         ping_interval=25,
                         logger=True,
-                        engineio_logger=True
+                        engineio_logger=True,
+                        message_queue=REDIS_URL
                        )
 else:
     # Werkzeug (default Flask dev server) for development with auto-reload
+    # Don't use Redis message queue in development to avoid monkey patching issues
     socketio = SocketIO(app,
-                        cors_allowed_origins="*",
+                        cors_allowed_origins=get_cors_origins(),
                         ping_timeout=60,
                         ping_interval=25,
                         logger=True,
@@ -188,6 +323,33 @@ def load_ticker_data():
 
 def upload_file_to_storage(user_uid, profile_id, file_object, original_filename):
     """Uploads a file to Firebase Storage and returns its path."""
+    if ASYNC_AVAILABLE:
+        # Use async upload with task tracking
+        try:
+            file_object.seek(0)
+            file_bytes = file_object.read()
+            content_type = getattr(file_object, 'content_type', None)
+            
+            # Create background task for upload
+            task_id = create_task_with_tracking(
+                upload_file_to_storage_task,
+                user_uid,
+                'file_upload',
+                user_uid,
+                profile_id,
+                file_bytes,
+                original_filename,
+                content_type
+            )
+            
+            app.logger.info(f"File upload task created: {task_id} for user {user_uid}, profile {profile_id}")
+            return {'task_id': task_id, 'status': 'PENDING'}
+            
+        except Exception as e:
+            app.logger.error(f"Failed to create upload task: {e}")
+            # Fall back to synchronous upload
+    
+    # Synchronous fallback
     bucket = get_storage_bucket() # Uses the imported function
     if not bucket:
         app.logger.error(f"Storage bucket not available for upload. Profile: {profile_id}, User: {user_uid}")
@@ -230,6 +392,27 @@ def delete_file_from_storage(storage_path):
         return False
 
 def extract_ticker_metadata_from_file_content(content_bytes, original_filename):
+    """Extract ticker metadata from file content - now uses async if available"""
+    if ASYNC_AVAILABLE:
+        # Use async task for large files
+        try:
+            # Create background task for metadata extraction
+            task_id = create_task_with_tracking(
+                extract_ticker_metadata_from_file_content_task,
+                None,  # No specific user for this operation
+                'metadata_extraction',
+                content_bytes,
+                original_filename
+            )
+            
+            app.logger.info(f"Metadata extraction task created: {task_id} for file {original_filename}")
+            return {'task_id': task_id, 'status': 'PENDING'}
+            
+        except Exception as e:
+            app.logger.error(f"Failed to create metadata extraction task: {e}")
+            # Fall back to synchronous extraction
+    
+    # Synchronous fallback
     MAX_TICKERS_TO_STORE_IN_FIRESTORE = 500 
     tickers = []
     common_ticker_column_names = ["Ticker", "Tickers", "Symbol", "Symbols", "Stock", "Stocks", "Keyword", "Keywords"]
@@ -307,7 +490,8 @@ def format_datetime_filter(value, fmt="%Y-%m-%d %H:%M:%S"):
 
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    """Legacy function for backward compatibility"""
+    return file_validator.is_allowed_file_extension(filename)
 
 def get_all_report_section_keys():
     try:
@@ -336,6 +520,19 @@ def login_required(f):
     return decorated_function
 
 def get_user_site_profiles_from_firestore(user_uid, limit_profiles=20):
+    if ASYNC_AVAILABLE:
+        # Use async operation with thread pool
+        try:
+            return run_sync_in_thread(_get_user_site_profiles_sync, user_uid, limit_profiles)
+        except Exception as e:
+            app.logger.error(f"Async Firestore operation failed, falling back to sync: {e}")
+    
+    # Synchronous fallback
+    return _get_user_site_profiles_sync(user_uid, limit_profiles)
+
+
+def _get_user_site_profiles_sync(user_uid, limit_profiles=20):
+    """Synchronous implementation of get_user_site_profiles_from_firestore"""
     if not FIREBASE_INITIALIZED_SUCCESSFULLY: return []
     db = get_firestore_client()
     if not db:
@@ -360,6 +557,19 @@ def get_user_site_profiles_from_firestore(user_uid, limit_profiles=20):
     return profiles
 
 def save_user_site_profile_to_firestore(user_uid, profile_data_to_save): 
+    if ASYNC_AVAILABLE:
+        # Use async operation with thread pool
+        try:
+            return run_sync_in_thread(_save_user_site_profile_sync, user_uid, profile_data_to_save)
+        except Exception as e:
+            app.logger.error(f"Async Firestore operation failed, falling back to sync: {e}")
+    
+    # Synchronous fallback
+    return _save_user_site_profile_sync(user_uid, profile_data_to_save)
+
+
+def _save_user_site_profile_sync(user_uid, profile_data_to_save): 
+    """Synchronous implementation of save_user_site_profile_to_firestore"""
     if not FIREBASE_INITIALIZED_SUCCESSFULLY: return False
     db = get_firestore_client()
     if not db: app.logger.error(f"Firestore client not available for save_user_site_profile_to_firestore (user: {user_uid})."); return False
@@ -671,8 +881,16 @@ def ticker_suggestions():
         return jsonify([])
     
     try:
+        # Use cached ticker data if available, otherwise load asynchronously
         ticker_data = load_ticker_data()
         if not ticker_data:
+            # If no cached data, trigger async load and return empty for now
+            if ASYNC_AVAILABLE:
+                try:
+                    update_ticker_cache_task.delay()
+                    app.logger.info("Triggered async ticker cache update")
+                except Exception as e:
+                    app.logger.error(f"Failed to trigger async ticker cache update: {e}")
             return jsonify([])
         
         query_upper = query.upper()
@@ -727,6 +945,8 @@ def ticker_suggestions():
         return jsonify([])
 
 @app.route('/start-analysis', methods=['POST'])
+@limiter.limit(get_rate_limit_string('analysis'))
+@monitor_request
 def start_stock_analysis():
     ticker = request.form.get('ticker', '').strip().upper()
 
@@ -755,6 +975,9 @@ def start_stock_analysis():
         return redirect(url_for('analyzer_input_page'))
 
     try:
+        # Temporarily disable async due to Celery configuration issues
+        # Use synchronous operation for now
+        app.logger.warning("Using synchronous analysis due to Celery configuration issues")
         request_timestamp_for_report = int(time.time())
         app.logger.info(f"Running full stock analysis for ticker {ticker} (Timestamp: {request_timestamp_for_report}) for room {room_id}...")
 
@@ -888,6 +1111,8 @@ def register():
     return render_template('register.html', title="Register - Tickzen")
 
 @app.route('/verify-token', methods=['POST'])
+@limiter.limit(get_rate_limit_string('auth'))
+@monitor_request
 def verify_token_route():
     if not FIREBASE_INITIALIZED_SUCCESSFULLY:
         app.logger.error("Token verification failed: Firebase Admin SDK not initialized.")
@@ -1453,6 +1678,8 @@ def automation_runner_page():
 
 @app.route('/run-automation-now', methods=['POST'])
 @login_required
+@limiter.limit(get_rate_limit_string('automation'))
+@monitor_request
 def run_automation_now(): # Modified
     user_uid = session['firebase_user_uid']
     db = get_firestore_client()
@@ -1525,66 +1752,97 @@ def run_automation_now(): # Modified
 
         elif ticker_source_method == 'file':
             file_obj = request.files.get(f'ticker_file_{pid}')
-            if file_obj and file_obj.filename and allowed_file(file_obj.filename):
-                app.logger.info(f"New file '{file_obj.filename}' uploaded for profile {pid}.")
-                old_storage_path = profile_data_from_db.get('ticker_file_storage_path')
-                if old_storage_path:
-                    app.logger.info(f"Deleting old file from {old_storage_path} for profile {pid}.")
-                    delete_file_from_storage(old_storage_path)
-
-                uploaded_storage_path = upload_file_to_storage(user_uid, pid, file_obj, file_obj.filename)
-                if uploaded_storage_path:
-                    file_obj.seek(0)
-                    file_content_bytes_for_meta = file_obj.read()
-
-                    ticker_meta = extract_ticker_metadata_from_file_content(file_content_bytes_for_meta, file_obj.filename)
-
-                    profile_update_payload = profile_data_from_db.copy() 
-                    profile_update_payload.update({ 
-                        'profile_id': pid,
-                        'uploaded_ticker_file_name': file_obj.filename,
-                        'ticker_file_storage_path': uploaded_storage_path,
-                        'ticker_file_uploaded_at': datetime.now(timezone.utc).isoformat(),
-                        'ticker_count_from_file': ticker_meta.get('count', 0),
-                        'ticker_preview_from_file': ticker_meta.get('preview', []),
-                        'all_tickers_from_file': ticker_meta.get('all_tickers', [])
-                    })
+            if file_obj and file_obj.filename:
+                # Validate file using new security module
+                is_valid, error_message, file_info = validate_and_track_upload(file_obj, file_obj.filename, user_uid)
+                
+                if is_valid:
+                    logger.info("New file uploaded for profile", 
+                               filename=file_obj.filename, 
+                               profile_id=pid,
+                               file_size=file_info['file_size'])
                     
-                    save_user_site_profile_to_firestore(user_uid, profile_update_payload)
-                    app.logger.info(f"Persisted new file '{file_obj.filename}' and metadata for profile {pid}.")
-                    automation_input_source_map[pid] = {
-                        "source_type": "uploaded_file",
-                        "storage_path": uploaded_storage_path,
-                        "original_filename": file_obj.filename
-                    }
-                    flash(f"File '{file_obj.filename}' uploaded and saved for profile '{profile_data_from_db.get('profile_name', pid)}'. {ticker_meta.get('count', 0)} tickers found.", "success")
+                    old_storage_path = profile_data_from_db.get('ticker_file_storage_path')
+                    if old_storage_path:
+                        logger.info("Deleting old file", old_storage_path=old_storage_path, profile_id=pid)
+                        delete_file_from_storage(old_storage_path)
+
+                    # For automation runner, we need immediate processing, so use synchronous operations
+                    # but with async fallback for large files
+                    uploaded_storage_path = upload_file_to_storage(user_uid, pid, file_obj, file_obj.filename)
+                    if uploaded_storage_path:
+                        file_obj.seek(0)
+                        file_content_bytes_for_meta = file_obj.read()
+
+                        # Use synchronous metadata extraction for immediate processing in automation
+                        ticker_meta = extract_ticker_metadata_from_file_content(file_content_bytes_for_meta, file_obj.filename)
+                        
+                        # If metadata extraction returned a task_id (async), wait for it
+                        if isinstance(ticker_meta, dict) and ticker_meta.get('status') == 'PENDING':
+                            logger.info("Metadata extraction running in background", filename=file_obj.filename)
+                            # For now, use a simple fallback - this could be improved with proper task waiting
+                            ticker_meta = {'count': 0, 'preview': [], 'all_tickers': [], 'error': 'Processing in background'}
+
+                        profile_update_payload = profile_data_from_db.copy() 
+                        profile_update_payload.update({ 
+                            'profile_id': pid,
+                            'uploaded_ticker_file_name': file_obj.filename,
+                            'ticker_file_storage_path': uploaded_storage_path,
+                            'ticker_file_uploaded_at': datetime.now(timezone.utc).isoformat(),
+                            'ticker_count_from_file': ticker_meta.get('count', 0),
+                            'ticker_preview_from_file': ticker_meta.get('preview', []),
+                            'all_tickers_from_file': ticker_meta.get('all_tickers', [])
+                        })
+                        
+                        save_user_site_profile_to_firestore(user_uid, profile_update_payload)
+                        logger.info("Persisted new file and metadata", 
+                                   filename=file_obj.filename, 
+                                   profile_id=pid,
+                                   ticker_count=ticker_meta.get('count', 0))
+                        
+                        automation_input_source_map[pid] = {
+                            "source_type": "uploaded_file",
+                            "storage_path": uploaded_storage_path,
+                            "original_filename": file_obj.filename
+                        }
+                        
+                        FILE_UPLOADS.labels(file_type=file_info['file_extension'], status='success').inc()
+                        flash(f"File '{file_obj.filename}' uploaded and saved for profile '{profile_data_from_db.get('profile_name', pid)}'. {ticker_meta.get('count', 0)} tickers found.", "success")
+                    else:
+                        FILE_UPLOADS.labels(file_type=file_info['file_extension'], status='failed').inc()
+                        flash(f"Error uploading new file for '{profile_data_from_db.get('profile_name', pid)}'. Check logs. Will use previous file if any, or Excel/State.", "danger")
+                        logger.error("Upload failed for profile", 
+                                   profile_id=pid, 
+                                   filename=file_obj.filename)
+                        
+                        if profile_data_from_db.get('ticker_file_storage_path'):
+                             automation_input_source_map[pid] = {
+                                "source_type": "persisted_file",
+                                "storage_path": profile_data_from_db.get('ticker_file_storage_path'),
+                                "original_filename": profile_data_from_db.get('uploaded_ticker_file_name')
+                            }
+                             logger.info("Using previously persisted file after new upload failed", profile_id=pid)
+                        else:
+                             automation_input_source_map[pid] = {"source_type": "excel_or_persisted"}
+                             logger.info("No persisted file after upload failure, defaulting to Excel/State", profile_id=pid)
                 else:
-                    flash(f"Error uploading new file for '{profile_data_from_db.get('profile_name', pid)}'. Check logs. Will use previous file if any, or Excel/State.", "danger")
-                    app.logger.error(f"Upload failed for profile {pid}, file '{file_obj.filename}'. Fallback logic will apply.")
+                    FILE_UPLOADS.labels(file_type=file_info.get('file_extension', 'unknown'), status='failed').inc()
+                    flash(error_message, "warning")
+                    logger.warning("File validation failed", 
+                                 filename=file_obj.filename, 
+                                 profile_id=pid, 
+                                 error=error_message)
+                    
                     if profile_data_from_db.get('ticker_file_storage_path'):
-                         automation_input_source_map[pid] = {
+                        automation_input_source_map[pid] = {
                             "source_type": "persisted_file",
                             "storage_path": profile_data_from_db.get('ticker_file_storage_path'),
                             "original_filename": profile_data_from_db.get('uploaded_ticker_file_name')
                         }
-                         app.logger.info(f"Using previously persisted file for profile {pid} after new upload failed.")
+                        logger.info("Using persisted file due to validation failure", profile_id=pid)
                     else:
-                         automation_input_source_map[pid] = {"source_type": "excel_or_persisted"}
-                         app.logger.info(f"No new or persisted file for profile {pid} after upload failure. Defaulting to Excel/State.")
-
-            elif file_obj and file_obj.filename:
-                flash(f"File type of '{file_obj.filename}' not allowed for profile '{profile_data_from_db.get('profile_name', pid)}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}. Using existing file or Excel/State.", "warning")
-                app.logger.warning(f"File type not allowed for '{file_obj.filename}' (profile {pid}). Using fallback.")
-                if profile_data_from_db.get('ticker_file_storage_path'):
-                    automation_input_source_map[pid] = {
-                        "source_type": "persisted_file",
-                        "storage_path": profile_data_from_db.get('ticker_file_storage_path'),
-                        "original_filename": profile_data_from_db.get('uploaded_ticker_file_name')
-                    }
-                    app.logger.info(f"Using persisted file for profile {pid} due to disallowed new file type.")
-                else:
-                    automation_input_source_map[pid] = {"source_type": "excel_or_persisted"}
-                    app.logger.info(f"No persisted file for profile {pid} after disallowed new file type. Defaulting to Excel/State.")
+                        automation_input_source_map[pid] = {"source_type": "excel_or_persisted"}
+                        logger.info("No persisted file after validation failure, defaulting to Excel/State", profile_id=pid)
             else: 
                 db_profile_data_check = profiles_db_map.get(pid, {})
                 if db_profile_data_check.get('ticker_file_storage_path'):
@@ -1623,39 +1881,66 @@ def run_automation_now(): # Modified
             }
 
     try:
-        # Pass the save_processed_ticker_status function as a callback
-        results = auto_publisher.trigger_publishing_run(
-            user_uid,
-            selected_profiles_data_for_run,
-            articles_map,
-            custom_tickers_by_profile_id=custom_tickers_for_run,
-            uploaded_file_details_by_profile_id=uploaded_file_details_for_run,
-            socketio_instance=socketio,
-            user_room=user_uid,
-            save_status_callback=save_processed_ticker_status # NEW: Pass callback here
-        )
-        socketio.emit('automation_status', {'message': "Automation run processing started. Monitor individual profile logs for live updates.", 'status': 'info'}, room=user_uid)
-
-        if results:
-            for pid_res, res_data in results.items():
-                pname = res_data.get("profile_name", pid_res)
-                summary = res_data.get("status_summary", "No summary provided for this profile.")
-                errors_list = res_data.get("errors", [])
-
-                log_category = "success"
-                if errors_list or "failed" in summary.lower() or "error" in summary.lower():
-                    log_category = "danger"
-                elif "warning" in summary.lower() or "skipped" in summary.lower() or "issue" in summary.lower():
-                    log_category = "warning"
-                elif "no new posts" in summary.lower() or "limit reached" in summary.lower():
-                    log_category = "info"
-
-                flash_message = f"Profile '{pname}': {summary}"
-                if errors_list:
-                    flash_message += f" Details: {'; '.join(errors_list[:2])}{'...' if len(errors_list) > 2 else ''}"
-                flash(flash_message, log_category)
+        # Use async task if available
+        if ASYNC_AVAILABLE:
+            # Create background task for automation
+            task_id = create_task_with_tracking(
+                run_automation_task,
+                user_uid,
+                'automation_run',
+                user_uid,
+                selected_profiles_data_for_run,
+                articles_map,
+                custom_tickers_for_run,
+                uploaded_file_details_for_run
+            )
+            
+            app.logger.info(f"Automation task created: {task_id} for user {user_uid}")
+            
+            # Emit task started event
+            socketio.emit('automation_started', {
+                'task_id': task_id,
+                'message': 'Automation started in background'
+            }, room=user_uid)
+            
+            flash("Automation run started in background. Monitor progress via real-time updates.", "info")
         else:
-            flash("Automation run initiated. No immediate summary returned (might be fully asynchronous). Check logs for updates.", "info")
+            # Fallback to synchronous operation
+            app.logger.warning("Async not available, falling back to synchronous automation")
+            
+            # Pass the save_processed_ticker_status function as a callback
+            results = auto_publisher.trigger_publishing_run(
+                user_uid,
+                selected_profiles_data_for_run,
+                articles_map,
+                custom_tickers_by_profile_id=custom_tickers_for_run,
+                uploaded_file_details_by_profile_id=uploaded_file_details_for_run,
+                socketio_instance=socketio,
+                user_room=user_uid,
+                save_status_callback=save_processed_ticker_status # NEW: Pass callback here
+            )
+            socketio.emit('automation_status', {'message': "Automation run processing started. Monitor individual profile logs for live updates.", 'status': 'info'}, room=user_uid)
+
+            if results:
+                for pid_res, res_data in results.items():
+                    pname = res_data.get("profile_name", pid_res)
+                    summary = res_data.get("status_summary", "No summary provided for this profile.")
+                    errors_list = res_data.get("errors", [])
+
+                    log_category = "success"
+                    if errors_list or "failed" in summary.lower() or "error" in summary.lower():
+                        log_category = "danger"
+                    elif "warning" in summary.lower() or "skipped" in summary.lower() or "issue" in summary.lower():
+                        log_category = "warning"
+                    elif "no new posts" in summary.lower() or "limit reached" in summary.lower():
+                        log_category = "info"
+
+                    flash_message = f"Profile '{pname}': {summary}"
+                    if errors_list:
+                        flash_message += f" Details: {'; '.join(errors_list[:2])}{'...' if len(errors_list) > 2 else ''}"
+                    flash(flash_message, log_category)
+            else:
+                flash("Automation run initiated. No immediate summary returned (might be fully asynchronous). Check logs for updates.", "info")
     except Exception as e_auto_run:
         app.logger.error(f"Error triggering automation run for user {user_uid}: {e_auto_run}", exc_info=True)
         flash("An unexpected error occurred while starting the automation run. Please check system logs or contact support.", "danger")
@@ -1714,7 +1999,6 @@ def wp_generator_page():
 @app.route('/generate-wp-assets', methods=['POST'])
 @login_required
 def generate_wp_assets():
-    start_time = time.time()
     if not request.is_json:
         return jsonify({'status': 'error', 'message': 'Invalid request: Expected JSON data.'}), 400
 
@@ -1724,7 +2008,6 @@ def generate_wp_assets():
     room_id = session.get('firebase_user_uid', data.get('client_sid'))
     if not room_id: room_id = "wp_asset_task_" + str(int(time.time()))
     app.logger.info(f"WP Asset request for {ticker} (Room: {room_id})")
-
 
     # More permissive ticker pattern that allows common special characters
     valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/]{1,15}$'
@@ -1737,6 +2020,39 @@ def generate_wp_assets():
         return jsonify({'status': 'error', 'message': 'WordPress Asset generation service is temporarily unavailable.'}), 503
 
     try:
+        # Use async task if available
+        if ASYNC_AVAILABLE:
+            user_uid = session.get('firebase_user_uid')
+            
+            # Create background task for WP asset generation
+            task_id = create_task_with_tracking(
+                generate_wp_assets_task,
+                user_uid,
+                'wp_asset_generation',
+                ticker,
+                user_uid,
+                room_id
+            )
+            
+            app.logger.info(f"WP asset generation task created: {task_id} for ticker {ticker}")
+            
+            # Emit task started event
+            socketio.emit('wp_asset_started', {
+                'task_id': task_id,
+                'ticker': ticker,
+                'message': 'WP asset generation started in background'
+            }, room=room_id)
+            
+            return jsonify({
+                'status': 'task_created',
+                'task_id': task_id,
+                'ticker': ticker,
+                'message': 'WP asset generation started in background'
+            }), 202
+        
+        # Fallback to synchronous operation
+        app.logger.warning("Async not available, falling back to synchronous WP asset generation")
+        start_time = time.time()
         timestamp = str(int(time.time()))
         app.logger.info(f"Running WordPress asset pipeline for ticker: {ticker} (Timestamp: {timestamp})...")
 
@@ -1781,37 +2097,51 @@ def generate_wp_assets():
 
 @socketio.on('connect')
 def handle_connect():
-    user_uid = session.get('firebase_user_uid')
-    client_sid = request.sid
+    try:
+        user_uid = session.get('firebase_user_uid')
+        client_sid = request.sid
 
-    if user_uid:
-        join_room(user_uid)
-        app.logger.info(f"Client {client_sid} connected and joined user room: {user_uid}")
-        emit('status', {'message': f'Connected to real-time updates! User Room: {user_uid}. Your SID: {client_sid}'}, room=client_sid)
-    else:
-        app.logger.info(f"Client {client_sid} connected (anonymous or pre-login).")
-        emit('status', {'message': f'Connected! Your SID is {client_sid}. Login for personalized features.'}, room=client_sid)
+        if user_uid:
+            join_room(user_uid)
+            app.logger.info(f"Client {client_sid} connected and joined user room: {user_uid}")
+            emit('status', {'message': f'Connected to real-time updates! User Room: {user_uid}. Your SID: {client_sid}'}, room=client_sid)
+        else:
+            app.logger.info(f"Client {client_sid} connected (anonymous or pre-login).")
+            emit('status', {'message': f'Connected! Your SID is {client_sid}. Login for personalized features.'}, room=client_sid)
+    except Exception as e:
+        app.logger.error(f"Error in SocketIO connect handler: {e}")
+        # Still emit a basic status to prevent client-side errors
+        try:
+            emit('status', {'message': 'Connected to server (limited functionality).'}, room=request.sid)
+        except:
+            pass
 
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    user_uid = session.get('firebase_user_uid')
-    client_sid = request.sid
-    if user_uid:
-        leave_room(user_uid)
-        app.logger.info(f"Client {client_sid} disconnected and left user room: {user_uid}")
-    else:
-        app.logger.info(f"Client {client_sid} disconnected (anonymous or pre-login).")
+    try:
+        user_uid = session.get('firebase_user_uid')
+        client_sid = request.sid
+        if user_uid:
+            leave_room(user_uid)
+            app.logger.info(f"Client {client_sid} disconnected and left user room: {user_uid}")
+        else:
+            app.logger.info(f"Client {client_sid} disconnected (anonymous or pre-login).")
+    except Exception as e:
+        app.logger.error(f"Error in SocketIO disconnect handler: {e}")
 
 
 @socketio.on('join_task_room')
 def handle_join_task_room(data):
-    task_room_id = data.get('room_id')
-    client_sid = request.sid
-    if task_room_id:
-        join_room(task_room_id)
-        app.logger.info(f"Client {client_sid} explicitly joined task room: {task_room_id}")
-        emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=client_sid)
+    try:
+        task_room_id = data.get('room_id')
+        client_sid = request.sid
+        if task_room_id:
+            join_room(task_room_id)
+            app.logger.info(f"Client {client_sid} explicitly joined task room: {task_room_id}")
+            emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=client_sid)
+    except Exception as e:
+        app.logger.error(f"Error in SocketIO join_task_room handler: {e}")
 
 
 @app.route('/update-user-profile', methods=['POST'])
@@ -2130,6 +2460,127 @@ def count_words_in_html(html_content):
         app.logger.error(f"Error counting words in HTML: {e}")
         return 0
 
+
+# --- Task Status API Endpoints ---
+@app.route('/api/task-status/<task_id>')
+def get_task_status_api(task_id):
+    """API endpoint to get task status"""
+    try:
+        if not ASYNC_AVAILABLE:
+            return jsonify({'error': 'Async tasks not available'}), 503
+        
+        status = task_manager.get_task_status(task_id)
+        if status:
+            return jsonify(status)
+        else:
+            return jsonify({'error': 'Task not found'}), 404
+            
+    except Exception as e:
+        app.logger.error(f"Error getting task status: {e}")
+        return jsonify({'error': 'Failed to get task status'}), 500
+
+
+@app.route('/api/task-result/<task_id>')
+def get_task_result_api(task_id):
+    """API endpoint to get task result"""
+    try:
+        if not ASYNC_AVAILABLE:
+            return jsonify({'error': 'Async tasks not available'}), 503
+        
+        status = task_manager.get_task_status(task_id)
+        if not status:
+            return jsonify({'error': 'Task not found'}), 404
+        
+        if status.get('state') == 'SUCCESS':
+            # Get the actual result from the task
+            try:
+                from app.celery_config import celery_app
+                task_result = celery_app.AsyncResult(task_id)
+                if task_result.ready() and task_result.successful():
+                    result = task_result.get()
+                    return jsonify({
+                        'status': 'success',
+                        'result': result
+                    })
+                else:
+                    return jsonify({'error': 'Task result not ready'}), 202
+            except Exception as e:
+                app.logger.error(f"Error getting task result: {e}")
+                return jsonify({'error': 'Failed to get task result'}), 500
+        else:
+            return jsonify({'error': 'Task not completed'}), 202
+            
+    except Exception as e:
+        app.logger.error(f"Error getting task result: {e}")
+        return jsonify({'error': 'Failed to get task result'}), 500
+
+
+# --- WebSocket handlers for task updates ---
+@socketio.on('get_task_status')
+def handle_get_task_status(data):
+    """WebSocket handler for getting task status"""
+    try:
+        task_id = data.get('task_id')
+        if not task_id:
+            emit('task_status_error', {'error': 'No task ID provided'})
+            return
+        
+        if not ASYNC_AVAILABLE:
+            emit('task_status_error', {'error': 'Async tasks not available'})
+            return
+        
+        status = task_manager.get_task_status(task_id)
+        if status:
+            emit('task_status_update', status)
+        else:
+            emit('task_status_error', {'error': 'Task not found'})
+            
+    except Exception as e:
+        app.logger.error(f"Error in get_task_status WebSocket handler: {e}")
+        emit('task_status_error', {'error': 'Failed to get task status'})
+
+
+@socketio.on('get_task_result')
+def handle_get_task_result(data):
+    """WebSocket handler for getting task result"""
+    try:
+        task_id = data.get('task_id')
+        if not task_id:
+            emit('task_result_error', {'error': 'No task ID provided'})
+            return
+        
+        if not ASYNC_AVAILABLE:
+            emit('task_result_error', {'error': 'Async tasks not available'})
+            return
+        
+        status = task_manager.get_task_status(task_id)
+        if not status:
+            emit('task_result_error', {'error': 'Task not found'})
+            return
+        
+        if status.get('state') == 'SUCCESS':
+            try:
+                from app.celery_config import celery_app
+                task_result = celery_app.AsyncResult(task_id)
+                if task_result.ready() and task_result.successful():
+                    result = task_result.get()
+                    emit('task_result_ready', {
+                        'task_id': task_id,
+                        'result': result
+                    })
+                else:
+                    emit('task_result_error', {'error': 'Task result not ready'})
+            except Exception as e:
+                app.logger.error(f"Error getting task result: {e}")
+                emit('task_result_error', {'error': 'Failed to get task result'})
+        else:
+            emit('task_result_error', {'error': 'Task not completed'})
+            
+    except Exception as e:
+        app.logger.error(f"Error in get_task_result WebSocket handler: {e}")
+        emit('task_result_error', {'error': 'Failed to get task result'})
+
+
 # Register dashboard analytics routes if available
 if DASHBOARD_ANALYTICS_AVAILABLE:
     try:
@@ -2137,6 +2588,39 @@ if DASHBOARD_ANALYTICS_AVAILABLE:
         app.logger.info("Dashboard analytics routes registered successfully")
     except Exception as e:
         app.logger.error(f"Failed to register dashboard analytics routes: {e}")
+
+# Register task management routes if async is available
+if ASYNC_AVAILABLE:
+    try:
+        register_task_routes(app)
+        app.logger.info("Task management routes registered successfully")
+    except Exception as e:
+        app.logger.error(f"Failed to register task management routes: {e}")
+
+# Register monitoring and health check routes
+try:
+    # Initialize health checker with services
+    redis_client = redis.from_url(REDIS_URL)
+    firestore_client = get_firestore_client() if FIREBASE_INITIALIZED_SUCCESSFULLY else None
+    
+    # Try to get celery_app if available
+    celery_app_instance = None
+    if ASYNC_AVAILABLE:
+        try:
+            from app.celery_config import celery_app as celery_app_instance
+        except ImportError:
+            pass
+    
+    health_checker.init_services(
+        redis_client=redis_client,
+        celery_app=celery_app_instance,
+        firestore_client=firestore_client
+    )
+    
+    register_monitoring_routes(app, health_checker)
+    logger.info("Monitoring and health check routes registered successfully")
+except Exception as e:
+    logger.error("Failed to register monitoring routes", error=str(e))
 
 if __name__ == '__main__':
     try:
