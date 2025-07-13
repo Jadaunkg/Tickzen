@@ -85,7 +85,7 @@ echo "🔐 Storing secrets in Key Vault..."
 az keyvault secret set --vault-name $KEY_VAULT_NAME --name "redis-connection-string" --value "redis://:$REDIS_KEY@$REDIS_HOST:6380/0"
 az keyvault secret set --vault-name $KEY_VAULT_NAME --name "storage-connection-string" --value "DefaultEndpointsProtocol=https;AccountName=$STORAGE_ACCOUNT;AccountKey=$STORAGE_KEY;EndpointSuffix=core.windows.net"
 
-# 10. Configure Web App settings
+# 10. Configure Web App settings - Optimized for small scale
 echo "⚙️ Configuring Web App settings..."
 az webapp config appsettings set \
   --name $APP_NAME \
@@ -101,8 +101,8 @@ az webapp config appsettings set \
     AZURE_KEY_VAULT_URL="https://$KEY_VAULT_NAME.vault.azure.net/" \
     ALLOWED_ORIGINS="https://$APP_NAME.azurewebsites.net" \
     ENABLE_MONITORING="true" \
-    CELERY_WORKER_CONCURRENCY="8" \
-    CELERY_TASK_TIME_LIMIT="1800" \
+    CELERY_WORKER_CONCURRENCY="2" \
+    CELERY_TASK_TIME_LIMIT="900" \
     WEBSITES_PORT="5000" \
     SCM_DO_BUILD_DURING_DEPLOYMENT="true" \
     PYTHON_VERSION="3.9"

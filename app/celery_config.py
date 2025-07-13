@@ -20,7 +20,7 @@ celery_app = Celery(
     include=['app.celery_tasks']
 )
 
-# Celery configuration
+# Celery configuration - Optimized for small scale (10-15 concurrent users)
 celery_app.conf.update(
     # Task serialization
     task_serializer='json',
@@ -29,17 +29,17 @@ celery_app.conf.update(
     timezone='UTC',
     enable_utc=True,
     
-    # Task execution
+    # Task execution - Optimized for small scale
     task_track_started=True,
-    task_time_limit=30 * 60,  # 30 minutes
-    task_soft_time_limit=25 * 60,  # 25 minutes
+    task_time_limit=15 * 60,  # 15 minutes (reduced from 30)
+    task_soft_time_limit=12 * 60,  # 12 minutes (reduced from 25)
     
-    # Worker configuration
+    # Worker configuration - Optimized for small scale
     worker_prefetch_multiplier=1,
-    worker_max_tasks_per_child=1000,
+    worker_max_tasks_per_child=500,  # Reduced from 1000
     
-    # Result backend configuration
-    result_expires=3600,  # 1 hour
+    # Result backend configuration - Optimized for memory
+    result_expires=900,  # 15 minutes (reduced from 1 hour)
     
     # Beat schedule (for periodic tasks)
     beat_schedule={},
@@ -47,7 +47,7 @@ celery_app.conf.update(
     # Broker connection settings
     broker_connection_retry_on_startup=True,
     broker_connection_retry=True,
-    broker_connection_max_retries=10,
+    broker_connection_max_retries=5,  # Reduced from 10
     
     # Task routing settings
     task_always_eager=False,

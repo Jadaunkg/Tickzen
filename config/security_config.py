@@ -16,15 +16,17 @@ REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 REDIS_DB = int(os.getenv('REDIS_DB', '0'))
 
-# Session Configuration
+# Session Configuration - Optimized for memory efficiency
 SESSION_TYPE = 'redis'
 SESSION_REDIS_URL = REDIS_URL
-SESSION_KEY_PREFIX = 'flask_session:'
+SESSION_KEY_PREFIX = 's:'  # Shorter prefix to save memory
 SESSION_PERMANENT = True
 SESSION_USE_SIGNER = True
 SESSION_COOKIE_SECURE = IS_PRODUCTION
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
+# Reduced session lifetime for memory efficiency
+SESSION_LIFETIME_HOURS = 24  # 1 day instead of 7 days
 
 # CORS Configuration
 CORS_ORIGINS = {
@@ -40,14 +42,14 @@ CORS_CONFIG = {
     'max_age': 3600
 }
 
-# Rate Limiting Configuration
+# Rate Limiting Configuration - Optimized for Small Scale (10-15 concurrent, 100 daily users)
 RATE_LIMIT_CONFIG = {
-    'default': '200 per day;50 per hour;10 per minute',
-    'api': '1000 per day;100 per hour;20 per minute',
-    'auth': '100 per day;10 per hour;5 per minute',
-    'upload': '50 per day;10 per hour;2 per minute',
-    'analysis': '100 per day;20 per hour;5 per minute',
-    'automation': '50 per day;10 per hour;2 per minute'
+    'default': '50 per day;10 per hour;3 per minute',  # Reduced for small scale
+    'api': '200 per day;30 per hour;8 per minute',     # API endpoints
+    'auth': '20 per day;5 per hour;2 per minute',      # Authentication
+    'upload': '10 per day;3 per hour;1 per minute',    # File uploads
+    'analysis': '30 per day;8 per hour;2 per minute',  # Stock analysis
+    'automation': '15 per day;3 per hour;1 per minute' # Automation tasks
 }
 
 # File Upload Security

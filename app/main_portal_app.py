@@ -193,15 +193,17 @@ app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
-# Redis session configuration
+# Redis session configuration - Optimized for small scale
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_REDIS'] = redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379/0'))
-app.config['SESSION_KEY_PREFIX'] = 'flask_session:'
+app.config['SESSION_KEY_PREFIX'] = 's:'  # Shorter prefix to save memory
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_COOKIE_SECURE'] = os.getenv('APP_ENV', 'development') == 'production'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+# Reduced session lifetime for memory efficiency
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)  # 1 day instead of 7 days
 
 # Initialize Flask-Session
 Session(app)

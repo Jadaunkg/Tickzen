@@ -37,12 +37,12 @@ def main():
         logger.info(f"Broker URL: {celery_app.conf.broker_url}")
         logger.info(f"Result Backend: {celery_app.conf.result_backend}")
         
-        # Start the worker
+        # Start the worker - Optimized for small scale (10-15 concurrent users)
         celery_app.worker_main([
             'worker',
             '--loglevel=info',
-            '--concurrency=4',  # Number of worker processes
-            '--queues=default,file_processing,database,automation',  # Queues to process
+            '--concurrency=2',  # Reduced from 4 for small scale
+            '--queues=default',  # Simplified queue structure
             '--hostname=worker@%h',  # Worker hostname
             '--without-gossip',  # Disable gossip for single worker
             '--without-mingle',  # Disable mingle for single worker
