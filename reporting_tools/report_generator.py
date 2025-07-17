@@ -718,8 +718,8 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
             if (abs(current_price - resistance_price) / resistance_price < 0.05 and # Within 5% of resistance
                 rsi_value > 70): # RSI is overbought
                 observation = (
-                    f"Technical Pattern to Watch: The stock price ({data_out.get('currency_symbol', '$')}{current_price:.2f}) is currently approaching a significant short-term resistance level "
-                    f"(around {data_out.get('currency_symbol', '$')}{resistance_price:.2f}) while the RSI ({rsi_value:.1f}) is nearing overbought territory. "
+                            f"Technical Pattern to Watch: The stock price (${current_price:.2f}) is currently approaching a significant short-term resistance level "
+        f"(around ${resistance_price:.2f}) while the RSI ({rsi_value:.1f}) is nearing overbought territory. "
                     f"This convergence warrants attention, as it could signal a potential pause or pullback in the uptrend unless a decisive breakout occurs on strong volume."
                 )
                 observations.append(observation)

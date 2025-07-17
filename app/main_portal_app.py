@@ -1,4 +1,11 @@
 # main_portal_app.py
+# 
+# OPTIMIZATIONS FOR AZURE DEPLOYMENT:
+# - Fast fallback authentication: Network timeouts reduced to 1-3 seconds
+# - Single retry attempt for faster fallback to offline token verification
+# - 10-second frontend timeout for backend verification
+# - Automatic redirect to dashboard after successful login
+# - Fallback token verification works without network access
 
 import sys
 import os
@@ -50,6 +57,7 @@ from app.file_security import validate_and_track_upload, file_validator
 # We will use get_storage_bucket from firebase_admin_setup
 
 import pandas as pd
+import jwt  # For debugging token payload without verification
 
 # Import async utilities and task management
 try:
@@ -86,7 +94,7 @@ PIPELINE_IMPORTED_SUCCESSFULLY = True
 
 try:
     # Ensure get_storage_bucket is imported from your setup file
-    from config.firebase_admin_setup import initialize_firebase_admin, verify_firebase_token, get_firestore_client, get_storage_bucket
+    from config.firebase_admin_setup import initialize_firebase_admin, verify_firebase_token, get_firestore_client, get_storage_bucket, get_firebase_app
     initialize_firebase_admin()
     from config.firebase_admin_setup import _firebase_app_initialized
     FIREBASE_INITIALIZED_SUCCESSFULLY = _firebase_app_initialized
@@ -263,6 +271,18 @@ def handle_exception(e):
 # Redis message queue configuration for SocketIO
 REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 
+# Check if we're in Azure App Service (production)
+if os.getenv('WEBSITE_SITE_NAME') or os.getenv('WEBSITE_INSTANCE_ID'):
+    APP_ENV = 'production'
+    app.logger.info("Detected Azure App Service environment - using production settings")
+    app.logger.info(f"Azure Site Name: {os.getenv('WEBSITE_SITE_NAME', 'N/A')}")
+    app.logger.info(f"Azure Instance ID: {os.getenv('WEBSITE_INSTANCE_ID', 'N/A')}")
+
+# Log environment configuration
+app.logger.info(f"Application Environment: {APP_ENV}")
+app.logger.info(f"Flask Debug Mode: {os.getenv('FLASK_DEBUG', 'Not Set')}")
+app.logger.info(f"Port: {os.getenv('PORT', '5000')}")
+
 if APP_ENV == 'production':
     # eventlet is already imported and monkey patched at the top
     import eventlet.wsgi
@@ -276,14 +296,23 @@ if APP_ENV == 'production':
                         message_queue=REDIS_URL
                        )
 else:
+<<<<<<< HEAD
     # Werkzeug (default Flask dev server) for development with auto-reload
     # Don't use Redis message queue in development to avoid monkey patching issues
     socketio = SocketIO(app,
                         cors_allowed_origins=get_cors_origins(),
                         ping_timeout=60,
                         ping_interval=25,
+=======
+    # Development configuration with better timeout handling
+    socketio = SocketIO(app,
+                        cors_allowed_origins="*",
+                        ping_timeout=120,  # Increased timeout for development
+                        ping_interval=30,  # Increased interval
+>>>>>>> recover_lost_commits
                         logger=True,
-                        engineio_logger=True
+                        engineio_logger=True,
+                        async_mode='threading'  # Use threading instead of eventlet for development
                        )
 
 
@@ -507,6 +536,15 @@ def get_all_report_section_keys():
                 "stock_price_statistics", "dividends_shareholder_returns", "conclusion_outlook",
                 "risk_factors", "faq", "historical_performance"] 
 ALL_SECTIONS = get_all_report_section_keys()
+
+def debug_decode_token(token):
+    """Debug function to decode JWT token without signature verification"""
+    try:
+        decoded = jwt.decode(token, options={"verify_signature": False})
+        return decoded
+    except Exception as e:
+        app.logger.warning(f"Failed to decode token payload (debug): {e}")
+        return None
 
 def login_required(f):
     @wraps(f)
@@ -1116,14 +1154,50 @@ def register():
 @limiter.limit(get_rate_limit_string('auth'))
 @monitor_request
 def verify_token_route():
+    # --- DEBUGGING: Log backend Firebase project ID ---
+    try:
+        app_instance = get_firebase_app()
+        if app_instance:
+            app.logger.info(f"[DEBUG] Backend Firebase project ID: {getattr(app_instance, 'project_id', None)}")
+        else:
+            app.logger.warning("[DEBUG] Backend Firebase app instance is None.")
+    except Exception as e:
+        app.logger.error(f"[DEBUG] Error getting backend Firebase app/project ID: {e}")
+
     if not FIREBASE_INITIALIZED_SUCCESSFULLY:
         app.logger.error("Token verification failed: Firebase Admin SDK not initialized.")
         return jsonify({"error": "Authentication service is currently unavailable."}), 503
     data = request.get_json()
     if not data or 'idToken' not in data:
+        app.logger.warning(f"[DEBUG] No ID token provided in request data: {data}")
         return jsonify({"error": "No ID token provided."}), 400
     id_token = data['idToken']
+    # --- DEBUGGING: Log the received token and its length ---
+    app.logger.info(f"[DEBUG] ID Token received from frontend: {id_token[:40]}... (length: {len(id_token)})")
+    
+    # --- DEBUGGING: Decode token payload without verification to inspect claims ---
+    debug_decoded = debug_decode_token(id_token)
+    if debug_decoded:
+        app.logger.info(f"[DEBUG] Token payload (no verification): aud={debug_decoded.get('aud')}, iss={debug_decoded.get('iss')}, exp={debug_decoded.get('exp')}, iat={debug_decoded.get('iat')}, sub={debug_decoded.get('sub')}")
+        app.logger.info(f"[DEBUG] Token email_verified: {debug_decoded.get('email_verified')}, email: {debug_decoded.get('email')}")
+        
+        # Check if token is expired
+        import time
+        current_time = int(time.time())
+        exp_time = debug_decoded.get('exp', 0)
+        if exp_time and exp_time < current_time:
+            app.logger.warning(f"[DEBUG] Token is expired! Current time: {current_time}, Token exp: {exp_time}, Difference: {current_time - exp_time} seconds")
+        else:
+            app.logger.info(f"[DEBUG] Token is not expired. Current time: {current_time}, Token exp: {exp_time}")
+    else:
+        app.logger.warning("[DEBUG] Could not decode token payload for inspection")
+    
     decoded_token = verify_firebase_token(id_token)
+    # --- DEBUGGING: Log decoded token claims if available ---
+    if decoded_token:
+        app.logger.info(f"[DEBUG] Decoded token claims: {json.dumps(decoded_token, default=str)[:500]}...")
+    else:
+        app.logger.warning(f"[DEBUG] Token verification failed. Decoded token: {decoded_token}")
     if decoded_token and 'uid' in decoded_token:
         session['firebase_user_uid'] = decoded_token['uid']
         session['firebase_user_email'] = decoded_token.get('email')
@@ -1164,7 +1238,7 @@ def verify_token_route():
 
         return jsonify({"status": "success", "uid": decoded_token['uid'], "next_url": url_for('dashboard_page')}), 200
     else:
-        app.logger.warning(f"Token verification failed. Decoded token: {decoded_token}")
+        app.logger.warning(f"[DEBUG] Token verification failed. Decoded token: {decoded_token}")
         return jsonify({"error": "Invalid or expired token."}), 401
 
 @app.route('/logout')
@@ -2098,11 +2172,19 @@ def generate_wp_assets():
         return jsonify({'status': 'error', 'message': display_message}), 500
 
 @socketio.on('connect')
+<<<<<<< HEAD
 def handle_connect():
     try:
         user_uid = session.get('firebase_user_uid')
         client_sid = request.sid
 
+=======
+def handle_connect(*args, **kwargs):
+    user_uid = session.get('firebase_user_uid')
+    client_sid = request.sid
+
+    try:
+>>>>>>> recover_lost_commits
         if user_uid:
             join_room(user_uid)
             app.logger.info(f"Client {client_sid} connected and joined user room: {user_uid}")
@@ -2111,6 +2193,7 @@ def handle_connect():
             app.logger.info(f"Client {client_sid} connected (anonymous or pre-login).")
             emit('status', {'message': f'Connected! Your SID is {client_sid}. Login for personalized features.'}, room=client_sid)
     except Exception as e:
+<<<<<<< HEAD
         app.logger.error(f"Error in SocketIO connect handler: {e}")
         # Still emit a basic status to prevent client-side errors
         try:
@@ -2124,12 +2207,23 @@ def handle_disconnect():
     try:
         user_uid = session.get('firebase_user_uid')
         client_sid = request.sid
+=======
+        app.logger.error(f"Error in handle_connect for client {client_sid}: {e}")
+
+
+@socketio.on('disconnect')
+def handle_disconnect(*args, **kwargs):
+    user_uid = session.get('firebase_user_uid')
+    client_sid = request.sid
+    try:
+>>>>>>> recover_lost_commits
         if user_uid:
             leave_room(user_uid)
             app.logger.info(f"Client {client_sid} disconnected and left user room: {user_uid}")
         else:
             app.logger.info(f"Client {client_sid} disconnected (anonymous or pre-login).")
     except Exception as e:
+<<<<<<< HEAD
         app.logger.error(f"Error in SocketIO disconnect handler: {e}")
 
 
@@ -2138,13 +2232,37 @@ def handle_join_task_room(data):
     try:
         task_room_id = data.get('room_id')
         client_sid = request.sid
+=======
+        app.logger.error(f"Error in handle_disconnect for client {client_sid}: {e}")
+
+
+@socketio.on('join_task_room')
+def handle_join_task_room(data, *args, **kwargs):
+    task_room_id = data.get('room_id')
+    client_sid = request.sid
+    try:
+>>>>>>> recover_lost_commits
         if task_room_id:
             join_room(task_room_id)
             app.logger.info(f"Client {client_sid} explicitly joined task room: {task_room_id}")
             emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=client_sid)
     except Exception as e:
+<<<<<<< HEAD
         app.logger.error(f"Error in SocketIO join_task_room handler: {e}")
+=======
+        app.logger.error(f"Error in handle_join_task_room for client {client_sid}: {e}")
+>>>>>>> recover_lost_commits
 
+
+@socketio.on_error()
+def error_handler(e):
+    """Global error handler for SocketIO events"""
+    client_sid = request.sid if hasattr(request, 'sid') else 'unknown'
+    app.logger.error(f"SocketIO error for client {client_sid}: {e}")
+    try:
+        emit('error', {'message': 'An error occurred with the real-time connection.'}, room=client_sid)
+    except:
+        pass  # Don't let error handler cause more errors
 
 @app.route('/update-user-profile', methods=['POST'])
 @login_required
@@ -2649,11 +2767,21 @@ if __name__ == '__main__':
     app.logger.info(f"Attempting to start Flask-SocketIO server on http://0.0.0.0:{port} (Debug: {debug_mode}, Reloader: {use_reloader})")
     try:
         if APP_ENV == 'production':
-            # Use eventlet WSGI server in production
-            socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader, allow_unsafe_werkzeug=False)
+            # Use eventlet WSGI server in production (Azure)
+            app.logger.info("Starting production server with eventlet...")
+            socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False, allow_unsafe_werkzeug=False)
         else:
-            # Werkzeug dev server with reloader
-            socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader)
+            # Development server with better error handling
+            try:
+                app.logger.info("Starting development server with threading...")
+                socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader, allow_unsafe_werkzeug=True)
+            except KeyboardInterrupt:
+                app.logger.info("Server stopped by user (Ctrl+C)")
+            except Exception as dev_error:
+                app.logger.error(f"Development server error: {dev_error}")
+                # Fallback to production mode if development fails
+                app.logger.info("Attempting fallback to production mode...")
+                socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False, allow_unsafe_werkzeug=False)
     except Exception as e_run:
         app.logger.error(f"CRITICAL: Failed to start Flask-SocketIO server: {e_run}", exc_info=True)
         print(f"CRITICAL: Server could not start. Check logs. Error: {e_run}")

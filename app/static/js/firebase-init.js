@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // --- START: Firebase Configuration ---
         // IMPORTANT: Replace these with your project's actual Firebase configuration.
         const firebaseConfig = {
-            apiKey: "AIzaSyAm-1IWTApPgJNmCsaUQtO0Waa1im12ZR0", // <<< REPLACE THIS WITH YOUR REAL API KEY
+            apiKey: "AIzaSyAm-1IWTApPgJNmCsaUQtO0Waa1im12ZR0", // 
             authDomain: "stock-report-automation.firebaseapp.com",
             projectId: "stock-report-automation",
             storageBucket: "stock-report-automation.appspot.com",
@@ -34,6 +34,24 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error("Firebase SDK (app) not loaded correctly before firebase-init.js.");
             displayAuthMessage("Critical error: Core Firebase services are unavailable.", "error", true); // true for global error
             return; 
+        }
+
+        if (auth) {
+            // Global listener to refresh token and handle sign-out
+            auth.onIdTokenChanged(async (user) => {
+                if (user) {
+                    try {
+                        // Force refresh the token to avoid expiry issues
+                        await user.getIdToken(true);
+                    } catch (err) {
+                        console.error('Error refreshing ID token:', err);
+                    }
+                } else {
+                    // User is signed out, optionally clear session or redirect
+                    console.log('User is signed out (onIdTokenChanged).');
+                    // Optionally, redirect to login or clear UI
+                }
+            });
         }
 
         // --- Helper to display messages on auth pages ---
@@ -126,19 +144,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // --- Backend Token Verification ---
         async function verifyTokenWithBackend(idToken) {
+            console.log('Starting backend token verification...');
             // A global spinner might be good here if redirection is slow
             try {
+                // Add timeout for faster fallback - 10 seconds max
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                
                 const response = await fetch('/verify-token', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ idToken: idToken }),
+                    signal: controller.signal
                 });
+                
+                clearTimeout(timeoutId);
+                console.log('Backend response status:', response.status);
                 const data = await response.json();
+                console.log('Backend response data:', data);
+                
                 if (response.ok) {
+                    console.log('Backend verification successful, preparing redirect...');
+                    // Hide all spinners before redirect
+                    hideSpinner('loginSpinner');
+                    hideSpinner('googleSignInSpinnerLogin');
+                    hideSpinner('googleSignInSpinnerRegister');
+                    
                     // Don't display message here, redirect is immediate
-                    const nextUrl = new URLSearchParams(window.location.search).get('next') || '/site-profiles';
+                    const nextUrl = new URLSearchParams(window.location.search).get('next') || data.next_url || '/dashboard';
+                    console.log('Authentication successful, redirecting to:', nextUrl);
                     window.location.href = nextUrl;
                 } else {
+                    console.log('Backend verification failed:', data);
+                    // Hide spinners on error
+                    hideSpinner('loginSpinner');
+                    hideSpinner('googleSignInSpinnerLogin');
+                    hideSpinner('googleSignInSpinnerRegister');
+                    
                     const errorMessage = data.email_not_verified 
                         ? "Email not verified. Please check your inbox for a verification link."
                         : data.error || "Token verification failed after successful authentication.";
@@ -147,7 +189,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch (error) {
                 console.error("Error verifying token with backend:", error);
-                displayAuthMessage("An error occurred communicating with the server. Please try again.");
+                
+                // Hide spinners on error
+                hideSpinner('loginSpinner');
+                hideSpinner('googleSignInSpinnerLogin');
+                hideSpinner('googleSignInSpinnerRegister');
+                
+                if (error.name === 'AbortError') {
+                    displayAuthMessage("Server response timeout. Please try again or check your connection.");
+                } else {
+                    displayAuthMessage("An error occurred communicating with the server. Please try again.");
+                }
                 if (auth) await auth.signOut();
             }
         }

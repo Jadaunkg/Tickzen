@@ -1,0 +1,54 @@
+{
+  "name": "tickzen-app-service",
+  "description": "Configuration for Tickzen Flask app on Azure App Service",
+  "version": "1.0.0",
+  "azure": {
+    "app_service": {
+      "runtime": "python:3.10",
+      "startup_command": "python app/main_portal_app.py",
+      "environment_variables": {
+        "APP_ENV": "production",
+        "FLASK_DEBUG": "False",
+        "WEBSITES_PORT": "5000"
+      },
+      "network": {
+        "outbound_restrictions": {
+          "allowed_hosts": [
+            "www.googleapis.com",
+            "firebase.googleapis.com",
+            "firestore.googleapis.com",
+            "storage.googleapis.com",
+            "securetoken.googleapis.com"
+          ],
+          "timeout_settings": {
+            "connect_timeout": 10,
+            "read_timeout": 30,
+            "socket_timeout": 30
+          }
+        }
+      }
+    }
+  },
+  "firebase": {
+    "required_endpoints": [
+      "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
+      "https://firebase.googleapis.com",
+      "https://firestore.googleapis.com",
+      "https://storage.googleapis.com"
+    ],
+    "network_requirements": {
+      "dns_resolution": "Required for www.googleapis.com",
+      "https_access": "Required for all Firebase services",
+      "timeout_handling": "Configured with retry logic"
+    }
+  },
+  "deployment": {
+    "recommendations": [
+      "Enable Azure App Service outbound network access",
+      "Configure custom DNS if needed",
+      "Set appropriate timeout values",
+      "Use Azure Key Vault for sensitive environment variables",
+      "Enable application insights for monitoring"
+    ]
+  }
+} 
