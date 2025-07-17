@@ -301,17 +301,18 @@ else:
                         ping_timeout=120,  # Increased timeout for development
                         ping_interval=30,  # Increased interval
                         logger=True,
-                        engineio_logger=True,
+                        engineio_logger=False,  # Disable engineio logger in development to reduce noise
                         async_mode='threading',  # Use threading instead of eventlet for development
                         max_http_buffer_size=1e6,  # 1MB buffer
                         allow_upgrades=True,
-                        http_compression=True,
+                        http_compression=False,  # Disable compression in development
                         compression_threshold=1024,
                         cookie=None,  # Disable cookie-based sessions
                         always_connect=True,  # Always allow connections
-                        transports=['websocket', 'polling'],  # Allow both transports
+                        transports=['polling', 'websocket'],  # Changed order: polling first for development
                         manage_session=False,  # Let Flask handle sessions
-                        cors_credentials=False  # Disable credentials for better compatibility
+                        cors_credentials=False,  # Disable credentials for better compatibility
+                        path='socket.io'  # Explicit path to avoid conflicts
                        )
 
 

@@ -828,9 +828,10 @@
             reconnectionDelayMax: 3000, // Reduced from 5000 to 3000ms
             timeout: 15000,           // Reduced from 20000 to 15000ms
             autoConnect: false,       // Changed from true to false to prevent auto-connection
-            transports: ['websocket', 'polling'],
+            transports: ['polling', 'websocket'], // Changed order: polling first for development
             forceNew: false,          // Prevent multiple connections
-            multiplex: false          // Disable multiplexing to prevent conflicts
+            multiplex: false,         // Disable multiplexing to prevent conflicts
+            path: '/socket.io/'       // Explicit path to match server
         };
 
         // Global socket instance

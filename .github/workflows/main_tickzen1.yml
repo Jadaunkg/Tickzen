@@ -34,6 +34,38 @@ jobs:
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
+      - name: Create Azure deployment files
+        run: |
+          # Create startup command file for Azure
+          echo "python app/main_portal_app.py" > startup.txt
+          
+          # Ensure web.config is in the root
+          if [ ! -f web.config ]; then
+            echo "Creating web.config for Azure App Service..."
+            cat > web.config << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <system.webServer>
+    <handlers>
+      <add name="httpPlatformHandler" path="*" verb="*" modules="httpPlatformHandler" resourceType="Unspecified" />
+    </handlers>
+    <httpPlatform processPath="%home%\site\wwwroot\env\Scripts\python.exe"
+                  arguments="%home%\site\wwwroot\app\main_portal_app.py"
+                  stdoutLogEnabled="true"
+                  stdoutLogFile="%home%\LogFiles\stdout"
+                  startupTimeLimit="60">
+      <environmentVariables>
+        <environmentVariable name="PORT" value="%HTTP_PLATFORM_PORT%" />
+        <environmentVariable name="APP_ENV" value="production" />
+        <environmentVariable name="FLASK_DEBUG" value="False" />
+        <environmentVariable name="WEBSITES_PORT" value="5000" />
+      </environmentVariables>
+    </httpPlatform>
+  </system.webServer>
+</configuration>
+EOF
+          fi
+
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
 
@@ -49,7 +81,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     
-    
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -59,7 +90,6 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
@@ -67,3 +97,5 @@ jobs:
           app-name: 'tickzen1'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7F60D48B681E46AC8FC375B05EA1E9FC }}
+          package: .
+          startup-command: 'python app/main_portal_app.py'
