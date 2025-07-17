@@ -611,7 +611,36 @@ document.addEventListener('DOMContentLoaded', function () {
     let timerInterval;
     let elapsedTime = 0;
     
-    if (typeof io === 'undefined') {
+    // Use global socket instance instead of creating new connection
+    let socket = null;
+    
+    function getSocket() {
+        if (window.globalSocket && window.globalSocket.connected) {
+            return window.globalSocket;
+        }
+        
+        // If global socket is not available, try to initialize it
+        if (typeof initializeGlobalSocket === 'function') {
+            socket = initializeGlobalSocket();
+        } else if (typeof io !== 'undefined') {
+            // Fallback to creating a new connection with proper config
+            socket = io({
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                timeout: 20000,
+                transports: ['websocket', 'polling']
+            });
+        }
+        
+        return socket;
+    }
+
+    // Get socket instance
+    socket = getSocket();
+    
+    if (!socket) {
         console.error("Socket.IO client library not loaded. Real-time updates disabled.");
         if(errorMessageArea) {
             errorMessageArea.textContent = 'Real-time connection library not available. Progress updates will not be shown.';
@@ -623,8 +652,6 @@ document.addEventListener('DOMContentLoaded', function () {
         alert("Error: Real-time features are unavailable. Please check your connection or contact support.");
         return; // Stop further JS execution if io is not defined
     }
-
-    const socket = io(); 
 
     socket.on('connect', function() {
         console.log('WebSocket Connected. SID: ' + socket.id);

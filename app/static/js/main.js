@@ -438,9 +438,40 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // SocketIO Listeners Specific to Automation Runner Page
-        if (typeof io !== 'undefined') {
-            const socket = io(); // Assuming socket is connected as per firebase-init.js or _base.html
+    // SocketIO Listeners Specific to Automation Runner Page
+    // Use global socket instance instead of creating new connections
+    let socket = null;
+    
+    function getSocket() {
+        if (window.globalSocket && window.globalSocket.connected) {
+            return window.globalSocket;
+        }
+        
+        // If global socket is not available, try to initialize it
+        if (typeof initializeGlobalSocket === 'function') {
+            socket = initializeGlobalSocket();
+        } else if (typeof io !== 'undefined') {
+            // Fallback to creating a new connection with proper config
+            socket = io({
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                timeout: 20000,
+                transports: ['websocket', 'polling']
+            });
+        }
+        
+        return socket;
+    }
+
+    // Get socket instance
+    socket = getSocket();
+    
+    if (!socket) {
+        console.warn("Socket.IO not loaded, real-time updates on Automation Runner page will not work.");
+        return;
+    }
 
             socket.on('automation_update', function(data) {
                 if (data.profile_id && data.profile_id !== "Overall") {
@@ -517,8 +548,5 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 });
             }
-        } else {
-            console.warn("Socket.IO not loaded, real-time updates on Automation Runner page will not work.");
-        }
-    } // End of Automation Runner Page Specific JS
+        } // End of Automation Runner Page Specific JS
 }); // End of main DOMContentLoaded

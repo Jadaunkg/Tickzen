@@ -288,31 +288,30 @@ if APP_ENV == 'production':
     import eventlet.wsgi
     socketio = SocketIO(app,
                         async_mode='eventlet',
-                        cors_allowed_origins=get_cors_origins(),
+                        cors_allowed_origins="*",
                         ping_timeout=60,
                         ping_interval=25,
                         logger=True,
-                        engineio_logger=True,
-                        message_queue=REDIS_URL
+                        engineio_logger=True
                        )
 else:
-<<<<<<< HEAD
-    # Werkzeug (default Flask dev server) for development with auto-reload
-    # Don't use Redis message queue in development to avoid monkey patching issues
-    socketio = SocketIO(app,
-                        cors_allowed_origins=get_cors_origins(),
-                        ping_timeout=60,
-                        ping_interval=25,
-=======
     # Development configuration with better timeout handling
     socketio = SocketIO(app,
                         cors_allowed_origins="*",
                         ping_timeout=120,  # Increased timeout for development
                         ping_interval=30,  # Increased interval
->>>>>>> recover_lost_commits
                         logger=True,
                         engineio_logger=True,
-                        async_mode='threading'  # Use threading instead of eventlet for development
+                        async_mode='threading',  # Use threading instead of eventlet for development
+                        max_http_buffer_size=1e6,  # 1MB buffer
+                        allow_upgrades=True,
+                        http_compression=True,
+                        compression_threshold=1024,
+                        cookie=None,  # Disable cookie-based sessions
+                        always_connect=True,  # Always allow connections
+                        transports=['websocket', 'polling'],  # Allow both transports
+                        manage_session=False,  # Let Flask handle sessions
+                        cors_credentials=False  # Disable credentials for better compatibility
                        )
 
 
@@ -2184,14 +2183,23 @@ def handle_connect(*args, **kwargs):
     client_sid = request.sid
 
     try:
->>>>>>> recover_lost_commits
         if user_uid:
             join_room(user_uid)
             app.logger.info(f"Client {client_sid} connected and joined user room: {user_uid}")
-            emit('status', {'message': f'Connected to real-time updates! User Room: {user_uid}. Your SID: {client_sid}'}, room=client_sid)
+            emit('status', {
+                'message': f'Connected to real-time updates! User Room: {user_uid}. Your SID: {client_sid}',
+                'connected': True,
+                'sid': client_sid,
+                'user_uid': user_uid
+            }, room=client_sid)
         else:
             app.logger.info(f"Client {client_sid} connected (anonymous or pre-login).")
-            emit('status', {'message': f'Connected! Your SID is {client_sid}. Login for personalized features.'}, room=client_sid)
+            emit('status', {
+                'message': f'Connected! Your SID is {client_sid}. Login for personalized features.',
+                'connected': True,
+                'sid': client_sid,
+                'user_uid': None
+            }, room=client_sid)
     except Exception as e:
 <<<<<<< HEAD
         app.logger.error(f"Error in SocketIO connect handler: {e}")
@@ -2209,6 +2217,13 @@ def handle_disconnect():
         client_sid = request.sid
 =======
         app.logger.error(f"Error in handle_connect for client {client_sid}: {e}")
+        try:
+            emit('error', {
+                'message': 'Connection error occurred. Please refresh the page.',
+                'connected': False
+            }, room=client_sid)
+        except:
+            pass
 
 
 @socketio.on('disconnect')
@@ -2216,12 +2231,20 @@ def handle_disconnect(*args, **kwargs):
     user_uid = session.get('firebase_user_uid')
     client_sid = request.sid
     try:
->>>>>>> recover_lost_commits
         if user_uid:
-            leave_room(user_uid)
-            app.logger.info(f"Client {client_sid} disconnected and left user room: {user_uid}")
-        else:
-            app.logger.info(f"Client {client_sid} disconnected (anonymous or pre-login).")
+            try:
+                leave_room(user_uid)
+                app.logger.info(f"Client {client_sid} disconnected and left user room: {user_uid}")
+            except Exception as room_error:
+                app.logger.warning(f"Error leaving user room for {client_sid}: {room_error}")
+        
+        # Also leave the client's own room
+        try:
+            leave_room(client_sid)
+        except:
+            pass
+            
+        app.logger.info(f"Client {client_sid} disconnected (anonymous or pre-login).")
     except Exception as e:
 <<<<<<< HEAD
         app.logger.error(f"Error in SocketIO disconnect handler: {e}")
@@ -2243,15 +2266,23 @@ def handle_join_task_room(data, *args, **kwargs):
     try:
 >>>>>>> recover_lost_commits
         if task_room_id:
+            # Leave any existing task rooms first
+            try:
+                leave_room(task_room_id)
+            except:
+                pass
+            
             join_room(task_room_id)
             app.logger.info(f"Client {client_sid} explicitly joined task room: {task_room_id}")
-            emit('status', {'message': f'Successfully joined task room {task_room_id}.'}, room=client_sid)
+            emit('status', {
+                'message': f'Successfully joined task room {task_room_id}.',
+                'room_joined': task_room_id
+            }, room=client_sid)
     except Exception as e:
 <<<<<<< HEAD
         app.logger.error(f"Error in SocketIO join_task_room handler: {e}")
 =======
         app.logger.error(f"Error in handle_join_task_room for client {client_sid}: {e}")
->>>>>>> recover_lost_commits
 
 
 @socketio.on_error()
@@ -2260,7 +2291,11 @@ def error_handler(e):
     client_sid = request.sid if hasattr(request, 'sid') else 'unknown'
     app.logger.error(f"SocketIO error for client {client_sid}: {e}")
     try:
-        emit('error', {'message': 'An error occurred with the real-time connection.'}, room=client_sid)
+        emit('error', {
+            'message': 'An error occurred with the real-time connection.',
+            'error_type': str(type(e).__name__),
+            'connected': False
+        }, room=client_sid)
     except:
         pass  # Don't let error handler cause more errors
 

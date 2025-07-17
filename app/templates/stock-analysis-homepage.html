@@ -2824,7 +2824,6 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endblock %}
 
 {% block scripts_extra %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize Lucide icons
@@ -2834,14 +2833,34 @@ document.addEventListener('DOMContentLoaded', function() {
         let socket;
         let currentAnalysisRoom = null;
         
-        // Initialize socket connection
+        // Initialize socket connection using global instance
         function initializeSocket() {
-            if (typeof io === 'undefined') {
+            // Use global socket instance instead of creating new connection
+            if (window.globalSocket && window.globalSocket.connected) {
+                socket = window.globalSocket;
+                console.log('Using existing global socket connection. SID:', socket.id);
+                return true;
+            }
+            
+            // If global socket is not available, try to initialize it
+            if (typeof initializeGlobalSocket === 'function') {
+                socket = initializeGlobalSocket();
+            } else if (typeof io !== 'undefined') {
+                // Fallback to creating a new connection with proper config
+                socket = io({
+                    reconnection: true,
+                    reconnectionAttempts: 5,
+                    reconnectionDelay: 1000,
+                    reconnectionDelayMax: 5000,
+                    timeout: 20000,
+                    transports: ['websocket', 'polling']
+                });
+            }
+            
+            if (!socket) {
                 console.error("Socket.IO client library not loaded. Real-time updates disabled.");
                 return false;
             }
-            
-            socket = io();
             
             socket.on('connect', function() {
                 console.log('WebSocket Connected. SID: ' + socket.id);
@@ -2856,28 +2875,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 showError('Real-time update connection failed. Please refresh the page.');
             });
             
-                    // Handle analysis progress updates
-        socket.on('analysis_progress', function(data) {
-            console.log('Analysis progress received:', data);
-            updateAnalysisProgress(data);
-        });
-        
-                // Handle word count updates
-        socket.on('word_count_update', function(data) {
-            console.log('Word count update received:', data);
-            updateWordCount(data.word_count);
-        });
-        
-        // Update word count function
-        function updateWordCount(wordCount) {
-            const wordCountElement = document.getElementById('wordCount');
-            if (wordCountElement && wordCount) {
-                wordCountElement.textContent = `${wordCount.toLocaleString()} words`;
-            }
-        }
-        
-        // Handle analysis completion
-        socket.on('analysis_complete', function(data) {
+            // Handle analysis progress updates
+            socket.on('analysis_progress', function(data) {
+                console.log('Analysis progress received:', data);
+                updateAnalysisProgress(data);
+            });
+            
+            // Handle word count updates
+            socket.on('word_count_update', function(data) {
+                console.log('Word count update received:', data);
+                updateWordCount(data.word_count);
+            });
+            
+            // Handle analysis completion
+            socket.on('analysis_complete', function(data) {
                 console.log('Analysis complete received:', data);
                 handleAnalysisComplete(data);
             });
@@ -2963,15 +2974,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-                    // Update word count progressively
-        const baseWords = 2500;
-        const wordsPerStage = 100;
-        const currentWords = baseWords + (uiSectionIndex * wordsPerStage);
-        if (wordCount) {
-            wordCount.textContent = `${currentWords.toLocaleString()} words`;
+            // Update word count progressively
+            const baseWords = 2500;
+            const wordsPerStage = 100;
+            const currentWords = baseWords + (uiSectionIndex * wordsPerStage);
+            if (wordCount) {
+                wordCount.textContent = `${currentWords.toLocaleString()} words`;
+            }
         }
-    }
-    
+        
         // Update word count function
         function updateWordCount(wordCount) {
             const wordCountElement = document.getElementById('wordCount');

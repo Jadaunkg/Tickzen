@@ -818,6 +818,158 @@
     <script src="{{ url_for('static', filename='js/firebase-init.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
+    <!-- Global SocketIO Configuration -->
+    <script>
+        // Global SocketIO configuration and connection management
+        window.SocketIOConfig = {
+            reconnection: true,
+            reconnectionAttempts: 3,  // Reduced from 5 to 3
+            reconnectionDelay: 500,   // Reduced from 1000 to 500ms
+            reconnectionDelayMax: 3000, // Reduced from 5000 to 3000ms
+            timeout: 15000,           // Reduced from 20000 to 15000ms
+            autoConnect: false,       // Changed from true to false to prevent auto-connection
+            transports: ['websocket', 'polling'],
+            forceNew: false,          // Prevent multiple connections
+            multiplex: false          // Disable multiplexing to prevent conflicts
+        };
+
+        // Global socket instance
+        window.globalSocket = null;
+        window.socketConnectionAttempts = 0;
+        window.maxSocketConnectionAttempts = 3;
+
+        function initializeGlobalSocket() {
+            if (typeof io === 'undefined') {
+                console.error("Socket.IO client library not loaded.");
+                return null;
+            }
+
+            // Prevent multiple simultaneous connection attempts
+            if (window.socketConnectionAttempts >= window.maxSocketConnectionAttempts) {
+                console.warn("Maximum socket connection attempts reached. Skipping connection.");
+                return window.globalSocket;
+            }
+
+            if (window.globalSocket && window.globalSocket.connected) {
+                console.log("Global socket already connected, reusing existing connection.");
+                return window.globalSocket;
+            }
+
+            // Disconnect existing socket if it exists but is not connected
+            if (window.globalSocket && !window.globalSocket.connected) {
+                try {
+                    window.globalSocket.disconnect();
+                } catch (e) {
+                    console.warn("Error disconnecting existing socket:", e);
+                }
+                window.globalSocket = null;
+            }
+
+            try {
+                console.log("Initializing global SocketIO connection...");
+                window.socketConnectionAttempts++;
+                
+                window.globalSocket = io(window.SocketIOConfig);
+                
+                // Connection event handlers
+                window.globalSocket.on('connect', function() {
+                    console.log('Global SocketIO connected. SID:', window.globalSocket.id);
+                    window.socketConnectionAttempts = 0; // Reset attempts on successful connection
+                    document.dispatchEvent(new CustomEvent('socketConnected', {
+                        detail: { sid: window.globalSocket.id }
+                    }));
+                });
+
+                window.globalSocket.on('disconnect', function(reason) {
+                    console.warn('Global SocketIO disconnected. Reason:', reason);
+                    document.dispatchEvent(new CustomEvent('socketDisconnected', {
+                        detail: { reason: reason }
+                    }));
+                });
+
+                window.globalSocket.on('connect_error', function(error) {
+                    console.error('Global SocketIO connection error:', error);
+                    document.dispatchEvent(new CustomEvent('socketError', {
+                        detail: { error: error }
+                    }));
+                });
+
+                window.globalSocket.on('reconnect', function(attemptNumber) {
+                    console.log('Global SocketIO reconnected after', attemptNumber, 'attempts');
+                    window.socketConnectionAttempts = 0; // Reset attempts on successful reconnection
+                    document.dispatchEvent(new CustomEvent('socketReconnected', {
+                        detail: { attempts: attemptNumber }
+                    }));
+                });
+
+                window.globalSocket.on('reconnect_error', function(error) {
+                    console.error('Global SocketIO reconnection error:', error);
+                });
+
+                window.globalSocket.on('reconnect_failed', function() {
+                    console.error('Global SocketIO reconnection failed after all attempts');
+                    window.socketConnectionAttempts = 0; // Reset attempts
+                    document.dispatchEvent(new CustomEvent('socketReconnectFailed'));
+                });
+
+                // Status and error message handlers
+                window.globalSocket.on('status', function(data) {
+                    console.log('SocketIO status:', data);
+                    document.dispatchEvent(new CustomEvent('socketStatus', {
+                        detail: data
+                    }));
+                });
+
+                window.globalSocket.on('error', function(data) {
+                    console.error('SocketIO error:', data);
+                    document.dispatchEvent(new CustomEvent('socketError', {
+                        detail: data
+                    }));
+                });
+
+                // Connect the socket
+                window.globalSocket.connect();
+
+                return window.globalSocket;
+            } catch (error) {
+                console.error("Failed to initialize global SocketIO connection:", error);
+                window.socketConnectionAttempts = 0; // Reset attempts on error
+                return null;
+            }
+        }
+
+        // Initialize socket when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure all scripts are loaded
+            setTimeout(function() {
+                initializeGlobalSocket();
+            }, 200); // Increased delay from 100 to 200ms
+        });
+
+        // Reinitialize socket on page visibility change (when user returns to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && (!window.globalSocket || !window.globalSocket.connected)) {
+                console.log("Page became visible, checking socket connection...");
+                setTimeout(function() {
+                    if (window.socketConnectionAttempts < window.maxSocketConnectionAttempts) {
+                        initializeGlobalSocket();
+                    }
+                }, 1000); // Increased delay from 500 to 1000ms
+            }
+        });
+
+        // Clean up socket on page unload
+        window.addEventListener('beforeunload', function() {
+            if (window.globalSocket) {
+                try {
+                    window.globalSocket.disconnect();
+                } catch (e) {
+                    console.warn("Error disconnecting socket on page unload:", e);
+                }
+            }
+        });
+    </script>
+    
     {% block scripts_extra %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {

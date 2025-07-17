@@ -30,6 +30,15 @@ def _get_processed_data_filepath(ticker, app_root):
     os.makedirs(cache_dir, exist_ok=True)
     return os.path.join(cache_dir, f"{ticker}_processed_data_{today_str}.csv")
 
+def _get_cache_key(ticker, app_root):
+    """Generate a cache key for processed data"""
+    today_str = date.today().strftime('%Y-%m-%d')
+    return f"{ticker}_{today_str}"
+
+# Global cache for processed data to avoid repeated file I/O
+_processed_data_cache = {}
+_cache_timestamps = {}
+
 def _emit_progress(socketio_instance, task_room, progress, message, stage_detail="", ticker="N/A", event_name='analysis_progress'):
     if socketio_instance and task_room:
         payload = {'progress': progress, 'message': message, 'stage': stage_detail, 'ticker': ticker}
@@ -73,23 +82,48 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
 
         _emit_progress(socketio_instance, task_room, 15, "Processing 15-year price history and charts...", "15-Year Price History & Charts", ticker, event_name_progress)
         _emit_progress(socketio_instance, task_room, 20, "Preprocessing data...", "Preprocessing", ticker, event_name_progress)
-        processed_filepath = _get_processed_data_filepath(ticker, app_root)
-        processed_data = None
-        if os.path.exists(processed_filepath):
-            pipeline_logger.info(f"Loading processed data for {ticker} from cache...")
-            processed_data = pd.read_csv(processed_filepath)
-            if 'Date' in processed_data.columns:
-                processed_data['Date'] = pd.to_datetime(processed_data['Date'])
-            if processed_data.empty: processed_data = None
         
-        if processed_data is None:
+        # Check memory cache first
+        cache_key = _get_cache_key(ticker, app_root)
+        processed_data = None
+        
+        if cache_key in _processed_data_cache:
+            pipeline_logger.info(f"Loading processed data for {ticker} from memory cache...")
+            processed_data = _processed_data_cache[cache_key]
+        else:
+            # Check file cache
+            processed_filepath = _get_processed_data_filepath(ticker, app_root)
+            if os.path.exists(processed_filepath):
+                pipeline_logger.info(f"Loading processed data for {ticker} from file cache...")
+                try:
+                    processed_data = pd.read_csv(processed_filepath)
+                    if 'Date' in processed_data.columns:
+                        processed_data['Date'] = pd.to_datetime(processed_data['Date'])
+                    if not processed_data.empty:
+                        # Store in memory cache
+                        _processed_data_cache[cache_key] = processed_data
+                        _cache_timestamps[cache_key] = time.time()
+                except Exception as e:
+                    pipeline_logger.warning(f"Error loading cached data for {ticker}: {e}")
+                    processed_data = None
+        
+        if processed_data is None or processed_data.empty:
             pipeline_logger.info(f"Preprocessing data for {ticker}...")
             processed_data = preprocess_data(stock_data, macro_data if macro_data is not None else None)
             if processed_data is None or processed_data.empty:
                 error_msg = f"Unable to process data for ticker '{ticker}'. The stock data may be insufficient for analysis.\n\nPlease try again with a different stock symbol that has more trading history."
                 raise RuntimeError(error_msg)
-            processed_data.to_csv(processed_filepath, index=False)
-            pipeline_logger.info(f"Saved new processed data for {ticker}.")
+            
+            # Save to both file and memory cache
+            if processed_filepath:
+                try:
+                    processed_data.to_csv(processed_filepath, index=False)
+                    pipeline_logger.info(f"Saved new processed data for {ticker} to file.")
+                except Exception as e:
+                    pipeline_logger.warning(f"Error saving processed data for {ticker}: {e}")
+            
+            _processed_data_cache[cache_key] = processed_data
+            _cache_timestamps[cache_key] = time.time()
 
         _emit_progress(socketio_instance, task_room, 30, "Calculating technical indicators (RSI, MACD, Histogram)...", "Technical Indicators (RSI, MACD, Histogram)", ticker, event_name_progress)
         _emit_progress(socketio_instance, task_room, 40, "Training predictive model...", "Model Training", ticker, event_name_progress)
@@ -239,6 +273,25 @@ def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None
         if socketio_instance and task_room: 
             socketio_instance.emit(event_name_error, {'message': str(err), 'ticker': ticker}, room=task_room)
         return None, None, None, {}
+
+
+def cleanup_cache(max_age_hours=24):
+    """Clean up old cache entries to prevent memory leaks"""
+    global _processed_data_cache, _cache_timestamps
+    current_time = time.time()
+    max_age_seconds = max_age_hours * 3600
+    
+    keys_to_remove = []
+    for key, timestamp in _cache_timestamps.items():
+        if current_time - timestamp > max_age_seconds:
+            keys_to_remove.append(key)
+    
+    for key in keys_to_remove:
+        del _processed_data_cache[key]
+        del _cache_timestamps[key]
+    
+    if keys_to_remove:
+        pipeline_logger.info(f"Cleaned up {len(keys_to_remove)} old cache entries")
 
 
 if __name__ == "__main__":

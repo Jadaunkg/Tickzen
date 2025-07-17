@@ -1073,14 +1073,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // --- SOCKET.IO SETUP AND EVENT HANDLERS ---
-    if (typeof io === 'undefined') {
+    // Use global socket instance instead of creating new connection
+    let socket = null;
+    
+    function getSocket() {
+        if (window.globalSocket && window.globalSocket.connected) {
+            return window.globalSocket;
+        }
+        
+        // If global socket is not available, try to initialize it
+        if (typeof initializeGlobalSocket === 'function') {
+            socket = initializeGlobalSocket();
+        } else if (typeof io !== 'undefined') {
+            // Fallback to creating a new connection with proper config
+            socket = io({
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                timeout: 20000,
+                transports: ['websocket', 'polling']
+            });
+        }
+        
+        return socket;
+    }
+
+    // Get socket instance
+    socket = getSocket();
+    
+    if (!socket) {
         console.error("Socket.IO client library not loaded. Real-time updates will be disabled.");
         if (executeAutomationBtn) executeAutomationBtn.disabled = true;
         // You could show a persistent error message to the user here
         return;
     }
-
-    const socket = io();
 
     // Standard connection lifecycle logs
     socket.on('connect', () => console.log('Socket.IO connected for automation updates.'));
