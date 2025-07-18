@@ -81,7 +81,7 @@ if not logger.handlers:
     )
 
 # Configure Azure network settings
-azure_session = configure_azure_network_settings()
+configure_azure_network_settings()
 
 def initialize_firebase_admin():
     """
