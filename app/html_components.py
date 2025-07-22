@@ -2,39 +2,12 @@ import pandas as pd
 import numpy as np
 import re
 from datetime import datetime
-import random # Used for slight text variations to ensure uniqueness
+import random # Used for random selection in risk factors
 import logging # Import logging for better error tracking
 import json
 import os
 
-# --- START: NEW - LOAD THE PRE-GENERATED VARIATION LIBRARY ---
-# --- Load the Pre-Generated Variation Library ---
-VARIATION_LIBRARY = {}
-try:
-    # This path assumes html_components.py is in the 'app' directory
-    library_path = os.path.join(os.path.dirname(__file__), 'variation_library.json')
-    with open(library_path, 'r', encoding='utf-8') as f:
-        VARIATION_LIBRARY = json.load(f)
-    print("Variation library loaded successfully.")
-    logging.info("Variation library loaded successfully.")
-except FileNotFoundError:
-    print("CRITICAL WARNING: variation_library.json not found. Run build_variation_library.py first.")
-    logging.critical("variation_library.json not found. The build_variation_library.py script must be run.")
-except Exception as e:
-    print(f"CRITICAL ERROR: Failed to load or parse variation_library.json: {e}")
-    logging.critical(f"Failed to load or parse variation_library.json: {e}", exc_info=True)
-
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
-
-# --- Lightning-Fast Variation Helper ---
-def get_variation(template_key):
-    """Retrieves a random sentence component from the pre-generated library."""
-    variations = VARIATION_LIBRARY.get(template_key)
-    if variations and isinstance(variations, list) and variations:
-        return random.choice(variations)
-    else:
-        logging.warning(f"Template key '{template_key}' not found or empty in variation library.")
-        return f"[{template_key.replace('_', ' ').title()}]" # Safe fallback
 
 # --- HELPER FUNCTIONS (Added Robustness) ---
 
@@ -1471,25 +1444,32 @@ def generate_valuation_metrics_html(ticker, rdata):
             elif pe_level_raw < 25: interp_key = "pe_interp_moderate"
             else: interp_key = "pe_interp_high"
             
-            intro_component = get_variation("intro_pe")
-            interp_component = get_variation(interp_key)
+            intro_component = f"{ticker} demonstrates"
+            if interp_key == "pe_interp_negative":
+                interp_component = "presents unusual P/E dynamics that require careful interpretation"
+            elif interp_key == "pe_interp_attractive":
+                interp_component = "suggests an attractive valuation opportunity"
+            elif interp_key == "pe_interp_moderate":
+                interp_component = "indicates a reasonably valued position"
+            else:  # pe_interp_high
+                interp_component = "reflects a premium valuation that warrants careful consideration"
             p1_parts.append(f"{intro_component}, with its Trailing P/E at <strong>{trailing_pe_fmt}</strong> and Forward P/E at <strong>{forward_pe_fmt}</strong>, {interp_component}.")
 
             if trailing_pe_raw is not None and forward_pe_raw is not None and forward_pe_raw > 0:
                 trend_component = ""
                 if forward_pe_raw < trailing_pe_raw * 0.9: 
-                    trend_component = get_variation("pe_trend_strong")
+                    trend_component = "this suggests potential earnings growth expectations"
                 elif forward_pe_raw < trailing_pe_raw: 
-                    trend_component = get_variation("pe_trend_modest")
+                    trend_component = "this indicates modest improvement expectations"
                 else: 
-                    trend_component = get_variation("pe_trend_stable")
+                    trend_component = "this reflects stable earnings outlook"
                 # Capitalize the first letter of the trend component
                 trend_component = trend_component[0].upper() + trend_component[1:]
                 p1_parts.append(trend_component)
 
         if ps_ratio_raw is not None and pb_ratio_raw is not None:
-            analysis_component = get_variation("ps_pb_analysis_main")
-            implication_component = get_variation("ps_pb_implication")
+            analysis_component = "the company trades at multiples that warrant attention"
+            implication_component = "These metrics provide insight into market positioning."
             p1_parts.append(f"Meanwhile, its Price/Sales ratio of <strong>{ps_ratio_fmt}</strong> and Price/Book of <strong>{pb_ratio_fmt}</strong> show that {analysis_component}. {implication_component}")
         
         # --- Paragraph 2: Enterprise Value Ratios and Synthesis ---
@@ -1499,28 +1479,34 @@ def generate_valuation_metrics_html(ticker, rdata):
             if ev_rev_raw <= 1.5: ev_rev_obs_key = "ev_observation_rev_fair"
             else: ev_rev_obs_key = "ev_observation_rev_fair"
             
-            # Assemble the sentence from randomized parts
-            subject = get_variation("ev_subject_revenue")
-            verb = get_variation("ev_verb")
-            observation = get_variation(ev_rev_obs_key)
+            # Assemble the sentence from static components
+            subject = "The enterprise value to revenue ratio"
+            verb = "indicates"
+            if ev_rev_obs_key == "ev_observation_rev_fair":
+                observation = "reasonable revenue-based valuation"
+            else:
+                observation = "reasonable revenue-based valuation"
             ev_sentences.append(f"{subject} of <strong>{ev_rev_fmt}</strong> {verb} {observation}")
 
         if ev_ebitda_raw is not None:
             if ev_ebitda_raw > 12: ev_ebitda_obs_key = "ev_observation_ebitda_stretched"
             else: ev_ebitda_obs_key = "ev_observation_ebitda_reasonable"
             
-            subject = get_variation("ev_subject_ebitda")
-            verb = get_variation("ev_verb")
-            observation = get_variation(ev_ebitda_obs_key)
+            subject = "the EV/EBITDA multiple"
+            verb = "suggests"
+            if ev_ebitda_obs_key == "ev_observation_ebitda_stretched":
+                observation = "a potentially stretched valuation"
+            else:
+                observation = "reasonable earnings-based valuation"
             # Use lowercase subject if it's not the start of the sentence
-            ev_sentences.append(f"and its {subject.lower()} of <strong>{ev_ebitda_fmt}</strong> {verb} {observation}")
+            ev_sentences.append(f"and its {subject} of <strong>{ev_ebitda_fmt}</strong> {verb} {observation}")
         
         if ev_sentences:
              full_ev_narrative = ", ".join(ev_sentences)
-             intro = get_variation("intro_ev")
+             intro = "From an enterprise value perspective,"
              p2_parts.append(f"{intro} {full_ev_narrative}.")
 
-        p2_parts.append(get_variation("synthesis_conclusion"))
+        p2_parts.append("These valuation metrics provide a comprehensive view of the company's current market positioning.")
 
         # --- 3. Assemble Final HTML ---
         paragraph1_html = '<p>' + ' '.join(p1_parts) + '</p>' if p1_parts else ''
@@ -2823,9 +2809,9 @@ def generate_risk_factors_html(ticker, rdata):
             for item in risk_items:
                 item_str = str(item)
                 processed = False
-                for generic_key, variations in generic_risks_map.items():
+                for generic_key, risk_variations in generic_risks_map.items():
                     if item_str.startswith(generic_key) or generic_key in item_str:
-                        processed_risk_items.append(random.choice(variations))
+                        processed_risk_items.append(random.choice(risk_variations))
                         processed = True
                         break
                 if not processed:

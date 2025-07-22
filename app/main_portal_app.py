@@ -28,7 +28,7 @@ import jwt  # For debugging token payload without verification
 
 # Import dashboard analytics
 try:
-    from dashboard_analytics import register_dashboard_routes
+    from analysis_scripts.dashboard_analytics import register_dashboard_routes
     DASHBOARD_ANALYTICS_AVAILABLE = True
 except ImportError as e:
     print(f"Dashboard analytics not available: {e}")
@@ -39,19 +39,68 @@ AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True
 PIPELINE_IMPORTED_SUCCESSFULLY = True
 
 try:
-    # Ensure get_storage_bucket is imported from your setup file
-    from config.firebase_admin_setup import initialize_firebase_admin, verify_firebase_token, get_firestore_client, get_storage_bucket, get_firebase_app
+    # Import enhanced Firebase functions
+    from config.firebase_admin_setup import (
+        initialize_firebase_admin, verify_firebase_token, get_firestore_client, 
+        get_storage_bucket, get_firebase_app, get_firebase_health_status,
+        is_firebase_healthy, log_firebase_operation_error, get_firebase_app_initialized
+    )
+    
+    # Initialize Firebase with enhanced error handling
+    print("Initializing Firebase Admin SDK...")
     initialize_firebase_admin()
-    from config.firebase_admin_setup import _firebase_app_initialized
-    FIREBASE_INITIALIZED_SUCCESSFULLY = _firebase_app_initialized
-    if not FIREBASE_INITIALIZED_SUCCESSFULLY:
-        print("CRITICAL: Firebase Admin SDK not initialized correctly via firebase_admin_setup.")
+    
+    # Get the current initialization status after initialization
+    FIREBASE_INITIALIZED_SUCCESSFULLY = get_firebase_app_initialized()
+    
+    if FIREBASE_INITIALIZED_SUCCESSFULLY:
+        print("✅ Firebase Admin SDK initialized successfully")
+        
+        # Get health status for logging
+        health_status = get_firebase_health_status()
+        if health_status.get('recent_errors'):
+            print("⚠ Note: Some Firebase services had initialization warnings:")
+            for error in health_status.get('recent_errors', [])[-3:]:  # Show last 3 errors
+                print(f"   - {error.get('type', 'UNKNOWN')}: {error.get('message', 'No message')}")
+    else:
+        print("❌ CRITICAL: Firebase Admin SDK not initialized correctly")
+        
+        # Get diagnostic information for troubleshooting
+        try:
+            health_status = get_firebase_health_status()
+            print("🔍 Diagnostic information:")
+            print(f"   - Recent errors: {len(health_status.get('recent_errors', []))}")
+            if health_status.get('recent_errors'):
+                latest_error = health_status['recent_errors'][-1]
+                print(f"   - Latest error: {latest_error.get('type')}: {latest_error.get('message')}")
+        except Exception as diag_error:
+            print(f"   - Could not get diagnostic info: {diag_error}")
+            
 except ImportError as e_fb_admin:
-    print(f"CRITICAL: Failed to import or initialize Firebase Admin from firebase_admin_setup: {e_fb_admin}")
+    print(f"CRITICAL: Failed to import Firebase Admin modules: {e_fb_admin}")
     FIREBASE_INITIALIZED_SUCCESSFULLY = False
-    def verify_firebase_token(token): print("Firebase dummy: verify_firebase_token called"); return None
-    def get_firestore_client(): print("Firebase dummy: get_firestore_client called"); return None
-    def get_storage_bucket(): print("Firebase dummy: get_storage_bucket called from dummy setup"); return None # Mock
+    
+    # Enhanced mock functions with better error reporting
+    def verify_firebase_token(token): 
+        print("⚠ Firebase mock: verify_firebase_token called - authentication unavailable")
+        return None
+    def get_firestore_client(): 
+        print("⚠ Firebase mock: get_firestore_client called - database unavailable")
+        return None
+    def get_storage_bucket(): 
+        print("⚠ Firebase mock: get_storage_bucket called - storage unavailable")
+        return None
+    def get_firebase_app():
+        print("⚠ Firebase mock: get_firebase_app called - app unavailable")
+        return None
+    def is_firebase_healthy():
+        return False
+    def log_firebase_operation_error(operation, error, context=None):
+        print(f"⚠ Firebase mock: operation '{operation}' failed: {error}")
+        
+except Exception as e_fb_unexpected:
+    print(f"UNEXPECTED: Error during Firebase setup: {e_fb_unexpected}")
+    FIREBASE_INITIALIZED_SUCCESSFULLY = False
 
 try:
     from automation_scripts import auto_publisher
@@ -204,7 +253,10 @@ def upload_file_to_storage(user_uid, profile_id, file_object, original_filename)
     """Uploads a file to Firebase Storage and returns its path."""
     bucket = get_storage_bucket() # Uses the imported function
     if not bucket:
-        app.logger.error(f"Storage bucket not available for upload. Profile: {profile_id}, User: {user_uid}")
+        error_msg = f"Storage bucket not available for upload. Profile: {profile_id}, User: {user_uid}"
+        app.logger.error(error_msg)
+        log_firebase_operation_error("upload_file", "Storage bucket unavailable", 
+                                    f"user: {user_uid}, profile: {profile_id}")
         return None
     if file_object and original_filename:
         filename = secure_filename(original_filename)
@@ -214,10 +266,13 @@ def upload_file_to_storage(user_uid, profile_id, file_object, original_filename)
             blob = bucket.blob(storage_path)
             file_object.seek(0)
             blob.upload_from_file(file_object, content_type=file_object.content_type)
-            app.logger.info(f"File {filename} uploaded successfully to {storage_path} for profile {profile_id}.")
+            app.logger.info(f"✅ File {filename} uploaded successfully to {storage_path} for profile {profile_id}.")
             return storage_path
         except Exception as e:
-            app.logger.error(f"Firebase Storage Upload Error for '{filename}' (Path: '{storage_path}'): {e}", exc_info=True)
+            error_msg = f"Firebase Storage upload failed for '{filename}'"
+            app.logger.error(f"{error_msg} (Path: '{storage_path}'): {e}", exc_info=True)
+            log_firebase_operation_error("upload_file", str(e), 
+                                       f"file: {filename}, path: {storage_path}")
             return None
     app.logger.warning(f"Upload to Firebase Storage skipped: file_object or original_filename missing for profile {profile_id}")
     return None
@@ -229,7 +284,24 @@ def delete_file_from_storage(storage_path):
         return True
     bucket = get_storage_bucket() # Uses the imported function
     if not bucket:
-        app.logger.error(f"Storage bucket not available for deletion of '{storage_path}'.")
+        error_msg = f"Storage bucket not available for deletion of '{storage_path}'"
+        app.logger.error(error_msg)
+        log_firebase_operation_error("delete_file", "Storage bucket unavailable", 
+                                    f"path: {storage_path}")
+        return False
+    try:
+        blob = bucket.blob(storage_path)
+        if blob.exists():
+            blob.delete()
+            app.logger.info(f"✅ File deleted successfully from Firebase Storage: {storage_path}")
+        else:
+            app.logger.info(f"ℹ File not found in Firebase Storage (already deleted?): {storage_path}")
+        return True
+    except Exception as e:
+        error_msg = f"Firebase Storage deletion failed for '{storage_path}'"
+        app.logger.error(f"{error_msg}: {e}", exc_info=True)
+        log_firebase_operation_error("delete_file", str(e), f"path: {storage_path}")
+        return False
         return False
     try:
         blob = bucket.blob(storage_path)
@@ -284,12 +356,29 @@ def extract_ticker_metadata_from_file_content(content_bytes, original_filename):
 
 @app.context_processor
 def inject_globals_and_helpers():
+    firebase_healthy = False
+    firebase_status = "Unknown"
+    
+    try:
+        # Get current Firebase initialization status
+        current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+        
+        if current_firebase_status:
+            firebase_healthy = is_firebase_healthy()
+            firebase_status = "Healthy" if firebase_healthy else "Degraded"
+        else:
+            firebase_status = "Unavailable"
+    except Exception as e:
+        firebase_status = f"Error: {str(e)[:50]}"
+    
     return {
         'now': datetime.now(timezone.utc),
         'is_user_logged_in': 'firebase_user_uid' in session,
         'user_email': session.get('firebase_user_email'),
         'user_displayName': session.get('firebase_user_displayName'),
-        'FIREBASE_INITIALIZED_SUCCESSFULLY': FIREBASE_INITIALIZED_SUCCESSFULLY,
+        'FIREBASE_INITIALIZED_SUCCESSFULLY': current_firebase_status,
+        'firebase_healthy': firebase_healthy,
+        'firebase_status': firebase_status,
         'zip': zip
     }
 
@@ -348,7 +437,10 @@ def debug_decode_token(token):
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not FIREBASE_INITIALIZED_SUCCESSFULLY:
+        # Get current Firebase initialization status
+        current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+        
+        if not current_firebase_status:
             app.logger.error("Login attempt failed: Firebase Admin SDK not initialized.")
             flash("Authentication service is currently unavailable. Please try again later.", "danger")
             return redirect(url_for('stock_analysis_homepage_route'))
@@ -359,7 +451,9 @@ def login_required(f):
     return decorated_function
 
 def get_user_site_profiles_from_firestore(user_uid, limit_profiles=20):
-    if not FIREBASE_INITIALIZED_SUCCESSFULLY: return []
+    # Get current Firebase initialization status
+    current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+    if not current_firebase_status: return []
     db = get_firestore_client()
     if not db:
         app.logger.error(f"Firestore client not available for get_user_site_profiles_from_firestore (user: {user_uid}).")
@@ -383,9 +477,18 @@ def get_user_site_profiles_from_firestore(user_uid, limit_profiles=20):
     return profiles
 
 def save_user_site_profile_to_firestore(user_uid, profile_data_to_save): 
-    if not FIREBASE_INITIALIZED_SUCCESSFULLY: return False
+    # Get current Firebase initialization status
+    current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+    if not current_firebase_status: 
+        app.logger.warning("Firestore save skipped: Firebase not initialized")
+        return False
+    
     db = get_firestore_client()
-    if not db: app.logger.error(f"Firestore client not available for save_user_site_profile_to_firestore (user: {user_uid})."); return False
+    if not db: 
+        error_msg = f"Firestore client not available for save_user_site_profile_to_firestore (user: {user_uid})"
+        app.logger.error(error_msg)
+        log_firebase_operation_error("save_profile", "Firestore client unavailable", f"user: {user_uid}")
+        return False
     
     profile_data = profile_data_to_save.copy()
 
@@ -405,23 +508,34 @@ def save_user_site_profile_to_firestore(user_uid, profile_data_to_save):
         if profile_id_to_save:
             doc_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').document(profile_id_to_save)
             doc_ref.set(profile_data, merge=True)
-            app.logger.info(f"Updated site profile {profile_id_to_save} for user {user_uid} in Firestore.")
+            app.logger.info(f"✅ Updated site profile {profile_id_to_save} for user {user_uid} in Firestore.")
             return profile_id_to_save
         else:
             profile_data['created_at'] = now_iso
             new_doc_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').document()
             new_doc_ref.set(profile_data)
             profile_id_new = new_doc_ref.id
-            app.logger.info(f"Added new site profile {profile_id_new} for user {user_uid} in Firestore.")
+            app.logger.info(f"✅ Added new site profile {profile_id_new} for user {user_uid} in Firestore.")
             return profile_id_new
     except Exception as e:
-        app.logger.error(f"Error saving site profile for user {user_uid} to Firestore: {e}", exc_info=True)
+        error_msg = f"Error saving site profile for user {user_uid} to Firestore"
+        app.logger.error(f"{error_msg}: {e}", exc_info=True)
+        log_firebase_operation_error("save_profile", str(e), f"user: {user_uid}")
         return False
 
 def delete_user_site_profile_from_firestore(user_uid, profile_id_to_delete): # Modified
-    if not FIREBASE_INITIALIZED_SUCCESSFULLY: return False
+    # Get current Firebase initialization status
+    current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+    if not current_firebase_status: 
+        app.logger.warning("Firestore delete skipped: Firebase not initialized")
+        return False
+    
     db = get_firestore_client()
-    if not db: app.logger.error(f"Firestore client not available for delete_user_site_profile_from_firestore (user: {user_uid})."); return False
+    if not db: 
+        error_msg = f"Firestore client not available for delete_user_site_profile_from_firestore (user: {user_uid})"
+        app.logger.error(error_msg)
+        log_firebase_operation_error("delete_profile", "Firestore client unavailable", f"user: {user_uid}")
+        return False
     try:
         profile_doc_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').document(profile_id_to_delete)
         profile_snapshot = profile_doc_ref.get()
@@ -457,7 +571,9 @@ def save_processed_ticker_status(user_uid, profile_id, ticker_symbol, status_dat
     # app.logger, and socketio are accessible in this function's scope.
     # This typically means they are global or passed around.
 
-    if not FIREBASE_INITIALIZED_SUCCESSFULLY:
+    # Get current Firebase initialization status
+    current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+    if not current_firebase_status:
         # In a real scenario, app.logger might not be available if Flask app context is not present.
         # Consider a more robust logging setup for library-like functions.
         print(f"Firebase not initialized. Cannot save status for {ticker_symbol}") # Or use a basic logger
@@ -530,7 +646,9 @@ def save_processed_ticker_status(user_uid, profile_id, ticker_symbol, status_dat
     
 def get_persisted_ticker_statuses_for_profile(user_uid, profile_id): # New
     """Retrieves all persisted ticker statuses for a given profile."""
-    if not FIREBASE_INITIALIZED_SUCCESSFULLY: return {}
+    # Get current Firebase initialization status
+    current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+    if not current_firebase_status: return {}
     db = get_firestore_client()
     if not db: 
         app.logger.error(f"Firestore client not available for get_persisted_ticker_statuses_for_profile (user: {user_uid}, profile: {profile_id}).")
@@ -562,7 +680,9 @@ def get_persisted_ticker_statuses_for_profile(user_uid, profile_id): # New
 # Helper to fetch previous ticker status for a profile/ticker
 
 def get_previous_ticker_status(user_uid, profile_id, ticker_symbol):
-    if not FIREBASE_INITIALIZED_SUCCESSFULLY: return None
+    # Get current Firebase initialization status
+    current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+    if not current_firebase_status: return None
     db = get_firestore_client()
     if not db:
         app.logger.error(f"Firestore client not available for get_previous_ticker_status (user: {user_uid}, profile: {profile_id}).")
@@ -685,7 +805,81 @@ def dashboard_charts():
 def analyzer_input_page():
     return render_template('analyzer_input.html', title="Stock Analyzer Input")
 
-@app.route('/api/ticker-suggestions')
+@app.route('/api/health')
+def health_check():
+    """Health check endpoint for monitoring Firebase and app status"""
+    try:
+        # Get current Firebase initialization status
+        current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+        
+        health_status = {
+            'status': 'ok',
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'firebase': {
+                'initialized': current_firebase_status,
+                'healthy': False,
+                'services': {}
+            },
+            'components': {
+                'auto_publisher': AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY,
+                'pipeline': PIPELINE_IMPORTED_SUCCESSFULLY,
+                'dashboard_analytics': DASHBOARD_ANALYTICS_AVAILABLE
+            }
+        }
+        
+        if current_firebase_status:
+            try:
+                firebase_health = get_firebase_health_status()
+                health_status['firebase']['healthy'] = is_firebase_healthy()
+                health_status['firebase']['services'] = {
+                    'auth': firebase_health.get('auth', False),
+                    'firestore': firebase_health.get('firestore', False),
+                    'storage': firebase_health.get('storage', False)
+                }
+                health_status['firebase']['error_count'] = firebase_health.get('error_count', 0)
+                health_status['firebase']['last_health_check'] = firebase_health.get('last_health_check')
+            except Exception as e:
+                health_status['firebase']['error'] = str(e)
+        
+        # Determine overall status
+        if not current_firebase_status:
+            health_status['status'] = 'degraded'
+        elif health_status['firebase']['healthy']:
+            health_status['status'] = 'ok'
+        else:
+            health_status['status'] = 'degraded'
+        
+        return jsonify(health_status), 200
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        }), 500
+
+@app.route('/api/firebase-diagnostics')
+@login_required
+def firebase_diagnostics():
+    """Detailed Firebase diagnostics for administrators"""
+    try:
+        from config.firebase_admin_setup import get_firebase_diagnostic_info, test_firebase_connection
+        
+        diagnostic_info = get_firebase_diagnostic_info()
+        connection_test = test_firebase_connection()
+        
+        return jsonify({
+            'diagnostic_info': diagnostic_info,
+            'connection_test': connection_test,
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        }), 200
+        
+    except Exception as e:
+        app.logger.error(f"Error getting Firebase diagnostics: {e}", exc_info=True)
+        return jsonify({
+            'error': str(e),
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        }), 500
 def ticker_suggestions():
     """API endpoint for ticker autocomplete suggestions with both symbol and company name search"""
     query = request.args.get('q', '').strip()
@@ -922,7 +1116,10 @@ def verify_token_route():
     except Exception as e:
         app.logger.error(f"[DEBUG] Error getting backend Firebase app/project ID: {e}")
 
-    if not FIREBASE_INITIALIZED_SUCCESSFULLY:
+    # Get current Firebase initialization status
+    current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+    
+    if not current_firebase_status:
         app.logger.error("Token verification failed: Firebase Admin SDK not initialized.")
         return jsonify({"error": "Authentication service is currently unavailable."}), 503
     data = request.get_json()
@@ -1036,7 +1233,7 @@ def user_profile_page():
                     'created_at': profile_data.get('created_at', None)
                 })
 
-            automations_query = db.collection('userGeneratedReports').where('user_uid', '==', user_uid).count()
+            automations_query = db.collection('userGeneratedReports').where(filter=firestore.FieldFilter('user_uid', '==', user_uid)).count()
             user_profile_data['total_automations'] = automations_query.get()[0][0].value
 
             profiles_query = db.collection('userSiteProfiles').document(user_uid).collection('profiles').count()
@@ -1413,7 +1610,9 @@ def delete_site_profile(profile_id_to_delete):
 
 # --- REPORT HISTORY MANAGEMENT ---
 def save_report_to_history(user_uid, ticker, filename, generated_at_dt):
-    if not FIREBASE_INITIALIZED_SUCCESSFULLY:
+    # Get current Firebase initialization status
+    current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+    if not current_firebase_status:
         app.logger.error("Firestore not available for saving report history.")
         return False
     db = get_firestore_client()
@@ -1450,7 +1649,7 @@ def get_report_history_for_user(user_uid, display_limit=10):
     total_user_reports_count = 0
 
     try:
-        base_query = db.collection(u'userGeneratedReports').where(u'user_uid', u'==', user_uid)
+        base_query = db.collection(u'userGeneratedReports').where(filter=firestore.FieldFilter(u'user_uid', u'==', user_uid))
         # Try to use Firestore's count() aggregate if available
         try:
             count_query = base_query.count()
@@ -2114,7 +2313,7 @@ def view_activity_log():
                 member_since = profile_data.get('created_at')
 
             automations_query = db.collection('userGeneratedReports')\
-                .where('user_uid', '==', user_uid)\
+                .where(filter=firestore.FieldFilter('user_uid', '==', user_uid))\
                 .order_by('generated_at', direction='DESCENDING')\
                 .limit(50)
 
@@ -2227,8 +2426,14 @@ if __name__ == '__main__':
     app.logger.info(f"Current CWD: {os.getcwd()}")
     app.logger.info(f"APP_ROOT: {APP_ROOT}, Static: {app.static_folder}, Templates: {app.template_folder}")
     app.logger.info(f"Stock reports save path: {STOCK_REPORTS_PATH}")
-    if not FIREBASE_INITIALIZED_SUCCESSFULLY: app.logger.error("CRITICAL: Firebase NOT INITIALIZED.")
-    else: app.logger.info(f"Firebase Init Status: {FIREBASE_INITIALIZED_SUCCESSFULLY}")
+    
+    # Get current Firebase initialization status
+    current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+    if not current_firebase_status: 
+        app.logger.error("CRITICAL: Firebase NOT INITIALIZED.")
+    else: 
+        app.logger.info(f"Firebase Init Status: {current_firebase_status}")
+        
     if not AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY: app.logger.warning("WARNING: MOCK auto_publisher in use or import failed.")
     else: app.logger.info("Auto Publisher Imported Successfully.")
     if not PIPELINE_IMPORTED_SUCCESSFULLY: app.logger.warning("WARNING: MOCK pipeline in use or import failed.")

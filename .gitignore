@@ -12,7 +12,7 @@ env/
 Env/
 ENV/
 .venv310
-
+config/firebase-service-account-key.json
 # Environment variables and secrets
 .env
 .env.*
