@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+testsprite_tests
 
 # Virtual environments
 venv/
