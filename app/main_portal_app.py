@@ -190,27 +190,38 @@ app.logger.info(f"Application Environment: {APP_ENV}")
 app.logger.info(f"Flask Debug Mode: {os.getenv('FLASK_DEBUG', 'Not Set')}")
 app.logger.info(f"Port: {os.getenv('PORT', '5000')}")
 
+# Import configuration based on environment
 if APP_ENV == 'production':
-    import eventlet
-    import eventlet.wsgi
-    socketio = SocketIO(app,
-                        async_mode='eventlet',
-                        cors_allowed_origins="*",
-                        ping_timeout=60,
-                        ping_interval=25,
-                        logger=True,
-                        engineio_logger=True
-                       )
+    try:
+        from production_config import SOCKETIO_PROD_CONFIG
+        socketio = SocketIO(app, **SOCKETIO_PROD_CONFIG)
+        app.logger.info("Production SocketIO configuration loaded with gevent")
+    except ImportError:
+        app.logger.warning("Production config not found, using fallback configuration")
+        socketio = SocketIO(app,
+                            async_mode='gevent',
+                            cors_allowed_origins="*",
+                            ping_timeout=60,
+                            ping_interval=25,
+                            logger=False,
+                            engineio_logger=False
+                           )
 else:
-    # Development configuration with better timeout handling
-    socketio = SocketIO(app,
-                        cors_allowed_origins="*",
-                        ping_timeout=120,  # Increased timeout for development
-                        ping_interval=30,  # Increased interval
-                        logger=True,
-                        engineio_logger=True,
-                        async_mode='threading'  # Use threading instead of eventlet for development
-                       )
+    try:
+        from development_config import SOCKETIO_DEV_CONFIG
+        socketio = SocketIO(app, **SOCKETIO_DEV_CONFIG)
+        app.logger.info("Development SocketIO configuration loaded with threading")
+    except ImportError:
+        app.logger.warning("Development config not found, using fallback configuration")
+        # Development configuration with better timeout handling
+        socketio = SocketIO(app,
+                            cors_allowed_origins="*",
+                            ping_timeout=120,  # Increased timeout for development
+                            ping_interval=30,  # Increased interval
+                            logger=True,
+                            engineio_logger=True,
+                            async_mode='threading'  # Use threading instead of eventlet for development
+                           )
 
 
 for folder_path in [UPLOAD_FOLDER, STATIC_FOLDER_PATH, STOCK_REPORTS_PATH]:
@@ -3110,23 +3121,31 @@ if __name__ == '__main__':
     use_reloader = True if APP_ENV == 'development' else False
 
     app.logger.info(f"Attempting to start Flask-SocketIO server on http://0.0.0.0:{port} (Debug: {debug_mode}, Reloader: {use_reloader})")
-    try:
-        if APP_ENV == 'production':
-            # Use eventlet WSGI server in production (Azure)
-            app.logger.info("Starting production server with eventlet...")
-            socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False, allow_unsafe_werkzeug=False)
-        else:
-            # Development server with better error handling
-            try:
-                app.logger.info("Starting development server with threading...")
-                socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader, allow_unsafe_werkzeug=True)
-            except KeyboardInterrupt:
-                app.logger.info("Server stopped by user (Ctrl+C)")
-            except Exception as dev_error:
-                app.logger.error(f"Development server error: {dev_error}")
-                # Fallback to production mode if development fails
-                app.logger.info("Attempting fallback to production mode...")
-                socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False, allow_unsafe_werkzeug=False)
-    except Exception as e_run:
-        app.logger.error(f"CRITICAL: Failed to start Flask-SocketIO server: {e_run}", exc_info=True)
-        print(f"CRITICAL: Server could not start. Check logs. Error: {e_run}")
+    
+    # Check if running under Gunicorn (production)
+    if os.getenv('gunicorn'):
+        app.logger.info("Running under Gunicorn, app object ready")
+        # Don't start server here, Gunicorn will handle it
+        pass
+    else:
+        try:
+            if APP_ENV == 'production':
+                # Production server - avoid running directly in Azure
+                app.logger.warning("Production mode detected - should be run via Gunicorn/WSGI")
+                app.logger.info("Starting production server with gevent fallback...")
+                socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False)
+            else:
+                # Development server with better error handling
+                try:
+                    app.logger.info("Starting development server with threading...")
+                    socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode, use_reloader=use_reloader, allow_unsafe_werkzeug=True)
+                except KeyboardInterrupt:
+                    app.logger.info("Server stopped by user (Ctrl+C)")
+                except Exception as dev_error:
+                    app.logger.error(f"Development server error: {dev_error}")
+                    # Fallback to production mode if development fails
+                    app.logger.info("Attempting fallback to production mode...")
+                    socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False)
+        except Exception as e_run:
+            app.logger.error(f"CRITICAL: Failed to start Flask-SocketIO server: {e_run}", exc_info=True)
+            print(f"CRITICAL: Server could not start. Check logs. Error: {e_run}")
