@@ -1,21 +1,26 @@
 @echo off
-REM Azure App Service startup script for Tickzen (Windows)
+REM Azure App Service startup script for Tickzen with performance optimizations (Windows)
 REM This script handles the proper startup of the Flask-SocketIO application
 
-echo Starting Tickzen Application on Azure App Service...
+echo 🚀 Starting Tickzen Application on Azure App Service...
 echo Python version:
 python --version
 echo Working directory: %cd%
 echo Environment: %APP_ENV%
 
-REM Set environment variables
+REM Set environment variables for production
 set APP_ENV=production
 set FLASK_DEBUG=False
 set gunicorn=true
 
+REM Performance optimizations
+set PYTHONUNBUFFERED=1
+set PYTHONIOENCODING=utf-8
+set MPLBACKEND=Agg
+
 REM Check if required files exist
 if not exist "wsgi.py" (
-    echo ERROR: wsgi.py not found
+    echo ❌ ERROR: wsgi.py not found
     exit /b 1
 )
 

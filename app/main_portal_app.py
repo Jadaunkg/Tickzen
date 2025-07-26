@@ -21,11 +21,39 @@ import urllib.parse
 from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import firestore, auth as firebase_auth
+
+# Apply startup optimizations before heavy imports
+try:
+    from startup_optimization import optimize_matplotlib, get_heavy_imports
+    optimize_matplotlib()
+    print("🚀 Matplotlib optimization applied")
+except ImportError:
+    print("⚠️  Startup optimization not available")
+
 # Note: `storage` is not directly imported here anymore at the top level.
 # We will use get_storage_bucket from firebase_admin_setup
 
-import pandas as pd
-import jwt  # For debugging token payload without verification
+# Lazy loading for heavy imports - these will be imported when needed
+_pandas_module = None
+_jwt_module = None
+
+def get_pandas():
+    """Lazy load pandas when needed"""
+    global _pandas_module
+    if _pandas_module is None:
+        print("📊 Loading pandas (on-demand)...")
+        import pandas as pd
+        _pandas_module = pd
+    return _pandas_module
+
+def get_jwt():
+    """Lazy load JWT when needed"""
+    global _jwt_module
+    if _jwt_module is None:
+        print("🔐 Loading JWT (on-demand)...")
+        import jwt
+        _jwt_module = jwt
+    return _jwt_module
 
 # Import dashboard analytics
 try:
@@ -335,8 +363,10 @@ def extract_ticker_metadata_from_file_content(content_bytes, original_filename):
         if original_filename.lower().endswith('.csv'):
             try: content_str = content_bytes.decode('utf-8')
             except UnicodeDecodeError: content_str = content_bytes.decode('latin1')
+            pd = get_pandas()  # Lazy load pandas
             df = pd.read_csv(io.StringIO(content_str))
         elif original_filename.lower().endswith(('.xls', '.xlsx')):
+            pd = get_pandas()  # Lazy load pandas
             df = pd.read_excel(io.BytesIO(content_bytes))
         else:
             return {'count': 0, 'preview': [], 'all_tickers': [], 'error': 'Unsupported file type'}
@@ -440,6 +470,7 @@ ALL_SECTIONS = get_all_report_section_keys()
 def debug_decode_token(token):
     """Debug function to decode JWT token without signature verification"""
     try:
+        jwt = get_jwt()  # Lazy load JWT
         decoded = jwt.decode(token, options={"verify_signature": False})
         return decoded
     except Exception as e:
@@ -2770,6 +2801,15 @@ def api_login():
                     'exp': int(time.time()) + 3600,
                     'iat': int(time.time())
                 }
+                jwt = get_jwt()  # Lazy load JWT
+
+                jwt = get_jwt()  # Lazy load JWT
+
+
+                jwt = get_jwt()  # Lazy load JWT
+
+
+
                 mock_token = jwt.encode(mock_payload, 'test_secret', algorithm='HS256')
                 
                 return jsonify({
@@ -2815,6 +2855,15 @@ def api_get_profile():
         
         try:
             import jwt
+            jwt = get_jwt()  # Lazy load JWT
+
+            jwt = get_jwt()  # Lazy load JWT
+
+
+            jwt = get_jwt()  # Lazy load JWT
+
+
+
             decoded = jwt.decode(token_from_header, options={"verify_signature": False})
             user_uid = decoded.get('uid')
             
@@ -2884,6 +2933,15 @@ def api_update_profile():
         
         try:
             import jwt
+            jwt = get_jwt()  # Lazy load JWT
+
+            jwt = get_jwt()  # Lazy load JWT
+
+
+            jwt = get_jwt()  # Lazy load JWT
+
+
+
             decoded = jwt.decode(token_from_header, options={"verify_signature": False})
             user_uid = decoded.get('uid')
             
@@ -2959,6 +3017,15 @@ def api_upload_tickers():
         # Decode token to get user info
         try:
             import jwt
+            jwt = get_jwt()  # Lazy load JWT
+
+            jwt = get_jwt()  # Lazy load JWT
+
+
+            jwt = get_jwt()  # Lazy load JWT
+
+
+
             decoded = jwt.decode(token_from_header, options={"verify_signature": False})
             user_uid = decoded.get('uid')
             
@@ -3056,6 +3123,15 @@ def api_list_reports():
     # Decode token to get user info
     try:
         import jwt
+        jwt = get_jwt()  # Lazy load JWT
+
+        jwt = get_jwt()  # Lazy load JWT
+
+
+        jwt = get_jwt()  # Lazy load JWT
+
+
+
         decoded = jwt.decode(token_from_header, options={"verify_signature": False})
         user_uid = decoded.get('uid')
         
@@ -3111,6 +3187,15 @@ def api_get_report(report_id):
         # FIXED: Use same token validation as other endpoints
         try:
             import jwt
+            jwt = get_jwt()  # Lazy load JWT
+
+            jwt = get_jwt()  # Lazy load JWT
+
+
+            jwt = get_jwt()  # Lazy load JWT
+
+
+
             decoded = jwt.decode(token_from_header, options={"verify_signature": False})
             user_uid = decoded.get('uid')
             
@@ -3178,6 +3263,15 @@ def api_publish_report(report_id):
         # FIXED: Use same token validation as other endpoints
         try:
             import jwt
+            jwt = get_jwt()  # Lazy load JWT
+
+            jwt = get_jwt()  # Lazy load JWT
+
+
+            jwt = get_jwt()  # Lazy load JWT
+
+
+
             decoded = jwt.decode(token_from_header, options={"verify_signature": False})
             user_uid = decoded.get('uid')
             

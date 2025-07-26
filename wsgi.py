@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-WSGI entry point for Azure App Service
+WSGI entry point for Azure App Service with startup optimizations
 This file is used by Gunicorn to start the application
 """
 
 import os
 import sys
+import time
 
 # Add the project root to Python path
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -16,6 +17,17 @@ if PROJECT_ROOT not in sys.path:
 os.environ.setdefault('APP_ENV', 'production')
 os.environ.setdefault('FLASK_DEBUG', 'False')
 
+print(f"🚀 Starting application initialization at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+start_time = time.time()
+
+# Apply startup optimizations
+try:
+    from startup_optimization import optimize_startup_environment
+    optimize_startup_environment()
+    print("✅ Startup environment optimized")
+except ImportError as e:
+    print(f"⚠️  Warning: Could not import startup optimizations: {e}")
+
 # Import and configure the application
 from app.main_portal_app import app, socketio
 
@@ -23,12 +35,15 @@ from app.main_portal_app import app, socketio
 try:
     from production_config import apply_prod_config
     apply_prod_config()
-    print("Production configuration applied successfully")
+    print("✅ Production configuration applied successfully")
 except ImportError as e:
-    print(f"Warning: Could not import production config: {e}")
+    print(f"⚠️  Warning: Could not import production config: {e}")
 
 # For Azure App Service and Gunicorn
 application = app
+
+elapsed_time = time.time() - start_time
+print(f"🎯 Application initialization completed in {elapsed_time:.2f} seconds")
 
 # Expose socketio for potential use
 socketio_app = socketio
