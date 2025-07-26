@@ -5,7 +5,8 @@ import multiprocessing
 # Basic configuration
 bind = "0.0.0.0:5000"
 workers = 1  # Single worker for SocketIO applications
-worker_class = "gevent"  # Use gevent instead of eventlet for better Azure compatibility
+worker_class = "sync"  # Use sync worker class with threading for better compatibility
+threads = 100  # Number of threads per worker for concurrent connections
 worker_connections = 1000
 
 # Performance settings

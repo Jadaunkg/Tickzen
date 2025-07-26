@@ -25,5 +25,5 @@ if not exist "gunicorn.conf.py" (
 )
 
 REM Start the application with optimized settings for Azure
-echo Starting Gunicorn with gevent worker...
-gunicorn --config gunicorn.conf.py --worker-class gevent --workers 1 --worker-connections 1000 --bind 0.0.0.0:%PORT% --timeout 120 --keepalive 5 --max-requests 1000 --max-requests-jitter 100 --preload-app --access-logfile - --error-logfile - --log-level warning wsgi:application
+echo Starting Gunicorn with sync worker and threading...
+gunicorn --config gunicorn.conf.py --worker-class sync --threads 100 --workers 1 --worker-connections 1000 --bind 0.0.0.0:%PORT% --timeout 120 --keepalive 5 --max-requests 1000 --max-requests-jitter 100 --preload-app --access-logfile - --error-logfile - --log-level warning wsgi:application

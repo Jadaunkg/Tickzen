@@ -217,9 +217,15 @@
                         <span class="date">Generated: {{ report.generated_at | format_datetime('%Y-%m-%d %I:%M %p UTC') if report.generated_at else 'N/A' }}</span>
                     </div>
                     <div class="report-actions">
-                        <a href="{{ url_for('view_generated_report', ticker=report.ticker, filename=report.filename) }}" class="btn btn-secondary btn-view-report" target="_blank">
+                        {% if report.file_exists is defined and not report.file_exists %}
+                        <span class="btn btn-danger btn-sm" title="Report file not found on server">
+                            <i class="fas fa-exclamation-triangle"></i> File Missing
+                        </span>
+                        {% else %}
+                        <a href="{{ url_for('view_generated_report', ticker=report.ticker, filename=report.filename|urlencode) }}" class="btn btn-secondary btn-view-report" target="_blank">
                             <i class="fas fa-eye"></i> View Report
                         </a>
+                        {% endif %}
                     </div>
                 </li>
                 {% endfor %}

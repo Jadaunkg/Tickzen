@@ -19,6 +19,9 @@ import base64
 from io import BytesIO
 # --- End New Imports ---
 
+# Import currency symbol function
+from app.html_components import get_currency_symbol
+
 try:
     import psutil
 except ImportError:
@@ -605,11 +608,12 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
     # --- Calculate Risk Items ---
     print("Calculating risk factors...")
     risk_items = []
+    currency_symbol = get_currency_symbol(ticker)
     # --- (Risk calculation logic remains the same) ---
     if sentiment.lower().find('bearish') != -1: risk_items.append(f"Overall technical sentiment is {sentiment}, suggesting caution.")
     if current_price is not None:
-        if sma50 is not None and current_price < sma50: risk_items.append(f"Price ({current_price:,.2f}) is below the 50-Day SMA ({sma50:,.2f}), indicating potential short-term weakness.")
-        if sma200 is not None and current_price < sma200: risk_items.append(f"Price ({current_price:,.2f}) is below the 200-Day SMA ({sma200:,.2f}), indicating potential long-term weakness.")
+        if sma50 is not None and current_price < sma50: risk_items.append(f"Price ({currency_symbol}{current_price:,.2f}) is below the 50-Day SMA ({currency_symbol}{sma50:,.2f}), indicating potential short-term weakness.")
+        if sma200 is not None and current_price < sma200: risk_items.append(f"Price ({currency_symbol}{current_price:,.2f}) is below the 200-Day SMA ({currency_symbol}{sma200:,.2f}), indicating potential long-term weakness.")
     if latest_rsi is not None and not pd.isna(latest_rsi) and latest_rsi > 70: risk_items.append(f"RSI ({latest_rsi:.1f}) is high (>70), suggesting potential overbought conditions.")
     # Only add oversold as a risk if sentiment isn't already strongly bullish
     if latest_rsi is not None and not pd.isna(latest_rsi) and latest_rsi < 30 and "Strong Bullish" not in sentiment:

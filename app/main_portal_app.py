@@ -17,6 +17,7 @@ import io
 from functools import wraps
 import re
 import traceback
+import urllib.parse
 from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import firestore, auth as firebase_auth
@@ -195,11 +196,11 @@ if APP_ENV == 'production':
     try:
         from production_config import SOCKETIO_PROD_CONFIG
         socketio = SocketIO(app, **SOCKETIO_PROD_CONFIG)
-        app.logger.info("Production SocketIO configuration loaded with gevent")
+        app.logger.info("Production SocketIO configuration loaded with threading")
     except ImportError:
         app.logger.warning("Production config not found, using fallback configuration")
         socketio = SocketIO(app,
-                            async_mode='gevent',
+                            async_mode='threading',
                             cors_allowed_origins="*",
                             ping_timeout=60,
                             ping_interval=25,
@@ -892,6 +893,31 @@ def firebase_diagnostics():
             'timestamp': datetime.now(timezone.utc).isoformat()
         }), 500
 
+@app.route('/admin/cleanup-orphaned-reports')
+@login_required
+def admin_cleanup_orphaned_reports():
+    """Admin route to clean up orphaned report records"""
+    try:
+        # Check if user is admin (you should implement proper admin authentication)
+        user_uid = session.get('firebase_user_uid')
+        admin_users = ['admin_uid_1', 'admin_uid_2']  # Replace with actual admin UIDs
+        
+        # For now, allow any logged-in user to run cleanup in dry-run mode
+        dry_run = request.args.get('dry_run', 'true').lower() == 'true'
+        target_user = request.args.get('user_uid')  # Optional: clean up specific user
+        
+        result = cleanup_orphaned_reports(user_uid=target_user, dry_run=dry_run)
+        
+        return jsonify({
+            'status': 'success',
+            'cleanup_result': result,
+            'message': f"{'Dry run completed' if dry_run else 'Cleanup completed'}"
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error in admin cleanup: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 @app.route('/api/ticker-suggestions')
 def ticker_suggestions():
     """API endpoint for ticker autocomplete suggestions with both symbol and company name search"""
@@ -1091,17 +1117,77 @@ def start_stock_analysis():
 @app.route('/view-report/<ticker>/<path:filename>')
 @login_required
 def view_generated_report(ticker, filename):
-    report_url = url_for('serve_generated_report', filename=filename)
-    return render_template('view_report_page.html',
-                           title=f"Analysis Report: {ticker.upper()}",
-                           ticker=ticker.upper(),
-                           report_url=report_url,
-                           download_filename=filename)
+    try:
+        # Log the request for debugging
+        app.logger.info(f"View report request - Ticker: {ticker}, Filename: {filename}")
+        
+        # Clean the filename and ensure it exists
+        import urllib.parse
+        clean_filename = urllib.parse.unquote(filename)
+        clean_filename = os.path.basename(clean_filename)  # Ensure no path traversal
+        
+        full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
+        app.logger.info(f"Looking for report file: {full_file_path}")
+        
+        if not os.path.exists(full_file_path):
+            app.logger.error(f"Report file not found for viewing: {full_file_path}")
+            flash(f"Report file for {ticker.upper()} not found. It may have been deleted or moved.", "error")
+            return redirect(url_for('analyzer_input_page'))
+        
+        # Generate the report URL using the clean filename
+        report_url = url_for('serve_generated_report', filename=clean_filename)
+        app.logger.info(f"Generated report URL: {report_url}")
+        
+        return render_template('view_report_page.html',
+                               title=f"Analysis Report: {ticker.upper()}",
+                               ticker=ticker.upper(),
+                               report_url=report_url,
+                               download_filename=clean_filename)
+    except Exception as e:
+        app.logger.error(f"Error in view_generated_report: {e}", exc_info=True)
+        flash(f"Error loading report for {ticker.upper()}. Please try again.", "error")
+        return redirect(url_for('analyzer_input_page'))
 
 
 @app.route('/generated_reports/<path:filename>')
 def serve_generated_report(filename):
-    return send_from_directory(STOCK_REPORTS_PATH, filename)
+    try:
+        # Log the request for debugging
+        app.logger.info(f"Serving report file: {filename}")
+        app.logger.info(f"STOCK_REPORTS_PATH: {STOCK_REPORTS_PATH}")
+        
+        # Clean the filename - remove any path separators and decode URL encoding
+        import urllib.parse
+        clean_filename = urllib.parse.unquote(filename)
+        clean_filename = os.path.basename(clean_filename)  # Ensure no path traversal
+        
+        # Full path to the file
+        full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
+        app.logger.info(f"Full file path: {full_file_path}")
+        app.logger.info(f"File exists: {os.path.exists(full_file_path)}")
+        
+        # Check if file exists
+        if not os.path.exists(full_file_path):
+            app.logger.error(f"Report file not found: {full_file_path}")
+            app.logger.info(f"Available files in {STOCK_REPORTS_PATH}:")
+            if os.path.exists(STOCK_REPORTS_PATH):
+                for f in os.listdir(STOCK_REPORTS_PATH):
+                    app.logger.info(f"  - {f}")
+            return "Report file not found", 404
+        
+        # Check file size
+        file_size = os.path.getsize(full_file_path)
+        app.logger.info(f"File size: {file_size} bytes")
+        
+        if file_size == 0:
+            app.logger.error(f"Report file is empty: {full_file_path}")
+            return "Report file is empty", 404
+        
+        return send_from_directory(STOCK_REPORTS_PATH, clean_filename)
+        
+    except Exception as e:
+        app.logger.error(f"Error serving report file {filename}: {e}", exc_info=True)
+        return f"Error serving report: {str(e)}", 500
 
 @app.route('/static/<path:filename>')
 def serve_static_general(filename):
@@ -1633,17 +1719,33 @@ def save_report_to_history(user_uid, ticker, filename, generated_at_dt):
         app.logger.error("Firestore client not available for saving report history.")
         return False
     try:
+        # Log what we're saving for debugging
+        app.logger.info(f"Saving report to history - User: {user_uid}, Ticker: {ticker}, Filename: {filename}")
+        
+        # Ensure filename is clean (no path separators)
+        clean_filename = os.path.basename(filename) if filename else filename
+        
+        # Verify the file actually exists before saving to history
+        if clean_filename:
+            full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
+            if not os.path.exists(full_file_path):
+                app.logger.warning(f"Report file does not exist when saving to history: {full_file_path}")
+                # Still save to history, but log the warning
+        
         reports_history_collection = db.collection(u'userGeneratedReports')
         if generated_at_dt.tzinfo is None:
             generated_at_dt = generated_at_dt.replace(tzinfo=timezone.utc)
 
-        reports_history_collection.add({
+        report_data = {
             u'user_uid': user_uid,
             u'ticker': ticker.upper(),
-            u'filename': filename,
+            u'filename': clean_filename,  # Use clean filename
             u'generated_at': generated_at_dt
-        })
-        app.logger.info(f"Report history saved for user {user_uid}, ticker {ticker}, filename {filename}.")
+        }
+        
+        # Add the document and get the document reference
+        doc_ref = reports_history_collection.add(report_data)
+        app.logger.info(f"Report history saved for user {user_uid}, ticker {ticker}, filename {clean_filename}. Document ID: {doc_ref[1].id}")
         return True
     except Exception as e:
         app.logger.error(f"Error saving report history for user {user_uid}, ticker {ticker}: {e}", exc_info=True)
@@ -1676,9 +1778,12 @@ def get_report_history_for_user(user_uid, display_limit=10):
         # Only fetch the latest N reports for display
         display_query = base_query.order_by(u'generated_at', direction='DESCENDING').limit(display_limit)
         docs_for_display_stream = display_query.stream()
+        
         for doc_snapshot in docs_for_display_stream:
             report_data = doc_snapshot.to_dict()
             report_data['id'] = doc_snapshot.id
+            
+            # Process generated_at timestamp
             generated_at_val = report_data.get('generated_at')
             if hasattr(generated_at_val, 'seconds'):
                 report_data['generated_at'] = datetime.fromtimestamp(generated_at_val.seconds + generated_at_val.nanoseconds / 1e9, timezone.utc)
@@ -1687,12 +1792,101 @@ def get_report_history_for_user(user_uid, display_limit=10):
                     report_data['generated_at'] = datetime.fromtimestamp(generated_at_val / 1000, timezone.utc)
                 else:
                     report_data['generated_at'] = datetime.fromtimestamp(generated_at_val, timezone.utc)
+            
+            # Ensure filename is clean and validate file existence
+            filename = report_data.get('filename')
+            if filename:
+                # Clean the filename (ensure no path separators)
+                clean_filename = os.path.basename(filename)
+                report_data['filename'] = clean_filename
+                
+                # Check if the file actually exists on disk
+                full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
+                report_data['file_exists'] = os.path.exists(full_file_path)
+                
+                if not report_data['file_exists']:
+                    app.logger.warning(f"Report file missing for user {user_uid}: {clean_filename}")
+                
             reports_for_display.append(report_data)
+            
         app.logger.info(f"Fetched {len(reports_for_display)} reports for user {user_uid} (Limit: {display_limit}, Total: {total_user_reports_count}).")
         return reports_for_display, total_user_reports_count
     except Exception as e:
         app.logger.error(f"Error fetching report history for user {user_uid}: {e}", exc_info=True)
         return [], 0
+
+
+def cleanup_orphaned_reports(user_uid=None, dry_run=True):
+    """
+    Clean up report records in Firestore where the corresponding files no longer exist.
+    
+    Args:
+        user_uid: If provided, only clean up reports for this user. If None, clean up all users.
+        dry_run: If True, only log what would be deleted without actually deleting.
+    
+    Returns:
+        dict: Summary of cleanup operation
+    """
+    if not FIREBASE_INITIALIZED_SUCCESSFULLY:
+        return {'error': 'Firestore not available'}
+    
+    db = get_firestore_client()
+    if not db:
+        return {'error': 'Firestore client not available'}
+    
+    try:
+        # Build query
+        if user_uid:
+            query = db.collection(u'userGeneratedReports').where(filter=firestore.FieldFilter(u'user_uid', u'==', user_uid))
+        else:
+            query = db.collection(u'userGeneratedReports')
+        
+        orphaned_reports = []
+        total_checked = 0
+        
+        for doc in query.stream():
+            total_checked += 1
+            report_data = doc.to_dict()
+            filename = report_data.get('filename')
+            
+            if filename:
+                clean_filename = os.path.basename(filename)
+                full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
+                
+                if not os.path.exists(full_file_path):
+                    orphaned_reports.append({
+                        'doc_id': doc.id,
+                        'user_uid': report_data.get('user_uid'),
+                        'ticker': report_data.get('ticker'),
+                        'filename': clean_filename,
+                        'generated_at': report_data.get('generated_at')
+                    })
+        
+        # Delete orphaned records if not dry run
+        deleted_count = 0
+        if not dry_run and orphaned_reports:
+            for orphan in orphaned_reports:
+                try:
+                    db.collection(u'userGeneratedReports').document(orphan['doc_id']).delete()
+                    deleted_count += 1
+                    app.logger.info(f"Deleted orphaned report record: {orphan['ticker']} - {orphan['filename']}")
+                except Exception as e:
+                    app.logger.error(f"Error deleting orphaned report {orphan['doc_id']}: {e}")
+        
+        result = {
+            'total_checked': total_checked,
+            'orphaned_found': len(orphaned_reports),
+            'deleted_count': deleted_count,
+            'dry_run': dry_run,
+            'orphaned_reports': orphaned_reports if dry_run else []
+        }
+        
+        app.logger.info(f"Cleanup orphaned reports completed: {result}")
+        return result
+        
+    except Exception as e:
+        app.logger.error(f"Error in cleanup_orphaned_reports: {e}", exc_info=True)
+        return {'error': str(e)}
 
 
 # --- WORDPRESS AUTOMATION SPECIFIC ROUTES ---
@@ -3132,7 +3326,7 @@ if __name__ == '__main__':
             if APP_ENV == 'production':
                 # Production server - avoid running directly in Azure
                 app.logger.warning("Production mode detected - should be run via Gunicorn/WSGI")
-                app.logger.info("Starting production server with gevent fallback...")
+                app.logger.info("Starting production server with threading fallback...")
                 socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False)
             else:
                 # Development server with better error handling

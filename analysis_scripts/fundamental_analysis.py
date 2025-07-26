@@ -19,7 +19,7 @@ def safe_get(data_dict, key, default="N/A"):
         return default
     return value
 
-def format_value(value, value_type="number", precision=2):
+def format_value(value, value_type="number", precision=2, ticker=None):
     """Formats values for display, handling 'N/A' and potential errors."""
     if value == "N/A" or value is None or (isinstance(value, float) and np.isnan(value)):
         return "N/A"
@@ -32,8 +32,10 @@ def format_value(value, value_type="number", precision=2):
             num = value # Keep as original type for date/string
 
         if value_type == "currency":
-            # Remove currency formatting - just use number formatting
-            return f"{num:,.{precision}f}"
+            # Import currency function locally to avoid circular imports
+            from app.html_components import get_currency_symbol
+            currency_symbol = get_currency_symbol(ticker) if ticker else "$"
+            return f"{currency_symbol}{num:,.{precision}f}"
         elif value_type == "percent":
             # Assumes input is a fraction (e.g., 0.25 for 25%)
             return f"{num * 100:.{precision}f}%"

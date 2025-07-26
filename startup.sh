@@ -24,10 +24,11 @@ if [ ! -f "gunicorn.conf.py" ]; then
 fi
 
 # Start the application with optimized settings for Azure
-echo "Starting Gunicorn with gevent worker..."
+echo "Starting Gunicorn with sync worker and threading..."
 exec gunicorn \
     --config gunicorn.conf.py \
-    --worker-class gevent \
+    --worker-class sync \
+    --threads 100 \
     --workers 1 \
     --worker-connections 1000 \
     --bind 0.0.0.0:${PORT:-5000} \

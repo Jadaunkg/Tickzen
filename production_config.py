@@ -7,7 +7,7 @@ import os
 SOCKETIO_PROD_CONFIG = {
     'ping_timeout': 60,  # 1 minute
     'ping_interval': 25,  # 25 seconds
-    'async_mode': 'gevent',  # Use gevent instead of eventlet for better Azure compatibility
+    'async_mode': 'threading',  # Use threading for better third-party SDK compatibility
     'cors_allowed_origins': "*",
     'logger': False,  # Disable verbose logging in production
     'engineio_logger': False,
@@ -20,8 +20,9 @@ SOCKETIO_PROD_CONFIG = {
 # Production server settings for Gunicorn
 PROD_SERVER_CONFIG = {
     'bind': '0.0.0.0:5000',
-    'workers': 1,  # Single worker for SocketIO with gevent
-    'worker_class': 'gevent',  # Use gevent worker class
+    'workers': 1,  # Single worker for SocketIO with threading
+    'worker_class': 'sync',  # Use sync worker class with threads
+    'threads': 100,  # Number of threads per worker for concurrent connections
     'worker_connections': 1000,
     'timeout': 120,
     'keepalive': 5,

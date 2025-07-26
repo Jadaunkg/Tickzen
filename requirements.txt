@@ -17,8 +17,8 @@ curl_cffi==0.10.0
 cycler==0.12.1
 dnspython==2.7.0
 et_xmlfile==2.0.0
-gevent==23.9.1
-gevent-websocket==0.10.1
+# gevent==23.9.1  # Removed: Switching to threading mode for better SDK compatibility
+# gevent-websocket==0.10.1  # Removed: Not needed with threading mode
 gunicorn==21.2.0
 filelock==3.18.0
 firebase-admin>=6.9.0
