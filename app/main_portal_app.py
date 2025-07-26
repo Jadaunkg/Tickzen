@@ -204,6 +204,18 @@ ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
+# --- FIREBASE CLIENT CONFIGURATION ---
+def get_firebase_client_config():
+    """Get Firebase client configuration from environment variables"""
+    return {
+        'apiKey': os.getenv('FIREBASE_API_KEY'),
+        'authDomain': f"{os.getenv('FIREBASE_PROJECT_ID')}.firebaseapp.com",
+        'projectId': os.getenv('FIREBASE_PROJECT_ID'),
+        'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET', f"{os.getenv('FIREBASE_PROJECT_ID')}.appspot.com"),
+        'messagingSenderId': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
+        'appId': os.getenv('FIREBASE_APP_ID')
+    }
+
 # --- ENVIRONMENT SWITCH FOR DEV/PROD ---
 APP_ENV = os.getenv('APP_ENV', 'development').lower()  # 'development' or 'production'
 
@@ -252,6 +264,11 @@ else:
                             async_mode='threading'  # Use threading instead of eventlet for development
                            )
 
+# --- TEMPLATE CONTEXT PROCESSOR ---
+@app.context_processor
+def inject_firebase_config():
+    """Inject Firebase configuration into all templates"""
+    return {'firebase_config': get_firebase_client_config()}
 
 for folder_path in [UPLOAD_FOLDER, STATIC_FOLDER_PATH, STOCK_REPORTS_PATH]:
     if not os.path.exists(folder_path):
@@ -1224,6 +1241,15 @@ def serve_generated_report(filename):
 def serve_static_general(filename):
     return send_from_directory(app.static_folder, filename)
 
+@app.route('/favicon.ico')
+def favicon():
+    """Handle favicon requests"""
+    try:
+        return send_from_directory(app.static_folder, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    except:
+        # Return a 204 No Content response instead of 404 for favicon
+        return '', 204
+
 @app.route('/login', methods=['GET'])
 def login():
     if 'firebase_user_uid' in session: return redirect(url_for('dashboard_page'))
@@ -1233,6 +1259,17 @@ def login():
 def register():
     if 'firebase_user_uid' in session: return redirect(url_for('dashboard_page'))
     return render_template('register.html', title="Register - Tickzen")
+
+@app.route('/forgot-password', methods=['GET'])
+def forgot_password():
+    """Forgot password page - sends password reset email"""
+    if 'firebase_user_uid' in session: 
+        return redirect(url_for('dashboard_page'))
+    
+    firebase_config = get_firebase_client_config()
+    return render_template('auth/forgot_password.html', 
+                         title="Reset Password - Tickzen",
+                         firebase_config=firebase_config)
 
 @app.route('/verify-token', methods=['POST'])
 def verify_token_route():
@@ -1334,6 +1371,103 @@ def logout():
     session.clear()
     flash("You have been successfully logged out.", "info")
     return redirect(url_for('stock_analysis_homepage_route'))
+
+@app.route('/auth/action')
+def firebase_auth_action():
+    """Handle Firebase authentication actions like email verification, password reset, etc."""
+    mode = request.args.get('mode')
+    oob_code = request.args.get('oobCode')
+    api_key = request.args.get('apiKey')
+    lang = request.args.get('lang', 'en')
+    
+    app.logger.info(f"Firebase auth action requested - Mode: {mode}, Code: {oob_code[:20] if oob_code else 'None'}...")
+    app.logger.info(f"Full URL parameters: {dict(request.args)}")
+    app.logger.info(f"Request URL: {request.url}")
+    
+    if not mode or not oob_code:
+        app.logger.error(f"Missing required parameters - Mode: {mode}, oobCode: {'Present' if oob_code else 'Missing'}")
+        
+        # For password reset, redirect to a helpful error page instead of homepage
+        if mode == 'resetPassword' or request.args.get('mode') == 'resetPassword':
+            return render_template('auth/reset_password.html',
+                                 title="Reset Password - Tickzen", 
+                                 oob_code=None,  # This will trigger the error message
+                                 api_key=api_key,
+                                 mode=mode,
+                                 lang=lang,
+                                 firebase_config=get_firebase_client_config())
+        
+        flash("Invalid authentication action request. Please use the link from your email.", "danger")
+        return redirect(url_for('stock_analysis_homepage_route'))
+    
+    try:
+        firebase_config = get_firebase_client_config()
+        
+        if mode == 'verifyEmail':
+            return render_template('auth/verify_email.html', 
+                                 title="Email Verification - Tickzen",
+                                 oob_code=oob_code,
+                                 api_key=api_key,
+                                 mode=mode,
+                                 lang=lang,
+                                 firebase_config=firebase_config)
+        elif mode == 'resetPassword':
+            return render_template('auth/reset_password.html',
+                                 title="Reset Password - Tickzen", 
+                                 oob_code=oob_code,
+                                 api_key=api_key,
+                                 mode=mode,
+                                 lang=lang,
+                                 firebase_config=firebase_config)
+        elif mode == 'recoverEmail':
+            return render_template('auth/recover_email.html',
+                                 title="Recover Email - Tickzen",
+                                 oob_code=oob_code,
+                                 api_key=api_key,
+                                 mode=mode,
+                                 lang=lang,
+                                 firebase_config=firebase_config)
+        else:
+            flash(f"Unsupported authentication action: {mode}", "warning")
+            return redirect(url_for('stock_analysis_homepage_route'))
+            
+    except Exception as e:
+        app.logger.error(f"Error handling Firebase auth action: {e}", exc_info=True)
+        flash("An error occurred while processing your request. Please try again.", "danger")
+        return redirect(url_for('stock_analysis_homepage_route'))
+
+# --- TEST ROUTE FOR DEBUGGING RESET PASSWORD ---
+@app.route('/test/reset-password')
+def test_reset_password():
+    """Test route to simulate password reset with fake oob_code for debugging"""
+    app.logger.info("Test reset password route accessed")
+    firebase_config = get_firebase_client_config()
+    
+    # Simulate a fake oob_code for testing
+    fake_oob_code = "fake_oob_code_for_testing"
+    
+    return render_template('auth/reset_password.html',
+                         title="Reset Password - Tickzen (Test)", 
+                         oob_code=fake_oob_code,
+                         api_key=firebase_config.get('apiKey', ''),
+                         mode='resetPassword',
+                         lang='en',
+                         firebase_config=firebase_config)
+
+@app.route('/debug/auth-params')
+def debug_auth_params():
+    """Debug route to check what parameters are being received"""
+    params = dict(request.args)
+    app.logger.info(f"Debug auth params: {params}")
+    
+    return jsonify({
+        'url': request.url,
+        'args': params,
+        'mode': request.args.get('mode'),
+        'oobCode': request.args.get('oobCode'),
+        'apiKey': request.args.get('apiKey'),
+        'message': 'Use this to debug your password reset URL parameters'
+    })
 
 # --- USER & PROFILE MANAGEMENT ---
 @app.route('/user-profile')

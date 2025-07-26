@@ -340,6 +340,27 @@ span .fa-spinner[style*="display:inline-block"] {
   color: var(--primary-color);
 }
 
+.forgot-password-page .auth-card h2 i {
+  color: var(--primary-color);
+}
+
+.reset-password-page .auth-card h2 i {
+  color: var(--primary-color);
+}
+
+/* Text center utility for auth pages */
+.text-center {
+  text-align: center;
+}
+
+.mb-4 {
+  margin-bottom: 24px;
+}
+
+.mt-4 {
+  margin-top: 24px;
+}
+
 /* Responsive Design */
 @media (max-width: 480px) {
   .auth-container {

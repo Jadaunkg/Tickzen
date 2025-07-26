@@ -197,7 +197,7 @@
         /* Hero Section */
         .hero {
             padding: 4rem 0 6rem;
-            background: #1e293b;
+            background: #111720;
             position: relative;
             overflow: hidden;
             text-align: center;
@@ -215,6 +215,7 @@
             gap: 1rem;
             justify-content: center;
             margin-bottom: 2rem;
+            
         }
 
         .badge {
@@ -352,11 +353,62 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .analyze-btn:hover {
             background: var(--green-700);
             transform: translateY(-2px);
+        }
+
+        /* Ticker Suggestions Dropdown */
+        .ticker-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-top: none;
+            border-radius: 0 0 0.5rem 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .ticker-input {
+            position: relative;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid hsl(var(--border));
+            transition: background-color 0.2s;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.selected {
+            background-color: var(--green-50);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-symbol {
+            font-weight: 600;
+            color: var(--green-600);
+        }
+
+        .suggestion-name {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
         }
 
         .demo-output {
@@ -767,7 +819,7 @@
 
         /* Coming Soon Features */
         .coming-soon {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            background: linear-gradient(137deg, #111820 0%, #212e40 100%);
             color: white;
         }
 
@@ -1382,8 +1434,9 @@
                 <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Enter Stock Ticker</h3>
                 <div class="ticker-input">
                     <input type="text" class="input-field" placeholder="AAPL" maxlength="5" id="tickerInput">
+                    <div class="ticker-suggestions" id="tickerSuggestions"></div>
                     <button class="analyze-btn" onclick="startAnalysis()">
-                        <i data-lucide="search"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" class="lucide lucide-search"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
                         Analyze
                     </button>
                 </div>
@@ -2520,7 +2573,7 @@
 
         <!-- Coming Soon Plans -->
         <div style="margin-top: 3rem; text-align: center;">
-            <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 2rem; border-radius: 1rem; max-width: 800px; margin: 0 auto;">
+            <div style="background: linear-gradient(137deg, #111820 0%, #212e40 100%); color: white; padding: 2rem; border-radius: 1rem; max-width: 800px; margin: 0 auto;">
                 <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Paid Plans Coming Soon</h3>
                 <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem;">
                     We're working on premium features including advanced analytics, custom integrations, and dedicated support.
@@ -2797,9 +2850,110 @@
 <!-- Modal open/close logic (new, only keep this) -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const modal = document.getElementById('waitlistModal');
-  const openBtns = document.querySelectorAll('[data-open-waitlist]');
-  const closeBtn = document.getElementById('closeModalBtn');
+    // Ticker suggestions functionality for homepage demo
+    const tickerInput = document.getElementById('tickerInput');
+    const suggestionsDiv = document.getElementById('tickerSuggestions');
+    let selectedIndex = -1;
+    let suggestions = [];
+
+    if (tickerInput && suggestionsDiv) {
+        tickerInput.addEventListener('input', async function() {
+            const query = this.value.trim();
+            
+            if (query.length < 1) {
+                hideSuggestions();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/ticker-suggestions?q=${encodeURIComponent(query)}`);
+                suggestions = await response.json();
+                
+                if (suggestions.length > 0) {
+                    showSuggestions(suggestions);
+                } else {
+                    hideSuggestions();
+                }
+            } catch (error) {
+                console.log('Ticker suggestions unavailable');
+                hideSuggestions();
+            }
+        });
+
+        tickerInput.addEventListener('keydown', function(e) {
+            if (suggestions.length === 0) return;
+
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
+                    updateSelection();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelection();
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (selectedIndex >= 0) {
+                        selectSuggestion(suggestions[selectedIndex]);
+                    }
+                    break;
+                case 'Escape':
+                    hideSuggestions();
+                    break;
+            }
+        });
+
+        tickerInput.addEventListener('blur', function() {
+            // Hide suggestions after a short delay to allow for click events
+            setTimeout(() => hideSuggestions(), 150);
+        });
+
+        function showSuggestions(suggestionList) {
+            suggestionsDiv.innerHTML = '';
+            suggestionList.forEach((suggestion, index) => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.innerHTML = `
+                    <div class="suggestion-symbol">${suggestion.symbol}</div>
+                    <div class="suggestion-name">${suggestion.company}</div>
+                `;
+                item.addEventListener('mousedown', function(e) {
+                    e.preventDefault(); // Prevent input blur
+                    selectSuggestion(suggestion);
+                });
+                suggestionsDiv.appendChild(item);
+            });
+            suggestionsDiv.style.display = 'block';
+            selectedIndex = -1;
+        }
+
+        function hideSuggestions() {
+            suggestionsDiv.style.display = 'none';
+            selectedIndex = -1;
+            suggestions = [];
+        }
+
+        function updateSelection() {
+            const items = suggestionsDiv.querySelectorAll('.suggestion-item');
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedIndex);
+            });
+        }
+
+        function selectSuggestion(suggestion) {
+            tickerInput.value = suggestion.symbol;
+            hideSuggestions();
+            tickerInput.focus();
+        }
+    }
+
+    // Existing modal functionality
+    const modal = document.getElementById('waitlistModal');
+    const openBtns = document.querySelectorAll('[data-open-waitlist]');
+    const closeBtn = document.getElementById('closeModalBtn');
 
   openBtns.forEach(btn => {
     btn.addEventListener('click', function() {

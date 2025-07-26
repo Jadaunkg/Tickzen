@@ -4,16 +4,23 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("DOMContentLoaded: Initializing Firebase script...");
 
         // --- START: Firebase Configuration ---
-        // IMPORTANT: Replace these with your project's actual Firebase configuration.
-        const firebaseConfig = {
-            apiKey: "AIzaSyAm-1IWTApPgJNmCsaUQtO0Waa1im12ZR0", // 
+        // Get Firebase configuration from global window object (set in base template)
+        const firebaseConfig = window.firebaseConfig || {
+            // Fallback configuration (should not be used in production)
+            apiKey: "AIzaSyAm-1IWTApPgJNmCsaUQtO0Waa1im12ZR0",
             authDomain: "stock-report-automation.firebaseapp.com",
             projectId: "stock-report-automation",
             storageBucket: "stock-report-automation.appspot.com",
             messagingSenderId: "623825735657",
             appId: "1:623825735657:web:ea56f7a1d2193d0e9bc578"
-            // measurementId: "G-YOUR_MEASUREMENT_ID" // Optional, for Analytics
         };
+        
+        // Log configuration source for debugging
+        if (window.firebaseConfig) {
+            console.log("Using Firebase config from environment variables");
+        } else {
+            console.warn("Using fallback Firebase config - environment variables not available");
+        }
         // --- END: Firebase Configuration ---
 
         let app;
@@ -391,8 +398,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const googleSignUpButtonEl = document.getElementById('googleSignUpButton');
         if (googleSignUpButtonEl) googleSignUpButtonEl.addEventListener('click', signInWithGoogle); 
         
-        const forgotPasswordLinkEl = document.getElementById('forgotPasswordLink');
-        if (forgotPasswordLinkEl) forgotPasswordLinkEl.addEventListener('click', handleForgotPassword);
+        // Forgot password link now navigates to dedicated page
+        // No special handling needed since we have a dedicated forgot password page
 
         document.querySelectorAll('.password-toggle').forEach(button => {
             button.addEventListener('click', function() {

@@ -815,6 +815,19 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Configuration from Environment Variables -->
+    <script>
+        window.firebaseConfig = {
+            apiKey: "{{ firebase_config.apiKey if firebase_config else '' }}",
+            authDomain: "{{ firebase_config.authDomain if firebase_config else '' }}",
+            projectId: "{{ firebase_config.projectId if firebase_config else '' }}",
+            storageBucket: "{{ firebase_config.storageBucket if firebase_config else '' }}",
+            messagingSenderId: "{{ firebase_config.messagingSenderId if firebase_config else '' }}",
+            appId: "{{ firebase_config.appId if firebase_config else '' }}"
+        };
+    </script>
+    
     <script src="{{ url_for('static', filename='js/firebase-init.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
