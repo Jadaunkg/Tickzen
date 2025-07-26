@@ -1,0 +1,919 @@
+{% extends "_base.html" %}
+
+{% block title %}Admin Dashboard - Tickzen{% endblock %}
+
+{% block head_extra %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #4f46e5;
+        --secondary-color: #6b7280;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --light-bg: #f9fafb;
+        --card-bg: #ffffff;
+        --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --hover-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --border-radius: 8px;
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+        --text-small: #9ca3af;
+        --border-color: #e5e7eb;
+        --transition: all 0.2s ease;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        background: var(--light-bg) !important;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    .admin-dashboard {
+        padding: 1rem;
+        background: var(--light-bg);
+        min-height: 100vh;
+    }
+    
+    .admin-header {
+        background: var(--primary-color);
+        color: white;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: var(--border-radius);
+        text-align: center;
+    }
+    
+    .admin-header h1 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+    
+    .admin-header .subtitle {
+        opacity: 0.9;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 400;
+    }
+    
+    .metric-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+        transition: var(--transition);
+        margin-bottom: 1rem;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--hover-shadow);
+    }
+    
+    .metric-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+        background: var(--primary-color);
+        flex-shrink: 0;
+    }
+    
+    .metric-card.success .metric-icon {
+        background: var(--success-color);
+    }
+    
+    .metric-card.warning .metric-icon {
+        background: var(--warning-color);
+    }
+    
+    .metric-card.danger .metric-icon {
+        background: var(--danger-color);
+    }
+    
+    .metric-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .metric-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+        line-height: 1.2;
+    }
+    
+    .metric-label {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin: 0.25rem 0 0 0;
+    }
+    
+    .metric-change {
+        font-size: 0.6875rem;
+        font-weight: 500;
+        color: var(--text-small);
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .metric-change.positive {
+        color: var(--success-color);
+    }
+    
+    .metric-change.negative {
+        color: var(--danger-color);
+    }
+    
+    .admin-section {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+        transition: var(--transition);
+    }
+    
+    .admin-section:hover {
+        box-shadow: var(--hover-shadow);
+    }
+    
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .section-title i {
+        color: var(--primary-color);
+        font-size: 1rem;
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+    }
+    
+    .status-healthy {
+        background-color: var(--success-color);
+    }
+    
+    .status-warning {
+        background-color: var(--warning-color);
+    }
+    
+    .status-error {
+        background-color: var(--danger-color);
+    }
+    
+    .action-button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        margin: 0.25rem 0.5rem 0.25rem 0;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+    
+    .action-button:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--hover-shadow);
+        color: white;
+        text-decoration: none;
+        opacity: 0.9;
+    }
+    
+    .action-button.danger {
+        background: var(--danger-color);
+    }
+    
+    .action-button.success {
+        background: var(--success-color);
+    }
+    
+    .action-button.warning {
+        background: var(--warning-color);
+    }
+    
+    .action-button.info {
+        background: var(--primary-color);
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        font-size: 0.75rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.75rem 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .data-table th {
+        background: var(--light-bg);
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+    
+    .data-table tr:hover {
+        background-color: var(--light-bg);
+    }
+    
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .progress-bar {
+        background-color: var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+        height: 6px;
+        margin: 0.25rem 0;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--primary-color);
+        transition: width 0.3s ease;
+        border-radius: 4px;
+    }
+    
+    /* Progress width classes for dynamic setting */
+    .progress-0 { width: 0%; }
+    .progress-10 { width: 10%; }
+    .progress-20 { width: 20%; }
+    .progress-30 { width: 30%; }
+    .progress-40 { width: 40%; }
+    .progress-50 { width: 50%; }
+    .progress-60 { width: 60%; }
+    .progress-70 { width: 70%; }
+    .progress-80 { width: 80%; }
+    .progress-90 { width: 90%; }
+    .progress-100 { width: 100%; }
+    
+    .system-health {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .health-item {
+        background: var(--light-bg);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        transition: var(--transition);
+    }
+    
+    .health-item:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--card-shadow);
+    }
+    
+    .health-item h6 {
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+    }
+    
+    .refresh-button {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        cursor: pointer;
+        box-shadow: var(--hover-shadow);
+        transition: var(--transition);
+        z-index: 1000;
+    }
+    
+    .refresh-button:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+    
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.6875rem;
+        font-weight: 500;
+    }
+    
+    .badge-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .badge-secondary {
+        background: var(--secondary-color);
+        color: white;
+    }
+    
+    .badge-success {
+        background: var(--success-color);
+        color: white;
+    }
+    
+    .badge-danger {
+        background: var(--danger-color);
+        color: white;
+    }
+    
+    .badge-warning {
+        background: var(--warning-color);
+        color: white;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .admin-dashboard {
+            padding: 0.75rem;
+        }
+        
+        .admin-header {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .admin-header h1 {
+            font-size: 1.25rem;
+        }
+        
+        .metric-card {
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            flex-direction: column;
+            text-align: center;
+            gap: 0.5rem;
+        }
+        
+        .metric-number {
+            font-size: 1.25rem;
+        }
+        
+        .admin-section {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .system-health {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-button {
+            width: 100%;
+            justify-content: center;
+            margin: 0.25rem 0;
+        }
+        
+        .data-table {
+            font-size: 0.6875rem;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 0.5rem 0.25rem;
+        }
+    }
+    
+    /* Horizontal layout utilities */
+    .horizontal-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .two-column {
+            grid-template-columns: 1fr;
+        }
+        
+        .horizontal-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <div class="container">
+        <!-- Admin Header -->
+        <div class="admin-header text-center">
+            <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
+            <div class="subtitle">
+                System Overview & Management Console
+                <br>
+                <small>Last Updated: <span id="last-updated">{{ system_status.server_time[:19] }}</span> UTC</small>
+            </div>
+        </div>
+
+        <!-- Key Metrics Row -->
+        <div class="horizontal-cards">
+            <div class="metric-card success">
+                <div class="metric-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ analytics.today.reports_generated or 0 }}</div>
+                    <div class="metric-label">Reports Today</div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+{{ analytics.today.reports_generated or 0 }} from yesterday</span>
+                    </div>
+                </div>
+            </div>
+            <div class="metric-card info">
+                <div class="metric-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ analytics.today.active_users or 0 }}</div>
+                    <div class="metric-label">Active Users Today</div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-user-friends"></i>
+                        <span>{{ analytics.user_stats.total_users or 0 }} total users</span>
+                    </div>
+                </div>
+            </div>
+            <div class="metric-card warning">
+                <div class="metric-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ analytics.report_stats.total_reports or 0 }}</div>
+                    <div class="metric-label">Total Reports</div>
+                    <div class="metric-change">
+                        <i class="fas fa-infinity"></i>
+                        <span>All time generated</span>
+                    </div>
+                </div>
+            </div>
+            <div class="metric-card {% if analytics.system_health.firebase_initialized %}success{% else %}danger{% endif %}">
+                <div class="metric-icon">
+                    {% if analytics.system_health.firebase_initialized %}
+                        <i class="fas fa-heartbeat"></i>
+                    {% else %}
+                        <i class="fas fa-exclamation-triangle"></i>
+                    {% endif %}
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">
+                        {% if analytics.system_health.firebase_initialized %}
+                            <i class="fas fa-check" style="font-size: 1.5rem; color: var(--success-color);"></i>
+                        {% else %}
+                            <i class="fas fa-times" style="font-size: 1.5rem; color: var(--danger-color);"></i>
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">System Health</div>
+                    <div class="metric-change {% if analytics.system_health.firebase_initialized %}positive{% else %}negative{% endif %}">
+                        {% if analytics.system_health.firebase_initialized %}
+                            <i class="fas fa-shield-check"></i>
+                            <span>All Systems Operational</span>
+                        {% else %}
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Issues Detected</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Health Section -->
+        <div class="admin-section">
+            <div class="section-title">
+                <i class="fas fa-heartbeat"></i> System Health Monitor
+            </div>
+            <div class="system-health">
+                <div class="health-item">
+                    <h6>
+                        <span class="status-indicator {% if analytics.system_health.firebase_initialized %}status-healthy{% else %}status-error{% endif %}"></span>
+                        Firebase Services
+                    </h6>
+                    <p class="mb-1">
+                        Status: {% if analytics.system_health.firebase_initialized %}<span class="text-success">Operational</span>{% else %}<span class="text-danger">Down</span>{% endif %}
+                    </p>
+                    <small class="text-muted">Authentication, Database, Storage</small>
+                </div>
+                
+                <div class="health-item">
+                    <h6>
+                        <span class="status-indicator {% if analytics.system_health.pipeline_available %}status-healthy{% else %}status-error{% endif %}"></span>
+                        Analysis Pipeline
+                    </h6>
+                    <p class="mb-1">
+                        Status: {% if analytics.system_health.pipeline_available %}<span class="text-success">Ready</span>{% else %}<span class="text-danger">Unavailable</span>{% endif %}
+                    </p>
+                    <small class="text-muted">Report Generation Engine</small>
+                </div>
+                
+                <div class="health-item">
+                    <h6>
+                        <span class="status-indicator {% if analytics.system_health.auto_publisher_available %}status-healthy{% else %}status-warning{% endif %}"></span>
+                        Auto Publisher
+                    </h6>
+                    <p class="mb-1">
+                        Status: {% if analytics.system_health.auto_publisher_available %}<span class="text-success">Active</span>{% else %}<span class="text-warning">Inactive</span>{% endif %}
+                    </p>
+                    <small class="text-muted">WordPress Automation</small>
+                </div>
+                
+                <div class="health-item">
+                    <h6>
+                        <span class="status-indicator status-healthy"></span>
+                        Application
+                    </h6>
+                    <p class="mb-1">
+                        Environment: <span class="text-info">{{ system_status.app_environment }}</span>
+                    </p>
+                    <small class="text-muted">Debug: {% if system_status.debug_mode %}On{% else %}Off{% endif %}</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storage Analytics -->
+        <div class="admin-section">
+            <div class="section-title">
+                <i class="fas fa-database"></i>
+                Storage Analytics
+            </div>
+            <div class="two-column">
+                <div style="background: var(--light-bg); border-radius: var(--border-radius); padding: 1rem; border: 1px solid var(--border-color);">
+                    <h6 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.875rem;">
+                        <i class="fas fa-clock" style="color: var(--primary-color); margin-right: 0.375rem;"></i>
+                        Today's Distribution
+                    </h6>
+                    {% if analytics.today.storage_breakdown %}
+                        {% for storage_type, count in analytics.today.storage_breakdown.items() %}
+                        <div class="d-flex justify-content-between align-items-center mb-2" style="padding: 0.5rem; background: var(--card-bg); border-radius: 6px; font-size: 0.75rem;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-{% if storage_type == 'firebase_storage' %}cloud{% elif storage_type == 'database' %}database{% else %}folder{% endif %}" style="color: var(--primary-color); margin-right: 0.5rem; font-size: 0.75rem;"></i>
+                                <span style="font-weight: 500;">{{ storage_type.replace('_', ' ').title() }}</span>
+                            </div>
+                            <span class="badge badge-primary" style="font-size: 0.625rem;">{{ count }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center" style="padding: 1.5rem; color: var(--text-secondary); font-size: 0.75rem;">
+                            <i class="fas fa-chart-pie" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                            <p style="margin: 0;">No reports generated today</p>
+                        </div>
+                    {% endif %}
+                </div>
+                <div style="background: var(--light-bg); border-radius: var(--border-radius); padding: 1rem; border: 1px solid var(--border-color);">
+                    <h6 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem; font-size: 0.875rem;">
+                        <i class="fas fa-chart-pie" style="color: var(--primary-color); margin-right: 0.375rem;"></i>
+                        Overall Breakdown
+                    </h6>
+                    {% if analytics.report_stats.storage_breakdown %}
+                        {% for storage_type, count in analytics.report_stats.storage_breakdown.items() %}
+                        <div class="mb-2" style="padding: 0.5rem; background: var(--card-bg); border-radius: 6px; font-size: 0.75rem;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-{% if storage_type == 'firebase_storage' %}cloud{% elif storage_type == 'database' %}database{% else %}folder{% endif %}" style="color: var(--primary-color); margin-right: 0.5rem; font-size: 0.75rem;"></i>
+                                    <span style="font-weight: 500;">{{ storage_type.replace('_', ' ').title() }}</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="badge badge-secondary" style="font-size: 0.625rem;">{{ count }}</span>
+                                    <small style="color: var(--text-secondary); font-weight: 500; font-size: 0.625rem;">
+                                        {{ "%.1f"|format((count / analytics.report_stats.total_reports * 100) if analytics.report_stats.total_reports else 0) }}%
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" data-progress="{{ (count / analytics.report_stats.total_reports * 100) if analytics.report_stats.total_reports else 0 }}"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center" style="padding: 1.5rem; color: var(--text-secondary); font-size: 0.75rem;">
+                            <i class="fas fa-database" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                            <p style="margin: 0;">No storage data available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- User Analytics -->
+        <div class="admin-section">
+            <div class="section-title">
+                <i class="fas fa-users"></i> User Analytics
+            </div>
+            <div class="horizontal-cards">
+                <div class="metric-card info">
+                    <div class="metric-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-number">{{ analytics.user_stats.total_users or 0 }}</div>
+                        <div class="metric-label">Total Users</div>
+                    </div>
+                </div>
+                <div class="metric-card success">
+                    <div class="metric-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-number">{{ analytics.user_stats.users_with_automation or 0 }}</div>
+                        <div class="metric-label">Users with Automation</div>
+                    </div>
+                </div>
+                <div class="metric-card warning">
+                    <div class="metric-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-number">{{ analytics.user_stats.total_automation_profiles or 0 }}</div>
+                        <div class="metric-label">Automation Profiles</div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if analytics.report_stats.top_users %}
+            <div style="margin-top: 2rem;">
+                <h6 style="font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center;">
+                    <i class="fas fa-trophy" style="color: #f59e0b; margin-right: 0.5rem;"></i>
+                    Top Users by Report Count
+                </h6>
+                <div style="background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--card-shadow);">
+                    <table class="data-table" style="margin-top: 0;">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user" style="margin-right: 0.5rem;"></i>User ID</th>
+                                <th><i class="fas fa-file-alt" style="margin-right: 0.5rem;"></i>Report Count</th>
+                                <th><i class="fas fa-percentage" style="margin-right: 0.5rem;"></i>Usage Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user_id, count in analytics.report_stats.top_users[:10] %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 32px; height: 32px; background: var(--info-gradient); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; font-weight: 700; font-size: 0.875rem;">
+                                            {{ user_id[0].upper() }}
+                                        </div>
+                                        <code style="background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem;">{{ user_id[:20] }}...</code>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-primary" style="font-size: 0.875rem;">{{ count }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress-bar" style="flex: 1;">
+                                            <div class="progress-fill" data-progress="{{ (count / analytics.report_stats.total_reports * 100) if analytics.report_stats.total_reports else 0 }}"></div>
+                                        </div>
+                                        <span style="font-weight: 600; color: var(--text-secondary); min-width: 3rem;">
+                                            {{ "%.1f"|format((count / analytics.report_stats.total_reports * 100) if analytics.report_stats.total_reports else 0) }}%
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Admin Actions -->
+        <div class="admin-section">
+            <div class="section-title">
+                <i class="fas fa-tools"></i>
+                Administrative Actions
+            </div>
+            
+            <div class="horizontal-cards">
+                <div style="background: var(--light-bg); padding: 1rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                    <h6 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem; display: flex; align-items: center; font-size: 0.875rem;">
+                        <i class="fas fa-stethoscope" style="color: var(--success-color); margin-right: 0.375rem;"></i>
+                        System Diagnostics
+                    </h6>
+                    <div class="d-flex flex-wrap gap-1">
+                        <a href="/api/health" class="action-button" target="_blank">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>Health Check</span>
+                        </a>
+                        <a href="/api/firebase-diagnostics" class="action-button info" target="_blank">
+                            <i class="fab fa-google"></i>
+                            <span>Firebase Diagnostics</span>
+                        </a>
+                        <a href="/api/storage-health" class="action-button success" target="_blank">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Storage Health</span>
+                        </a>
+                    </div>
+                </div>
+                <div style="background: var(--light-bg); padding: 1rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                    <h6 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem; display: flex; align-items: center; font-size: 0.875rem;">
+                        <i class="fas fa-database" style="color: var(--warning-color); margin-right: 0.375rem;"></i>
+                        Data Management
+                    </h6>
+                    <div class="d-flex flex-wrap gap-1">
+                        <a href="/admin/migrate-reports-to-storage?dry_run=true" class="action-button warning" target="_blank">
+                            <i class="fas fa-upload"></i>
+                            <span>Migrate Reports</span>
+                        </a>
+                        <a href="/admin/cleanup-orphaned-reports?dry_run=true" class="action-button danger" target="_blank">
+                            <i class="fas fa-broom"></i>
+                            <span>Cleanup Orphans</span>
+                        </a>
+                    </div>
+                </div>
+                <div style="background: var(--light-bg); padding: 1rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                    <h6 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem; display: flex; align-items: center; font-size: 0.875rem;">
+                        <i class="fas fa-code" style="color: var(--primary-color); margin-right: 0.375rem;"></i>
+                        Advanced APIs
+                    </h6>
+                    <div class="d-flex flex-wrap gap-1">
+                        <a href="/api/admin/analytics" class="action-button" target="_blank">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Analytics API</span>
+                        </a>
+                        <a href="/api/admin/users" class="action-button info" target="_blank">
+                            <i class="fas fa-users"></i>
+                            <span>Users API</span>
+                        </a>
+                        <a href="/api/admin/system-logs" class="action-button warning" target="_blank">
+                            <i class="fas fa-file-alt"></i>
+                            <span>System Logs</span>
+                        </a>
+                    </div>
+                </div>
+                <div style="background: var(--light-bg); padding: 1rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                    <h6 style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem; display: flex; align-items: center; font-size: 0.875rem;">
+                        <i class="fas fa-bolt" style="color: var(--secondary-color); margin-right: 0.375rem;"></i>
+                        Quick Actions
+                    </h6>
+                    <div class="d-flex flex-wrap gap-1">
+                        <button class="action-button success" onclick="refreshDashboard()">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Refresh Data</span>
+                        </button>
+                        <button class="action-button" onclick="exportAnalytics()">
+                            <i class="fas fa-download"></i>
+                            <span>Export Analytics</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Errors -->
+        {% if recent_errors %}
+        <div class="admin-section">
+            <div class="section-title">
+                <i class="fas fa-exclamation-triangle"></i> Recent System Errors
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Level</th>
+                        <th>Message</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for error in recent_errors[:10] %}
+                    <tr>
+                        <td>{{ error.timestamp.strftime('%Y-%m-%d %H:%M:%S') if error.timestamp else 'N/A' }}</td>
+                        <td><span class="badge badge-danger">{{ error.level }}</span></td>
+                        <td>{{ error.message[:100] }}...</td>
+                        <td><code>{{ error.source }}</code></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Refresh Button -->
+<button class="refresh-button" onclick="refreshDashboard()" title="Refresh Dashboard">
+    <i class="fas fa-sync-alt"></i>
+</button>
+
+<script>
+// Initialize progress bars
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.progress-fill[data-progress]');
+    progressBars.forEach(bar => {
+        const progress = parseFloat(bar.getAttribute('data-progress')) || 0;
+        bar.style.width = Math.min(100, Math.max(0, progress)) + '%';
+    });
+});
+
+function refreshDashboard() {
+    const refreshBtn = document.querySelector('.refresh-button i');
+    refreshBtn.classList.add('fa-spin');
+    
+    // Refresh the page after a short animation
+    setTimeout(() => {
+        window.location.reload();
+    }, 500);
+}
+
+function exportAnalytics() {
+    // Create and download analytics data
+    fetch('/api/admin/analytics')
+        .then(response => response.json())
+        .then(data => {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tickzen-analytics-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            console.error('Error exporting analytics:', error);
+            alert('Error exporting analytics data');
+        });
+}
+
+// Auto-refresh every 5 minutes
+setInterval(() => {
+    const lastUpdated = document.getElementById('last-updated');
+    const now = new Date();
+    lastUpdated.textContent = now.toISOString().slice(0, 19);
+}, 300000); // 5 minutes
+
+// Update last updated time every minute
+setInterval(() => {
+    const lastUpdated = document.getElementById('last-updated');
+    const now = new Date();
+    lastUpdated.textContent = now.toISOString().slice(0, 19);
+}, 60000); // 1 minute
+</script>
+{% endblock %}

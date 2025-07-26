@@ -4,7 +4,7 @@ import time
 import logging
 import yfinance as yf
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date
 import os
 import re
 import requests
@@ -14,6 +14,79 @@ import requests
 if not logging.getLogger().hasHandlers():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__) # Use module-specific logger
+
+def is_data_current_for_today(data, ticker):
+    """
+    Check if the data contains current/today's trading data.
+    Returns True if data is current, False otherwise.
+    """
+    if data is None or data.empty:
+        return False
+    
+    if 'Date' not in data.columns:
+        return False
+    
+    try:
+        # Get today's date
+        today = date.today()
+        
+        # Convert Date column to datetime if not already
+        if not pd.api.types.is_datetime64_any_dtype(data['Date']):
+            data['Date'] = pd.to_datetime(data['Date'], errors='coerce')
+        
+        # Get the latest date in the data
+        latest_date = data['Date'].max().date() if pd.notna(data['Date'].max()) else None
+        
+        if latest_date is None:
+            logger.warning(f"No valid dates found in cached data for {ticker}")
+            return False
+        
+        # Check if latest date is today or recent (within last 3 days for weekends)
+        days_diff = (today - latest_date).days
+        
+        # For weekends, allow up to 3 days old (Friday data on Monday)
+        # For regular days, require today's data or at most 1 day old
+        is_current = days_diff <= 3
+        
+        logger.info(f"Data currency check for {ticker}: Latest date = {latest_date}, Today = {today}, Days diff = {days_diff}, Is current = {is_current}")
+        return is_current
+        
+    except Exception as e:
+        logger.error(f"Error checking data currency for {ticker}: {e}")
+        return False
+
+def cleanup_old_cache_files(cache_dir, max_age_days=7):
+    """
+    Clean up cache files older than max_age_days to prevent accumulation.
+    """
+    try:
+        if not os.path.exists(cache_dir):
+            return
+        
+        current_time = datetime.now()
+        files_cleaned = 0
+        
+        for filename in os.listdir(cache_dir):
+            if filename.endswith('.csv'):
+                filepath = os.path.join(cache_dir, filename)
+                try:
+                    # Get file modification time
+                    file_mtime = datetime.fromtimestamp(os.path.getmtime(filepath))
+                    age_days = (current_time - file_mtime).days
+                    
+                    if age_days > max_age_days:
+                        os.remove(filepath)
+                        files_cleaned += 1
+                        logger.info(f"Cleaned up old cache file: {filename} (age: {age_days} days)")
+                
+                except Exception as e:
+                    logger.warning(f"Error cleaning cache file {filename}: {e}")
+        
+        if files_cleaned > 0:
+            logger.info(f"Cleaned up {files_cleaned} old cache files from {cache_dir}")
+            
+    except Exception as e:
+        logger.error(f"Error during cache cleanup: {e}")
 
 # Define supported exchange suffixes
 SUPPORTED_EXCHANGES = {
@@ -86,6 +159,9 @@ def fetch_stock_data(
 
     cache_dir = os.path.join(app_root, '..', 'generated_data', 'data_cache')
     os.makedirs(cache_dir, exist_ok=True)
+    
+    # Clean up old cache files periodically
+    cleanup_old_cache_files(cache_dir)
 
     cache_filename = f"{ticker.replace(':', '_').replace('^', '_')}_stock_data.csv" # Sanitize ticker for filename
     cache_filepath = os.path.join(cache_dir, cache_filename)
@@ -107,8 +183,10 @@ def fetch_stock_data(
                  logger.warning(f"Cached file {cache_filename} is empty. Re-downloading.")
             elif data['Date'].isna().any():
                  logger.warning(f"Cached file {cache_filename} contains invalid dates. Re-downloading.")
+            elif not is_data_current_for_today(data, ticker):
+                 logger.warning(f"Cached data for {ticker} is not current for today. Re-downloading to get latest data.")
             else:
-                logger.info(f"Successfully loaded {len(data)} rows for '{ticker}' from cache.")
+                logger.info(f"Successfully loaded {len(data)} rows for '{ticker}' from cache with current data.")
                 return data
         except Exception as e:
             logger.warning(f"Failed to load or validate cached file {cache_filename}: {e}. Re-downloading.")

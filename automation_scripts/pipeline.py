@@ -30,6 +30,89 @@ def _get_processed_data_filepath(ticker, app_root):
     os.makedirs(cache_dir, exist_ok=True)
     return os.path.join(cache_dir, f"{ticker}_processed_data_{today_str}.csv")
 
+def _is_processed_data_current(processed_filepath, stock_data, macro_data, ticker):
+    """
+    Check if processed data exists and is based on current source data.
+    Returns True if processed data is current, False otherwise.
+    """
+    if not os.path.exists(processed_filepath):
+        return False
+    
+    try:
+        # Load processed data
+        processed_data = pd.read_csv(processed_filepath)
+        if processed_data.empty:
+            return False
+        
+        # Check if processed data has current dates
+        if 'Date' in processed_data.columns:
+            processed_data['Date'] = pd.to_datetime(processed_data['Date'], errors='coerce')
+            latest_processed_date = processed_data['Date'].max().date() if pd.notna(processed_data['Date'].max()) else None
+            
+            # Check stock data currency
+            if stock_data is not None and not stock_data.empty and 'Date' in stock_data.columns:
+                if not pd.api.types.is_datetime64_any_dtype(stock_data['Date']):
+                    stock_data_copy = stock_data.copy()
+                    stock_data_copy['Date'] = pd.to_datetime(stock_data_copy['Date'], errors='coerce')
+                else:
+                    stock_data_copy = stock_data
+                
+                latest_stock_date = stock_data_copy['Date'].max().date() if pd.notna(stock_data_copy['Date'].max()) else None
+                
+                if latest_stock_date and latest_processed_date:
+                    # If stock data is newer than processed data, reprocess
+                    if latest_stock_date > latest_processed_date:
+                        pipeline_logger.info(f"Stock data ({latest_stock_date}) is newer than processed data ({latest_processed_date}) for {ticker}. Reprocessing.")
+                        return False
+            
+            # Check if processed data is current (within last 3 days)
+            today = date.today()
+            if latest_processed_date:
+                days_diff = (today - latest_processed_date).days
+                if days_diff > 3:
+                    pipeline_logger.info(f"Processed data for {ticker} is {days_diff} days old. Reprocessing for current data.")
+                    return False
+        
+        pipeline_logger.info(f"Processed data for {ticker} is current.")
+        return True
+        
+    except Exception as e:
+        pipeline_logger.warning(f"Error checking processed data currency for {ticker}: {e}")
+        return False
+
+def cleanup_old_processed_data(cache_dir, max_age_days=7):
+    """
+    Clean up old processed data files to prevent accumulation.
+    """
+    try:
+        if not os.path.exists(cache_dir):
+            return
+        
+        current_time = datetime.now()
+        files_cleaned = 0
+        
+        for filename in os.listdir(cache_dir):
+            if 'processed_data' in filename and filename.endswith('.csv'):
+                filepath = os.path.join(cache_dir, filename)
+                try:
+                    # Get file modification time
+                    file_mtime = datetime.fromtimestamp(os.path.getmtime(filepath))
+                    age_days = (current_time - file_mtime).days
+                    
+                    if age_days > max_age_days:
+                        os.remove(filepath)
+                        files_cleaned += 1
+                        pipeline_logger.info(f"Cleaned up old processed data file: {filename} (age: {age_days} days)")
+                
+                except Exception as e:
+                    pipeline_logger.warning(f"Error cleaning processed data file {filename}: {e}")
+        
+        if files_cleaned > 0:
+            pipeline_logger.info(f"Cleaned up {files_cleaned} old processed data files from {cache_dir}")
+            
+    except Exception as e:
+        pipeline_logger.error(f"Error during processed data cleanup: {e}")
+
 def _emit_progress(socketio_instance, task_room, progress, message, stage_detail="", ticker="N/A", event_name='analysis_progress'):
     if socketio_instance and task_room:
         payload = {'progress': progress, 'message': message, 'stage': stage_detail, 'ticker': ticker}
@@ -74,22 +157,30 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
         _emit_progress(socketio_instance, task_room, 15, "Processing 15-year price history and charts...", "15-Year Price History & Charts", ticker, event_name_progress)
         _emit_progress(socketio_instance, task_room, 20, "Preprocessing data...", "Preprocessing", ticker, event_name_progress)
         processed_filepath = _get_processed_data_filepath(ticker, app_root)
+        
+        # Clean up old processed data files periodically
+        cache_dir = os.path.join(app_root, '..', 'generated_data', 'data_cache')
+        cleanup_old_processed_data(cache_dir)
+        
         processed_data = None
-        if os.path.exists(processed_filepath):
-            pipeline_logger.info(f"Loading processed data for {ticker} from cache...")
+        
+        # Check if processed data exists and is current
+        if _is_processed_data_current(processed_filepath, stock_data, macro_data, ticker):
+            pipeline_logger.info(f"Loading current processed data for {ticker} from cache...")
             processed_data = pd.read_csv(processed_filepath)
             if 'Date' in processed_data.columns:
                 processed_data['Date'] = pd.to_datetime(processed_data['Date'])
-            if processed_data.empty: processed_data = None
+            if processed_data.empty: 
+                processed_data = None
         
         if processed_data is None:
-            pipeline_logger.info(f"Preprocessing data for {ticker}...")
+            pipeline_logger.info(f"Preprocessing data for {ticker} with current source data...")
             processed_data = preprocess_data(stock_data, macro_data if macro_data is not None else None)
             if processed_data is None or processed_data.empty:
                 error_msg = f"Unable to process data for ticker '{ticker}'. The stock data may be insufficient for analysis.\n\nPlease try again with a different stock symbol that has more trading history."
                 raise RuntimeError(error_msg)
             processed_data.to_csv(processed_filepath, index=False)
-            pipeline_logger.info(f"Saved new processed data for {ticker}.")
+            pipeline_logger.info(f"Saved new processed data for {ticker} based on current source data.")
 
         _emit_progress(socketio_instance, task_room, 30, "Calculating technical indicators (RSI, MACD, Histogram)...", "Technical Indicators (RSI, MACD, Histogram)", ticker, event_name_progress)
         _emit_progress(socketio_instance, task_room, 40, "Training predictive model...", "Model Training", ticker, event_name_progress)

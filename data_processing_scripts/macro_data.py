@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import numpy as np
 import pandas_datareader as pdr
-from datetime import datetime
+from datetime import datetime, date
 import logging
 
 # Configure logging
@@ -15,6 +15,78 @@ logger = logging.getLogger(__name__)
 CACHE_FILENAME = "macro_indicators.csv" 
 
 FRED_API_KEY = os.environ.get('FRED_API_KEY') #
+
+def is_macro_data_current_for_today(data):
+    """
+    Check if the macro data contains current/today's data.
+    Macro data is typically updated with a delay, so we check for recent data within last 7 days.
+    """
+    if data is None or data.empty:
+        return False
+    
+    if 'Date' not in data.columns:
+        return False
+    
+    try:
+        # Get today's date
+        today = date.today()
+        
+        # Convert Date column to datetime if not already
+        if not pd.api.types.is_datetime64_any_dtype(data['Date']):
+            data['Date'] = pd.to_datetime(data['Date'], errors='coerce')
+        
+        # Get the latest date in the data
+        latest_date = data['Date'].max().date() if pd.notna(data['Date'].max()) else None
+        
+        if latest_date is None:
+            logger.warning("No valid dates found in cached macro data")
+            return False
+        
+        # Check if latest date is within last 7 days (macro data has delays)
+        days_diff = (today - latest_date).days
+        
+        # Allow up to 7 days for macro data as it's updated less frequently
+        is_current = days_diff <= 7
+        
+        logger.info(f"Macro data currency check: Latest date = {latest_date}, Today = {today}, Days diff = {days_diff}, Is current = {is_current}")
+        return is_current
+        
+    except Exception as e:
+        logger.error(f"Error checking macro data currency: {e}")
+        return False
+
+def cleanup_old_macro_cache(cache_dir, max_age_days=7):
+    """
+    Clean up old macro cache files to prevent accumulation.
+    """
+    try:
+        if not os.path.exists(cache_dir):
+            return
+        
+        current_time = datetime.now()
+        files_cleaned = 0
+        
+        for filename in os.listdir(cache_dir):
+            if filename.startswith('macro_') and filename.endswith('.csv'):
+                filepath = os.path.join(cache_dir, filename)
+                try:
+                    # Get file modification time
+                    file_mtime = datetime.fromtimestamp(os.path.getmtime(filepath))
+                    age_days = (current_time - file_mtime).days
+                    
+                    if age_days > max_age_days:
+                        os.remove(filepath)
+                        files_cleaned += 1
+                        logger.info(f"Cleaned up old macro cache file: {filename} (age: {age_days} days)")
+                
+                except Exception as e:
+                    logger.warning(f"Error cleaning macro cache file {filename}: {e}")
+        
+        if files_cleaned > 0:
+            logger.info(f"Cleaned up {files_cleaned} old macro cache files from {cache_dir}")
+            
+    except Exception as e:
+        logger.error(f"Error during macro cache cleanup: {e}")
 
 def fetch_macro_indicators(app_root, start_date=None, end_date=None):
     """
@@ -27,6 +99,10 @@ def fetch_macro_indicators(app_root, start_date=None, end_date=None):
 
     cache_dir = os.path.join(app_root, '..', 'generated_data', 'data_cache') #
     os.makedirs(cache_dir, exist_ok=True) 
+    
+    # Clean up old cache files periodically
+    cleanup_old_macro_cache(cache_dir)
+    
     cache_filepath = os.path.join(cache_dir, CACHE_FILENAME) #
     logger.info(f"Checking cache for macro data at: {cache_filepath}")
 
@@ -45,9 +121,11 @@ def fetch_macro_indicators(app_root, start_date=None, end_date=None):
             elif macro_data_cache.empty: #
                  logger.warning(f"Cached file {CACHE_FILENAME} is empty. Re-downloading.") 
             elif macro_data_cache['Date'].isna().any(): #
-                 logger.warning(f"Cached file {CACHE_FILENAME} contains invalid dates. Re-downloading.") 
+                 logger.warning(f"Cached file {CACHE_FILENAME} contains invalid dates. Re-downloading.")
+            elif not is_macro_data_current_for_today(macro_data_cache):
+                 logger.warning(f"Cached macro data is not current for today. Re-downloading to get latest data.")
             else:
-                logger.info(f"Successfully loaded {len(macro_data_cache)} macro records from cache.")
+                logger.info(f"Successfully loaded {len(macro_data_cache)} macro records from cache with current data.")
                 
                 macro_data_to_process = macro_data_cache.set_index('Date') #
                 

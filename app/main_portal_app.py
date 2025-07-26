@@ -510,6 +510,192 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def admin_required(f):
+    """Decorator to require admin access for certain routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Get current Firebase initialization status
+        current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
+        
+        if not current_firebase_status:
+            app.logger.error("Admin access attempt failed: Firebase Admin SDK not initialized.")
+            flash("Authentication service is currently unavailable. Please try again later.", "danger")
+            return redirect(url_for('stock_analysis_homepage_route'))
+            
+        if 'firebase_user_uid' not in session:
+            flash("Please log in to access this page.", "warning")
+            return redirect(url_for('login', next=request.full_path))
+        
+        user_uid = session.get('firebase_user_uid')
+        user_email = session.get('firebase_user_email', '')
+        
+        # Define admin users (you can also store this in Firestore)
+        admin_emails = [
+            'admin@tickzen.com',
+            'jadaunkg@gmail.com',  # Add your admin email here
+            # Add more admin emails as needed
+        ]
+        
+        if user_email not in admin_emails:
+            app.logger.warning(f"Non-admin user {user_email} attempted to access admin route: {request.endpoint}")
+            flash("Access denied. Administrator privileges required.", "danger")
+            return redirect(url_for('dashboard_page'))
+        
+        app.logger.info(f"Admin access granted to {user_email} for route: {request.endpoint}")
+        return f(*args, **kwargs)
+    return decorated_function
+
+def get_admin_analytics():
+    """Get comprehensive analytics for admin dashboard"""
+    analytics = {
+        'today': {},
+        'system_health': {},
+        'user_stats': {},
+        'report_stats': {},
+        'storage_stats': {},
+        'automation_stats': {},
+        'error_stats': {}
+    }
+    
+    try:
+        db = get_firestore_client()
+        if not db:
+            return analytics
+        
+        today = datetime.now(timezone.utc).date()
+        today_start = datetime.combine(today, datetime.min.time(), timezone.utc)
+        today_end = datetime.combine(today, datetime.max.time(), timezone.utc)
+        
+        # Today's statistics
+        try:
+            # Reports generated today
+            reports_today_query = db.collection('userGeneratedReports')\
+                .where('generated_at', '>=', today_start)\
+                .where('generated_at', '<=', today_end)
+            
+            reports_today = list(reports_today_query.stream())
+            analytics['today']['reports_generated'] = len(reports_today)
+            
+            # Unique users today
+            unique_users_today = set()
+            storage_types_today = {}
+            
+            for report in reports_today:
+                report_data = report.to_dict()
+                unique_users_today.add(report_data.get('user_uid'))
+                storage_type = report_data.get('storage_type', 'unknown')
+                storage_types_today[storage_type] = storage_types_today.get(storage_type, 0) + 1
+            
+            analytics['today']['active_users'] = len(unique_users_today)
+            analytics['today']['storage_breakdown'] = storage_types_today
+            
+        except Exception as e:
+            app.logger.error(f"Error getting today's stats: {e}")
+        
+        # Overall report statistics
+        try:
+            # Total reports
+            total_reports_query = db.collection('userGeneratedReports').count()
+            total_reports_result = total_reports_query.get()
+            analytics['report_stats']['total_reports'] = total_reports_result[0][0].value if total_reports_result else 0
+            
+            # Reports by storage type
+            all_reports_query = db.collection('userGeneratedReports').limit(1000)  # Sample for performance
+            all_reports = list(all_reports_query.stream())
+            
+            storage_breakdown = {}
+            user_report_counts = {}
+            
+            for report in all_reports:
+                report_data = report.to_dict()
+                storage_type = report_data.get('storage_type', 'unknown')
+                user_uid = report_data.get('user_uid', 'unknown')
+                
+                storage_breakdown[storage_type] = storage_breakdown.get(storage_type, 0) + 1
+                user_report_counts[user_uid] = user_report_counts.get(user_uid, 0) + 1
+            
+            analytics['report_stats']['storage_breakdown'] = storage_breakdown
+            analytics['report_stats']['top_users'] = sorted(user_report_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+            
+        except Exception as e:
+            app.logger.error(f"Error getting report stats: {e}")
+        
+        # User statistics
+        try:
+            # Total users (from user profiles)
+            users_query = db.collection('userProfiles').count()
+            users_result = users_query.get()
+            analytics['user_stats']['total_users'] = users_result[0][0].value if users_result else 0
+            
+            # Users with automation profiles
+            profiles_query = db.collection('userSiteProfiles').limit(100)
+            profiles_docs = list(profiles_query.stream())
+            
+            users_with_profiles = set()
+            total_profiles = 0
+            
+            for user_doc in profiles_docs:
+                users_with_profiles.add(user_doc.id)
+                profiles_collection = user_doc.reference.collection('profiles')
+                user_profiles = list(profiles_collection.stream())
+                total_profiles += len(user_profiles)
+            
+            analytics['user_stats']['users_with_automation'] = len(users_with_profiles)
+            analytics['user_stats']['total_automation_profiles'] = total_profiles
+            
+        except Exception as e:
+            app.logger.error(f"Error getting user stats: {e}")
+        
+        # System health
+        analytics['system_health'] = {
+            'firebase_initialized': FIREBASE_INITIALIZED_SUCCESSFULLY,
+            'pipeline_available': PIPELINE_IMPORTED_SUCCESSFULLY,
+            'auto_publisher_available': globals().get('AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY', False),
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        }
+        
+        # Storage health
+        try:
+            bucket = get_storage_bucket()
+            if bucket:
+                # Get a sample of storage usage
+                blobs = list(bucket.list_blobs(prefix='user_reports/', max_results=100))
+                total_size = sum(blob.size for blob in blobs if blob.size)
+                analytics['storage_stats'] = {
+                    'firebase_storage_available': True,
+                    'sample_files_count': len(blobs),
+                    'sample_total_size_mb': round(total_size / (1024 * 1024), 2)
+                }
+            else:
+                analytics['storage_stats'] = {'firebase_storage_available': False}
+        except Exception as e:
+            app.logger.error(f"Error getting storage stats: {e}")
+            analytics['storage_stats'] = {'firebase_storage_available': False, 'error': str(e)}
+        
+    except Exception as e:
+        app.logger.error(f"Error in get_admin_analytics: {e}")
+    
+    return analytics
+
+def get_recent_system_errors(limit=50):
+    """Get recent system errors from logs"""
+    errors = []
+    try:
+        # This would typically read from your logging system
+        # For now, we'll return a placeholder structure
+        errors = [
+            {
+                'timestamp': datetime.now(timezone.utc) - timedelta(minutes=30),
+                'level': 'ERROR',
+                'message': 'Example error for demo',
+                'source': 'main_portal_app.py'
+            }
+        ]
+    except Exception as e:
+        app.logger.error(f"Error getting recent errors: {e}")
+    
+    return errors
+
 def get_user_site_profiles_from_firestore(user_uid, limit_profiles=20):
     # Get current Firebase initialization status
     current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
@@ -918,21 +1104,258 @@ def health_check():
             'timestamp': datetime.now(timezone.utc).isoformat()
         }), 500
 
-@app.route('/api/firebase-diagnostics')
-@login_required
-def firebase_diagnostics():
-    """Detailed Firebase diagnostics for administrators"""
+@app.route('/api/storage-health')
+@admin_required
+def admin_storage_health():
+    """Admin route to check Firebase Storage health and list reports"""
     try:
-        from config.firebase_admin_setup import get_firebase_diagnostic_info, test_firebase_connection
+        bucket = get_storage_bucket()
+        if not bucket:
+            return jsonify({'status': 'error', 'message': 'Firebase Storage not available'}), 500
         
-        diagnostic_info = get_firebase_diagnostic_info()
-        connection_test = test_firebase_connection()
+        # List some user reports in storage
+        blobs = list(bucket.list_blobs(prefix='user_reports/', max_results=50))
+        
+        # Get database report count
+        db = get_firestore_client()
+        database_report_count = 0
+        reports_with_storage_path = 0
+        
+        if db:
+            try:
+                # Count total reports in database
+                total_query = db.collection('userGeneratedReports').count()
+                total_result = total_query.get()
+                database_report_count = total_result[0][0].value if total_result else 0
+                
+                # Count reports with storage paths
+                storage_query = db.collection('userGeneratedReports')\
+                    .where('storage_path', '!=', None).limit(1000)
+                reports_with_storage_path = len(list(storage_query.stream()))
+                
+            except Exception as e:
+                app.logger.error(f"Error querying database in storage health: {e}")
+        
+        # Prepare blob information
+        blob_info = []
+        total_size = 0
+        for blob in blobs:
+            blob_data = {
+                'name': blob.name,
+                'size': blob.size,
+                'created': blob.time_created.isoformat() if blob.time_created else None,
+                'updated': blob.updated.isoformat() if blob.updated else None
+            }
+            blob_info.append(blob_data)
+            if blob.size:
+                total_size += blob.size
         
         return jsonify({
-            'diagnostic_info': diagnostic_info,
-            'connection_test': connection_test,
+            'status': 'success',
+            'storage_available': True,
+            'bucket_name': bucket.name,
+            'storage_blob_count': len(blobs),
+            'total_size_mb': round(total_size / (1024 * 1024), 2),
+            'database_report_count': database_report_count,
+            'reports_with_storage_path': reports_with_storage_path,
+            'sample_blobs': blob_info[:10]  # Return first 10 as sample
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error in admin storage health: {e}", exc_info=True)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/admin/analytics')
+@admin_required
+def admin_analytics_api():
+    """API endpoint for real-time admin analytics"""
+    try:
+        analytics = get_admin_analytics()
+        return jsonify({
+            'status': 'success',
+            'data': analytics,
             'timestamp': datetime.now(timezone.utc).isoformat()
-        }), 200
+        })
+    except Exception as e:
+        app.logger.error(f"Error in admin analytics API: {e}", exc_info=True)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/admin/users')
+@admin_required
+def admin_users_api():
+    """Get detailed user information for admin"""
+    try:
+        db = get_firestore_client()
+        if not db:
+            return jsonify({'status': 'error', 'message': 'Database not available'}), 500
+        
+        # Get user profiles
+        users_query = db.collection('userProfiles').limit(100)
+        users = []
+        
+        for user_doc in users_query.stream():
+            user_data = user_doc.to_dict()
+            user_id = user_doc.id
+            
+            # Get report count for this user
+            reports_query = db.collection('userGeneratedReports')\
+                .where('user_uid', '==', user_id).count()
+            reports_result = reports_query.get()
+            report_count = reports_result[0][0].value if reports_result else 0
+            
+            # Get automation profiles count
+            profiles_collection = db.collection('userSiteProfiles')\
+                .document(user_id).collection('profiles')
+            profiles_count = len(list(profiles_collection.stream()))
+            
+            users.append({
+                'user_id': user_id,
+                'email': user_data.get('email', 'N/A'),
+                'display_name': user_data.get('display_name', 'N/A'),
+                'created_at': user_data.get('created_at', 'N/A'),
+                'last_login': user_data.get('last_login', 'N/A'),
+                'report_count': report_count,
+                'automation_profiles': profiles_count
+            })
+        
+        return jsonify({
+            'status': 'success',
+            'users': users,
+            'total_count': len(users)
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error in admin users API: {e}", exc_info=True)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/admin/system-logs')
+@admin_required
+def admin_system_logs():
+    """Get recent system logs for admin"""
+    try:
+        # In a real implementation, you'd read from your logging system
+        # For now, return sample log data
+        logs = [
+            {
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'level': 'INFO',
+                'message': 'System is running normally',
+                'source': 'system'
+            },
+            # Add more log entries as needed
+        ]
+        
+        return jsonify({
+            'status': 'success',
+            'logs': logs
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error in admin system logs: {e}", exc_info=True)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+        report_blobs = []
+        blob_count = 0
+        
+        try:
+            for blob in bucket.list_blobs(prefix='user_reports/', max_results=20):
+                blob_count += 1
+                report_blobs.append({
+                    'name': blob.name,
+                    'size': blob.size,
+                    'created': blob.time_created.isoformat() if blob.time_created else None,
+                    'updated': blob.updated.isoformat() if blob.updated else None
+                })
+        except Exception as e:
+            app.logger.error(f"Error listing storage blobs: {e}")
+            
+        # Check database report count
+        db = get_firestore_client()
+        db_report_count = 0
+        storage_path_count = 0
+        
+        if db:
+            try:
+                reports = db.collection('userGeneratedReports').limit(100).stream()
+                for doc in reports:
+                    db_report_count += 1
+                    data = doc.to_dict()
+                    if data.get('storage_path'):
+                        storage_path_count += 1
+            except Exception as e:
+                app.logger.error(f"Error counting database reports: {e}")
+        
+        return jsonify({
+            'status': 'success',
+            'storage_available': bool(bucket),
+            'bucket_name': bucket.name if bucket else None,
+            'storage_blob_count': blob_count,
+            'database_report_count': db_report_count,
+            'reports_with_storage_path': storage_path_count,
+            'sample_blobs': report_blobs
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error in admin storage health: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/firebase-diagnostics')
+@admin_required
+def firebase_diagnostics():
+    """Comprehensive Firebase diagnostics for admin"""
+    diagnostic_info = {
+        'firebase_initialized': FIREBASE_INITIALIZED_SUCCESSFULLY,
+        'services': {},
+        'connection_test': {},
+        'recent_errors': [],
+        'timestamp': datetime.now(timezone.utc).isoformat()
+    }
+    
+    try:
+        # Import diagnostic functions if available
+        try:
+            from config.firebase_admin_setup import get_firebase_diagnostic_info, test_firebase_connection
+            
+            diagnostic_info.update(get_firebase_diagnostic_info())
+            diagnostic_info['connection_test'] = test_firebase_connection()
+            
+        except ImportError:
+            # Fallback to basic diagnostics
+            if FIREBASE_INITIALIZED_SUCCESSFULLY:
+                # Test basic Firebase services
+                try:
+                    db = get_firestore_client()
+                    diagnostic_info['services']['firestore'] = 'healthy' if db else 'unavailable'
+                    diagnostic_info['connection_test']['firestore'] = bool(db)
+                except Exception as e:
+                    diagnostic_info['services']['firestore'] = 'error'
+                    diagnostic_info['connection_test']['firestore'] = False
+                    diagnostic_info['recent_errors'].append(f"Firestore: {str(e)}")
+                
+                try:
+                    bucket = get_storage_bucket()
+                    diagnostic_info['services']['storage'] = 'healthy' if bucket else 'unavailable'
+                    diagnostic_info['connection_test']['storage'] = bool(bucket)
+                except Exception as e:
+                    diagnostic_info['services']['storage'] = 'error'
+                    diagnostic_info['connection_test']['storage'] = False
+                    diagnostic_info['recent_errors'].append(f"Storage: {str(e)}")
+        
+        # Add system information
+        diagnostic_info['system'] = {
+            'app_environment': APP_ENV,
+            'flask_debug': app.debug,
+            'pipeline_available': PIPELINE_IMPORTED_SUCCESSFULLY,
+            'auto_publisher_available': globals().get('AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY', False)
+        }
+        
+        return jsonify(diagnostic_info), 200
+        
+    except Exception as e:
+        app.logger.error(f"Error in firebase diagnostics: {e}", exc_info=True)
+        return jsonify({
+            'error': str(e),
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        }), 500
         
     except Exception as e:
         app.logger.error(f"Error getting Firebase diagnostics: {e}", exc_info=True)
@@ -941,16 +1364,165 @@ def firebase_diagnostics():
             'timestamp': datetime.now(timezone.utc).isoformat()
         }), 500
 
+@app.route('/admin')
+@admin_required
+def admin_panel():
+    """Comprehensive admin dashboard with analytics and system monitoring"""
+    try:
+        # Get comprehensive analytics
+        analytics = get_admin_analytics()
+        
+        # Get recent errors
+        recent_errors = get_recent_system_errors(limit=20)
+        
+        # Get system status
+        system_status = {
+            'app_environment': APP_ENV,
+            'debug_mode': app.debug,
+            'server_time': datetime.now(timezone.utc).isoformat(),
+            'uptime': 'N/A'  # You could track this with app startup time
+        }
+        
+        return render_template('admin/admin_dashboard.html',
+                             title="Admin Dashboard - Tickzen",
+                             analytics=analytics,
+                             recent_errors=recent_errors,
+                             system_status=system_status)
+        
+    except Exception as e:
+        app.logger.error(f"Error in admin panel: {e}", exc_info=True)
+        flash("Error loading admin dashboard. Please try again.", "danger")
+        return redirect(url_for('dashboard_page'))
+
+@app.route('/admin/migrate-reports-to-storage')
+@admin_required
+def admin_migrate_reports_to_storage():
+    """Admin route to migrate existing local reports to Firebase Storage"""
+    try:
+        dry_run = request.args.get('dry_run', 'true').lower() == 'true'
+        
+        result = migrate_reports_to_firebase_storage(dry_run=dry_run)
+        
+        return jsonify({
+            'status': 'success',
+            'migration_result': result,
+            'message': f"{'Dry run completed' if dry_run else 'Migration completed'}"
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error in admin migrate reports: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+def migrate_reports_to_firebase_storage(dry_run=True):
+    """Migrate existing local reports to Firebase Storage"""
+    if not FIREBASE_INITIALIZED_SUCCESSFULLY:
+        return {'error': 'Firebase not available'}
+    
+    db = get_firestore_client()
+    bucket = get_storage_bucket()
+    
+    if not db or not bucket:
+        return {'error': 'Firebase services not available'}
+    
+    try:
+        # Get all reports that don't have storage_path
+        query = db.collection('userGeneratedReports')\
+            .where('storage_path', '==', None)
+        
+        migrated_count = 0
+        error_count = 0
+        total_checked = 0
+        migration_details = []
+        
+        for doc in query.stream():
+            total_checked += 1
+            report_data = doc.to_dict()
+            
+            filename = report_data.get('filename')
+            user_uid = report_data.get('user_uid')
+            
+            if not filename or not user_uid:
+                error_count += 1
+                continue
+            
+            # Check if local file exists
+            clean_filename = os.path.basename(filename)
+            local_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
+            
+            if os.path.exists(local_file_path):
+                try:
+                    # Read the local file
+                    with open(local_file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    if not dry_run:
+                        # Save to Firebase Storage
+                        storage_path = save_report_to_firebase_storage(user_uid, report_data.get('ticker', 'UNKNOWN'), clean_filename, content)
+                        
+                        if storage_path:
+                            # Update Firestore document
+                            doc.reference.update({
+                                'storage_path': storage_path,
+                                'local_file_exists': True,
+                                'migrated_at': firestore.SERVER_TIMESTAMP
+                            })
+                            migrated_count += 1
+                        else:
+                            error_count += 1
+                    else:
+                        migrated_count += 1
+                    
+                    migration_details.append({
+                        'filename': clean_filename,
+                        'user_uid': user_uid[:8] + '...',  # Truncate for privacy
+                        'ticker': report_data.get('ticker', 'N/A'),
+                        'status': 'ready_for_migration' if dry_run else 'migrated'
+                    })
+                    
+                except Exception as e:
+                    app.logger.error(f"Error migrating {clean_filename}: {e}")
+                    error_count += 1
+                    migration_details.append({
+                        'filename': clean_filename,
+                        'user_uid': user_uid[:8] + '...',
+                        'ticker': report_data.get('ticker', 'N/A'),
+                        'status': 'error',
+                        'error': str(e)
+                    })
+            else:
+                # Local file doesn't exist, mark as missing
+                if not dry_run:
+                    doc.reference.update({
+                        'local_file_exists': False
+                    })
+                
+                migration_details.append({
+                    'filename': clean_filename,
+                    'user_uid': user_uid[:8] + '...',
+                    'ticker': report_data.get('ticker', 'N/A'),
+                    'status': 'local_file_missing'
+                })
+        
+        result = {
+            'total_checked': total_checked,
+            'migrated_count': migrated_count,
+            'error_count': error_count,
+            'dry_run': dry_run,
+            'migration_details': migration_details[:20]  # Limit details for response size
+        }
+        
+        app.logger.info(f"Report migration completed: {result}")
+        return result
+        
+    except Exception as e:
+        app.logger.error(f"Error in migrate_reports_to_firebase_storage: {e}", exc_info=True)
+        return {'error': str(e)}
+
 @app.route('/admin/cleanup-orphaned-reports')
-@login_required
+@admin_required
 def admin_cleanup_orphaned_reports():
     """Admin route to clean up orphaned report records"""
     try:
-        # Check if user is admin (you should implement proper admin authentication)
-        user_uid = session.get('firebase_user_uid')
-        admin_users = ['admin_uid_1', 'admin_uid_2']  # Replace with actual admin UIDs
-        
-        # For now, allow any logged-in user to run cleanup in dry-run mode
         dry_run = request.args.get('dry_run', 'true').lower() == 'true'
         target_user = request.args.get('user_uid')  # Optional: clean up specific user
         
@@ -1083,11 +1655,14 @@ def start_stock_analysis():
                "Error Generating Report" not in report_html_content_from_pipeline:
                 generated_filename = f"{ticker}_report_dynamic_{request_timestamp_for_report}.html"
                 absolute_report_filepath_on_disk = os.path.join(STOCK_REPORTS_PATH, generated_filename)
+                
+                # Save to both local storage (for backward compatibility) and Firebase Storage
                 try:
+                    # Save locally first
                     with open(absolute_report_filepath_on_disk, 'w', encoding='utf-8') as f:
                         f.write(report_html_content_from_pipeline)
                     report_filename_for_url = generated_filename
-                    app.logger.info(f"HTML content from pipeline saved to: {absolute_report_filepath_on_disk}")
+                    app.logger.info(f"HTML content from pipeline saved locally to: {absolute_report_filepath_on_disk}")
                     
                     # Calculate actual word count
                     word_count = count_words_in_html(report_html_content_from_pipeline)
@@ -1138,9 +1713,11 @@ def start_stock_analysis():
         user_uid_for_history = session.get('firebase_user_uid')
         if user_uid_for_history and report_filename_for_url:
             generated_at_dt = datetime.fromtimestamp(request_timestamp_for_report, timezone.utc)
-            save_report_to_history(user_uid_for_history, ticker, report_filename_for_url, generated_at_dt)
+            # Pass the HTML content to save to Firebase Storage
+            save_report_to_history(user_uid_for_history, ticker, report_filename_for_url, generated_at_dt, 
+                                 content=report_html_content_from_pipeline if isinstance(report_html_content_from_pipeline, str) else None)
 
-        view_report_url = url_for('view_generated_report', ticker=ticker, filename=report_filename_for_url)
+        view_report_url = url_for('display_report', ticker=ticker, filename=report_filename_for_url)
         app.logger.info(f"Analysis for {ticker} complete. Signaling client in room {room_id} to redirect to: {view_report_url}")
         socketio.emit('analysis_complete', {'report_url': view_report_url, 'ticker': ticker}, room=room_id)
 
@@ -1162,9 +1739,65 @@ def start_stock_analysis():
         # Remove flash() to prevent page refresh popups - WebSocket will handle the error display
         return jsonify({'status': 'error', 'message': display_message}), 500
 
+def get_report_content_from_firebase_storage(storage_path):
+    """Get report content from Firebase Storage"""
+    bucket = get_storage_bucket()
+    if not bucket:
+        app.logger.error("Storage bucket not available for downloading report.")
+        return None
+    
+    try:
+        blob = bucket.blob(storage_path)
+        if not blob.exists():
+            app.logger.error(f"Report not found in Firebase Storage: {storage_path}")
+            return None
+        
+        content = blob.download_as_text()
+        app.logger.info(f"Successfully downloaded report from Firebase Storage: {storage_path}")
+        return content
+    except Exception as e:
+        app.logger.error(f"Error downloading report from Firebase Storage {storage_path}: {e}", exc_info=True)
+        return None
+
+@app.route('/display-report/<ticker>/<path:filename>')
+@login_required
+def display_report(ticker, filename):
+    """Display a generated report using the report_display.html template"""
+    try:
+        # Log the request for debugging
+        app.logger.info(f"Display report request - Ticker: {ticker}, Filename: {filename}")
+        
+        # Clean the filename and ensure it exists
+        import urllib.parse
+        clean_filename = urllib.parse.unquote(filename)
+        clean_filename = os.path.basename(clean_filename)  # Ensure no path traversal
+        
+        user_uid = session.get('firebase_user_uid')
+        if not user_uid:
+            flash("Please log in to view reports.", "error")
+            return redirect(url_for('login'))
+        
+        # Generate the report URL that will be loaded in the iframe
+        report_url = url_for('view_generated_report', ticker=ticker, filename=filename)
+        
+        # Generate download filename
+        download_filename = f"{ticker.upper()}_Analysis_Report.html"
+        
+        # Render the report display template
+        return render_template('report_display.html', 
+                             ticker=ticker,
+                             report_url=report_url,
+                             download_filename=download_filename)
+        
+    except Exception as e:
+        app.logger.error(f"Error in display_report: {e}", exc_info=True)
+        flash(f"Error loading report for {ticker.upper()}. Please try again.", "error")
+        return redirect(url_for('analyzer_input_page'))
+
 @app.route('/view-report/<ticker>/<path:filename>')
 @login_required
 def view_generated_report(ticker, filename):
+    """View a generated report, supporting multiple storage types"""
     try:
         # Log the request for debugging
         app.logger.info(f"View report request - Ticker: {ticker}, Filename: {filename}")
@@ -1174,23 +1807,58 @@ def view_generated_report(ticker, filename):
         clean_filename = urllib.parse.unquote(filename)
         clean_filename = os.path.basename(clean_filename)  # Ensure no path traversal
         
+        user_uid = session.get('firebase_user_uid')
+        if not user_uid:
+            flash("Please log in to view reports.", "error")
+            return redirect(url_for('login'))
+        
+        # Try to find the report in Firestore database
+        db = get_firestore_client()
+        if db:
+            try:
+                # Query for the specific report
+                reports_query = db.collection('userGeneratedReports')\
+                    .where('user_uid', '==', user_uid)\
+                    .where('filename', '==', clean_filename)\
+                    .limit(1)
+                
+                for doc in reports_query.stream():
+                    report_data = doc.to_dict()
+                    storage_type = report_data.get('storage_type', 'unknown')
+                    
+                    app.logger.info(f"Found report in database with storage type: {storage_type}")
+                    
+                    # Try to get content using the helper function
+                    content = get_report_content_from_firestore(report_data)
+                    
+                    if content:
+                        app.logger.info(f"Successfully retrieved content from {storage_type} storage")
+                        return content, 200, {'Content-Type': 'text/html; charset=utf-8'}
+                    else:
+                        app.logger.warning(f"Failed to retrieve content from {storage_type} storage")
+                        break
+                        
+            except Exception as e:
+                app.logger.error(f"Error querying Firestore for report: {e}")
+        
+        # Fallback to local file system
         full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
-        app.logger.info(f"Looking for report file: {full_file_path}")
+        app.logger.info(f"Looking for local report file: {full_file_path}")
         
-        if not os.path.exists(full_file_path):
-            app.logger.error(f"Report file not found for viewing: {full_file_path}")
-            flash(f"Report file for {ticker.upper()} not found. It may have been deleted or moved.", "error")
-            return redirect(url_for('analyzer_input_page'))
+        if os.path.exists(full_file_path):
+            try:
+                with open(full_file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                app.logger.info(f"Successfully served report from local file: {full_file_path}")
+                return content, 200, {'Content-Type': 'text/html; charset=utf-8'}
+            except Exception as e:
+                app.logger.error(f"Error reading local file {full_file_path}: {e}")
         
-        # Generate the report URL using the clean filename
-        report_url = url_for('serve_generated_report', filename=clean_filename)
-        app.logger.info(f"Generated report URL: {report_url}")
-        
-        return render_template('view_report_page.html',
-                               title=f"Analysis Report: {ticker.upper()}",
-                               ticker=ticker.upper(),
-                               report_url=report_url,
-                               download_filename=clean_filename)
+        # If we get here, the report was not found anywhere
+        app.logger.error(f"Report file not found in database or locally: {clean_filename}")
+        flash(f"Report file for {ticker.upper()} not found. It may have been deleted or moved.", "error")
+        return redirect(url_for('analyzer_input_page'))
+            
     except Exception as e:
         app.logger.error(f"Error in view_generated_report: {e}", exc_info=True)
         flash(f"Error loading report for {ticker.upper()}. Please try again.", "error")
@@ -1873,7 +2541,63 @@ def delete_site_profile(profile_id_to_delete):
     return redirect(url_for('manage_site_profiles'))
 
 # --- REPORT HISTORY MANAGEMENT ---
-def save_report_to_history(user_uid, ticker, filename, generated_at_dt):
+def save_report_to_firebase_storage(user_uid, ticker, filename, content):
+    """Save HTML report content to Firebase Storage and return storage path"""
+    bucket = get_storage_bucket()
+    if not bucket:
+        app.logger.error("Storage bucket not available for saving report.")
+        return None
+    
+    try:
+        # Create storage path for the report
+        storage_path = f"user_reports/{user_uid}/{filename}"
+        blob = bucket.blob(storage_path)
+        
+        # Upload the HTML content
+        blob.upload_from_string(content, content_type='text/html')
+        app.logger.info(f"✅ Report {filename} saved to Firebase Storage: {storage_path}")
+        return storage_path
+    except Exception as e:
+        app.logger.error(f"Error saving report to Firebase Storage: {e}", exc_info=True)
+        return None
+
+def get_report_content_from_firestore(report_data):
+    """Retrieve HTML content from Firestore document"""
+    try:
+        storage_type = report_data.get('storage_type', 'unknown')
+        
+        if storage_type == 'firestore_content':
+            # Direct HTML content storage
+            return report_data.get('html_content')
+        
+        elif storage_type == 'firestore_compressed':
+            # Compressed content - decompress it
+            compressed_content = report_data.get('compressed_content')
+            if compressed_content:
+                import gzip
+                import base64
+                try:
+                    decoded_content = base64.b64decode(compressed_content.encode('utf-8'))
+                    decompressed_content = gzip.decompress(decoded_content)
+                    return decompressed_content.decode('utf-8')
+                except Exception as e:
+                    app.logger.error(f"Error decompressing content: {e}")
+                    return None
+        
+        elif storage_type == 'firebase_storage':
+            # Content stored in Firebase Storage
+            storage_path = report_data.get('storage_path')
+            if storage_path:
+                return get_report_content_from_firebase_storage(storage_path)
+        
+        return None
+        
+    except Exception as e:
+        app.logger.error(f"Error retrieving report content from Firestore: {e}")
+        return None
+
+def save_report_to_history(user_uid, ticker, filename, generated_at_dt, storage_path=None, content=None):
+    """Save report with HTML content directly in Firestore database"""
     # Get current Firebase initialization status
     current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
     if not current_firebase_status:
@@ -1890,33 +2614,128 @@ def save_report_to_history(user_uid, ticker, filename, generated_at_dt):
         # Ensure filename is clean (no path separators)
         clean_filename = os.path.basename(filename) if filename else filename
         
-        # Verify the file actually exists before saving to history
+        # Determine storage strategy based on content
+        storage_type = 'missing'
+        firebase_storage_path = None
+        html_content = None
+        
+        # Check if we have HTML content to store
+        if content and isinstance(content, str):
+            # Check content size (Firestore limit is 1MB per document)
+            content_size = len(content.encode('utf-8'))
+            app.logger.info(f"Report content size: {content_size} bytes ({content_size/1024:.1f} KB)")
+            
+            if content_size < 900000:  # Keep under 900KB to be safe (leaving room for metadata)
+                # Store HTML content directly in Firestore
+                app.logger.info(f"Storing report content directly in Firestore for {ticker}")
+                storage_type = 'firestore_content'
+                html_content = content
+            else:
+                # Content too large - try compression
+                app.logger.info(f"Report content large ({content_size} bytes), attempting compression")
+                try:
+                    import gzip
+                    import base64
+                    
+                    compressed_content = gzip.compress(content.encode('utf-8'))
+                    encoded_content = base64.b64encode(compressed_content).decode('utf-8')
+                    
+                    if len(encoded_content) < 900000:
+                        app.logger.info(f"Compressed content size: {len(encoded_content)} bytes")
+                        storage_type = 'firestore_compressed'
+                        html_content = encoded_content
+                    else:
+                        # Still too large even compressed - use Firebase Storage
+                        app.logger.info(f"Content still too large after compression, using Firebase Storage")
+                        firebase_storage_path = save_report_to_firebase_storage(user_uid, ticker, clean_filename, content)
+                        if firebase_storage_path:
+                            storage_type = 'firebase_storage'
+                        else:
+                            storage_type = 'storage_failed'
+                except Exception as e:
+                    app.logger.error(f"Error compressing content: {e}")
+                    # Fallback to Firebase Storage
+                    firebase_storage_path = save_report_to_firebase_storage(user_uid, ticker, clean_filename, content)
+                    if firebase_storage_path:
+                        storage_type = 'firebase_storage'
+                    else:
+                        storage_type = 'storage_failed'
+        else:
+            # No content provided - try to read from local file
+            app.logger.info(f"No content provided, attempting to read from local file")
+            local_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
+            
+            if os.path.exists(local_file_path):
+                try:
+                    with open(local_file_path, 'r', encoding='utf-8') as f:
+                        file_content = f.read()
+                    
+                    content_size = len(file_content.encode('utf-8'))
+                    app.logger.info(f"Read local file content size: {content_size} bytes")
+                    
+                    if content_size < 900000:
+                        storage_type = 'firestore_content'
+                        html_content = file_content
+                        app.logger.info(f"Stored local file content directly in Firestore")
+                    else:
+                        # Save large local file to Firebase Storage
+                        firebase_storage_path = save_report_to_firebase_storage(user_uid, ticker, clean_filename, file_content)
+                        if firebase_storage_path:
+                            storage_type = 'firebase_storage'
+                            app.logger.info(f"Stored large local file in Firebase Storage")
+                        else:
+                            storage_type = 'local_file_only'
+                except Exception as e:
+                    app.logger.error(f"Error reading local file {local_file_path}: {e}")
+                    storage_type = 'local_file_only'
+            else:
+                app.logger.warning(f"No content and no local file found: {local_file_path}")
+                storage_type = 'missing'
+        
+        # Verify the file exists locally for backward compatibility
+        local_file_exists = False
         if clean_filename:
             full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
-            if not os.path.exists(full_file_path):
-                app.logger.warning(f"Report file does not exist when saving to history: {full_file_path}")
-                # Still save to history, but log the warning
+            local_file_exists = os.path.exists(full_file_path)
         
-        reports_history_collection = db.collection(u'userGeneratedReports')
+        # Prepare report data for Firestore
         if generated_at_dt.tzinfo is None:
             generated_at_dt = generated_at_dt.replace(tzinfo=timezone.utc)
 
         report_data = {
             u'user_uid': user_uid,
             u'ticker': ticker.upper(),
-            u'filename': clean_filename,  # Use clean filename
-            u'generated_at': generated_at_dt
+            u'filename': clean_filename,
+            u'generated_at': generated_at_dt,
+            u'storage_type': storage_type,
+            u'local_file_exists': local_file_exists
         }
         
-        # Add the document and get the document reference
+        # Add content based on storage type
+        if storage_type == 'firestore_content':
+            report_data[u'html_content'] = html_content
+            app.logger.info(f"Added HTML content to Firestore document ({len(html_content)} chars)")
+        elif storage_type == 'firestore_compressed':
+            report_data[u'compressed_content'] = html_content
+            report_data[u'compression_type'] = 'gzip_base64'
+            app.logger.info(f"Added compressed HTML content to Firestore document ({len(html_content)} chars)")
+        elif storage_type == 'firebase_storage':
+            report_data[u'storage_path'] = firebase_storage_path
+            app.logger.info(f"Added Firebase Storage path to Firestore document: {firebase_storage_path}")
+        
+        # Save to Firestore
+        reports_history_collection = db.collection(u'userGeneratedReports')
         doc_ref = reports_history_collection.add(report_data)
-        app.logger.info(f"Report history saved for user {user_uid}, ticker {ticker}, filename {clean_filename}. Document ID: {doc_ref[1].id}")
+        
+        app.logger.info(f"Report history saved for user {user_uid}, ticker {ticker}, filename {clean_filename}. Document ID: {doc_ref[1].id}, Storage Type: {storage_type}")
         return True
+        
     except Exception as e:
         app.logger.error(f"Error saving report history for user {user_uid}, ticker {ticker}: {e}", exc_info=True)
         return False
 
 def get_report_history_for_user(user_uid, display_limit=10):
+    """Get report history for a user with enhanced storage information"""
     if not FIREBASE_INITIALIZED_SUCCESSFULLY:
         app.logger.error(f"Firestore not available for fetching report history for user {user_uid}.")
         return [], 0
@@ -1958,19 +2777,109 @@ def get_report_history_for_user(user_uid, display_limit=10):
                 else:
                     report_data['generated_at'] = datetime.fromtimestamp(generated_at_val, timezone.utc)
             
-            # Ensure filename is clean and validate file existence
+            # Ensure filename is clean and determine storage info
             filename = report_data.get('filename')
+            storage_type = report_data.get('storage_type', 'unknown')
+            storage_path = report_data.get('storage_path')
+            local_file_exists = report_data.get('local_file_exists', False)
+            
             if filename:
                 # Clean the filename (ensure no path separators)
                 clean_filename = os.path.basename(filename)
                 report_data['filename'] = clean_filename
                 
-                # Check if the file actually exists on disk
-                full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
-                report_data['file_exists'] = os.path.exists(full_file_path)
+                # Determine content availability based on storage type
+                content_available = False
+                storage_location = "Unknown"
+                storage_details = {}
                 
-                if not report_data['file_exists']:
-                    app.logger.warning(f"Report file missing for user {user_uid}: {clean_filename}")
+                if storage_type == 'firestore_content':
+                    content_available = bool(report_data.get('html_content'))
+                    storage_location = "Database (Direct)"
+                    storage_details = {
+                        'type': 'database_direct',
+                        'size': len(report_data.get('html_content', '')) if content_available else 0
+                    }
+                elif storage_type == 'firestore_compressed':
+                    content_available = bool(report_data.get('compressed_content'))
+                    storage_location = "Database (Compressed)"
+                    storage_details = {
+                        'type': 'database_compressed',
+                        'compression': report_data.get('compression_type', 'unknown'),
+                        'compressed_size': len(report_data.get('compressed_content', '')) if content_available else 0
+                    }
+                elif storage_type == 'firebase_storage':
+                    content_available = bool(storage_path)
+                    storage_location = "Cloud Storage"
+                    storage_details = {
+                        'type': 'cloud_storage',
+                        'path': storage_path
+                    }
+                    # Verify Firebase Storage file exists
+                    if storage_path:
+                        try:
+                            bucket = get_storage_bucket()
+                            if bucket:
+                                blob = bucket.blob(storage_path)
+                                content_available = blob.exists()
+                                if content_available:
+                                    app.logger.debug(f"Report found in Firebase Storage: {storage_path}")
+                        except Exception as e:
+                            app.logger.warning(f"Error checking Firebase Storage for {storage_path}: {e}")
+                            content_available = False
+                elif storage_type == 'local_file_only':
+                    content_available = local_file_exists
+                    storage_location = "Local File Only"
+                    storage_details = {
+                        'type': 'local_only',
+                        'exists': local_file_exists
+                    }
+                    # Verify local file exists
+                    if local_file_exists:
+                        full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
+                        content_available = os.path.exists(full_file_path)
+                else:
+                    # Legacy handling or unknown storage type
+                    if storage_path:
+                        content_available = True
+                        storage_location = "Cloud Storage (Legacy)"
+                        storage_details = {
+                            'type': 'cloud_storage_legacy',
+                            'path': storage_path
+                        }
+                        # Check Firebase Storage availability
+                        try:
+                            bucket = get_storage_bucket()
+                            if bucket:
+                                blob = bucket.blob(storage_path)
+                                content_available = blob.exists()
+                        except Exception as e:
+                            app.logger.warning(f"Error checking Firebase Storage for {storage_path}: {e}")
+                            content_available = False
+                    elif local_file_exists:
+                        full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
+                        content_available = os.path.exists(full_file_path)
+                        storage_location = "Local File"
+                        storage_details = {
+                            'type': 'local_file',
+                            'exists': content_available
+                        }
+                    else:
+                        content_available = False
+                        storage_location = "Missing"
+                        storage_details = {
+                            'type': 'missing'
+                        }
+                
+                # Update report data with enhanced storage information
+                report_data['file_exists'] = content_available
+                report_data['content_available'] = content_available
+                report_data['storage_location'] = storage_location
+                report_data['storage_details'] = storage_details
+                report_data['has_storage_path'] = bool(storage_path)
+                
+                if not content_available:
+                    app.logger.warning(f"Report content missing for user {user_uid}: {clean_filename} (Storage Type: {storage_type})")
                 
             reports_for_display.append(report_data)
             
@@ -1996,6 +2905,8 @@ def cleanup_orphaned_reports(user_uid=None, dry_run=True):
         return {'error': 'Firestore not available'}
     
     db = get_firestore_client()
+    bucket = get_storage_bucket()
+    
     if not db:
         return {'error': 'Firestore client not available'}
     
@@ -2013,19 +2924,33 @@ def cleanup_orphaned_reports(user_uid=None, dry_run=True):
             total_checked += 1
             report_data = doc.to_dict()
             filename = report_data.get('filename')
+            storage_path = report_data.get('storage_path')
             
-            if filename:
+            file_exists = False
+            
+            # Check Firebase Storage first if storage_path exists
+            if storage_path and bucket:
+                try:
+                    blob = bucket.blob(storage_path)
+                    file_exists = blob.exists()
+                except Exception as e:
+                    app.logger.warning(f"Error checking Firebase Storage for {storage_path}: {e}")
+            
+            # Fallback to local file check
+            if not file_exists and filename:
                 clean_filename = os.path.basename(filename)
                 full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
-                
-                if not os.path.exists(full_file_path):
-                    orphaned_reports.append({
-                        'doc_id': doc.id,
-                        'user_uid': report_data.get('user_uid'),
-                        'ticker': report_data.get('ticker'),
-                        'filename': clean_filename,
-                        'generated_at': report_data.get('generated_at')
-                    })
+                file_exists = os.path.exists(full_file_path)
+            
+            if not file_exists:
+                orphaned_reports.append({
+                    'doc_id': doc.id,
+                    'user_uid': report_data.get('user_uid'),
+                    'ticker': report_data.get('ticker'),
+                    'filename': filename,
+                    'storage_path': storage_path,
+                    'generated_at': report_data.get('generated_at')
+                })
         
         # Delete orphaned records if not dry run
         deleted_count = 0
@@ -2549,9 +3474,16 @@ def waitlist_signup():
         waitlist_file = os.path.join(app.root_path, '..', 'generated_data', 'waitlist.json')
         
         try:
+            # Ensure the directory exists
+            os.makedirs(os.path.dirname(waitlist_file), exist_ok=True)
+            
             if os.path.exists(waitlist_file):
                 with open(waitlist_file, 'r') as f:
-                    waitlist_entries = json.load(f)
+                    content = f.read().strip()
+                    if content:
+                        waitlist_entries = json.loads(content)
+                    else:
+                        waitlist_entries = []
             else:
                 waitlist_entries = []
             
@@ -2566,19 +3498,29 @@ def waitlist_signup():
                 })
                 
                 with open(waitlist_file, 'w') as f:
-                    json.dump(waitlist_entries, f, indent=2)
+                    json.dump(waitlist_entries, f, indent=2, ensure_ascii=False)
                 
                 app.logger.info(f"Waitlist signup stored in file: {email}")
+                return jsonify({
+                    'success': True, 
+                    'message': 'Successfully joined waitlist!',
+                    'stored_in': 'both firestore and file' if db else 'file only'
+                }), 200
             else:
                 app.logger.info(f"Waitlist signup already exists: {email}")
+                return jsonify({
+                    'success': True, 
+                    'message': 'You are already on our waitlist!'
+                }), 200
                 
         except Exception as e:
             app.logger.error(f"Error storing waitlist signup in file: {e}")
-        
-        return jsonify({
-            'success': True, 
-            'message': 'Successfully joined waitlist!'
-        }), 200
+            # Still return success if Firestore worked
+            return jsonify({
+                'success': True, 
+                'message': 'Successfully joined waitlist!',
+                'stored_in': 'firestore only' if db else 'error storing'
+            }), 200
         
     except Exception as e:
         app.logger.error(f"Error in waitlist signup: {e}")

@@ -152,6 +152,18 @@
         font-size: 0.85em;
         color: #777;
     }
+    .report-info .storage-info {
+        font-size: 0.8em;
+        color: #16a34a;
+        background-color: #f0fdf4;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: 8px;
+        display: inline-block;
+    }
+    .report-info .storage-info i {
+        margin-right: 4px;
+    }
     .report-actions .btn-view-report {
         padding: 8px 15px;
         font-size: 0.9em;
@@ -215,14 +227,39 @@
                         <span class="ticker">{{ report.ticker.upper() if report.ticker else 'N/A' }}</span>
                         <span class="filename" title="{{ report.filename }}">{{ report.filename | truncate(60) if report.filename else 'N/A' }}</span>
                         <span class="date">Generated: {{ report.generated_at | format_datetime('%Y-%m-%d %I:%M %p UTC') if report.generated_at else 'N/A' }}</span>
+                        {% if report.storage_location is defined %}
+                        <span class="storage-info" title="Storage Location: {{ report.storage_location }}">
+                            {% if report.storage_location == 'Database (Direct)' %}
+                                <i class="fas fa-database"></i> Database
+                            {% elif report.storage_location == 'Database (Compressed)' %}
+                                <i class="fas fa-database"></i> DB (Compressed)
+                            {% elif report.storage_location.startswith('Cloud Storage') %}
+                                <i class="fas fa-cloud"></i> Cloud Storage
+                            {% elif report.storage_location.startswith('Local') %}
+                                <i class="fas fa-hdd"></i> Local File
+                            {% elif report.storage_location == 'Missing' %}
+                                <i class="fas fa-exclamation-triangle text-danger"></i> Missing
+                            {% else %}
+                                <i class="fas fa-question-circle"></i> {{ report.storage_location }}
+                            {% endif %}
+                        </span>
+                        {% elif report.has_storage_path %}
+                        <span class="storage-info" title="Stored in Firebase Storage">
+                            <i class="fas fa-cloud"></i> Cloud Storage
+                        </span>
+                        {% endif %}
                     </div>
                     <div class="report-actions">
-                        {% if report.file_exists is defined and not report.file_exists %}
-                        <span class="btn btn-danger btn-sm" title="Report file not found on server">
+                        {% if report.content_available is defined and not report.content_available %}
+                        <span class="btn btn-danger btn-sm" title="Report content not available">
+                            <i class="fas fa-exclamation-triangle"></i> Content Missing
+                        </span>
+                        {% elif report.file_exists is defined and not report.file_exists %}
+                        <span class="btn btn-danger btn-sm" title="Report file not found">
                             <i class="fas fa-exclamation-triangle"></i> File Missing
                         </span>
                         {% else %}
-                        <a href="{{ url_for('view_generated_report', ticker=report.ticker, filename=report.filename|urlencode) }}" class="btn btn-secondary btn-view-report" target="_blank">
+                        <a href="{{ url_for('display_report', ticker=report.ticker, filename=report.filename|urlencode) }}" class="btn btn-secondary btn-view-report" target="_blank">
                             <i class="fas fa-eye"></i> View Report
                         </a>
                         {% endif %}

@@ -1132,6 +1132,10 @@
             to { transform: rotate(360deg); }
         }
         
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        
         /* Modal overlay: use flexbox for perfect centering */
         .modal {
             display: none; /* Hide by default, show with JS */
@@ -2963,14 +2967,12 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   closeBtn.addEventListener('click', function() {
-    modal.classList.remove('show');
-    document.body.style.overflow = 'auto';
+    closeWaitlistModal();
   });
 
   modal.addEventListener('click', function(e) {
     if (e.target === modal) {
-      modal.classList.remove('show');
-      document.body.style.overflow = 'auto';
+      closeWaitlistModal();
     }
   });
 });
@@ -3556,12 +3558,23 @@ document.addEventListener('DOMContentLoaded', function() {
         function closeWaitlistModal() {
             const modal = document.getElementById('waitlistModal');
             if (modal) {
-                modal.style.display = 'none';
+                modal.classList.remove('show');
                 document.body.style.overflow = 'auto'; // Restore scrolling
+                
                 // Reset form
-                document.getElementById('waitlistForm').reset();
-                document.getElementById('waitlistForm').style.display = 'flex';
+                const form = document.getElementById('waitlistForm');
+                const submitButton = form.querySelector('button[type="submit"]');
+                
+                // Reset form and button state
+                form.reset();
+                form.style.display = 'flex';
                 document.getElementById('waitlistSuccess').style.display = 'none';
+                
+                // Reset submit button to original state
+                if (submitButton) {
+                    submitButton.innerHTML = 'Join Waitlist';
+                    submitButton.disabled = false;
+                }
             }
         }
         
@@ -3582,17 +3595,52 @@ document.addEventListener('DOMContentLoaded', function() {
             const originalText = submitButton.innerHTML;
             
             // Show loading state
-            submitButton.innerHTML = '<i data-lucide="loader-2" style="width: 1rem; height: 1rem; animation: spin 1s linear infinite;"></i> Joining...';
+            submitButton.innerHTML = '<i data-lucide="loader-2" class="spin" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i> Joining...';
             submitButton.disabled = true;
             lucide.createIcons();
             
-            // Simulate API call (replace with actual endpoint)
-            setTimeout(() => {
-                // Show success message
-                document.getElementById('waitlistForm').style.display = 'none';
-                document.getElementById('waitlistSuccess').style.display = 'block';
-                
-                // Store in localStorage as backup
+            // Send to backend immediately
+            fetch('/api/waitlist-signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    interests: formData.get('interests')
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    document.getElementById('waitlistForm').style.display = 'none';
+                    document.getElementById('waitlistSuccess').style.display = 'block';
+                    
+                    // Store in localStorage as backup
+                    const waitlistData = {
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        interests: formData.get('interests'),
+                        timestamp: new Date().toISOString()
+                    };
+                    localStorage.setItem('waitlist_signup', JSON.stringify(waitlistData));
+                    
+                    // Auto-close after 3 seconds
+                    setTimeout(() => {
+                        closeWaitlistModal();
+                    }, 3000);
+                } else {
+                    // Show error message
+                    alert(data.message || 'An error occurred. Please try again.');
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Fallback: Store locally and show success
                 const waitlistData = {
                     name: formData.get('name'),
                     email: formData.get('email'),
@@ -3601,54 +3649,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 localStorage.setItem('waitlist_signup', JSON.stringify(waitlistData));
                 
-                // Optional: Send to your backend
-                fetch('/api/waitlist-signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name: formData.get('name'),
-                        email: formData.get('email'),
-                        interests: formData.get('interests')
-                    })
-                }).catch(error => {
-                    console.log('Waitlist signup saved locally (backend unavailable)');
-                });
+                // Show success message even if backend fails
+                document.getElementById('waitlistForm').style.display = 'none';
+                document.getElementById('waitlistSuccess').style.display = 'block';
                 
-                // Auto-close after 3 seconds
                 setTimeout(() => {
                     closeWaitlistModal();
                 }, 3000);
                 
-            }, 1500);
+                console.log('Waitlist signup saved locally (backend unavailable)');
+            });
         });
     });
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const modal = document.getElementById('waitlistModal');
-  const openBtns = document.querySelectorAll('[data-open-waitlist]');
-  const closeBtn = document.getElementById('closeModalBtn');
-
-  openBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-      modal.classList.add('show');
-      document.body.style.overflow = 'hidden';
-    });
-  });
-
-  closeBtn.addEventListener('click', function() {
-    modal.classList.remove('show');
-    document.body.style.overflow = 'auto';
-  });
-
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-      modal.classList.remove('show');
-      document.body.style.overflow = 'auto';
-    }
-  });
-});
 </script>
 {% endblock %}

@@ -93,8 +93,24 @@
             display: flex;
             align-items: center;
         }
-        .navbar-brand { font-size: 1.5em; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
-        .navbar-brand i { margin-right: 8px; }
+        .navbar-brand { 
+            font-size: 1.8em; 
+            font-weight: 800; 
+            color: var(--primary); 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--primary), #22c55e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s ease;
+        }
+        .navbar-brand:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+        }
         .navbar-toggler { display: none; font-size: 1.5rem; background: none; border: none; color: #333; cursor: pointer; z-index: 1002; }
         .navbar-nav { list-style: none; padding: 0; margin: 0; display: flex; align-items: center; }
         .nav-item { margin-left: 15px; position: relative; }
@@ -104,17 +120,71 @@
         .nav-link {
             text-decoration: none; color: #555; font-weight: 500;
             padding: 6px 10px; border-radius: 6px;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
             display: flex; align-items: center; gap: 0.4rem;
             white-space: nowrap;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(22, 163, 74, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        .nav-link:hover::before {
+            left: 100%;
         }
         .nav-link i { margin-right: 6px; }
-        .nav-link:hover, .nav-link.active { background-color: var(--primary); color: #ffffff; }
+        .nav-link:hover, .nav-link.active { 
+            background-color: var(--primary); 
+            color: #ffffff; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
         .nav-link.nav-link-user { font-weight: 400; color: #777; }
-        .nav-link.logout-btn { background-color: var(--danger-bg, #fde2e4); color: var(--danger, #941b0c); }
+        .nav-link.nav-link-user:hover { color: #ffffff !important; }
+        .nav-link.logout-btn { background-color: var(--danger-bg, #fde2e4); color: var(--danger, #941b0c); border-color: var(--danger, #e63946); }
         .nav-link.logout-btn:hover { background-color: var(--danger, #e63946); color: #ffffff; }
-        .nav-link.btn-login { background-color: var(--primary); color: white; padding: 8px 15px; border-radius: 20px; }
-        .nav-link.btn-login:hover { background-color: var(--secondary); }
+        .nav-link.btn-login { 
+            background-color: white; 
+            color: #333; 
+            padding: 8px 15px; 
+            border-radius: 12px; 
+            border: 2px solid var(--green-600);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2);
+        }
+        .nav-link.btn-login:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+            border-color: var(--green-700);
+            background-color: var(--green-50);
+        }
+        .nav-link.btn-get-started {
+            background-color: var(--green-600);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 12px;
+            border: 2px solid var(--green-600);
+            font-weight: 600;
+            margin-left: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(22, 163, 74, 0.3);
+        }
+        .nav-link.btn-get-started:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+            border-color: var(--green-700);
+            background-color: var(--green-700);
+            color: white;
+        }
 
         /* Desktop Dropdown Menu Styles */
         .nav-item.dropdown .dropdown-menu {
@@ -289,16 +359,36 @@
                 transform: translateX(0%); /* Slide into view */
             }
 
-            .mobile-nav .nav-item { margin-left: 0; width: 100%; text-align: left; }
-            .mobile-nav .nav-item:not(:last-child) { border-bottom: 1px solid #f0f0f0; }
+            .mobile-nav .nav-item { margin-left: 0; width: 100%; text-align: left; margin-bottom: 8px; }
             .mobile-nav .nav-link {
                 display: block; width: 100%; padding: 15px 25px;
                 margin: 0; border-radius: 0; justify-content: flex-start;
-                font-size: 1rem;
+                font-size: 1rem; border: none;
             }
             .mobile-nav .nav-link.btn-login {
                  margin: 15px 25px; width: calc(100% - 50px);
-                 border-radius: 25px; text-align: center; justify-content: center;
+                 border-radius: 12px; text-align: center; justify-content: center;
+                 background-color: white; color: #333; border: 2px solid var(--green-600);
+                 box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2);
+            }
+            .mobile-nav .nav-link.btn-login:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+                border-color: var(--green-700);
+                background-color: var(--green-50);
+            }
+            .mobile-nav .nav-link.btn-get-started {
+                margin: 15px 25px; width: calc(100% - 50px);
+                border-radius: 12px; text-align: center; justify-content: center;
+                background-color: var(--green-600); color: white; border: 2px solid var(--green-600);
+                box-shadow: 0 2px 4px rgba(22, 163, 74, 0.3);
+            }
+            .mobile-nav .nav-link.btn-get-started:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+                border-color: var(--green-700);
+                background-color: var(--green-700);
+                color: white;
             }
 
             .mobile-nav .nav-item.dropdown .dropdown-toggle::after {
@@ -365,35 +455,16 @@
             position: relative;
             overflow: hidden;
         }
-        .navbar-center .nav-link::after,
-        .navbar-right .nav-link::after {
-            content: '';
-            display: block;
-            position: absolute;
-            left: 0;
-            bottom: 0.1em;
-            width: 100%;
-            height: 2px;
-            background: var(--green-600);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-        }
-        .navbar-center .nav-link:hover::after,
-        .navbar-right .nav-link:hover::after {
-            transform: scaleX(1);
-        }
-        .navbar-center .nav-link.active::after,
-        .navbar-right .nav-link.active::after {
-            transform: scaleX(1);
-        }
 
         .navbar-center .nav-link.active,
+        .navbar-right .nav-link.active {
+            background-color: var(--green-600);
+            color: white;
+        }
+
         .navbar-center .nav-link:hover,
-        .navbar-right .nav-link.active,
         .navbar-right .nav-link:hover {
-            background: none;
-            color: inherit;
+            transform: translateY(-2px);
         }
 
     </style>
@@ -405,11 +476,11 @@
                 <div class="navbar-left">
                     {% if is_user_logged_in %}
                         <a href="{{ url_for('dashboard_page') }}" class="navbar-brand">
-                            Tickzen&nbsp;<i class="fas fa-chart-line"></i>
+                            Tickzen
                         </a>
                     {% else %}
                         <a href="{{ url_for('stock_analysis_homepage_route') }}" class="navbar-brand">
-                            Tickzen&nbsp;<i class="fas fa-chart-line"></i>
+                            Tickzen
                         </a>
                     {% endif %}
                 </div>
@@ -419,44 +490,75 @@
                         <ul class="navbar-nav">
                             <li class="nav-item">
                                 <a class="nav-link {% if request.endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ url_for('stock_analysis_homepage_route') }}">
-                                    <i class="fas fa-home"></i>Home
+                                    Home<i class="fas fa-home" style="margin-left: 0.3rem;"></i>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {% if request.endpoint == 'dashboard_page' %}active{% endif %}" href="{{ url_for('dashboard_page') }}">
-                                    <i class="fas fa-tachometer-alt"></i>Dashboard
+                                    Dashboard<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 24 24" style="margin-left: 0.3rem; vertical-align: middle;">
+                                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                                    </svg>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {% if request.endpoint == 'analyzer_input_page' %}active{% endif %}" href="{{ url_for('analyzer_input_page') }}">
-                                    <i class="fas fa-search-dollar"></i>Stock Analyzer
+                                    Stock Analyzer<i class="fas fa-search-dollar" style="margin-left: 0.3rem;"></i>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {% if request.endpoint == 'manage_site_profiles' %}active{% endif %}" href="{{ url_for('manage_site_profiles') }}">
-                                    <i class="fas fa-sitemap"></i>Profiles
+                                    Profiles<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-left: 0.3rem; vertical-align: middle;">
+                                        <path d="M4 4h16v2H4V4zm0 4h10v2H4V8zm0 4h16v2H4v-2zm0 4h10v2H4v-2z"/>
+                                    </svg>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {% if request.endpoint == 'automation_runner_page' %}active{% endif %}" href="{{ url_for('automation_runner_page') }}">
-                                    <i class="fas fa-play-circle"></i>Run Automation
+                                    Run Automation<i class="fas fa-play-circle" style="margin-left: 0.3rem;"></i>
                                 </a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-tools"></i>Tools
+                                    Tools<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.3rem; vertical-align: middle;">
+                                        <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.2"/>
+                                        <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <path d="M21 12c.5.5.5 1.5 0 2l-1.5 1.5c-.5.5-1.5.5-2 0l-.5-.5-4 4-.5-.5c-.5-.5-.5-1.5 0-2L14 15.5c.5-.5.5-1.5 0-2l-1.5-1.5c-.5-.5-.5-1.5 0-2L14 8.5"/>
+                                    </svg>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="toolsDropdown">
                                     <li>
                                         <a class="nav-link {% if request.endpoint == 'wp_generator_page' %}active{% endif %}" href="{{ url_for('wp_generator_page') }}">
-                                            <i class="fas fa-file-alt"></i>WP Asset Gen
+                                            WP Asset Gen<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="14" height="14" viewBox="0 0 24 24" style="margin-left: 0.3rem; vertical-align: middle;">
+                                                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm.5 3.5c2.7 0 5.2 1.3 6.7 3.4l-2.9 8.4-3.8-11.8zm-1 0L6 18.5 5 15.4c0-.2 0-.3-.1-.5L7.8 7C8.6 5.2 10.4 3.5 11.5 3.5zM12 22C6.5 22 2 17.5 2 12c0-1.7.5-3.2 1.3-4.6L9.3 21c.7.2 1.4.3 2.2.3s1.5-.1 2.2-.3l.3-1.1c.3-1.2.7-2.5 1.1-3.8l1.6 4.9c-.2.1-.4.1-.5.1-.4.1-.9.1-1.3.1z"/>
+                                            </svg>
                                         </a>
                                     </li>
                                     <li>
                                         <a class="nav-link {% if request.endpoint == 'wordpress_automation_portal_route' %}active{% endif %}" href="{{ url_for('wordpress_automation_portal_route') }}">
-                                            <i class="fas fa-robot"></i>WP Automation
+                                            WP Automation<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.3rem; vertical-align: middle;">
+                                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" fill="currentColor" opacity="0.2"/>
+                                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                                                <line x1="8" y1="21" x2="16" y2="21"/>
+                                                <line x1="12" y1="17" x2="12" y2="21"/>
+                                                <path d="M7 10l5 3 5-3"/>
+                                            </svg>
                                         </a>
                                     </li>
+                                    {% if session.get('firebase_user_email') in ['admin@tickzen.com', 'jadaunkg@gmail.com'] %}
+                                    <li>
+                                        <a class="nav-link {% if request.endpoint == 'admin_panel' %}active{% endif %}" href="{{ url_for('admin_panel') }}">
+                                            Admin Panel<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.3rem; vertical-align: middle;">
+                                                <rect x="3" y="4" width="18" height="16" rx="2" ry="2" fill="currentColor" opacity="0.2"/>
+                                                <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
+                                                <line x1="9" y1="9" x2="15" y2="9"/>
+                                                <line x1="9" y1="13" x2="15" y2="13"/>
+                                                <circle cx="7" cy="9" r="1"/>
+                                                <circle cx="7" cy="13" r="1"/>
+                                            </svg>
+                                        </a>
+                                    </li>
+                                    {% endif %}
                                 </ul>
                             </li>
                         </ul>
@@ -464,7 +566,7 @@
                         <ul class="navbar-nav">
                             <li class="nav-item">
                                 <a class="nav-link {% if request.endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ url_for('stock_analysis_homepage_route') }}">
-                                    <i class="fas fa-home"></i>Home
+                                    Home<i class="fas fa-home" style="margin-left: 0.5rem;"></i>
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -488,17 +590,27 @@
                         <ul class="navbar-nav">
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle nav-link-user" href="#" id="userDropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i>{{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'Account') }}
+                                    {{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'Account') }}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.5rem; vertical-align: middle;">
+                                        <circle cx="12" cy="8" r="5" fill="currentColor" opacity="0.2"/>
+                                        <path d="M20 21a8 8 0 0 0-16 0" fill="currentColor" opacity="0.2"/>
+                                        <circle cx="12" cy="8" r="5"/>
+                                        <path d="M20 21a8 8 0 0 0-16 0"/>
+                                    </svg>
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="userDropdown">
                                     <li>
                                         <a class="nav-link {% if request.endpoint == 'user_profile_page' %}active{% endif %}" href="{{ url_for('user_profile_page') }}">
-                                            <i class="fas fa-id-card"></i>My Profile
+                                            My Profile
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.5rem; vertical-align: middle;">
+                                                <circle cx="12" cy="8" r="5"/>
+                                                <path d="M20 21a8 8 0 0 0-16 0"/>
+                                            </svg>
                                         </a>
                                     </li>
                                     <li>
                                         <a class="nav-link logout-btn-js logout-btn" href="{{ url_for('logout') }}">
-                                            <i class="fas fa-sign-out-alt"></i>Logout
+                                            Logout<i class="fas fa-sign-out-alt" style="margin-left: 0.5rem;"></i>
                                         </a>
                                     </li>
                                 </ul>
@@ -507,7 +619,10 @@
                     {% else %}
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a class="nav-link btn-login" href="{{ url_for('login') }}">Login</a>
+                                <a class="nav-link btn-login" href="{{ url_for('login') }}">Sign In</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link btn-get-started" href="{{ url_for('stock_analysis_homepage_route') }}#demo">Start Free Trial</a>
                             </li>
                         </ul>
                     {% endif %}
@@ -523,59 +638,100 @@
                 {% if is_user_logged_in %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ url_for('stock_analysis_homepage_route') }}">
-                            <i class="fas fa-home"></i>Home
+                            Home<i class="fas fa-home" style="margin-left: 0.3rem;"></i>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'dashboard_page' %}active{% endif %}" href="{{ url_for('dashboard_page') }}">
-                            <i class="fas fa-tachometer-alt"></i>Dashboard
+                            Dashboard<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 24 24" style="margin-left: 0.3rem; vertical-align: middle;">
+                                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                            </svg>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'analyzer_input_page' %}active{% endif %}" href="{{ url_for('analyzer_input_page') }}">
-                            <i class="fas fa-search-dollar"></i>Stock Analyzer
+                            Stock Analyzer<i class="fas fa-search-dollar" style="margin-left: 0.3rem;"></i>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'manage_site_profiles' %}active{% endif %}" href="{{ url_for('manage_site_profiles') }}">
-                            <i class="fas fa-sitemap"></i>Profiles
+                            Profiles<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-left: 0.3rem; vertical-align: middle;">
+                                <path d="M4 4h16v2H4V4zm0 4h10v2H4V8zm0 4h16v2H4v-2zm0 4h10v2H4v-2z"/>
+                            </svg>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'automation_runner_page' %}active{% endif %}" href="{{ url_for('automation_runner_page') }}">
-                            <i class="fas fa-play-circle"></i>Run Automation
+                            Run Automation<i class="fas fa-play-circle" style="margin-left: 0.3rem;"></i>
                         </a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="mobileToolsDropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-tools"></i>Tools
+                            Tools<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.3rem; vertical-align: middle;">
+                                <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.2"/>
+                                <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M21 12c.5.5.5 1.5 0 2l-1.5 1.5c-.5.5-1.5.5-2 0l-.5-.5-4 4-.5-.5c-.5-.5-.5-1.5 0-2L14 15.5c.5-.5.5-1.5 0-2l-1.5-1.5c-.5-.5-.5-1.5 0-2L14 8.5"/>
+                            </svg>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="mobileToolsDropdown">
                             <li>
                                 <a class="nav-link {% if request.endpoint == 'wp_generator_page' %}active{% endif %}" href="{{ url_for('wp_generator_page') }}">
-                                    <i class="fas fa-file-alt"></i>WP Asset Gen
+                                    WP Asset Gen<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="14" height="14" viewBox="0 0 24 24" style="margin-left: 0.3rem; vertical-align: middle;">
+                                        <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm.5 3.5c2.7 0 5.2 1.3 6.7 3.4l-2.9 8.4-3.8-11.8zm-1 0L6 18.5 5 15.4c0-.2 0-.3-.1-.5L7.8 7C8.6 5.2 10.4 3.5 11.5 3.5zM12 22C6.5 22 2 17.5 2 12c0-1.7.5-3.2 1.3-4.6L9.3 21c.7.2 1.4.3 2.2.3s1.5-.1 2.2-.3l.3-1.1c.3-1.2.7-2.5 1.1-3.8l1.6 4.9c-.2.1-.4.1-.5.1-.4.1-.9.1-1.3.1z"/>
+                                    </svg>
                                 </a>
                             </li>
                             <li>
                                 <a class="nav-link {% if request.endpoint == 'wordpress_automation_portal_route' %}active{% endif %}" href="{{ url_for('wordpress_automation_portal_route') }}">
-                                    <i class="fas fa-robot"></i>WP Automation
+                                    WP Automation<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.3rem; vertical-align: middle;">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" fill="currentColor" opacity="0.2"/>
+                                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                                        <line x1="8" y1="21" x2="16" y2="21"/>
+                                        <line x1="12" y1="17" x2="12" y2="21"/>
+                                        <path d="M7 10l5 3 5-3"/>
+                                    </svg>
                                 </a>
                             </li>
+                            {% if session.get('firebase_user_email') in ['admin@tickzen.com', 'jadaunkg@gmail.com'] %}
+                            <li>
+                                <a class="nav-link {% if request.endpoint == 'admin_panel' %}active{% endif %}" href="{{ url_for('admin_panel') }}">
+                                    Admin Panel<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.3rem; vertical-align: middle;">
+                                        <rect x="3" y="4" width="18" height="16" rx="2" ry="2" fill="currentColor" opacity="0.2"/>
+                                        <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
+                                        <line x1="9" y1="9" x2="15" y2="9"/>
+                                        <line x1="9" y1="13" x2="15" y2="13"/>
+                                        <circle cx="7" cy="9" r="1"/>
+                                        <circle cx="7" cy="13" r="1"/>
+                                    </svg>
+                                </a>
+                            </li>
+                            {% endif %}
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle nav-link-user" href="#" id="mobileUserDropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-user-circle"></i>{{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'Account') }}
+                            {{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'Account') }}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.5rem; vertical-align: middle;">
+                                <circle cx="12" cy="8" r="5" fill="currentColor" opacity="0.2"/>
+                                <path d="M20 21a8 8 0 0 0-16 0" fill="currentColor" opacity="0.2"/>
+                                <circle cx="12" cy="8" r="5"/>
+                                <path d="M20 21a8 8 0 0 0-16 0"/>
+                            </svg>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="mobileUserDropdown">
                             <li>
                                 <a class="nav-link {% if request.endpoint == 'user_profile_page' %}active{% endif %}" href="{{ url_for('user_profile_page') }}">
-                                    <i class="fas fa-id-card"></i>My Profile
+                                    My Profile
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.5rem; vertical-align: middle;">
+                                        <circle cx="12" cy="8" r="5"/>
+                                        <path d="M20 21a8 8 0 0 0-16 0"/>
+                                    </svg>
                                 </a>
                             </li>
                             <li>
                                 <a class="nav-link logout-btn-js logout-btn" href="{{ url_for('logout') }}">
-                                    <i class="fas fa-sign-out-alt"></i>Logout
+                                    Logout<i class="fas fa-sign-out-alt" style="margin-left: 0.5rem;"></i>
                                 </a>
                             </li>
                         </ul>
@@ -583,7 +739,7 @@
                 {% else %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ url_for('stock_analysis_homepage_route') }}">
-                            <i class="fas fa-home"></i>Home
+                            Home<i class="fas fa-home" style="margin-left: 0.5rem;"></i>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -599,7 +755,10 @@
                         <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#faq">FAQs</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn-login" href="{{ url_for('login') }}">Login</a>
+                        <a class="nav-link btn-login" href="{{ url_for('login') }}">Sign In</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn-get-started" href="{{ url_for('stock_analysis_homepage_route') }}#demo">Start Free Trial</a>
                     </li>
                 {% endif %}
             </ul>
