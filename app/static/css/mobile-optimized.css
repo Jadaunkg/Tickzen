@@ -49,6 +49,19 @@
     gap: 0.5rem !important;
   }
 
+  /* Fix flash message animations on mobile - disable shimmer effect */
+  .flash-message::before,
+  .auth-card .flash-message::before {
+    animation: none !important;
+    display: none !important;
+  }
+
+  /* Disable slide-in animation on mobile for better performance */
+  .flash-message,
+  .auth-card .flash-message {
+    animation: none !important;
+  }
+
   /* Badge font size fix */
   .badge,
   .feature-badge {
@@ -384,7 +397,7 @@
     top: 0 !important;
     z-index: 1000 !important;
     background: #fff !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07) !important;
+    border-bottom: 1px solid #e2e8f0 !important;
   }
   .menu-btn,
   .navbar-toggler,

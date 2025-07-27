@@ -41,7 +41,8 @@ ALL_REPORT_SECTIONS = {
     "conclusion_outlook": hc.generate_conclusion_outlook_html,
     
     "risk_factors": hc.generate_risk_factors_html,
-    "faq": hc.generate_faq_html
+    "faq": hc.generate_faq_html,
+    "report_info_disclaimer": hc.generate_report_info_disclaimer_html
     # Add more if html_components.py has more generators
 }
 
@@ -232,10 +233,23 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
                     print(f"Skipping section '{section_key}' as forecast data is not available.")
                     continue
                 
-                section_title = section_key.replace("_", " ").title()
-                html_report_parts.append(f"<section id='{section_key}'><h3>{section_title}</h3>")
-                html_report_parts.append(generator_func(ticker, rdata)) # Call the function from html_components
-                html_report_parts.append("</section>")
+                # Special handling for introduction - no h2 header
+                if section_key == "introduction":
+                    html_report_parts.append(f"<section id='{section_key}'>")
+                    html_report_parts.append(generator_func(ticker, rdata)) # Call the function from html_components
+                    html_report_parts.append("</section>")
+                # Special handling for report_info_disclaimer - requires generation_time parameter
+                elif section_key == "report_info_disclaimer":
+                    from datetime import datetime
+                    section_title = "Report Information and Disclaimer"
+                    html_report_parts.append(f"<section id='{section_key}'><h2>{section_title}</h2>")
+                    html_report_parts.append(generator_func(datetime.now())) # Pass generation time
+                    html_report_parts.append("</section>")
+                else:
+                    section_title = section_key.replace("_", " ").title()
+                    html_report_parts.append(f"<section id='{section_key}'><h2>{section_title}</h2>")
+                    html_report_parts.append(generator_func(ticker, rdata)) # Call the function from html_components
+                    html_report_parts.append("</section>")
             else:
                 print(f"Warning: Unknown report section key '{section_key}'. Skipping.")
         
@@ -246,80 +260,712 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
         # --- 8. Define CSS (Same as before, with site-specific theming) ---
         print("Step 8: Defining CSS...")
         # ... (Keep your existing base_css and site_specific_css logic) ...
-        base_css = """/* Your base CSS here */
-* Basic WordPress Embed CSS */
-.stock-report-container { /* Base styles for all reports */
-    font-family: sans-serif; 
-    line-height: 1.6;
+        base_css = """/* Enhanced WordPress Stock Report CSS */
+.stock-report-container { 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif; 
+    line-height: 1.65;
     color: #333;
-    max-width: 800px;
-    margin: 1em auto;
-    padding: 15px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-    border-radius: 5px; 
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+    border-radius: 0; 
 }
-.stock-report-container h2,
-.stock-report-container h3,
-.stock-report-container h4 {
-    margin-top: 1.5em;
-    margin-bottom: 0.8em;
+
+/* Typography - WordPress Theme Compatible */
+.stock-report-container h2 {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 2em 0 1em 0;
+    padding-bottom: 0.5em;
+    border-bottom: 2px solid #e1e8ed;
+    line-height: 1.3;
+}
+
+.stock-report-container h3 {
+    font-size: 1.25em;
+    font-weight: 600;
+    color: #34495e;
+    margin: 1.5em 0 0.8em 0;
     padding-bottom: 0.3em;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #ecf0f1;
+    line-height: 1.4;
 }
-.stock-report-container h2.report-title { text-align: center; border-bottom-width: 2px; padding-bottom: 10px; margin-bottom: 1.5em; }
-.stock-report-container h3 { font-size: 1.4em; }
-.stock-report-container h4 { font-size: 1.2em; }
-.stock-report-container section { margin-bottom: 2em; }
-.stock-report-container p { margin-bottom: 1em; }
-.stock-report-container ul, .stock-report-container ol { margin-left: 20px; margin-bottom: 1em; }
-.stock-report-container li { margin-bottom: 0.5em; }
-.stock-report-container strong { font-weight: bold; }
-.stock-report-container a { text-decoration: none; }
-.stock-report-container a:hover { text-decoration: underline; }
-.stock-report-container .table-container { overflow-x: auto; margin-bottom: 1em; }
-.stock-report-container table { width: 100%; border-collapse: collapse; margin-bottom: 1em; font-size: 0.95em; }
-.stock-report-container th, .stock-report-container td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; vertical-align: top; }
-.stock-report-container th { background-color: #f4f4f4; font-weight: bold; white-space: nowrap; }
-.stock-report-container tr:nth-child(even) { background-color: #f9f9f9; }
-.stock-report-container td:first-child { font-weight: bold; background-color: #fdfdfd; width: 35%; }
-.metrics-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; background-color: #f8f8f8; padding: 15px; border-radius: 5px; margin-bottom: 1em; }
-.metric-item { display: flex; flex-direction: column; padding: 10px; background-color: #fff; border: 1px solid #eee; border-radius: 3px; }
-.metric-label { font-size: 0.9em; color: #555; margin-bottom: 5px; }
-.metric-value { font-size: 1.1em; font-weight: bold; }
-.metric-change { margin-left: 5px; font-size: 0.9em; }
-.trend-up, .sentiment-bullish, .action-buy { color: #28a745; } 
-.trend-down, .sentiment-bearish, .action-short { color: #dc3545; } 
-.trend-neutral, .sentiment-neutral, .sentiment-neutral-bullish, .sentiment-neutral-bearish, .action-hold { color: #ffc107; } 
-.icon { display: inline-block; margin-right: 5px; }
-.icon-up { color: #28a745; } .icon-down { color: #dc3545; } .icon-neutral { color: #ffc107; } .icon-warning { color: #ffc107; } 
-.profile-grid, .analyst-grid, .ma-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1em; }
-.profile-item span:first-child, .analyst-item span:first-child, .ma-item .label { font-weight: bold; margin-right: 5px; color: #333; }
-.profile-item, .analyst-item, .ma-item { padding: 8px; background-color: #f9f9f9; border: 1px solid #eee; border-radius: 3px; font-size: 0.95em; }
-.news-container { margin-top: 1em; }
-.news-item { border-bottom: 1px dashed #eee; padding-bottom: 1em; margin-bottom: 1em; }
-.news-item:last-child { border-bottom: none; margin-bottom: 0; }
-.news-item h4 { margin-bottom: 0.3em; font-size: 1.1em;}
-.news-meta { font-size: 0.85em; color: #666; } .news-meta span { margin-right: 15px; }
-.narrative { padding: 15px; border-radius: 4px; margin-bottom: 1.5em; font-size: 0.95em; border-left-width: 4px; border-left-style: solid; }
-.narrative p:last-child { margin-bottom: 0; } .narrative ul { list-style-type: disc; padding-left: 20px; }
-.conclusion-columns { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 1.5em; }
-.conclusion-column { flex: 1; min-width: 250px; padding: 15px; border-radius: 5px; border: 1px solid #eee; }
-.conclusion-column h3 { margin-top: 0; font-size: 1.2em; border-bottom: 1px solid #ddd; padding-bottom: 0.4em; }
-.conclusion-column ul { padding-left: 0; list-style: none; }
-.conclusion-column li { margin-bottom: 0.7em; display: flex; align-items: flex-start; font-size: 0.95em; }
-.conclusion-column li .icon { margin-right: 8px; margin-top: 2px; }
-#faq details { background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px; }
-#faq summary { padding: 10px; font-weight: bold; cursor: pointer; outline: none; }
-#faq details[open] summary { border-bottom: 1px solid #ddd; }
-#faq details p { padding: 10px; margin: 0; border-top: 1px solid #eee; }
-.disclaimer, .general-info p { font-size: 0.85em; color: #555; margin-top: 1.5em; padding-top: 1em; border-top: 1px dashed #ccc; }
-.disclaimer strong { color: #c00; }
+
+.stock-report-container h4 {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #34495e;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.4;
+}
+
+.stock-report-container section {
+    margin-bottom: 2.5em;
+}
+
+/* Paragraph Styling - WordPress Theme Compatible */
+.stock-report-container p {
+    margin: 0 0 1.2em 0;
+    font-size: 1em;
+    line-height: 1.65;
+    color: #444;
+    text-align: justify;
+}
+
+.stock-report-container ul,
+.stock-report-container ol {
+    margin: 0 0 1.2em 1.5em;
+    padding: 0;
+}
+
+.stock-report-container li {
+    margin-bottom: 0.6em;
+    line-height: 1.6;
+}
+
+.stock-report-container strong {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.stock-report-container a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.stock-report-container a:hover {
+    text-decoration: underline;
+    color: #2980b9;
+}
+
+/* Metrics Summary - Small Horizontal Boxes */
+.metrics-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 1.5em 0;
+    padding: 0;
+    background-color: transparent;
+}
+
+.metric-item {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 10px;
+    text-align: center;
+    transition: box-shadow 0.2s ease;
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.metric-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.metric-label {
+    font-size: 0.75em;
+    color: #6c757d;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1.2;
+    word-wrap: break-word;
+}
+
+.metric-change {
+    margin-left: 4px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+/* Color Coding */
+.trend-up, .sentiment-bullish, .action-buy {
+    color: #27ae60;
+}
+
+.trend-down, .sentiment-bearish, .action-short {
+    color: #e74c3c;
+}
+
+.trend-neutral, .sentiment-neutral, .action-hold {
+    color: #f39c12;
+}
+
+/* Icon Styling */
+.icon {
+    display: inline-block;
+    margin-right: 6px;
+    font-size: 1em;
+    width: 1.2em;
+    text-align: center;
+}
+
+.icon-up { color: #27ae60; }
+.icon-down { color: #e74c3c; }
+.icon-neutral { color: #f39c12; }
+.icon-warning { color: #f39c12; }
+
+/* Tables */
+.stock-report-container .table-container {
+    overflow-x: auto;
+    margin: 1.5em 0;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.stock-report-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    font-size: 0.95em;
+}
+
+.stock-report-container th,
+.stock-report-container td {
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    padding: 12px 16px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.stock-report-container th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stock-report-container tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.stock-report-container tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.stock-report-container td:first-child {
+    font-weight: 600;
+    color: #495057;
+    width: 40%;
+}
+
+.stock-report-container td:last-child {
+    text-align: right;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Grid Layouts */
+.profile-grid,
+.analyst-grid,
+.ma-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 1.5em 0;
+}
+
+.profile-item,
+.analyst-item,
+.ma-item {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 12px 15px;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.profile-item span:first-child,
+.analyst-item span:first-child,
+.ma-item .label {
+    font-weight: 600;
+    color: #495057;
+    margin-right: 8px;
+}
+
+/* Conclusion & Outlook - Separate Cards */
+.conclusion-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 1.5em 0;
+}
+
+.conclusion-column {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.conclusion-column h3 {
+    margin-top: 0;
+    margin-bottom: 1em;
+    font-size: 1.2em;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5em;
+}
+
+.conclusion-column ul {
+    padding-left: 0;
+    list-style: none;
+    margin: 0;
+}
+
+.conclusion-column li {
+    margin-bottom: 0.8em;
+    display: flex;
+    align-items: flex-start;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.conclusion-column li .icon {
+    margin-right: 10px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* News Section */
+.news-container {
+    margin-top: 1.5em;
+}
+
+.news-item {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1.2em;
+    margin-bottom: 1.2em;
+}
+
+.news-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.news-item h4 {
+    margin: 0 0 0.5em 0;
+    font-size: 1.1em;
+    line-height: 1.4;
+}
+
+.news-item h4 a {
+    color: #2c3e50;
+    text-decoration: none;
+}
+
+.news-item h4 a:hover {
+    color: #3498db;
+    text-decoration: underline;
+}
+
+.news-meta {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 0.5em;
+}
+
+.news-meta span {
+    margin-right: 15px;
+    background-color: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* FAQ Section - Enhanced */
+#faq details {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+#faq details:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#faq summary {
+    padding: 15px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+#faq summary:hover {
+    background-color: #e9ecef;
+}
+
+#faq summary::marker {
+    content: none;
+}
+
+#faq summary::after {
+    content: '+';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5em;
+    color: #6c757d;
+    transition: transform 0.2s ease;
+}
+
+#faq details[open] summary::after {
+    content: '−';
+    transform: translateY(-50%) rotate(180deg);
+    color: #3498db;
+}
+
+#faq details[open] summary {
+    background-color: #e9ecef;
+}
+
+#faq details p {
+    padding: 20px;
+    margin: 0;
+    background-color: #fff;
+    line-height: 1.6;
+    color: #444;
+}
+
+/* Narrative Boxes */
+.narrative {
+    background-color: #f8f9fa;
+    border-left: 4px solid #3498db;
+    border-radius: 0 4px 4px 0;
+    padding: 15px 20px;
+    margin: 1.5em 0;
+    font-size: 0.95em;
+}
+
+.narrative p:last-child {
+    margin-bottom: 0;
+}
+
+.narrative ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin: 0.8em 0;
+}
+
+/* Risk Factors */
+.risk-factors ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 1.5em 0;
+}
+
+.risk-factors li {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 0 4px 4px 0;
+    display: flex;
+    align-items: flex-start;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.risk-factors li .icon {
+    color: #ffc107;
+    margin-right: 10px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* Disclaimer */
+.disclaimer,
+.general-info p {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-top: 2em;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    line-height: 1.6;
+}
+
+.disclaimer strong {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .metrics-summary {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
+    
+    .metric-item {
+        padding: 10px 8px;
+        min-height: 60px;
+    }
+    
+    .metric-value {
+        font-size: 1em;
+    }
+    
+    .conclusion-columns {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .profile-grid,
+    .analyst-grid,
+    .ma-summary {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .stock-report-container th,
+    .stock-report-container td {
+        padding: 10px 12px;
+        font-size: 0.9em;
+    }
+    
+    #faq summary,
+    #faq details p {
+        padding: 12px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stock-report-container h2 {
+        font-size: 1.3em;
+    }
+    
+    .stock-report-container h3 {
+        font-size: 1.15em;
+    }
+    
+    .metrics-summary {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 8px;
+    }
+    
+    .metric-item {
+        padding: 8px 6px;
+        min-height: 55px;
+    }
+    
+    .metric-label {
+        font-size: 0.7em;
+    }
+    
+    .metric-value {
+        font-size: 0.95em;
+    }
+    
+    .stock-report-container th,
+    .stock-report-container td {
+        padding: 8px 10px;
+        font-size: 0.85em;
+    }
+    
+    .conclusion-column,
+    .narrative,
+    .risk-factors li {
+        padding: 12px 15px;
+    }
+}
 """
       
         final_css = base_css 
-        final_html_wrapped = f'<div class="stock-report-container report-{site_slug}">{final_html_body}</div>'
+        
+        # WordPress-safe implementation: Use only inline styles, no <style> tags
+        # WordPress often strips <style> tags for security, so we convert everything to inline styles
+        container_style = """font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif; line-height: 1.65; color: #333; max-width: 100%; margin: 0; padding: 0; background-color: transparent; box-shadow: none; border: none; border-radius: 0;"""
+        
+        # Apply inline styles to the HTML content
+        def apply_inline_styles(html_content):
+            import re
+            
+            # First, remove any <style> blocks that may come from HTML components
+            # This is critical for WordPress compatibility
+            style_pattern = r'<style[^>]*>.*?</style>'
+            html_content = re.sub(style_pattern, '', html_content, flags=re.DOTALL | re.IGNORECASE)
+            
+            # Define comprehensive inline styles for WordPress compatibility - COMPLETE CSS RULESET
+            styles_map = {
+                # Main Container - Complete styling from user's CSS
+                'stock-report-container': 'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; line-height: 1.65; color: #333; max-width: 100%; margin: 0; padding: 0; background-color: transparent; box-shadow: none; border: none; border-radius: 0;',
+                
+                # Metrics Summary - Complete horizontal card styling
+                'metrics-summary': 'display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 1.5em 0; padding: 0; background-color: transparent;',
+                'metric-item': 'background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 12px 10px; text-align: center; transition: box-shadow 0.2s ease; min-height: 70px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);',
+                'metric-label': 'font-size: 0.75em; color: #6c757d; margin-bottom: 4px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;',
+                'metric-value': 'font-size: 1.1em; font-weight: 700; color: #2c3e50; line-height: 1.2; word-wrap: break-word;',
+                'metric-change': 'margin-left: 4px; font-size: 0.85em; font-weight: 600;',
+                
+                # Color Coding - Complete from user's CSS
+                'trend-up': 'color: #27ae60; font-weight: 600;',
+                'trend-down': 'color: #e74c3c; font-weight: 600;',
+                'trend-neutral': 'color: #f39c12; font-weight: 600;',
+                'sentiment-bullish': 'color: #27ae60; font-weight: 600;',
+                'sentiment-bearish': 'color: #e74c3c; font-weight: 600;',
+                'sentiment-neutral': 'color: #f39c12; font-weight: 600;',
+                'action-buy': 'color: #27ae60; font-weight: bold;',
+                'action-short': 'color: #e74c3c; font-weight: bold;',
+                'action-hold': 'color: #f39c12; font-weight: bold;',
+                
+                # Icon Styling - Complete from user's CSS
+                'icon': 'display: inline-block; margin-right: 6px; font-size: 1em; width: 1.2em; text-align: center;',
+                'icon-up': 'color: #27ae60;',
+                'icon-down': 'color: #e74c3c;',
+                'icon-neutral': 'color: #f39c12;',
+                'icon-warning': 'color: #f39c12;',
+                
+                # Tables - Complete styling from user's CSS
+                'table-container': 'overflow-x: auto; margin: 1.5em 0; border: 1px solid #e9ecef; border-radius: 8px; background-color: #fff;',
+                
+                # Grid Layouts - Complete from user's CSS
+                'profile-grid': 'display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 1.5em 0;',
+                'analyst-grid': 'display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 1.5em 0;',
+                'ma-summary': 'display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 1.5em 0;',
+                'profile-item': 'background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px 15px; font-size: 0.95em; line-height: 1.5;',
+                'analyst-item': 'background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px 15px; font-size: 0.95em; line-height: 1.5;',
+                'ma-item': 'background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px 15px; font-size: 0.95em; line-height: 1.5;',
+                
+                # Conclusion & Outlook - Complete card styling from user's CSS
+                'conclusion-columns': 'display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin: 1.5em 0;',
+                'conclusion-column': 'background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);',
+                
+                # News Section - Complete from user's CSS
+                'news-container': 'margin-top: 1.5em;',
+                'news-item': 'border-bottom: 1px solid #e9ecef; padding-bottom: 1.2em; margin-bottom: 1.2em;',
+                'news-meta': 'font-size: 0.85em; color: #6c757d; margin-top: 0.5em;',
+                
+                # FAQ Section - Complete styling from user's CSS
+                'faq': 'margin: 1.5em 0;',
+                
+                # Narrative Boxes - Complete from user's CSS
+                'narrative': 'background-color: #f8f9fa; border-left: 4px solid #3498db; border-radius: 0 4px 4px 0; padding: 15px 20px; margin: 1.5em 0; font-size: 0.95em; line-height: 1.6;',
+                
+                # Risk Factors - Complete styling from user's CSS
+                'risk-factors': 'margin: 1.5em 0;',
+                
+                # Disclaimer - Complete from user's CSS
+                'disclaimer': 'font-size: 0.9em; color: #6c757d; margin-top: 2em; padding: 15px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; line-height: 1.6;',
+                'general-info': 'font-size: 0.9em; color: #6c757d; margin-top: 2em; padding: 15px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; line-height: 1.6;'
+            }
+            
+            # Apply styles to elements with these classes
+            for class_name, style in styles_map.items():
+                # Match class attributes and add inline styles
+                pattern = f'class="[^"]*{class_name}[^"]*"'
+                matches = list(re.finditer(pattern, html_content))
+                
+                # Process matches in reverse order to maintain string positions
+                for match in reversed(matches):
+                    original = match.group()
+                    # Check if style attribute already exists
+                    if 'style=' in original:
+                        # Find the style attribute and append
+                        style_match = re.search(r'style="([^"]*)"', original)
+                        if style_match:
+                            existing_style = style_match.group(1)
+                            new_style = original.replace(f'style="{existing_style}"', f'style="{existing_style}; {style}"')
+                        else:
+                            new_style = original[:-1] + f' style="{style}"'
+                    else:
+                        # Add new style attribute
+                        new_style = original[:-1] + f' style="{style}"'
+                    
+                    # Replace in content
+                    html_content = html_content[:match.start()] + new_style + html_content[match.end():]
+            
+            # Enhanced HTML element styling - Complete WordPress-compatible inline styles
+            element_styles = {
+                # Typography - Comprehensive styling matching your CSS
+                '<h2>': '<h2 style="font-size: 1.5em; font-weight: 600; color: #2c3e50; margin: 2em 0 1em 0; padding-bottom: 0.5em; border-bottom: 2px solid #e1e8ed; line-height: 1.3;">',
+                '<h3>': '<h3 style="font-size: 1.25em; font-weight: 600; color: #34495e; margin: 1.5em 0 0.8em 0; padding-bottom: 0.3em; border-bottom: 1px solid #ecf0f1; line-height: 1.4;">',
+                '<h4>': '<h4 style="font-size: 1.1em; font-weight: 600; color: #34495e; margin: 1.2em 0 0.6em 0; line-height: 1.4;">',
+                
+                # Paragraphs and text
+                '<p>': '<p style="margin: 0 0 1.2em 0; font-size: 1em; line-height: 1.65; color: #444; text-align: justify;">',
+                '<strong>': '<strong style="font-weight: 600; color: #2c3e50;">',
+                '<a ': '<a style="color: #3498db; text-decoration: none;" ',
+                
+                # Lists
+                '<ul>': '<ul style="margin: 0 0 1.2em 1.5em; padding: 0; list-style: none;">',
+                '<ol>': '<ol style="margin: 0 0 1.2em 1.5em; padding: 0;">',
+                '<li>': '<li style="margin-bottom: 0.6em; line-height: 1.6;">',
+                
+                # Sections
+                '<section>': '<section style="margin-bottom: 2.5em;">',
+                
+                # Tables - Complete styling from your CSS
+                '<table>': '<table style="width: 100%; border-collapse: collapse; margin: 0; font-size: 0.95em;">',
+                '<th>': '<th style="background-color: #f8f9fa; font-weight: 600; color: #495057; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px; border: none; border-bottom: 1px solid #e9ecef; padding: 12px 16px; text-align: left; vertical-align: top;">',
+                '<td>': '<td style="border: none; border-bottom: 1px solid #e9ecef; padding: 12px 16px; text-align: left; vertical-align: top;">',
+                
+                # Divs and containers - Enhanced card styling
+                '<div class="conclusion-column">': '<div class="conclusion-column" style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">',
+                '<div class="risk-factors">': '<div class="risk-factors" style="margin: 1.5em 0;"><ul style="list-style: none; padding-left: 0; margin: 1.5em 0;">',
+                '<div class="narrative">': '<div class="narrative" style="background-color: #f8f9fa; border-left: 4px solid #3498db; border-radius: 0 4px 4px 0; padding: 15px 20px; margin: 1.5em 0; font-size: 0.95em;">',
+                
+                # Enhanced table styling for proper appearance
+                '<tbody>': '<tbody style="">',
+                '<tr>': '<tr style="">',
+                '<thead>': '<thead style="">',
+                
+                # FAQ and details elements
+                '<details>': '<details style="background: #fff; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 12px; overflow: hidden;">',
+                '<summary>': '<summary style="padding: 15px 20px; font-weight: 600; cursor: pointer; outline: none; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">',
+                
+                # Special risk factor list items
+                '<li style="background-color: #fff3cd;': '<li style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 15px; margin-bottom: 10px; border-radius: 0 4px 4px 0; display: flex; align-items: flex-start; font-size: 0.95em; line-height: 1.6;'
+            }
+            
+            for element, styled_element in element_styles.items():
+                html_content = html_content.replace(element, styled_element)
+                
+            # Special handling for metric cards to ensure proper horizontal card display
+            # Replace any remaining metric-related divs that might not have been caught
+            html_content = html_content.replace(
+                '<div class="metrics-summary">', 
+                '<div class="metrics-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 1.5em 0; padding: 0; background-color: transparent;">'
+            )
+            html_content = html_content.replace(
+                '<div class="metric-item">', 
+                '<div class="metric-item" style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 12px 10px; text-align: center; transition: box-shadow 0.2s ease; min-height: 70px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">'
+            )
+                    
+            return html_content
+        
+        # Apply inline styles and wrap in container
+        styled_html_body = apply_inline_styles(final_html_body)
+        # WordPress-safe: No <style> tags, only inline styles
+        final_html_wrapped = f'<div style="{container_style}">{styled_html_body}</div>'
 
 
         print(f"--- Report Generation Complete for {ticker} ({site_name}) ---")
@@ -345,6 +991,7 @@ if __name__ == '__main__':
     example_sections = [
         "introduction", "metrics_summary", "detailed_forecast_table",
         "technical_analysis_summary", "conclusion_outlook", "risk_factors"
+        # Note: "report_info_disclaimer" is excluded from WordPress posts
     ]
     r_data_ex, html_code_ex, css_code_ex = generate_wordpress_report(
         "Finances Forecast", "AAPL", APP_ROOT_EXAMPLE, example_sections

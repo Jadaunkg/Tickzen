@@ -403,7 +403,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.querySelectorAll('.password-toggle').forEach(button => {
             button.addEventListener('click', function() {
-                const inputField = this.previousElementSibling; 
+                // Find the input field within the same password-wrapper
+                const inputField = this.parentElement.querySelector('input[type="password"], input[type="text"]');
                 if (inputField && inputField.id) {
                     togglePasswordVisibility(inputField.id, this);
                 } else {

@@ -175,7 +175,7 @@ body {
   padding: 12px;
   background: white;
   color: var(--text-primary);
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--primary-color);
   border-radius: 6px;
   font-size: 16px;
   font-weight: 500;
@@ -189,8 +189,8 @@ body {
 }
 
 .btn-google:hover {
-  border-color: var(--google-color);
-  background: #f8faff;
+  border-color: var(--primary-dark);
+  background: rgba(22, 163, 74, 0.05);
 }
 
 .btn-google i {

@@ -1939,6 +1939,47 @@ def forgot_password():
                          title="Reset Password - Tickzen",
                          firebase_config=firebase_config)
 
+@app.route('/check-user-exists', methods=['POST'])
+def check_user_exists():
+    """Check if a user exists by email"""
+    try:
+        data = request.get_json()
+        email = data.get('email', '').strip().lower()
+        
+        if not email:
+            return jsonify({'exists': False, 'error': 'Email is required'}), 400
+        
+        # Validate email format
+        import re
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, email):
+            return jsonify({'exists': False, 'error': 'Invalid email format'}), 400
+        
+        # Check if user exists in Firebase
+        try:
+            from config.firebase_admin_setup import get_firebase_app
+            import firebase_admin
+            from firebase_admin import auth
+            
+            app_instance = get_firebase_app()
+            if not app_instance:
+                app.logger.error("Firebase app not initialized")
+                return jsonify({'exists': False, 'error': 'Authentication service unavailable'}), 500
+            
+            # Try to get user by email
+            user = auth.get_user_by_email(email, app=app_instance)
+            return jsonify({'exists': True, 'uid': user.uid})
+            
+        except firebase_admin.auth.UserNotFoundError:
+            return jsonify({'exists': False})
+        except Exception as e:
+            app.logger.error(f"Error checking user existence: {str(e)}")
+            return jsonify({'exists': False, 'error': 'Unable to verify user'}), 500
+            
+    except Exception as e:
+        app.logger.error(f"Error in check_user_exists: {str(e)}")
+        return jsonify({'exists': False, 'error': 'Server error'}), 500
+
 @app.route('/verify-token', methods=['POST'])
 def verify_token_route():
     # --- DEBUGGING: Log backend Firebase project ID ---

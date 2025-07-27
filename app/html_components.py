@@ -290,12 +290,12 @@ def generate_introduction_html(ticker, rdata):
         introduction_html = f"""
         <p>{summary_sentence} The core questions for investors is whether the current stock price represents a fair value and if the company is well-positioned for future growth. Would it be wise to invest in {company_name} at this moment? Let's see how well {ticker} stock performs in the current market. </p>
         
-        <h3>Here's What You Need to Know Right Now</h3>
+        <h2>Here's What You Need to Know Right Now</h2>
         <p>The stock is currently trading at <strong>{current_price_fmt}</strong> (as of {last_date_fmt}), and it's {momentum_text}.</p>
         <p>{analyst_outlook_text}. However, there's significant volatility here (<strong>{volatility_fmt} annualized</strong>), suggesting the potential for wide price swings.</p>
         <p>{company_name}'s fundamental story is nuanced. {fundamental_story_text}</p>
         
-        <h3>What's Inside This Analysis?</h3>
+        <h2>What's Inside This Analysis?</h2>
         <p>We're not just throwing numbers at you—we're breaking down {ticker}'s stock from every angle so you can make an informed decision:</p>
         <ul>
             <li>✅ <strong>Is now a good time to buy?</strong><br>
@@ -2440,12 +2440,12 @@ def generate_technical_analysis_summary_html(ticker, rdata):
 
         # --- 2. Build Enhanced Dynamic Narrative Components ---
 
-        # Headline (No Changes Here)
+        # Headline (Updated to be bold text instead of h4)
         trend_status = "Bullish" if price and sma200 and price > sma200 else "Bearish"
         qualitative_assessment = "but Overheated" if rsi and rsi > 75 else "but shows signs of slowing" if macd_hist is not None and macd_hist < 0 else ""
         if trend_status == "Bearish":
             qualitative_assessment = "but looks Oversold" if rsi and rsi < 30 else "and continues to weaken"
-        headline = f"Current Price: {format_html_value(price, 'currency', ticker=ticker)}&nbsp;|&nbsp;Trend: {trend_status} {qualitative_assessment}"
+        headline = f"<p><strong>CURRENT PRICE: {format_html_value(price, 'currency', ticker=ticker).upper()}&nbsp;|&nbsp;TREND: {trend_status.upper()} {qualitative_assessment.upper()}</strong></p>"
 
         # UPDATED: Context-Aware Intro Paragraph
         if change_15d is not None and change_15d > 0:
@@ -2512,24 +2512,24 @@ def generate_technical_analysis_summary_html(ticker, rdata):
         # --- 3. Assemble the HTML (No changes here) ---
         html_output = f"""
         <div class="technical-analysis-summary-pro">
-            <h4>{headline}</h4>
+            {headline}
             <p>{intro_para}</p>
 
-            <h5>1. Trend Strength – Still {trend_status}</h5>
+            <h3>Trend Strength – Still {trend_status}</h3>
             <p>{trend_narrative} {support_20sma if trend_status == "Bullish" else ""}</p>
             <div class="takeaway">
                 <p><strong><i class="fas fa-chart-line"></i> What This Means for Traders?</strong></p>
                 <p>{trader_takeaway_trend}</p>
             </div>
 
-            <h5>2. Momentum Check – { "Time to Be Cautious" if rsi and rsi > 70 else "Potential Bounce Ahead?" if rsi and rsi < 30 else "Is Momentum Fading?"}</h5>
+            <h3>Momentum Check – { "Time to Be Cautious" if rsi and rsi > 70 else "Potential Bounce Ahead?" if rsi and rsi < 30 else "Is Momentum Fading?"}</h3>
             <p>The <strong>RSI at {rsi:.1f}</strong> is {rsi_signal}. {rsi_pullback_chance} At the same time, {macd_signal_text}</p>
             <div class="takeaway">
                 <p><strong><i class="fas fa-chess-knight"></i> Trading Strategy:</strong></p>
                 <p>{trader_strategy_momentum}</p>
             </div>
 
-            <h5>3. Bollinger Bands – Testing Key Levels</h5>
+            <h3>Bollinger Bands – Testing Key Levels</h3>
             <p>{bb_narrative}</p>
             <div class="takeaway">
                 <p><strong><i class="fas fa-bullseye"></i> Key Levels to Watch:</strong></p>
@@ -2539,10 +2539,10 @@ def generate_technical_analysis_summary_html(ticker, rdata):
                 </ul>
             </div>
 
-            <h5>4. Volume Trends – Checking for Conviction</h5>
+            <h3>Volume Trends – Checking for Conviction</h3>
             <p>{volume_narrative}</p>
               {f"<div class='takeaway'><p><strong><i class='fas fa-exclamation-triangle'></i> What's the Concern?</strong></p><p>{volume_concern}</p></div>" if volume_concern else ''}
-            <h5>5. Support & Resistance – The Trading Plan</h5>
+            <h3>Support & Resistance – The Trading Plan</h3>
             <div class="takeaway">
                 <p><strong><i class="fas fa-map-signs"></i> Trading Plan:</strong></p>
                 <ul>
@@ -2552,7 +2552,7 @@ def generate_technical_analysis_summary_html(ticker, rdata):
                 </ul>
             </div>
             
-            <h5>Final Verdict – Should You Buy, Hold, or Sell?</h5>
+            <h3>Final Verdict – Should You Buy, Hold, or Sell?</h3>
             <div class="verdict-grid">
                 <div class="verdict-item"><strong>Short-Term Traders:</strong> {short_term_verdict}</div>
                 <div class="verdict-item"><strong>Long-Term Investors:</strong> {long_term_verdict}</div>
@@ -2566,8 +2566,7 @@ def generate_technical_analysis_summary_html(ticker, rdata):
         <style>
             <style>
             .technical-analysis-summary-pro { font-family: 'Segoe UI', sans-serif; line-height: 1.6; color: #495057; }
-            .technical-analysis-summary-pro h4 { font-size: 1.4em; color: #2c3e50; margin-bottom: 0.5em; font-weight: 600; }
-            .technical-analysis-summary-pro h5 { font-size: 1.1em; color: #34495e; margin-top: 1.25em; margin-bottom: 0.5em; padding-bottom: 0.25em; border-bottom: 1px solid #ecf0f1; font-weight: 600;}
+            .technical-analysis-summary-pro h3 { font-size: 1.1em; color: #34495e; margin-top: 1.25em; margin-bottom: 0.5em; padding-bottom: 0.25em; border-bottom: 1px solid #ecf0f1; font-weight: 600;}
             .technical-analysis-summary-pro p { margin-bottom: 1em; font-size: 0.95rem; }
             .technical-analysis-summary-pro .takeaway { background-color: #f8f9fa; border-left: 4px solid #10ac84; padding: 0.8em 1.2em; margin: 1em 0; border-radius: 4px; }
             .technical-analysis-summary-pro .takeaway p, .technical-analysis-summary-pro .takeaway ul { margin-bottom: 0.5em; font-size: 0.9rem;}

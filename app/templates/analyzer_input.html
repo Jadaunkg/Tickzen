@@ -53,6 +53,35 @@
         pointer-events: none; 
     }
     .search-input:focus + .search-icon { color: var(--primary, var(--green-600)); }
+    
+    /* Typewriter Animation Styles */
+    .typewriter-placeholder {
+        position: absolute;
+        top: 50%;
+        left: 28px;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: #333;
+        font-size: 1.1rem;
+        z-index: 1;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+    
+    .search-input:focus + .search-button + .autocomplete-suggestions + .typewriter-placeholder,
+    .search-input:not(:placeholder-shown) + .search-button + .autocomplete-suggestions + .typewriter-placeholder,
+    .search-input-active + .search-button + .autocomplete-suggestions + .typewriter-placeholder {
+        opacity: 0;
+    }
+    
+    .typewriter-wrapper {
+        display: inline-block;
+    }
+    
+    .typewriter-text {
+        display: inline-block;
+        color: #333;
+    }
     .btn-analyze { background-color: var(--primary, var(--green-600)); color: white; padding: 0.875rem 1.5rem; font-size: 1.1em; font-weight: 500; border: none; border-radius: 8px; cursor: pointer; display: inline-block; width: auto; min-width: 200px; }
     .btn-analyze:hover { background-color: var(--green-700); }
     .btn-analyze:disabled { background-color: #ccc; cursor: not-allowed; }
@@ -303,11 +332,16 @@
                 <div class="form-group">
                     <label for="tickerInput"></label>
                     <div class="search-container" style="display: flex; align-items: center; width: 100%; background-color: #fff; border: 2.5px solid var(--primary, #16a34a); border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); position: relative;">
-                        <input type="text" class="search-input" id="tickerInput" name="ticker" placeholder="Enter a stock ticker to get free analysis" required autocomplete="off" style="flex: 1; border: none !important; border-radius: 0 !important; outline: none; font-size: 1.1rem; color: #555; background: transparent; box-shadow: none !important; padding: 0;">
+                        <input type="text" class="search-input" id="tickerInput" name="ticker" placeholder="" required autocomplete="off" style="flex: 1; border: none !important; border-radius: 0 !important; outline: none; font-size: 1.1rem; color: #555; background: transparent; box-shadow: none !important; padding: 0;">
                         <button type="button" class="search-button" tabindex="-1" style="background-color: var(--primary, #16a34a); border: none; padding: 10px; border-radius: 50%; cursor: default; display: flex; align-items: center; justify-content: center; margin-left: 8px; pointer-events: none;">
                           <i class="fas fa-search" style="color: #fff; font-size: 18px;"></i>
                         </button>
                         <div class="autocomplete-suggestions" id="autocompleteSuggestions"></div>
+                        <div class="typewriter-placeholder" id="typewriterPlaceholder">
+                            <div class="typewriter-wrapper">
+                                <span class="typewriter-text" id="typewriterText"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-analyze" id="analyzeButton">
@@ -839,6 +873,71 @@ document.addEventListener('DOMContentLoaded', function () {
             hideSuggestions(); // Hide any open autocomplete suggestions
         });
     });
+
+    // Typewriter Animation
+    const typewriterText = document.getElementById('typewriterText');
+    const typewriterPlaceholder = document.getElementById('typewriterPlaceholder');
+    const fullText = 'Enter a Stock Ticker to get free analysis';
+    let currentIndex = 0;
+    let isTyping = true;
+    let animationRunning = true;
+    
+    function typewriterAnimation() {
+        if (!animationRunning) return;
+        
+        if (isTyping) {
+            // Typing phase
+            if (currentIndex <= fullText.length) {
+                typewriterText.textContent = fullText.substring(0, currentIndex);
+                currentIndex++;
+                setTimeout(typewriterAnimation, 30); // Faster typing speed (was 80)
+            } else {
+                // Pause before erasing
+                isTyping = false;
+                setTimeout(typewriterAnimation, 1000); // Shorter pause duration (was 2000)
+            }
+        } else {
+            // Instant erasing phase
+            typewriterText.textContent = '';
+            currentIndex = 0;
+            isTyping = true;
+            setTimeout(typewriterAnimation, 300); // Short pause before restarting (was 500)
+        }
+    }
+    
+    // Hide typewriter when user interacts with input
+    if (tickerInput && typewriterPlaceholder) {
+        tickerInput.addEventListener('focus', function() {
+            typewriterPlaceholder.style.opacity = '0';
+            animationRunning = false;
+        });
+        
+        tickerInput.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                typewriterPlaceholder.style.opacity = '1';
+                animationRunning = true;
+                typewriterAnimation();
+            }
+        });
+        
+        tickerInput.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                typewriterPlaceholder.style.opacity = '0';
+                animationRunning = false;
+            } else {
+                typewriterPlaceholder.style.opacity = '1';
+                animationRunning = true;
+                currentIndex = 0;
+                isTyping = true;
+                typewriterAnimation();
+            }
+        });
+    }
+    
+    // Start the typewriter animation
+    if (typewriterText) {
+        typewriterAnimation();
+    }
 
     
         

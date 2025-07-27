@@ -233,7 +233,7 @@
   width: 100% !important;
   padding: 0.875rem 1rem !important;
   background: var(--background) !important;
-  border: 2px solid var(--border) !important;
+  border: 2px solid var(--primary) !important;
   border-radius: 0.5rem !important;
   color: var(--foreground) !important;
   font-weight: 600 !important;
@@ -249,8 +249,8 @@
 }
 
 .btn-google:hover {
-  background: var(--muted) !important;
-  border-color: var(--primary) !important;
+  background: rgba(22, 163, 74, 0.05) !important;
+  border-color: var(--primary-dark) !important;
   transform: translateY(-2px) !important;
   box-shadow: var(--shadow-lg) !important;
 }

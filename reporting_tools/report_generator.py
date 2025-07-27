@@ -1173,9 +1173,15 @@ def create_wordpress_report_assets(
             title, html_c, section_class_name = item[0], item[1], item[2]
             has_content = bool(html_c and str(html_c).strip() and not str(html_c).startswith(("<p>No data", "<p><i>")))
             if has_content:
-                report_body_content += f'<div class="section {section_class_name}">\n  <h2>{title}</h2>\n'
-                report_body_content += f"  {html_c}\n"
-                report_body_content += f'</div>\n'
+                # Special handling for introduction - no h2 header
+                if section_class_name == "introduction-overview":
+                    report_body_content += f'<div class="section {section_class_name}">\n'
+                    report_body_content += f"  {html_c}\n"
+                    report_body_content += f'</div>\n'
+                else:
+                    report_body_content += f'<div class="section {section_class_name}">\n  <h2>{title}</h2>\n'
+                    report_body_content += f"  {html_c}\n"
+                    report_body_content += f'</div>\n'
             else:
                 print(f"[WP Assets] Skipping empty or failed section: {title}") # Use logger
 
