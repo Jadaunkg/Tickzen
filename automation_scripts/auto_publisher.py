@@ -679,7 +679,9 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                 max_gap = profile_config.get("max_scheduling_gap_minutes", 68)
                 random_gap = random.randint(min_gap, max_gap)
                 next_schedule_time = last_sched_dt + timedelta(minutes=random_gap)
-            except: pass
+            except (ValueError, TypeError) as e:
+                print(f"Warning: Failed to parse last schedule time '{last_sched_iso}': {e}. Using default scheduling.")
+                # Keep the default next_schedule_time that was set above
         if next_schedule_time < datetime.now(timezone.utc):
             next_schedule_time = datetime.now(timezone.utc) + timedelta(minutes=random.randint(2,5))
 
