@@ -197,7 +197,11 @@ app = Flask(__name__,
             static_folder=STATIC_FOLDER_PATH,
             template_folder=TEMPLATE_FOLDER_PATH)
 
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "your_strong_default_secret_key_here_CHANGE_ME_TOO")
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
+if not app.secret_key:
+    import secrets
+    app.secret_key = secrets.token_hex(32)
+    app.logger.warning("No FLASK_SECRET_KEY environment variable found. Generated a random secret key for this session. For production, set FLASK_SECRET_KEY environment variable.")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
@@ -239,9 +243,11 @@ if APP_ENV == 'production':
         app.logger.info("Production SocketIO configuration loaded with threading")
     except ImportError:
         app.logger.warning("Production config not found, using fallback configuration")
+        # Secure fallback: restrict CORS in production
+        allowed_origins = os.environ.get('ALLOWED_ORIGINS', '').split(',') if os.environ.get('ALLOWED_ORIGINS') else []
         socketio = SocketIO(app,
                             async_mode='threading',
-                            cors_allowed_origins="*",
+                            cors_allowed_origins=allowed_origins,
                             ping_timeout=60,
                             ping_interval=25,
                             logger=False,
