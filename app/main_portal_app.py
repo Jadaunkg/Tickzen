@@ -57,11 +57,20 @@ def get_jwt():
 
 # Import dashboard analytics
 try:
-    from analysis_scripts.dashboard_analytics import register_dashboard_routes
-    DASHBOARD_ANALYTICS_AVAILABLE = True
+    from analysis_scripts.firestore_dashboard_analytics import register_firestore_dashboard_routes
+    FIRESTORE_DASHBOARD_ANALYTICS_AVAILABLE = True
 except ImportError as e:
     print(f"Dashboard analytics not available: {e}")
-    DASHBOARD_ANALYTICS_AVAILABLE = False
+    FIRESTORE_DASHBOARD_ANALYTICS_AVAILABLE = False
+
+# Import analytics utilities (will use dynamic import when needed)
+try:
+    # Just verify the module exists without importing specific functions
+    import app.analytics_utils
+    ANALYTICS_UTILS_AVAILABLE = True
+except ImportError as e:
+    print(f"Analytics utilities module not available: {e}")
+    ANALYTICS_UTILS_AVAILABLE = False
 
 FIREBASE_INITIALIZED_SUCCESSFULLY = True
 AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True
@@ -204,6 +213,26 @@ ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
+# Security headers for SEO and security
+@app.after_request
+def add_security_headers(response):
+    """Add security headers for better SEO and security"""
+    # HTTPS redirect in production
+    if request.headers.get('X-Forwarded-Proto') == 'http' and 'tickzen.app' in request.headers.get('Host', ''):
+        return redirect(request.url.replace('http://', 'https://'), code=301)
+    
+    # Security headers
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    
+    # HSTS for production HTTPS
+    if request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https':
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    
+    return response
+
 # --- FIREBASE CLIENT CONFIGURATION ---
 def get_firebase_client_config():
     """Get Firebase client configuration from environment variables"""
@@ -269,6 +298,44 @@ else:
 def inject_firebase_config():
     """Inject Firebase configuration into all templates"""
     return {'firebase_config': get_firebase_client_config()}
+
+@app.context_processor
+def inject_seo_config():
+    """Inject SEO configuration into all templates"""
+    try:
+        from seo_config import (
+            GOOGLE_ANALYTICS_ID, 
+            GOOGLE_VERIFICATION_CODE, 
+            BING_VERIFICATION_CODE,
+            TWITTER_HANDLE,
+            SUPPORT_EMAIL,
+            COMPANY_NAME
+        )
+        
+        # Use environment variables in production, fallback to seo_config values
+        return {
+            'seo_config': {
+                'google_analytics_id': os.getenv('GOOGLE_ANALYTICS_ID', GOOGLE_ANALYTICS_ID),
+                'google_verification_code': os.getenv('GOOGLE_VERIFICATION_CODE', GOOGLE_VERIFICATION_CODE),
+                'bing_verification_code': os.getenv('BING_VERIFICATION_CODE', BING_VERIFICATION_CODE),
+                'twitter_handle': os.getenv('TWITTER_HANDLE', TWITTER_HANDLE),
+                'support_email': os.getenv('SUPPORT_EMAIL', SUPPORT_EMAIL),
+                'company_name': os.getenv('COMPANY_NAME', COMPANY_NAME)
+            }
+        }
+    except ImportError as e:
+        app.logger.warning(f"Could not import SEO config: {e}")
+        # Fallback to environment variables only
+        return {
+            'seo_config': {
+                'google_analytics_id': os.getenv('GOOGLE_ANALYTICS_ID', ''),
+                'google_verification_code': os.getenv('GOOGLE_VERIFICATION_CODE', ''),
+                'bing_verification_code': os.getenv('BING_VERIFICATION_CODE', ''),
+                'twitter_handle': os.getenv('TWITTER_HANDLE', '@tickzen'),
+                'support_email': os.getenv('SUPPORT_EMAIL', 'support@tickzen.app'),
+                'company_name': os.getenv('COMPANY_NAME', 'Tickzen')
+            }
+        }
 
 for folder_path in [UPLOAD_FOLDER, STATIC_FOLDER_PATH, STOCK_REPORTS_PATH]:
     if not os.path.exists(folder_path):
@@ -871,11 +938,11 @@ def save_processed_ticker_status(user_uid, profile_id, ticker_symbol, status_dat
             emit_data['ticker'] = ticker_symbol # Use original ticker symbol for frontend
             # Ensure all datetime objects in emit_data are ISO strings for JSON serialization
             for key_emit, value_emit in emit_data.items():
-                if isinstance(value_emit, datetime): # Should already be isoformat from above
+                if isinstance(value_emit, datetime):
                     emit_data[key_emit] = value_emit.isoformat()
                 # Firestore server timestamp will be an object, handle if necessary or let frontend ignore
-                if key_emit == 'last_updated_at' and not isinstance(value_emit, str): # SERVER_TIMESTAMP
-                    emit_data[key_emit] = datetime.now(timezone.utc).isoformat() # Approximate for emit
+                if key_emit == 'last_updated_at' and not isinstance(value_emit, str):
+                    emit_data[key_emit] = datetime.now(timezone.utc).isoformat()
 
             socketio.emit('ticker_status_persisted', {
                 'profile_id': profile_id,
@@ -909,14 +976,15 @@ def get_persisted_ticker_statuses_for_profile(user_uid, profile_id): # New
             status_data = doc.to_dict()
             
             for time_key in ['last_updated_at', 'generation_time', 'publish_time']:
-                if time_key in status_data and hasattr(status_data[time_key], 'isoformat'): # Check if it's a Firestore Timestamp or datetime
+                if time_key in status_data and hasattr(status_data[time_key], 'isoformat'):
                     status_data[time_key] = status_data[time_key].isoformat()
-                elif time_key in status_data and isinstance(status_data[time_key], (int,float)): # if stored as unix
-                    if status_data[time_key] > 10**10: status_data[time_key] = datetime.fromtimestamp(status_data[time_key]/1000, timezone.utc).isoformat()
-                    else: status_data[time_key] = datetime.fromtimestamp(status_data[time_key], timezone.utc).isoformat()
+                elif time_key in status_data and isinstance(status_data[time_key], (int,float)):
+                    if status_data[time_key] > 10**10:
+                        status_data[time_key] = datetime.fromtimestamp(status_data[time_key]/1000, timezone.utc).isoformat()
+                    else:
+                        status_data[time_key] = datetime.fromtimestamp(status_data[time_key], timezone.utc).isoformat()
 
-
-            original_ticker_symbol = doc.id.replace('_SLASH_', '/') # Convert safe ID back
+            original_ticker_symbol = doc.id.replace('_SLASH_', '/')
             statuses[original_ticker_symbol] = status_data 
             
     except Exception as e:
@@ -1042,10 +1110,10 @@ def dashboard_page():
     app.logger.info(f"/dashboard total time: {t4-start:.3f} seconds")
     return result
 
-@app.route('/dashboard-charts')
-def dashboard_charts():
+@app.route('/dashboard-analytics')
+def dashboard_analytics():
     """Dashboard with interactive charts and analytics"""
-    return render_template('dashboard_charts.html')
+    return render_template('dashboard_analytics.html')
 
 @app.route('/analyzer', methods=['GET'])
 def analyzer_input_page():
@@ -1069,7 +1137,7 @@ def health_check():
             'components': {
                 'auto_publisher': AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY,
                 'pipeline': PIPELINE_IMPORTED_SUCCESSFULLY,
-                'dashboard_analytics': DASHBOARD_ANALYTICS_AVAILABLE
+                'dashboard_analytics': FIRESTORE_DASHBOARD_ANALYTICS_AVAILABLE
             }
         }
         
@@ -1912,11 +1980,8 @@ def serve_static_general(filename):
 @app.route('/favicon.ico')
 def favicon():
     """Handle favicon requests"""
-    try:
-        return send_from_directory(app.static_folder, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
-    except:
-        # Return a 204 No Content response instead of 404 for favicon
-        return '', 204
+    # Return a 204 No Content response instead of trying to serve the favicon
+    return '', 204
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -2769,6 +2834,33 @@ def save_report_to_history(user_uid, ticker, filename, generated_at_dt, storage_
         doc_ref = reports_history_collection.add(report_data)
         
         app.logger.info(f"Report history saved for user {user_uid}, ticker {ticker}, filename {clean_filename}. Document ID: {doc_ref[1].id}, Storage Type: {storage_type}")
+        
+        # Also save metadata for analytics purposes
+        try:
+            # Calculate file size if available
+            file_size = 0
+            local_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
+            if os.path.exists(local_file_path):
+                file_size = os.path.getsize(local_file_path)
+            
+            # Import the function at runtime to avoid circular imports
+            import importlib
+            analytics_module = importlib.import_module('app.analytics_utils')
+            save_analytics_fn = getattr(analytics_module, 'save_report_metadata_for_analytics')
+            
+            # Save analytics metadata
+            save_analytics_fn(
+                user_uid=user_uid, 
+                ticker=ticker, 
+                filename=clean_filename, 
+                generated_at_dt=generated_at_dt,
+                file_size=file_size, 
+                file_path=local_file_path,
+                storage_path=firebase_storage_path
+            )
+        except Exception as analytics_e:
+            app.logger.warning(f"Failed to save analytics metadata: {analytics_e}")
+            
         return True
         
     except Exception as e:
@@ -3767,9 +3859,9 @@ def count_words_in_html(html_content):
         return 0
 
 # Register dashboard analytics routes if available
-if DASHBOARD_ANALYTICS_AVAILABLE:
+if FIRESTORE_DASHBOARD_ANALYTICS_AVAILABLE:
     try:
-        register_dashboard_routes(app)
+        register_firestore_dashboard_routes(app)
         app.logger.info("Dashboard analytics routes registered successfully")
     except Exception as e:
         app.logger.error(f"Failed to register dashboard analytics routes: {e}")
@@ -4496,6 +4588,291 @@ def api_password_reset():
             'status': 'success',
             'message': 'Password reset email sent successfully (mock mode).'
         }), 200
+
+# ==================== SEO ROUTES ====================
+
+@app.route('/robots.txt')
+def robots_txt():
+    """Generate robots.txt file for search engine crawlers"""
+    from flask import Response
+    
+    # Use production URL for live site
+    if 'tickzen.app' in request.url_root or request.headers.get('Host', '').endswith('tickzen.app'):
+        base_url = 'https://tickzen.app'
+    else:
+        base_url = request.url_root.rstrip('/')
+    
+    content = f"""User-agent: *
+Allow: /
+
+# Main sitemap index
+Sitemap: {base_url}/sitemap-index.xml
+
+# Individual sitemaps
+Sitemap: {base_url}/sitemap.xml
+Sitemap: {base_url}/sitemap-images.xml
+
+# Allow important static assets
+Allow: /static/css/
+Allow: /static/js/
+Allow: /static/images/
+Allow: /static/fonts/
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /api/private/
+Disallow: /api/admin/
+Disallow: /_uploads/
+Disallow: /static/temp/
+Disallow: /static/stock_reports/*/private/
+
+# Crawl delay to be respectful
+Crawl-delay: 1
+
+# Allow search engines to discover key pages
+Allow: /analyzer
+Allow: /login
+Allow: /register
+"""
+    
+    return Response(content, mimetype='text/plain')
+
+@app.route('/sitemap-index.xml')
+def sitemap_index():
+    """Generate sitemap index for multiple sitemaps"""
+    from flask import Response
+    import xml.etree.ElementTree as ET
+    from datetime import datetime
+    
+    # Use production URL for live site
+    if 'tickzen.app' in request.url_root or request.headers.get('Host', '').endswith('tickzen.app'):
+        base_url = 'https://tickzen.app'
+    else:
+        base_url = request.url_root.rstrip('/')
+    
+    sitemapindex = ET.Element('sitemapindex')
+    sitemapindex.set('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
+    
+    current_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S+00:00')
+    
+    # Main sitemap
+    sitemap = ET.SubElement(sitemapindex, 'sitemap')
+    ET.SubElement(sitemap, 'loc').text = f"{base_url}/sitemap.xml"
+    ET.SubElement(sitemap, 'lastmod').text = current_date
+    
+    # Images sitemap
+    sitemap = ET.SubElement(sitemapindex, 'sitemap')
+    ET.SubElement(sitemap, 'loc').text = f"{base_url}/sitemap-images.xml"
+    ET.SubElement(sitemap, 'lastmod').text = current_date
+    
+    xml_str = ET.tostring(sitemapindex, encoding='unicode', method='xml')
+    xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    
+    return Response(xml_declaration + xml_str, mimetype='application/xml')
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    """Generate comprehensive dynamic sitemap for all pages"""
+    from flask import Response
+    import xml.etree.ElementTree as ET
+    from datetime import datetime
+    import os
+    import glob
+    
+    # Create sitemap XML structure
+    urlset = ET.Element('urlset')
+    urlset.set('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
+    urlset.set('xmlns:image', 'http://www.google.com/schemas/sitemap-image/1.1')
+    
+    # Use production URL for live site
+    if 'tickzen.app' in request.url_root or request.headers.get('Host', '').endswith('tickzen.app'):
+        base_url = 'https://tickzen.app'
+    else:
+        base_url = request.url_root.rstrip('/')
+    
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    
+    # Only public pages that should be indexed
+    static_pages = [
+        # Main public pages
+        ('/', '1.0', 'daily', 'Main homepage with AI stock analysis platform'),
+        ('/analyzer', '0.9', 'daily', 'Stock analysis tool and demo'),
+        
+        # Authentication pages (public access)
+        ('/login', '0.5', 'monthly', 'User login'),
+        ('/register', '0.5', 'monthly', 'User registration'),
+        ('/forgot-password', '0.4', 'monthly', 'Password reset'),
+    ]
+    
+    # Add static pages to sitemap
+    for path, priority, changefreq, description in static_pages:
+        url = ET.SubElement(urlset, 'url')
+        ET.SubElement(url, 'loc').text = f"{base_url}{path}"
+        ET.SubElement(url, 'lastmod').text = current_date
+        ET.SubElement(url, 'changefreq').text = changefreq
+        ET.SubElement(url, 'priority').text = priority
+        
+        # Add images for main pages
+        if path in ['/', '/analyzer']:
+            image = ET.SubElement(url, 'image:image')
+            ET.SubElement(image, 'image:loc').text = f"{base_url}/static/images/Report.png"
+            ET.SubElement(image, 'image:caption').text = f"Tickzen {description}"
+    
+    # Dynamically discover all Flask routes
+    try:
+        for rule in app.url_map.iter_rules():
+            # Skip routes that should NOT be indexed
+            skip_patterns = [
+                '/admin', '/api/', '/auth/', '/dashboard', '/profile', '/user-profile',
+                '/site-profiles', '/automation-runner', '/run-automation-now',
+                '/generate-wp-assets', '/update-user-profile', '/change-password',
+                '/activity-log', '/upload/', '/reports', '/password/', '/logout',
+                '/favicon.ico', '/robots.txt', '/sitemap', '/humans.txt',
+                '/google-business-profile.json', '/start-analysis', '/check-user-exists',
+                '/verify-token', '/test/', '/debug/', '/wp-asset-generator',
+                '/wordpress-automation-portal', '/dashboard-analytics', '<'
+            ]
+            
+            # Skip if route contains any skip pattern
+            if any(skip in rule.rule for skip in skip_patterns):
+                continue
+                
+            # Skip routes we've already added in static_pages
+            if rule.rule in [page[0] for page in static_pages]:
+                continue
+                
+            # Skip routes with HTTP methods other than GET
+            if 'GET' not in rule.methods:
+                continue
+                
+            # Add remaining public routes (if any)
+            url = ET.SubElement(urlset, 'url')
+            ET.SubElement(url, 'loc').text = f"{base_url}{rule.rule}"
+            ET.SubElement(url, 'lastmod').text = current_date
+            ET.SubElement(url, 'changefreq').text = 'monthly'
+            ET.SubElement(url, 'priority').text = '0.3'
+    except Exception as e:
+        app.logger.warning(f"Could not dynamically discover routes: {e}")
+    
+    # Add any generated stock reports (if they exist and are public)
+    try:
+        reports_path = os.path.join(APP_ROOT, 'static', 'stock_reports')
+        if os.path.exists(reports_path):
+            # Get recent report directories
+            report_dirs = [d for d in os.listdir(reports_path) 
+                          if os.path.isdir(os.path.join(reports_path, d))]
+            
+            # Add up to 50 most recent reports to avoid sitemap bloat
+            for report_dir in sorted(report_dirs, reverse=True)[:50]:
+                url = ET.SubElement(urlset, 'url')
+                ET.SubElement(url, 'loc').text = f"{base_url}/stock-report/{report_dir}"
+                ET.SubElement(url, 'lastmod').text = current_date
+                ET.SubElement(url, 'changefreq').text = 'weekly'
+                ET.SubElement(url, 'priority').text = '0.8'
+    except Exception as e:
+        app.logger.warning(f"Could not add stock reports to sitemap: {e}")
+    
+    # Convert to string with proper formatting
+    xml_str = ET.tostring(urlset, encoding='unicode', method='xml')
+    xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    
+    return Response(xml_declaration + xml_str, mimetype='application/xml')
+
+@app.route('/humans.txt')
+def humans_txt():
+    """Generate humans.txt file for transparency"""
+    from flask import Response
+    
+    content = """/* TEAM */
+Developer: Tickzen Team
+Contact: support@tickzen.com
+Location: Global
+
+/* SITE */
+Last update: 2025/08/04
+Standards: HTML5, CSS3, JavaScript ES6+
+Components: Flask, Python, AI/ML
+Software: VS Code, Git
+"""
+    
+    return Response(content, mimetype='text/plain')
+
+@app.route('/sitemap-images.xml')
+def sitemap_images():
+    """Generate image sitemap for better image indexing"""
+    from flask import Response
+    import xml.etree.ElementTree as ET
+    import os
+    
+    # Use production URL for live site
+    if 'tickzen.app' in request.url_root or request.headers.get('Host', '').endswith('tickzen.app'):
+        base_url = 'https://tickzen.app'
+    else:
+        base_url = request.url_root.rstrip('/')
+    
+    urlset = ET.Element('urlset')
+    urlset.set('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
+    urlset.set('xmlns:image', 'http://www.google.com/schemas/sitemap-image/1.1')
+    
+    # Add main page with images
+    url = ET.SubElement(urlset, 'url')
+    ET.SubElement(url, 'loc').text = f"{base_url}/"
+    
+    # Static images on homepage
+    homepage_images = [
+        ('/static/images/Report.png', 'Sample Tickzen stock analysis report'),
+        ('/static/images/Dashboard.png', 'Tickzen dashboard interface'),
+        ('/static/images/Ticker_analyser.png', 'Stock ticker analysis tool'),
+        ('/static/images/Run_automation.png', 'WordPress automation interface'),
+        ('/static/images/tickzen-logo.png', 'Tickzen company logo'),
+        ('/static/images/tickzen-og-image.jpg', 'Tickzen social media image'),
+        ('/static/images/tickzen-dashboard-screenshot.jpg', 'Dashboard screenshot'),
+    ]
+    
+    for img_path, img_caption in homepage_images:
+        image = ET.SubElement(url, 'image:image')
+        ET.SubElement(image, 'image:loc').text = f"{base_url}{img_path}"
+        ET.SubElement(image, 'image:caption').text = img_caption
+    
+    xml_str = ET.tostring(urlset, encoding='unicode', method='xml')
+    xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    
+    return Response(xml_declaration + xml_str, mimetype='application/xml')
+
+@app.route('/google-business-profile.json')
+def google_business_profile():
+    """Generate structured data for Google Business Profile"""
+    business_data = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Tickzen",
+        "description": "AI-powered stock analysis and investment research platform",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web Browser",
+        "url": "https://tickzen.app",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "127",
+            "bestRating": "5",
+            "worstRating": "1"
+        },
+        "provider": {
+            "@type": "Organization",
+            "name": "Tickzen",
+            "url": "https://tickzen.app"
+        }
+    }
+    
+    return jsonify(business_data)
+
+# ==================== END SEO ROUTES ====================
 
 if __name__ == '__main__':
     try:

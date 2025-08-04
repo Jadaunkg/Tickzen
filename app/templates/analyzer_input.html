@@ -1,8 +1,52 @@
 {% extends "_base.html" %}
 
-{% block title %}AI Stock Analysis - Input{% endblock %}
+{% block title %}Free AI Stock Analyzer | Price Predictions & Analysis | Tickzen{% endblock %}
 
 {% block head_extra %}
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Use our free AI stock analyzer to get comprehensive stock analysis, price predictions, and investment insights. Enter any ticker symbol for instant professional financial analysis and forecasts.">
+    <meta name="keywords" content="stock analyzer, free stock analysis, AI stock predictions, stock research tool, investment analysis, ticker analysis, stock forecasting">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tickzen.app/analyzer">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="AI Stock Analyzer - Free Stock Analysis Tool | Tickzen">
+    <meta property="og:description" content="Get comprehensive AI-powered stock analysis for any ticker. Free professional financial reports with price predictions and investment insights.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tickzen.app/analyzer">
+    <meta property="og:image" content="https://tickzen.app/static/images/stock-analyzer-og.jpg">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI Stock Analyzer - Free Stock Analysis Tool">
+    <meta name="twitter:description" content="Get comprehensive AI-powered stock analysis for any ticker. Free professional financial reports with price predictions.">
+    <meta name="twitter:image" content="https://tickzen.app/static/images/stock-analyzer-twitter.jpg">
+    
+    <!-- Structured Data for Tool -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Tickzen Stock Analyzer",
+        "description": "Free AI-powered stock analysis tool providing comprehensive financial reports and price predictions",
+        "url": "https://tickzen.app/analyzer",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "AI Stock Price Predictions",
+            "Technical Analysis with Indicators",
+            "Fundamental Analysis",
+            "Risk Assessment",
+            "Investment Recommendations"
+        ]
+    }
+    </script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     /* Ensure all your existing CSS for this page is here */

@@ -4,6 +4,7 @@ __pycache__/
 *.pyo
 *.pyd
 testsprite_tests
+z_next_process
 
 # Virtual environments
 venv/

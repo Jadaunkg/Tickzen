@@ -3,12 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Tickzen{% endblock %}</title>
+    <title>{% block title %}Tickzen - AI Stock Analysis Platform{% endblock %}</title>
+    
+    <!-- Global SEO Meta Tags -->
+    <meta name="generator" content="Flask 2.3">
+    <meta name="theme-color" content="#16a34a">
+    <meta name="msapplication-TileColor" content="#16a34a">
+    
+    <!-- Favicon / Site Icon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/site icon 40x.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/site icon 40x.png') }}">
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
+    
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth-styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-optimized.css') }}">
+    
+    <!-- SEO Configuration -->
+    {% include '_seo_head.html' %}
+    
     {% block head_extra %}{% endblock %}
     <style>
         :root {
@@ -94,22 +120,34 @@
             align-items: center;
         }
         .navbar-brand { 
-            font-size: 1.8em; 
+            font-size: 1.6em; 
             font-weight: 800; 
             color: var(--primary); 
             text-decoration: none; 
             display: flex; 
             align-items: center; 
+            transition: all 0.3s ease;
             letter-spacing: -0.02em;
             background: linear-gradient(135deg, var(--primary), #22c55e);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        .navbar-brand img {
+            max-height: 44px;
+            width: auto;
             transition: all 0.3s ease;
+        }
+        .site-icon {
+            margin-right: 4px; /* Reduced gap between icon and text */
+            vertical-align: middle;
         }
         .navbar-brand:hover {
             transform: translateY(-1px);
+        }
+        .navbar-brand:hover img {
             filter: brightness(1.1);
+            transform: scale(1.05);
         }
         .navbar-toggler { display: none; font-size: 1.5rem; background: none; border: none; color: #333; cursor: pointer; z-index: 1002; }
         .navbar-nav { list-style: none; padding: 0; margin: 0; display: flex; align-items: center; }
@@ -476,10 +514,12 @@
                 <div class="navbar-left">
                     {% if is_user_logged_in %}
                         <a href="{{ url_for('dashboard_page') }}" class="navbar-brand">
+                            <img src="{{ url_for('static', filename='images/site icon 40x.png') }}" alt="Tickzen Icon" height="40" class="site-icon">
                             Tickzen
                         </a>
                     {% else %}
                         <a href="{{ url_for('stock_analysis_homepage_route') }}" class="navbar-brand">
+                            <img src="{{ url_for('static', filename='images/site icon 40x.png') }}" alt="Tickzen Icon" height="40" class="site-icon">
                             Tickzen
                         </a>
                     {% endif %}
@@ -972,8 +1012,9 @@
 
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <!-- Firebase SDK - updated to latest stable version with CSP-compatible sources -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     
     <!-- Firebase Configuration from Environment Variables -->
     <script>

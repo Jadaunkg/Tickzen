@@ -1,8 +1,13 @@
 {% extends "_base.html" %}
 
-{% block title %}Run Automation Dashboard{% endblock %}
+{% block title %}Run Stock Analysis Automation | WordPress Publishing | Tickzen{% endblock %}
 
 {% block head_extra %}
+    <!-- Private automation page - no indexing -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Private automation dashboard for Tickzen users to run WordPress automation tasks.">
+    <link rel="canonical" href="https://tickzen.app/automation-runner">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {

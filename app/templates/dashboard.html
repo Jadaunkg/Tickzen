@@ -1,8 +1,19 @@
 {% extends "_base.html" %}
 
-{% block title %}Dashboard - Tickzen{% endblock %}
+{% block title %} Your Stock Analysis Dashboard | AI Investment Tools | Tickzen{% endblock %}
 
 {% block head_extra %}
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Access your personalized Tickzen dashboard with AI stock analysis tools, portfolio tracking, automated reports, and comprehensive investment research capabilities.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://tickzen.app/dashboard">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Dashboard - AI Stock Analysis Tools | Tickzen">
+    <meta property="og:description" content="Your personalized investment research dashboard with AI-powered stock analysis tools and portfolio tracking.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tickzen.app/dashboard">
+    
 <style>
     .dashboard-container {
         max-width: 1200px;
@@ -352,7 +363,7 @@
                 <div class="tool-card-icon"><i class="fas fa-chart-line"></i></div>
                 <h3>Dashboard Analytics</h3>
                 <p class="tool-description">View interactive charts and analytics for your reports, including trends over time, most analyzed tickers, and publishing status.</p>
-                <a href="{{ url_for('dashboard_charts') }}" class="btn btn-primary btn-launch-tool">View Analytics</a>
+                <a href="{{ url_for('dashboard_analytics') }}" class="btn btn-primary btn-launch-tool">View Analytics</a>
             </div>
             
             <div class="tool-card">

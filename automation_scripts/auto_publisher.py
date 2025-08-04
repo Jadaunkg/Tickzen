@@ -17,6 +17,13 @@ import json
 import io
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+# Import Firestore state manager
+try:
+    from automation_scripts.firestore_state_manager import firestore_state_manager
+    FIRESTORE_STATE_AVAILABLE = True
+except ImportError:
+    FIRESTORE_STATE_AVAILABLE = False
+
 # --- START: Firebase Admin Storage Import (Conceptual) ---
 try:
     from firebase_admin import storage 
@@ -146,6 +153,18 @@ def load_state(user_uid=None, current_profile_ids_from_run=None):
             if profile.get("profile_id"):
                 active_profile_ids.add(str(profile.get("profile_id")))
 
+    # Use Firestore state management if available and user_uid is provided
+    if FIRESTORE_STATE_AVAILABLE and user_uid:
+        app_logger.info(f"Using Firestore state management for user {user_uid}")
+        state = firestore_state_manager.load_state_from_firestore(
+            user_uid, 
+            profile_ids=list(active_profile_ids)
+        )
+        return state
+    
+    # Fall back to pickle file state if Firestore is unavailable or no user_uid provided
+    app_logger.info("Using local pickle file state management (Firestore unavailable or no user_uid provided)")
+    
     default_factories = {
         'pending_tickers_by_profile': list, 'failed_tickers_by_profile': list,
         'last_successful_schedule_time_by_profile': lambda: None,
@@ -169,7 +188,6 @@ def load_state(user_uid=None, current_profile_ids_from_run=None):
                         if key == 'processed_tickers_detailed_log_by_profile' and not isinstance(state[key].get(str(pid)), list):
                             state[key][str(pid)] = []
 
-
             if current_profile_ids_from_run is None:
                 for key in default_factories.keys():
                     if key in state:
@@ -191,22 +209,39 @@ def load_state(user_uid=None, current_profile_ids_from_run=None):
             return state
         except Exception as e:
             app_logger.warning(f"Could not load/process state file '{STATE_FILE}': {e}. Using default.", exc_info=True)
-    save_state(default_state)
+    save_state(default_state, user_uid=user_uid)
     return default_state
 
-def save_state(state):
+def save_state(state, user_uid=None):
+    """
+    Save the state to either Firestore (if user_uid provided and Firestore available)
+    or to local pickle file as fallback
+    """
     try:
         if 'processed_tickers_detailed_log_by_profile' in state:
             for profile_id, log_list in state['processed_tickers_detailed_log_by_profile'].items():
                 if not isinstance(log_list, list):
                     app_logger.warning(f"Correcting processed_tickers_detailed_log_by_profile for {profile_id} to be a list before saving.")
                     state['processed_tickers_detailed_log_by_profile'][profile_id] = []
-
-        os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
-        with open(STATE_FILE, 'wb') as f: pickle.dump(state, f)
-        app_logger.info(f"Saved state to {STATE_FILE}")
+        
+        # Use Firestore state management if available and user_uid is provided
+        if FIRESTORE_STATE_AVAILABLE and user_uid:
+            success = firestore_state_manager.save_state_to_firestore(user_uid, state)
+            if success:
+                app_logger.info(f"Saved state to Firestore for user {user_uid}")
+            else:
+                app_logger.error(f"Failed to save state to Firestore for user {user_uid}, falling back to pickle file")
+                # Fall back to pickle file if Firestore save fails
+                os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
+                with open(STATE_FILE, 'wb') as f: pickle.dump(state, f)
+                app_logger.info(f"Saved state to {STATE_FILE} (fallback)")
+        else:
+            # Use pickle file if Firestore is unavailable or no user_uid provided
+            os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
+            with open(STATE_FILE, 'wb') as f: pickle.dump(state, f)
+            app_logger.info(f"Saved state to {STATE_FILE}")
     except Exception as e:
-        app_logger.error(f"Could not save state to {STATE_FILE}: {e}", exc_info=True)
+        app_logger.error(f"Could not save state: {e}", exc_info=True)
 
 def generate_feature_image(headline_text, site_display_name_for_wm, profile_config_entry, output_path, ticker="N/A"):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -878,7 +913,7 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                                 state['last_processed_ticker_index_by_profile'] = {}
                             # The index in all_tickers is last_processed_index + i + 1 (i is loop index in tickers_for_this_profile_run)
                             state['last_processed_ticker_index_by_profile'][profile_id] = last_processed_index + i + 1
-                            save_state(state)
+                            save_state(state, user_uid=user_uid)
                     else:
                         error_message_for_log = f"WordPress post creation failed for {ticker_to_process}."
                         _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Publishing", "Failed", error_message_for_log, "error")
@@ -964,7 +999,7 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
         run_results_summary[profile_id] = {"profile_name": profile_name, "status_summary": summary_msg, "tickers_processed": current_run_detailed_logs_for_profile}
         _active_runs[user_uid][profile_id]["active"] = False
 
-    save_state(state)
+    save_state(state, user_uid=user_uid)
     _emit_automation_progress(socketio_instance, user_room, "Overall", "N/A", "Completion", "Run Finished", "All selected profiles processed.", "success")
     if user_uid in _active_runs and all(not info.get("active", False) for info in _active_runs[user_uid].values()):
         del _active_runs[user_uid]

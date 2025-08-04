@@ -15,11 +15,27 @@ document.addEventListener('DOMContentLoaded', function() {
             appId: "1:623825735657:web:ea56f7a1d2193d0e9bc578"
         };
         
+        // Debug: Log Firebase config details
+        console.log("Firebase config debug:", {
+            hasWindowConfig: !!window.firebaseConfig,
+            apiKey: firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 10)}...` : 'MISSING',
+            projectId: firebaseConfig.projectId || 'MISSING',
+            configSource: window.firebaseConfig ? 'environment' : 'fallback'
+        });
+        
+        // Check if Firebase config is properly set (not empty)
+        const hasValidConfig = firebaseConfig.apiKey && firebaseConfig.projectId && 
+                              firebaseConfig.apiKey !== '' && firebaseConfig.projectId !== '';
+        
         // Log configuration source for debugging
-        if (window.firebaseConfig) {
-            console.log("Using Firebase config from environment variables");
+        if (window.firebaseConfig && hasValidConfig) {
+            console.log("✅ Using Firebase config from environment variables");
+        } else if (hasValidConfig) {
+            console.warn("⚠️ Using fallback Firebase config - environment variables not available");
         } else {
-            console.warn("Using fallback Firebase config - environment variables not available");
+            console.error("❌ Firebase configuration is incomplete - authentication will be disabled");
+            displayAuthMessage("Firebase configuration incomplete. Authentication features disabled.", "warning", true);
+            return; // Exit early if config is incomplete
         }
         // --- END: Firebase Configuration ---
 
@@ -32,14 +48,18 @@ document.addEventListener('DOMContentLoaded', function() {
             if (typeof firebase.auth === 'function') {
                 auth = firebase.auth(); // Initialize auth
                 console.log("Firebase App and Auth initialized successfully.");
+                
+                // Hide any existing warning messages since Firebase loaded successfully
+                hideGlobalWarningMessage();
+                
             } else {
                 console.error("Firebase Auth SDK not loaded or firebase.auth is not a function.");
-                displayAuthMessage("Critical error: Firebase Auth services are unavailable.", "error", true); // true for global error
+                displayAuthMessage("Firebase Auth services unavailable - using fallback authentication.", "warning", true);
                 return; // Stop if auth isn't available
             }
         } else {
-            console.error("Firebase SDK (app) not loaded correctly before firebase-init.js.");
-            displayAuthMessage("Critical error: Core Firebase services are unavailable.", "error", true); // true for global error
+            console.error("Firebase SDK not loaded correctly. Check your internet connection and try refreshing.");
+            displayAuthMessage("Firebase services unavailable - authentication features disabled.", "warning", true);
             return; 
         }
 
@@ -101,6 +121,15 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 if (successDiv) { successDiv.textContent = message; successDiv.style.display = 'block'; }
                 if (errorDiv) errorDiv.style.display = 'none';
+            }
+        }
+
+        // Function to hide global warning messages when Firebase loads successfully
+        function hideGlobalWarningMessage() {
+            const globalMsgDiv = document.getElementById('firebase-critical-error-global');
+            if (globalMsgDiv) {
+                globalMsgDiv.style.display = 'none';
+                console.log("Hidden Firebase warning message - services are now available.");
             }
         }
 

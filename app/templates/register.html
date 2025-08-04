@@ -1,12 +1,48 @@
 {% extends "_base.html" %}
 
-{% block title %}Register - WP Automator{% endblock %}
+{% block title %} Create Your Tickzen Account | Free AI Stock Analysis & Predictions{% endblock %}
 
 {% block body_class %}register-page{% endblock %}
 
 {% block head_extra %}
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Create your free Tickzen account to access AI-powered stock analysis, price predictions, and professional investment research tools. Join thousands of investors using our platform.">
+    <meta name="keywords" content="register Tickzen, free stock analysis account, AI investment platform signup, stock research registration">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tickzen.app/register">
     
-    {% endblock %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Register - Create Free Tickzen Account">
+    <meta property="og:description" content="Join Tickzen for free AI-powered stock analysis, price predictions, and professional investment research tools.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tickzen.app/register">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Register - Create Free Tickzen Account">
+    <meta name="twitter:description" content="Join Tickzen for free AI-powered stock analysis and investment research tools.">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Register for Tickzen",
+        "description": "Create a free account to access AI-powered stock analysis tools",
+        "url": "https://tickzen.app/register",
+        "mainEntity": {
+            "@type": "Organization",
+            "name": "Tickzen",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD",
+                "description": "Free AI stock analysis platform"
+            }
+        }
+    }
+    </script>
+{% endblock %}
 
 
 {% block content %}

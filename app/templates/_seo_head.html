@@ -1,0 +1,99 @@
+<!-- SEO Head Configuration -->
+<!-- Meta tags for search engines -->
+<meta name="author" content="{{ seo_config.company_name }}">
+<meta name="robots" content="index, follow">
+<meta name="language" content="English">
+
+<!-- Google Site Verification -->
+{% if seo_config.google_verification_code and seo_config.google_verification_code != 'YOUR_GOOGLE_VERIFICATION_CODE' %}
+<meta name="google-site-verification" content="{{ seo_config.google_verification_code }}">
+{% endif %}
+
+<!-- Bing Site Verification -->
+{% if seo_config.bing_verification_code and seo_config.bing_verification_code != 'YOUR_BING_VERIFICATION_CODE' %}
+<meta name="msvalidate.01" content="{{ seo_config.bing_verification_code }}">
+{% endif %}
+
+<!-- Open Graph meta tags for social sharing -->
+<meta property="og:site_name" content="{{ seo_config.company_name }}">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter Card meta tags -->
+<meta name="twitter:card" content="summary_large_image">
+{% if seo_config.twitter_handle %}
+<meta name="twitter:site" content="{{ seo_config.twitter_handle }}">
+<meta name="twitter:creator" content="{{ seo_config.twitter_handle }}">
+{% endif %}
+
+<!-- Contact Information -->
+{% if seo_config.support_email %}
+<meta name="contact" content="{{ seo_config.support_email }}">
+{% endif %}
+
+<!-- Google Analytics 4 (GA4) -->
+{% if seo_config.google_analytics_id and seo_config.google_analytics_id != 'GA_MEASUREMENT_ID' %}
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ seo_config.google_analytics_id }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{{ seo_config.google_analytics_id }}', {
+    page_title: '{{ title or "Tickzen - AI Stock Analysis" }}',
+    custom_map: {'dimension1': 'user_type'}
+  });
+</script>
+{% endif %}
+
+<!-- DNS prefetch for performance -->
+<link rel="dns-prefetch" href="//fonts.googleapis.com">
+<link rel="dns-prefetch" href="//fonts.gstatic.com">
+<link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+{% if seo_config.google_analytics_id and seo_config.google_analytics_id != 'GA_MEASUREMENT_ID' %}
+<link rel="dns-prefetch" href="//www.googletagmanager.com">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+{% endif %}
+
+<!-- Preconnect to external domains -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- Structured Data - Organization -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "{{ seo_config.company_name }}",
+  "url": "{{ request.url_root.rstrip('/') }}",
+  "description": "AI-powered stock analysis and investment research platform providing comprehensive financial reports and market predictions.",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "{{ seo_config.support_email }}",
+    "contactType": "customer service",
+    "availableLanguage": "English"
+  },
+  "sameAs": [
+    {% if seo_config.twitter_handle %}"https://twitter.com/{{ seo_config.twitter_handle.lstrip('@') }}"{% endif %}
+  ]
+}
+</script>
+
+<!-- Structured Data - WebSite -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "{{ seo_config.company_name }}",
+  "url": "{{ request.url_root.rstrip('/') }}",
+  "description": "Professional stock analysis and AI-powered investment research platform",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "{{ request.url_root.rstrip('/') }}/search?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>

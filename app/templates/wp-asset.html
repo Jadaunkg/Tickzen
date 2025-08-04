@@ -1,8 +1,13 @@
 {% extends "_base.html" %}
 
-{% block title %}WordPress Asset Generator - Tickzen{% endblock %}
+{% block title %}AI WordPress Content Generator | Tickzen Publishing Tools{% endblock %}
 
 {% block head_extra %}
+    <!-- Private tool page - no indexing -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Private WordPress asset generator tool for Tickzen users to create content for their sites.">
+    <link rel="canonical" href="https://tickzen.app/wp-asset-generator">
+    
 <style>
     .wp-asset-page-container {
         max-width: 960px;

@@ -1,6 +1,13 @@
 {% extends "_base.html" %}
 
-{% block title %}Your Profile - Tickzen{% endblock %}
+{% block title %}Manage Your Tickzen Profile | Account Settings{% endblock %}
+
+{% block head_extra %}
+    <!-- Private page - no indexing -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Private user profile page for Tickzen account management and settings.">
+    <link rel="canonical" href="https://tickzen.app/user-profile">
+{% endblock %}
 
 {% block content %}
 <div class="profile-bg-green mt-4" style="margin-top: 2rem !important;">
