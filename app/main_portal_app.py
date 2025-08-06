@@ -21,6 +21,8 @@ import urllib.parse
 from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import firestore, auth as firebase_auth
+from config.firebase_admin_setup import get_firestore_client
+from app.market_news import market_news_bp
 
 # Apply startup optimizations before heavy imports
 try:
@@ -213,6 +215,11 @@ ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
+# Register blueprints
+from app.info_routes import info_bp
+app.register_blueprint(info_bp, url_prefix='/info')
+app.register_blueprint(market_news_bp)
+
 # Security headers for SEO and security
 @app.after_request
 def add_security_headers(response):
@@ -298,6 +305,11 @@ else:
 def inject_firebase_config():
     """Inject Firebase configuration into all templates"""
     return {'firebase_config': get_firebase_client_config()}
+
+@app.context_processor
+def inject_date():
+    """Inject the current date into all templates"""
+    return {'now': datetime.now()}
 
 @app.context_processor
 def inject_seo_config():
@@ -1451,16 +1463,110 @@ def admin_panel():
             'uptime': 'N/A'  # You could track this with app startup time
         }
         
+        # Get contact form submissions
+        db = get_firestore_client()
+        contact_submissions_ref = db.collection('contact_submissions')
+        contact_submissions = []
+        
+        # Get latest 10 submissions ordered by timestamp (newest first)
+        try:
+            submissions = contact_submissions_ref.order_by('timestamp', direction='DESCENDING').limit(10).stream()
+            for doc in submissions:
+                contact_submissions.append(doc.to_dict())
+        except Exception as ce:
+            app.logger.error(f"Error fetching contact submissions: {ce}", exc_info=True)
+        
+        # Get admin notifications
+        admin_notifications = []
+        try:
+            notifications_ref = db.collection('admin_notifications').order_by('timestamp', direction='DESCENDING').limit(10).stream()
+            for doc in notifications_ref:
+                admin_notifications.append(doc.to_dict())
+        except Exception as ne:
+            app.logger.error(f"Error fetching admin notifications: {ne}", exc_info=True)
+        
         return render_template('admin/admin_dashboard.html',
                              title="Admin Dashboard - Tickzen",
                              analytics=analytics,
                              recent_errors=recent_errors,
-                             system_status=system_status)
+                             system_status=system_status,
+                             contact_submissions=contact_submissions,
+                             admin_notifications=admin_notifications)
         
     except Exception as e:
         app.logger.error(f"Error in admin panel: {e}", exc_info=True)
         flash("Error loading admin dashboard. Please try again.", "danger")
         return redirect(url_for('dashboard_page'))
+
+@app.route('/api/admin/contact/list')
+@admin_required
+def list_contact_submissions():
+    """Get list of contact form submissions"""
+    try:
+        db = get_firestore_client()
+        contact_submissions = []
+        
+        # Get latest submissions ordered by timestamp (newest first)
+        submissions = db.collection('contact_submissions').order_by('timestamp', direction='DESCENDING').limit(20).stream()
+        for doc in submissions:
+            contact_submissions.append(doc.to_dict())
+            
+        return jsonify({
+            'success': True, 
+            'submissions': contact_submissions
+        }), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error listing contact submissions: {e}", exc_info=True)
+        return jsonify({
+            'success': False, 
+            'error': 'Failed to retrieve contact submissions'
+        }), 500
+
+@app.route('/api/admin/contact/mark-read', methods=['POST'])
+@admin_required
+def mark_contact_submission_read():
+    """Mark a contact form submission as read"""
+    try:
+        submission_id = request.json.get('id')
+        if not submission_id:
+            return jsonify({'success': False, 'error': 'Missing submission ID'}), 400
+            
+        db = get_firestore_client()
+        db.collection('contact_submissions').document(submission_id).update({
+            'read': True
+        })
+        
+        return jsonify({'success': True}), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error marking contact submission as read: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Failed to update contact submission'}), 500
+
+@app.route('/api/admin/contact/update-status', methods=['POST'])
+@admin_required
+def update_contact_submission_status():
+    """Update the status of a contact form submission"""
+    try:
+        submission_id = request.json.get('id')
+        status = request.json.get('status')
+        
+        if not submission_id or not status:
+            return jsonify({'success': False, 'error': 'Missing submission ID or status'}), 400
+            
+        if status not in ['new', 'pending', 'resolved']:
+            return jsonify({'success': False, 'error': 'Invalid status value'}), 400
+            
+        db = get_firestore_client()
+        db.collection('contact_submissions').document(submission_id).update({
+            'status': status
+        })
+        
+        return jsonify({'success': True}), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error updating contact submission status: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': 'Failed to update contact submission status'}), 500
 
 @app.route('/admin/migrate-reports-to-storage')
 @admin_required

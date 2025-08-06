@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import os
 
 # List of tickers; you can later add more.
 TICKERS = ["PEP"]  # e.g., ["AAPL", "GOOGL", "MSFT"]

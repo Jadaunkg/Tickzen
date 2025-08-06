@@ -456,6 +456,175 @@
             grid-template-columns: 1fr;
         }
     }
+    
+    /* Contact submissions styling */
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-new {
+        background-color: #e9f5ff;
+        color: #0c63e4;
+    }
+    
+    .status-resolved {
+        background-color: #e6f6ee;
+        color: #10b981;
+    }
+    
+    .status-pending {
+        background-color: #fff8e6;
+        color: #f59e0b;
+    }
+    
+    .unread-row {
+        background-color: #f0f7ff !important;
+        font-weight: 600;
+    }
+    
+    .admin-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+    }
+    
+    .admin-modal-content {
+        background-color: #fff;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .admin-modal-header {
+        padding: 15px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .admin-modal-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+    
+    .admin-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+    }
+    
+    .admin-modal-body {
+        padding: 15px;
+    }
+    
+    .admin-modal-footer {
+        padding: 15px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    
+    .message-info {
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .message-content {
+        background-color: #f9fafb;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .message-content h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1rem;
+    }
+    
+    .message-content p {
+        white-space: pre-line;
+    }
+    
+    .action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        margin: 0 2px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    
+    .view-message-btn {
+        color: #6366f1;
+    }
+    
+    .view-message-btn:hover {
+        background-color: #e0e7ff;
+    }
+    
+    .mark-btn {
+        color: #10b981;
+    }
+    
+    .mark-btn:hover {
+        background-color: #d1fae5;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: 10px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .admin-table th {
+        background-color: #f1f5f9;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+    
+    .admin-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+    
+    .no-data {
+        text-align: center;
+        padding: 20px;
+        color: var(--secondary-color);
+        font-style: italic;
+    }
 </style>
 {% endblock %}
 
@@ -539,6 +708,62 @@
                             <span>Issues Detected</span>
                         {% endif %}
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form Submissions Section -->
+        <div class="admin-section">
+            <div class="section-title">
+                <i class="fas fa-envelope"></i> Contact Form Submissions
+            </div>
+            <div class="section-content">
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contactSubmissionsTable">
+                            {% if contact_submissions %}
+                                {% for submission in contact_submissions %}
+                                <tr data-id="{{ submission.id }}" class="{% if not submission.read %}unread-row{% endif %}">
+                                    <td>{{ submission.timestamp }}</td>
+                                    <td>{{ submission.name }}</td>
+                                    <td><a href="mailto:{{ submission.email }}">{{ submission.email }}</a></td>
+                                    <td>{{ submission.subject }}</td>
+                                    <td>
+                                        <span class="status-badge status-{{ submission.status }}">
+                                            {{ submission.status|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="action-btn view-message-btn" 
+                                                onclick="viewContactMessage('{{ submission.id }}', '{{ submission.name|escape }}', 
+                                                '{{ submission.email|escape }}', '{{ submission.subject|escape }}',
+                                                '{{ submission.message|escape }}', '{{ submission.timestamp }}')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn mark-btn" 
+                                                onclick="updateContactStatus('{{ submission.id }}', 'resolved')">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="no-data">No contact form submissions yet</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -915,5 +1140,127 @@ setInterval(() => {
     const now = new Date();
     lastUpdated.textContent = now.toISOString().slice(0, 19);
 }, 60000); // 1 minute
+
+// Contact form submissions functionality
+function viewContactMessage(id, name, email, subject, message, timestamp) {
+    // Create a modal to display the message
+    const modal = document.createElement('div');
+    modal.className = 'admin-modal';
+    modal.innerHTML = `
+        <div class="admin-modal-content">
+            <div class="admin-modal-header">
+                <h3>Message from ${name}</h3>
+                <button class="admin-modal-close">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="message-info">
+                    <p><strong>From:</strong> ${name} (${email})</p>
+                    <p><strong>Subject:</strong> ${subject}</p>
+                    <p><strong>Date:</strong> ${timestamp}</p>
+                </div>
+                <div class="message-content">
+                    <h4>Message:</h4>
+                    <p>${message}</p>
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button class="btn btn-primary" onclick="replyToMessage('${email}', '${subject}')">Reply via Email</button>
+                <button class="btn btn-success" onclick="updateContactStatus('${id}', 'resolved')">Mark as Resolved</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Mark as read in Firestore
+    fetch('/api/admin/contact/mark-read', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelector(`tr[data-id="${id}"]`).classList.remove('unread-row');
+        }
+    })
+    .catch(error => console.error('Error marking message as read:', error));
+    
+    // Close modal functionality
+    modal.querySelector('.admin-modal-close').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+}
+
+function replyToMessage(email, subject) {
+    const mailtoLink = `mailto:${email}?subject=Re: ${subject}`;
+    window.open(mailtoLink);
+}
+
+function updateContactStatus(id, status) {
+    fetch('/api/admin/contact/update-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id, status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const statusCell = document.querySelector(`tr[data-id="${id}"] .status-badge`);
+            statusCell.className = `status-badge status-${status}`;
+            statusCell.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        }
+    })
+    .catch(error => console.error('Error updating status:', error));
+}
+
+function refreshContactSubmissions() {
+    fetch('/api/admin/contact/list')
+    .then(response => response.json())
+    .then(data => {
+        const tableBody = document.getElementById('contactSubmissionsTable');
+        tableBody.innerHTML = '';
+        
+        if (data.submissions && data.submissions.length > 0) {
+            data.submissions.forEach(sub => {
+                const row = document.createElement('tr');
+                row.dataset.id = sub.id;
+                if (!sub.read) row.classList.add('unread-row');
+                
+                row.innerHTML = `
+                    <td>${sub.timestamp}</td>
+                    <td>${sub.name}</td>
+                    <td><a href="mailto:${sub.email}">${sub.email}</a></td>
+                    <td>${sub.subject}</td>
+                    <td>
+                        <span class="status-badge status-${sub.status}">
+                            ${sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn view-message-btn" 
+                                onclick="viewContactMessage(\`\${sub.id}\`, \`\${sub.name}\`, 
+                                \`\${sub.email}\`, \`\${sub.subject}\`,
+                                \`\${sub.message}\`, \`\${sub.timestamp}\`)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn mark-btn" 
+                                onclick="updateContactStatus(\`\${sub.id}\`, 'resolved')">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } else {
+            tableBody.innerHTML = '<tr><td colspan="6" class="no-data">No contact form submissions yet</td></tr>';
+        }
+    })
+        .catch(error => console.error('Error refreshing contact submissions:', error));
+    }
+    </script>
 </script>
 {% endblock %}

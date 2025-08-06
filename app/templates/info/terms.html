@@ -1,0 +1,372 @@
+{% extends "_base.html" %}
+
+{% block title %}Terms of Service | Tickzen - AI Powered Stock Analysis Platform{% endblock %}
+
+{% block head_extra %}
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Terms of Service for Tickzen's AI-powered stock analysis platform. Review the terms and conditions for using our investment research tools.">
+    <meta name="keywords" content="terms of service, terms and conditions, Tickzen terms, financial platform terms">
+    <meta property="og:title" content="Terms of Service | Tickzen">
+    <meta property="og:description" content="Review the terms and conditions for using Tickzen's AI-powered stock analysis platform.">
+    <meta property="og:url" content="https://tickzen.app/terms-of-service">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Terms of Service | Tickzen">
+    <meta name="twitter:description" content="Review the terms and conditions for using Tickzen's AI-powered stock analysis platform.">
+
+    <style>
+        /* Terms of Service page specific styles */
+        :root {
+            --primary-color: #10B981; /* Green color */
+            --primary-rgb: 16, 185, 129; /* RGB values for green */
+        }
+        .terms-section {
+            padding: 80px 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .terms-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .terms-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-color, #10B981) 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .terms-header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .terms-content {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+        }
+        .terms-content h2 {
+            font-size: 1.8rem;
+            margin: 30px 0 20px;
+            color: var(--text-color);
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(var(--primary-rgb), 0.2);
+        }
+        .terms-content h2:first-child {
+            margin-top: 0;
+        }
+        .terms-content h3 {
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+            color: var(--text-color);
+        }
+        .terms-content p, .terms-content ul, .terms-content ol {
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .terms-content ul, .terms-content ol {
+            padding-left: 20px;
+        }
+        .terms-content ul li, .terms-content ol li {
+            margin-bottom: 10px;
+        }
+        .terms-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .terms-content a:hover {
+            text-decoration: underline;
+        }
+        .terms-content .highlight-box {
+            background-color: rgba(var(--primary-rgb), 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        .terms-content .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+        .terms-footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .terms-footer p {
+            margin-bottom: 10px;
+        }
+        .toc {
+            background-color: rgba(var(--primary-rgb), 0.05);
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .toc ul li {
+            margin-bottom: 8px;
+        }
+        .toc ul li a {
+            text-decoration: none;
+            color: var(--text-color);
+            transition: color 0.2s ease;
+            display: block;
+            padding: 5px 0;
+        }
+        .toc ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .terms-section {
+                padding: 40px 0;
+            }
+            .terms-header h1 {
+                font-size: 2rem;
+            }
+            .terms-content {
+                padding: 25px;
+            }
+            .terms-content h2 {
+                font-size: 1.6rem;
+            }
+            .terms-content h3 {
+                font-size: 1.3rem;
+            }
+        }
+        @media (max-width: 576px) {
+            .terms-header h1 {
+                font-size: 1.8rem;
+            }
+            .terms-content {
+                padding: 20px;
+            }
+            .terms-content h2 {
+                font-size: 1.4rem;
+            }
+            .terms-content h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="terms-section">
+        <div class="terms-header">
+            <h1>Terms of Service</h1>
+            <p>Last updated: August 5, 2025</p>
+        </div>
+        
+        <div class="terms-content">
+            <!-- Table of Contents -->
+            <div class="toc">
+                <h3>Table of Contents</h3>
+                <ul>
+                    <li><a href="#introduction">1. Introduction</a></li>
+                    <li><a href="#definitions">2. Definitions</a></li>
+                    <li><a href="#account">3. Account Registration and Eligibility</a></li>
+                    <li><a href="#services">4. Services Description</a></li>
+                    <li><a href="#payments">5. Payments and Subscriptions</a></li>
+                    <li><a href="#intellectual-property">6. Intellectual Property Rights</a></li>
+                    <li><a href="#user-content">7. User Content</a></li>
+                    <li><a href="#prohibited-uses">8. Prohibited Uses</a></li>
+                    <li><a href="#disclaimer">9. Disclaimer of Warranties</a></li>
+                    <li><a href="#limitation-liability">10. Limitation of Liability</a></li>
+                    <li><a href="#indemnification">11. Indemnification</a></li>
+                    <li><a href="#termination">12. Term and Termination</a></li>
+                    <li><a href="#governing-law">13. Governing Law</a></li>
+                    <li><a href="#changes">14. Changes to Terms</a></li>
+                    <li><a href="#contact">15. Contact Information</a></li>
+                </ul>
+            </div>
+
+            <!-- Introduction -->
+            <h2 id="introduction">1. Introduction</h2>
+            <p>Welcome to Tickzen. These Terms of Service ("Terms") govern your access to and use of the Tickzen website, mobile application, and services (collectively, the "Services"). Please read these Terms carefully before using our Services.</p>
+            <p>By accessing or using our Services, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, you may not access or use the Services.</p>
+
+            <!-- Definitions -->
+            <h2 id="definitions">2. Definitions</h2>
+            <p>Throughout these Terms, the following definitions apply:</p>
+            <ul>
+                <li><strong>"Tickzen," "we," "us," or "our"</strong> refers to Tickzen Inc., the company that owns and operates the Services.</li>
+                <li><strong>"User," "you," or "your"</strong> refers to any individual or entity that accesses or uses our Services.</li>
+                <li><strong>"Content"</strong> refers to any information, data, text, graphics, images, videos, audio files, or other materials that are displayed, generated, or otherwise made available through the Services.</li>
+                <li><strong>"User Content"</strong> refers to any Content that Users provide, upload, or otherwise make available through the Services.</li>
+                <li><strong>"Subscription"</strong> refers to the paid access to premium features of our Services.</li>
+            </ul>
+
+            <!-- Account Registration -->
+            <h2 id="account">3. Account Registration and Eligibility</h2>
+            <h3>3.1. Account Creation</h3>
+            <p>To use certain features of our Services, you must create an account. When you create an account, you agree to provide accurate, current, and complete information. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
+
+            <h3>3.2. Eligibility</h3>
+            <p>You must be at least 18 years old to use our Services. By using our Services, you represent and warrant that you are at least 18 years old and have the legal capacity to enter into these Terms.</p>
+
+            <h3>3.3. Account Security</h3>
+            <p>You are responsible for maintaining the security of your account and password. You agree to notify us immediately of any unauthorized access to or use of your account. We cannot and will not be liable for any loss or damage arising from your failure to comply with this security obligation.</p>
+
+            <h3>3.4. One Person, One Account</h3>
+            <p>Each person may maintain only one account. You may not share your account with others or allow others to access or use your account.</p>
+
+            <!-- Services Description -->
+            <h2 id="services">4. Services Description</h2>
+            <h3>4.1. AI-Powered Stock Analysis</h3>
+            <p>Tickzen provides AI-powered stock analysis tools and financial data to help users make informed investment decisions. Our Services include, but are not limited to, technical analysis, fundamental analysis, stock screening, portfolio tracking, and market news.</p>
+
+            <h3>4.2. Not Financial Advice</h3>
+            <p>Our Services are for informational purposes only and do not constitute financial advice, investment recommendations, or an offer to buy or sell any securities. We do not provide personalized investment advice or act as a financial advisor, broker, or dealer.</p>
+
+            <div class="highlight-box">
+                <p><strong>Important:</strong> All investment strategies and investments involve risk of loss. Nothing contained in our Services should be construed as investment advice. Any reference to past performance is not indicative of future results. You should always conduct your own research and consult with a qualified financial advisor before making any investment decisions.</p>
+            </div>
+
+            <h3>4.3. Service Modifications</h3>
+            <p>We reserve the right to modify, suspend, or discontinue any part of our Services at any time, with or without notice to you. We shall not be liable to you or any third party for any modification, suspension, or discontinuation of our Services.</p>
+
+            <!-- Payments and Subscriptions -->
+            <h2 id="payments">5. Payments and Subscriptions</h2>
+            <h3>5.1. Subscription Plans</h3>
+            <p>We offer various subscription plans that provide access to premium features. Details of these plans, including pricing and features, are available on our website.</p>
+
+            <h3>5.2. Billing</h3>
+            <p>When you purchase a subscription, you agree to pay all fees associated with your chosen plan. You authorize us to charge your designated payment method for these fees. All payments are non-refundable except as expressly provided in these Terms or as required by law.</p>
+
+            <h3>5.3. Automatic Renewal</h3>
+            <p>Subscriptions automatically renew at the end of each billing period unless you cancel your subscription before the renewal date. By purchasing a subscription, you authorize us to charge your payment method for the renewal.</p>
+
+            <h3>5.4. Cancellation</h3>
+            <p>You may cancel your subscription at any time through your account settings or by contacting us. Upon cancellation, you will continue to have access to the premium features until the end of your current billing period, after which your access will revert to the free tier.</p>
+
+            <h3>5.5. Price Changes</h3>
+            <p>We reserve the right to change our subscription prices at any time. If we change the price of your subscription, we will notify you before the change takes effect. Your continued use of our Services after the price change constitutes your agreement to pay the new price.</p>
+
+            <!-- Intellectual Property -->
+            <h2 id="intellectual-property">6. Intellectual Property Rights</h2>
+            <h3>6.1. Our Intellectual Property</h3>
+            <p>All content, features, and functionality of our Services, including but not limited to text, graphics, logos, icons, images, audio clips, data compilations, and software, are owned by Tickzen, our licensors, or other providers of such material and are protected by United States and international copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws.</p>
+
+            <h3>6.2. License to Use</h3>
+            <p>Subject to your compliance with these Terms, we grant you a limited, non-exclusive, non-transferable, and revocable license to access and use our Services for your personal, non-commercial use only.</p>
+
+            <h3>6.3. Restrictions</h3>
+            <p>You may not:</p>
+            <ul>
+                <li>Modify, copy, distribute, transmit, display, perform, reproduce, publish, license, create derivative works from, transfer, or sell any information or content obtained from our Services;</li>
+                <li>Use any data mining, robots, scraping, or similar data gathering methods;</li>
+                <li>Decompile, reverse engineer, or disassemble the software aspects of our Services;</li>
+                <li>Remove any copyright or other proprietary notices from our Services;</li>
+                <li>Use our Services for any commercial purpose without our prior written consent.</li>
+            </ul>
+
+            <!-- User Content -->
+            <h2 id="user-content">7. User Content</h2>
+            <h3>7.1. Your Content</h3>
+            <p>When you upload, submit, or otherwise make available any content to our Services, you grant us a worldwide, non-exclusive, royalty-free, sublicensable, and transferable license to use, reproduce, distribute, prepare derivative works of, display, and perform that content in connection with the Services and our business operations.</p>
+
+            <h3>7.2. Content Representations</h3>
+            <p>You represent and warrant that:</p>
+            <ul>
+                <li>You own the content you upload or have the necessary licenses, rights, consents, and permissions to grant the rights and licenses described in these Terms;</li>
+                <li>Your content does not violate any law, regulation, or the rights of any third party;</li>
+                <li>Your content is not false, misleading, or defamatory;</li>
+                <li>Your content does not contain any viruses, adware, spyware, or other harmful code.</li>
+            </ul>
+
+            <h3>7.3. Content Removal</h3>
+            <p>We reserve the right to remove or modify any User Content that, in our sole discretion, violates these Terms or that we find objectionable for any reason, without prior notice to you.</p>
+
+            <!-- Prohibited Uses -->
+            <h2 id="prohibited-uses">8. Prohibited Uses</h2>
+            <p>You agree not to use our Services:</p>
+            <ul>
+                <li>In any way that violates any applicable federal, state, local, or international law or regulation;</li>
+                <li>To impersonate or attempt to impersonate Tickzen, a Tickzen employee, another user, or any other person or entity;</li>
+                <li>To engage in any conduct that restricts or inhibits anyone's use or enjoyment of the Services;</li>
+                <li>To attempt to gain unauthorized access to, interfere with, damage, or disrupt any parts of our Services or any server, computer, or database connected to our Services;</li>
+                <li>To attack our Services via a denial-of-service attack or a distributed denial-of-service attack;</li>
+                <li>To introduce any viruses, Trojan horses, worms, logic bombs, or other material that is malicious or technologically harmful;</li>
+                <li>To use any automated means or interface not provided by us to access our Services or to extract data;</li>
+                <li>To use our Services for any commercial solicitation purposes without our prior written consent.</li>
+            </ul>
+
+            <!-- Disclaimer -->
+            <h2 id="disclaimer">9. Disclaimer of Warranties</h2>
+            <p>YOUR USE OF OUR SERVICES IS AT YOUR SOLE RISK. OUR SERVICES ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</p>
+            <p>WE DO NOT WARRANT THAT:</p>
+            <ul>
+                <li>OUR SERVICES WILL MEET YOUR REQUIREMENTS;</li>
+                <li>OUR SERVICES WILL BE UNINTERRUPTED, TIMELY, SECURE, OR ERROR-FREE;</li>
+                <li>THE RESULTS THAT MAY BE OBTAINED FROM THE USE OF OUR SERVICES WILL BE ACCURATE OR RELIABLE;</li>
+                <li>THE QUALITY OF ANY PRODUCTS, SERVICES, INFORMATION, OR OTHER MATERIAL PURCHASED OR OBTAINED BY YOU THROUGH OUR SERVICES WILL MEET YOUR EXPECTATIONS;</li>
+                <li>ANY ERRORS IN OUR SERVICES WILL BE CORRECTED.</li>
+            </ul>
+            <p>ANY MATERIAL DOWNLOADED OR OTHERWISE OBTAINED THROUGH THE USE OF OUR SERVICES IS ACCESSED AT YOUR OWN DISCRETION AND RISK. YOU WILL BE SOLELY RESPONSIBLE FOR ANY DAMAGE TO YOUR COMPUTER SYSTEM OR LOSS OF DATA THAT RESULTS FROM THE DOWNLOAD OF ANY SUCH MATERIAL.</p>
+
+            <!-- Limitation of Liability -->
+            <h2 id="limitation-liability">10. Limitation of Liability</h2>
+            <p>TO THE FULLEST EXTENT PERMITTED BY LAW, IN NO EVENT SHALL TICKZEN, ITS AFFILIATES, OR THEIR LICENSORS, SERVICE PROVIDERS, EMPLOYEES, AGENTS, OFFICERS, OR DIRECTORS BE LIABLE FOR DAMAGES OF ANY KIND, UNDER ANY LEGAL THEORY, ARISING OUT OF OR IN CONNECTION WITH YOUR USE, OR INABILITY TO USE, OUR SERVICES, INCLUDING ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO, PERSONAL INJURY, PAIN AND SUFFERING, EMOTIONAL DISTRESS, LOSS OF REVENUE, LOSS OF PROFITS, LOSS OF BUSINESS OR ANTICIPATED SAVINGS, LOSS OF USE, LOSS OF GOODWILL, LOSS OF DATA, AND WHETHER CAUSED BY TORT (INCLUDING NEGLIGENCE), BREACH OF CONTRACT, OR OTHERWISE, EVEN IF FORESEEABLE.</p>
+            <p>THE FOREGOING DOES NOT AFFECT ANY LIABILITY THAT CANNOT BE EXCLUDED OR LIMITED UNDER APPLICABLE LAW.</p>
+
+            <!-- Indemnification -->
+            <h2 id="indemnification">11. Indemnification</h2>
+            <p>You agree to defend, indemnify, and hold harmless Tickzen, its affiliates, licensors, and service providers, and its and their respective officers, directors, employees, contractors, agents, licensors, suppliers, successors, and assigns from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising out of or relating to your violation of these Terms or your use of our Services, including, but not limited to, your User Content, any use of our Services' content, services, and products other than as expressly authorized in these Terms, or your use of any information obtained from our Services.</p>
+
+            <!-- Term and Termination -->
+            <h2 id="termination">12. Term and Termination</h2>
+            <h3>12.1. Term</h3>
+            <p>These Terms shall remain in full force and effect while you use our Services.</p>
+
+            <h3>12.2. Termination by You</h3>
+            <p>You may terminate these Terms at any time by discontinuing use of our Services and closing your account.</p>
+
+            <h3>12.3. Termination by Us</h3>
+            <p>We may terminate or suspend your account and access to our Services immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach these Terms.</p>
+
+            <h3>12.4. Effect of Termination</h3>
+            <p>Upon termination, your right to use our Services will immediately cease. If your account is terminated for any reason, you may no longer have access to your account and all information and data associated with your account. We are not responsible for the loss of any data or content resulting from the termination of your account.</p>
+
+            <!-- Governing Law -->
+            <h2 id="governing-law">13. Governing Law</h2>
+            <p>These Terms and your use of our Services shall be governed by and construed in accordance with the laws of the State of Delaware, without giving effect to any choice or conflict of law provision or rule. Any legal suit, action, or proceeding arising out of, or related to, these Terms or our Services shall be instituted exclusively in the federal courts of the United States or the courts of the State of Delaware, although we retain the right to bring any suit, action, or proceeding against you for breach of these Terms in your country of residence or any other relevant country.</p>
+
+            <!-- Changes to Terms -->
+            <h2 id="changes">14. Changes to Terms</h2>
+            <p>We may revise these Terms at any time by updating this page. Any changes will be effective immediately upon posting the revised Terms. Your continued use of our Services following the posting of revised Terms means that you accept and agree to the changes. You are expected to check this page frequently so you are aware of any changes, as they are binding on you.</p>
+
+            <!-- Contact Information -->
+            <h2 id="contact">15. Contact Information</h2>
+            <p>If you have any questions about these Terms, please contact us at:</p>
+            <p><strong>Email:</strong> <a href="mailto:terms@tickzen.app">terms@tickzen.app</a></p>
+            <p><strong>Postal Address:</strong><br>
+            Tickzen Legal Department<br>
+            123 Financial Avenue, Suite 500<br>
+            New York, NY 10001<br>
+            United States</p>
+        </div>
+        
+        <div class="terms-footer">
+            <p>&copy; {{ now.year if now else '2025' }} Tickzen. All rights reserved.</p>
+            <p><a href="{{ url_for('info.about') }}">About</a> | <a href="{{ url_for('info.contact') }}">Contact</a> | <a href="{{ url_for('info.privacy') }}">Privacy Policy</a></p>
+        </div>
+    </section>
+</div>
+{% endblock %}

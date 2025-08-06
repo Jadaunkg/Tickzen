@@ -546,6 +546,11 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link {% if request.endpoint == 'market_news_page' %}active{% endif %}" href="{{ url_for('market_news.market_news_page') }}">
+                                    Market News<i class="fas fa-newspaper" style="margin-left: 0.3rem;"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link {% if request.endpoint == 'manage_site_profiles' %}active{% endif %}" href="{{ url_for('manage_site_profiles') }}">
                                     Profiles<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-left: 0.3rem; vertical-align: middle;">
                                         <path d="M4 4h16v2H4V4zm0 4h10v2H4V8zm0 4h16v2H4v-2zm0 4h10v2H4v-2z"/>
@@ -691,6 +696,11 @@
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'analyzer_input_page' %}active{% endif %}" href="{{ url_for('analyzer_input_page') }}">
                             Stock Analyzer<i class="fas fa-search-dollar" style="margin-left: 0.3rem;"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'market_news_page' %}active{% endif %}" href="{{ url_for('market_news.market_news_page') }}">
+                            Market News<i class="fas fa-newspaper" style="margin-left: 0.3rem;"></i>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -861,21 +871,17 @@
                 <div class="footer-column">
                     <h3>Resources</h3>
                     <ul>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Knowledge Base</a></li>
-                        <li><a href="#">API Documentation</a></li>
-                        <li><a href="#">Video Tutorials</a></li>
-                        <li><a href="#">Market News</a></li>
+                        <li><a href="{{ url_for('market_news.market_news_page') }}">Market News</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
                     <h3>Company</h3>
                     <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Contact</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="{{ url_for('info.about') }}">About Us</a></li>
+                        <li><a href="{{ url_for('info.contact') }}">Contact</a></li>
+                        <li><a href="{{ url_for('info.privacy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('info.terms') }}">Terms of Service</a></li>
+                        <li><a href="{{ url_for('info.faq') }}">FAQ</a></li>
                     </ul>
                 </div>
             </div>
@@ -1011,10 +1017,10 @@
     </script>
 
 
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" defer></script>
     <!-- Firebase SDK - updated to latest stable version with CSP-compatible sources -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js" defer></script>
     
     <!-- Firebase Configuration from Environment Variables -->
     <script>
@@ -1028,8 +1034,8 @@
         };
     </script>
     
-    <script src="{{ url_for('static', filename='js/firebase-init.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/firebase-init.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
     
     {% block scripts_extra %}
     <script>

@@ -1,0 +1,793 @@
+{% extends "_base.html" %}
+
+{% block title %}FAQ | Tickzen - AI Powered Stock Analysis Platform{% endblock %}
+
+{% block head_extra %}
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Frequently Asked Questions about Tickzen's AI-powered stock analysis platform. Find answers to common questions about our investment research tools.">
+    <meta name="keywords" content="FAQ, frequently asked questions, Tickzen help, stock analysis help, investment platform FAQ">
+    <meta property="og:title" content="Frequently Asked Questions | Tickzen">
+    <meta property="og:description" content="Find answers to common questions about Tickzen's AI-powered stock analysis platform and investment research tools.">
+    <meta property="og:url" content="https://tickzen.app/faq">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Frequently Asked Questions | Tickzen">
+    <meta name="twitter:description" content="Find answers to common questions about Tickzen's AI-powered stock analysis platform and investment research tools.">
+
+    <style>
+        /* FAQ page specific styles */
+        :root {
+            --primary-color: #10B981; /* Green color */
+            --primary-rgb: 16, 185, 129; /* RGB values for green */
+        }
+        .faq-section {
+            padding: 80px 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .faq-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .faq-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-color, #10B981) 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .faq-header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .faq-search {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto 50px;
+        }
+        .faq-search input {
+            width: 100%;
+            padding: 15px 20px;
+            padding-right: 50px;
+            background-color: var(--card-bg);
+            border: 1px solid rgba(var(--primary-rgb), 0.2);
+            border-radius: 10px;
+            font-size: 1rem;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .faq-search input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+        }
+        .faq-search button {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .faq-search button:hover {
+            color: var(--primary-color);
+        }
+        .faq-categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        .category-button {
+            padding: 10px 20px;
+            border-radius: 30px;
+            background-color: rgba(var(--primary-rgb), 0.05);
+            color: var(--text-color);
+            border: 1px solid rgba(var(--primary-rgb), 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .category-button:hover {
+            background-color: rgba(var(--primary-rgb), 0.1);
+        }
+        .category-button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .faq-content {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        .faq-category {
+            display: none;
+        }
+        .faq-category.active {
+            display: block;
+        }
+        .faq-item {
+            border-bottom: 1px solid rgba(var(--primary-rgb), 0.1);
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-question {
+            padding: 20px;
+            cursor: pointer;
+            position: relative;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .faq-question:hover {
+            background-color: rgba(var(--primary-rgb), 0.02);
+        }
+        .faq-question .icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        .faq-question.active .icon {
+            transform: rotate(45deg);
+        }
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+        .faq-answer.active {
+            padding: 0 20px 20px;
+            max-height: 1000px; /* Arbitrary large value */
+        }
+        .faq-answer-content {
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+        .faq-answer-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .faq-answer-content a:hover {
+            text-decoration: underline;
+        }
+        .still-have-questions {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            background-color: rgba(var(--primary-rgb), 0.05);
+            border-radius: 10px;
+        }
+        .still-have-questions h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+        .still-have-questions p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .contact-button {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, var(--primary-color, #10B981) 0%, #059669 100%);
+            color: white;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .contact-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(var(--primary-rgb), 0.3);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .faq-section {
+                padding: 40px 0;
+            }
+            .faq-header h1 {
+                font-size: 2rem;
+            }
+            .category-button {
+                padding: 8px 15px;
+                font-size: 0.8rem;
+            }
+        }
+        @media (max-width: 576px) {
+            .faq-header h1 {
+                font-size: 1.8rem;
+            }
+            .faq-categories {
+                flex-direction: column;
+                align-items: center;
+            }
+            .category-button {
+                width: 80%;
+                text-align: center;
+            }
+            .faq-question {
+                padding: 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="faq-section">
+        <div class="faq-header">
+            <h1>Frequently Asked Questions</h1>
+            <p>Find answers to the most common questions about Tickzen's AI-powered stock analysis platform.</p>
+        </div>
+        
+        <div class="faq-search">
+            <input type="text" id="faq-search-input" placeholder="Search for questions..." aria-label="Search for questions">
+            <button type="button" aria-label="Search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="faq-categories">
+            <button class="category-button active" data-category="general">General</button>
+            <button class="category-button" data-category="account">Account</button>
+            <button class="category-button" data-category="subscription">Subscription</button>
+            <button class="category-button" data-category="technical">Technical</button>
+        </div>
+        
+        <div class="faq-content">
+            <!-- General FAQ -->
+            <div class="faq-category active" id="general">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What is Tickzen?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Tickzen is an AI-powered stock analysis platform that helps investors make informed decisions. We provide <a href="/analyzer">technical analysis</a>, <a href="/analyzer">fundamental analysis</a>, stock screening, portfolio tracking, and market news to give you a comprehensive view of the market and individual stocks. Our platform combines advanced machine learning algorithms with financial data to identify trends and patterns that might not be immediately apparent to human analysts. Learn more on our <a href="/info/about">About</a> page.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is Tickzen offering financial advice?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>No, Tickzen does not provide personalized financial advice. The information, analysis, and tools we provide are for informational and research purposes only. Our platform helps you analyze financial data and market trends, but the final investment decision should be made by you, possibly in consultation with a qualified financial advisor who understands your personal financial situation and goals. For more details, please review our <a href="/info/terms">Terms of Service</a> and Disclaimer.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How does Tickzen's AI technology work?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Tickzen uses advanced machine learning algorithms to analyze vast amounts of financial data, including price movements, trading volumes, company fundamentals, financial statements, market news, and social media sentiment. Our AI models identify patterns, correlations, and anomalies that might indicate investment opportunities or risks. The technology continuously learns from new data, improving its accuracy over time. Visit our Technology page for an in-depth explanation of our approach.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How accurate are Tickzen's predictions?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>While we strive for high accuracy in our analyses, it's important to understand that stock market predictions inherently involve uncertainty. Our AI models provide probabilistic assessments based on historical data and current market conditions, but cannot predict unforeseen events or market shocks. We recommend using our analyses as one of several tools in your investment decision-making process, not as the sole determinant.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Which markets does Tickzen cover?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Tickzen primarily covers U.S. stock markets including NASDAQ, NYSE, and AMEX. We provide data and analysis for over 8,000 publicly traded companies. We're continuously expanding our coverage to include international markets and additional asset classes like ETFs, mutual funds, and cryptocurrencies. Check our Stock Coverage page to see the full list of supported stocks.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account FAQ -->
+            <div class="faq-category" id="account">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I create an account?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Creating a Tickzen account is simple. Click the <a href="/signup">"Sign Up"</a> button in the top right corner of our website. You can register using your email address, or sign up with your Google or Apple account for a faster process. After providing the required information, verify your email address by clicking the link sent to your inbox, and your account will be activated.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is my personal information secure?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Yes, protecting your personal information is our top priority. We use industry-standard encryption protocols to secure your data both in transit and at rest. We never sell your personal information to third parties. You can review our comprehensive <a href="/info/privacy">Privacy Policy</a> to learn more about how we handle your data.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I reset my password?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>To reset your password, click on <a href="/login">"Login"</a> in the top right corner of our website, then select <a href="/forgot-password">"Forgot Password?"</a> Enter the email address associated with your account, and we'll send you a password reset link. Click on the link in the email and follow the instructions to create a new password. For security reasons, password reset links expire after 24 hours.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I delete my account?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>To delete your account, go to your Account Settings, scroll to the bottom of the page, and click on "Delete Account." Please note that this action is permanent and will remove all your data from our system, including watchlists, portfolios, and saved analyses. If you're having issues with our platform, we encourage you to <a href="/info/contact">contact our support team</a> before deleting your account, as we may be able to resolve your concerns.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I have multiple user profiles under one account?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Currently, each account can only have one user profile. However, you can create multiple portfolios and watchlists within your account to organize your investments by strategy, goal, or any other criteria that suits your needs. We're considering adding support for multiple user profiles under one account in future updates, particularly for family accounts or financial advisors managing multiple clients.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Subscription FAQ -->
+            <div class="faq-category" id="subscription">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What subscription plans does Tickzen offer?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Tickzen currently offers free access to all features. Our subscription structure is as follows:</p>
+                            <ul>
+                                <li><strong>Free Access:</strong> Full access to core features with reasonable limits including:</li>
+                                <ul>
+                                    <li>30 monthly analyses</li>
+                                    <li>2 WordPress sites</li>
+                                    <li>Reports up to 4,000 words</li>
+                                    <li>6 writer profiles</li>
+                                </ul>
+                            </ul>
+                            <p>Free access includes all technical indicators (RSI, MACD, Histogram), 15-year price history & charts, advanced fundamental analysis, WordPress automation, SEO optimization, analyst consensus integration, macro economic indicators, and advanced risk assessment.</p>
+                            <p>We are developing premium plans that will be available soon:</p>
+                            <ul>
+                                <li><strong>Starter Plan ($49):</strong> Coming soon</li>
+                                <li><strong>Professional Plan ($99):</strong> Coming soon</li>
+                                <li><strong>Enterprise Plan ($249):</strong> Coming soon</li>
+                            </ul>
+                            <p>You can sign up to be notified when our paid plans with advanced features become available on our Pricing page.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>When will paid plans be available?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>We're currently working on developing premium features for our paid plans including advanced analytics, custom integrations, and dedicated support. Our planned tiers will include:</p>
+                            <ul>
+                                <li><strong>Starter Plan ($49):</strong> Enhanced features for individual investors and smaller WordPress publishers</li>
+                                <li><strong>Professional Plan ($99):</strong> Advanced capabilities for professional investors and medium-sized content publishers</li>
+                                <li><strong>Enterprise Plan ($249):</strong> Comprehensive solution for institutional investors and large-scale publishing networks</li>
+                            </ul>
+                            <p>You can sign up on our page to receive notifications when these plans become available. In the meantime, you can enjoy all our core features completely free through our <a href="/dashboard">Dashboard</a>.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What are the current usage limits for the free access?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Our current free access includes reasonable usage limits to ensure a quality experience for all users:</p>
+                            <ul>
+                                <li>Up to 30 stock analyses per month</li>
+                                <li>Integration with up to 2 WordPress sites</li>
+                                <li>Reports with up to 4,000 words in length</li>
+                                <li>Access to 6 different AI writer profiles for content variety</li>
+                            </ul>
+                            <p>These limits are designed to accommodate the needs of individual investors and small-scale publishers while ensuring our platform remains stable and responsive. When our paid plans launch, they will offer expanded limits and additional premium features.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I get notified when paid plans are available?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>You can sign up for notifications about our upcoming paid plans by:</p>
+                            <ol>
+                                <li>Visiting our <a href="/">homepage</a></li>
+                                <li>Scrolling to the "Paid Plans Coming Soon" section</li>
+                                <li>Clicking on the "Get Notified When Available" button</li>
+                                <li>Entering your email address in the form</li>
+                            </ol>
+                            <p>We'll only use your email to notify you when our premium plans launch and won't share it with any third parties. You can unsubscribe from these notifications at any time. For more information on how we handle your data, please see our <a href="/info/privacy">Privacy Policy</a>.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What features will be included in the upcoming paid plans?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Our upcoming premium plans are being designed to enhance your stock analysis and WordPress publishing experience with advanced features such as:</p>
+                            <ul>
+                                <li>Higher monthly analysis quotas</li>
+                                <li>Integration with more WordPress sites</li>
+                                <li>Longer and more detailed reports</li>
+                                <li>Additional AI writer profiles for more content variety</li>
+                                <li>Custom report templates</li>
+                                <li>Priority processing for faster analysis</li>
+                                <li>Advanced customization options for WordPress integration</li>
+                                <li>Dedicated support channels</li>
+                            </ul>
+                            <p>The exact feature set for each plan will be finalized closer to launch. We're carefully designing these plans based on user feedback to ensure they provide excellent value.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I still use Tickzen if I don't have a WordPress site?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Absolutely! While Tickzen offers powerful WordPress automation features, you don't need a WordPress site to benefit from our platform. You can use Tickzen to:</p>
+                            <ul>
+                                <li>Access comprehensive stock market analysis</li>
+                                <li>View technical indicators and charts</li>
+                                <li>Get fundamental analysis of companies</li>
+                                <li>Read AI-generated stock reports</li>
+                                <li>Review analyst consensus information</li>
+                                <li>Access macro economic indicators</li>
+                            </ul>
+                            <p>The WordPress integration is an optional feature for those who want to publish financial content on their websites, but all the analysis tools and reports are available regardless of whether you have a WordPress site.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Technical FAQ -->
+            <div class="faq-category" id="technical">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Which browsers are supported?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Tickzen works best with modern web browsers. We officially support:</p>
+                            <ul>
+                                <li>Google Chrome (latest 2 versions)</li>
+                                <li>Mozilla Firefox (latest 2 versions)</li>
+                                <li>Safari (latest 2 versions)</li>
+                                <li>Microsoft Edge (Chromium-based, latest 2 versions)</li>
+                            </ul>
+                            <p>While the platform may work on other browsers, we recommend using one of the officially supported browsers for the best experience. We do not support Internet Explorer.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is there a mobile app available?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Currently, Tickzen is exclusively available as a web platform optimized for desktop and mobile browsers. We've designed our website to be fully responsive, providing a seamless experience across different screen sizes. You can access all features of Tickzen from your smartphone or tablet by simply visiting our website in your mobile browser. We may develop dedicated mobile apps in the future based on user demand, but our current focus is on enhancing our web platform.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I export data and reports from Tickzen?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Yes, Tickzen allows you to export your stock analysis data and reports in HTML format. You can save these reports for offline access or to share with others. Additionally, when using our WordPress integration, the reports are automatically formatted and published directly to your WordPress site without requiring manual export and import steps. Visit the Reports Download section to access your exported reports.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How does the WordPress integration work?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Tickzen's WordPress integration allows you to automatically publish professionally formatted stock analysis content to your WordPress site. The process works as follows:</p>
+                            <ol>
+                                <li>Create a Publishing Profile by navigating to the <a href="/site-profiles">Publishing Profile Dashboard</a></li>
+                                <li>Configure your WordPress connection by providing your site URL, WordPress user credentials, and other settings</li>
+                                <li>Select which report sections to include in your published content</li>
+                                <li>Go to the <a href="/automation-runner">Run Automation</a> page and select the ticker source (upload a file or manual entry)</li>
+                                <li>Start the automation process, which will generate and publish content according to your settings</li>
+                            </ol>
+                            <p>The content is automatically formatted with proper headings, paragraphs, bullet points, and includes SEO optimization. You can connect up to 2 WordPress sites with the current free access, with more sites available in our upcoming paid plans. Visit our WordPress Integration Guide for detailed instructions.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How often is the financial data updated?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Our financial data is updated according to the following schedule:</p>
+                            <ul>
+                                <li><strong>Market Prices:</strong> End-of-day data with daily updates</li>
+                                <li><strong>Technical Indicators:</strong> Calculated based on the latest available price data</li>
+                                <li><strong>Financial Statements:</strong> Updated quarterly, typically within 24-48 hours after company filings</li>
+                                <li><strong>Earnings Data:</strong> Updated within 24 hours of company releases</li>
+                                <li><strong>News and Sentiment:</strong> Updated daily with the latest market news</li>
+                                <li><strong>Analyst Ratings:</strong> Updated as new analyst reports become available</li>
+                                <li><strong>Macro Economic Indicators:</strong> Updated as new data is released by official sources</li>
+                            </ul>
+                            <p>This update frequency ensures you have access to comprehensive and reasonably current data for your stock analysis needs while maintaining our platform's performance.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I set up a WordPress Publishing Profile?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Setting up a WordPress Publishing Profile is straightforward:</p>
+                            <ol>
+                                <li>Navigate to the <a href="/site-profiles">Publishing Profile Dashboard</a> in your account</li>
+                                <li>Click "Add New Publishing Profile"</a></li>
+                                <li>Fill in the required fields:</li>
+                                <ul>
+                                    <li><strong>Profile Name:</strong> A name to identify this publishing destination</li>
+                                    <li><strong>Site URL:</strong> Your WordPress website address</li>
+                                    <li><strong>Default Google Sheet Name:</strong> For ticker lists (optional)</li>
+                                    <li><strong>WordPress Category ID:</strong> Where posts will be published</li>
+                                    <li><strong>Min/Max Scheduling Gap:</strong> Time between posts in minutes</li>
+                                </ul>
+                                <li>Add at least one WordPress writer with:</li>
+                                <ul>
+                                    <li>WordPress Username</li>
+                                    <li>WordPress User ID</li>
+                                    <li>WordPress Application Password</li>
+                                </ul>
+                                <li>Select which report sections to include in your published content</li>
+                                <li>Click "ADD PROFILE" to save your configuration</li>
+                            </ol>
+                            <p>Once your profile is set up, you can use it to automate publishing to your WordPress site by going to the <a href="/automation-runner">Run Automation</a> page and selecting your publishing profile. For more detailed instructions, visit our WordPress Setup Guide</a>.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I run the WordPress publishing automation?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>After setting up your Publishing Profile, you can run the automation process:</p>
+                            <ol>
+                                <li>Navigate to the <a href="/automation-runner">Run Automation</a> page for your profile</li>
+                                <li>Check your current settings including:</li>
+                                <ul>
+                                    <li>Your daily publishing quota (e.g., "Today: 8 / 15")</li>
+                                    <li>Current ticker file and processing status</li>
+                                </ul>
+                                <li>Select your ticker source:</li>
+                                <ul>
+                                    <li><strong>Upload/Use Saved File:</a></strong> Use a CSV or Excel file with ticker symbols</li>
+                                    <li><strong>Manual Entry:</a></strong> Enter specific tickers manually</li>
+                                </ul>
+                                <li>If using a file, you can upload a new one to replace the current file</li>
+                                <li>Start the automation process, which will:</li>
+                                <ul>
+                                    <li>Generate content for each ticker</li>
+                                    <li>Schedule posts according to your gap settings</li>
+                                    <li>Assign writers from your profile to each post</li>
+                                    <li>Publish directly to your WordPress site</li>
+                                </ul>
+                                <li>Monitor the <a href="/activity-log">Activity Log</a> for real-time updates on the publishing process</li>
+                            </ol>
+                            <p>The automation will process tickers according to your settings, spacing out publications to maintain a natural publishing cadence on your WordPress site. You can track progress in the <a href="/activity-log">Activity Log</a>, which shows which tickers have been processed and which writer was assigned to each. For troubleshooting, visit our WordPress Troubleshooting Guide</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What kinds of content can Tickzen generate?</span>
+                        <span class="icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Tickzen can generate a variety of financial content for your WordPress site, including:</p>
+                            <ul>
+                                <li><strong>Stock Analysis Reports:</strong> Comprehensive analysis of individual stocks with technical and fundamental perspectives</li>
+                                <li><strong>Market Commentary:</strong> Insights on overall market trends and sector performance</li>
+                                <li><strong>Earnings Previews/Reviews:</strong> Pre and post-earnings analysis of selected companies</li>
+                                <li><strong>Technical Analysis:</strong> Detailed technical chart patterns and indicator analysis</li>
+                                <li><strong>Fundamental Analysis:</strong> In-depth look at financial statements and company fundamentals</li>
+                                <li><strong>Investment Ideas:</strong> Potential investment opportunities based on various criteria</li>
+                                <li><strong>Economic Impact Analysis:</strong> How macro events affect specific stocks or sectors</li>
+                            </ul>
+                            <p>All content is generated with SEO optimization in mind and can be customized to match your website's tone and style through our different writer profiles. Reports can be up to 4,000 words in length with the current free access.</p>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+        
+        <div class="still-have-questions">
+            <h3>Still Have Questions?</h3>
+            <p>Can't find what you're looking for? Our support team is ready to help you with any questions or concerns you may have about Tickzen.</p>
+            <a href="/info/contact" class="contact-button">Contact Us</a>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Category switching
+        const categoryButtons = document.querySelectorAll('.category-button');
+        const faqCategories = document.querySelectorAll('.faq-category');
+        
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const category = button.getAttribute('data-category');
+                
+                // Update active button
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Update active category
+                faqCategories.forEach(cat => cat.classList.remove('active'));
+                document.getElementById(category).classList.add('active');
+            });
+        });
+        
+        // FAQ accordion functionality
+        const faqQuestions = document.querySelectorAll('.faq-question');
+        
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const isActive = question.classList.contains('active');
+                
+                // Close all other open questions
+                faqQuestions.forEach(q => {
+                    if (q !== question && q.classList.contains('active')) {
+                        q.classList.remove('active');
+                        q.nextElementSibling.classList.remove('active');
+                    }
+                });
+                
+                // Toggle current question
+                if (isActive) {
+                    question.classList.remove('active');
+                    answer.classList.remove('active');
+                } else {
+                    question.classList.add('active');
+                    answer.classList.add('active');
+                }
+            });
+        });
+        
+        // Search functionality
+        const searchInput = document.getElementById('faq-search-input');
+        
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const allFaqItems = document.querySelectorAll('.faq-item');
+            
+            if (searchTerm.length < 2) {
+                // Show all items if search term is too short
+                allFaqItems.forEach(item => {
+                    item.style.display = 'block';
+                });
+                return;
+            }
+            
+            allFaqItems.forEach(item => {
+                const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer-content').textContent.toLowerCase();
+                
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    
+                    // Automatically expand matching items
+                    const questionEl = item.querySelector('.faq-question');
+                    const answerEl = item.querySelector('.faq-answer');
+                    questionEl.classList.add('active');
+                    answerEl.classList.add('active');
+                    
+                    // Make sure the category is visible
+                    const categoryId = item.closest('.faq-category').id;
+                    document.querySelector(`.category-button[data-category="${categoryId}"]`).click();
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

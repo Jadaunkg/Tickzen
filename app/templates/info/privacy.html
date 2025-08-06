@@ -1,0 +1,361 @@
+{% extends "_base.html" %}
+
+{% block title %}Privacy Policy | Tickzen - AI Powered Stock Analysis Platform{% endblock %}
+
+{% block head_extra %}
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Privacy Policy for Tickzen's AI-powered stock analysis platform. Learn how we collect, use, and protect your data while providing investment research tools.">
+    <meta name="keywords" content="privacy policy, Tickzen privacy, data protection, financial platform privacy">
+    <meta property="og:title" content="Privacy Policy | Tickzen">
+    <meta property="og:description" content="Learn how Tickzen collects, uses, and protects your data while providing AI-powered investment research tools.">
+    <meta property="og:url" content="https://tickzen.app/privacy-policy">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Privacy Policy | Tickzen">
+    <meta name="twitter:description" content="Learn how Tickzen collects, uses, and protects your data while providing AI-powered investment research tools.">
+
+    <style>
+        /* Privacy Policy page specific styles */
+        :root {
+            --primary-color: #10B981; /* Green color */
+            --primary-rgb: 16, 185, 129; /* RGB values for green */
+        }
+        .privacy-section {
+            padding: 80px 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .privacy-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .privacy-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-color, #10B981) 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .privacy-header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .privacy-content {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+        }
+        .privacy-content h2 {
+            font-size: 1.8rem;
+            margin: 30px 0 20px;
+            color: var(--text-color);
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(var(--primary-rgb), 0.2);
+        }
+        .privacy-content h2:first-child {
+            margin-top: 0;
+        }
+        .privacy-content h3 {
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+            color: var(--text-color);
+        }
+        .privacy-content p, .privacy-content ul, .privacy-content ol {
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .privacy-content ul, .privacy-content ol {
+            padding-left: 20px;
+        }
+        .privacy-content ul li, .privacy-content ol li {
+            margin-bottom: 10px;
+        }
+        .privacy-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .privacy-content a:hover {
+            text-decoration: underline;
+        }
+        .privacy-content .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .privacy-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .privacy-content table th, .privacy-content table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(var(--primary-rgb), 0.1);
+        }
+        .privacy-content table th {
+            background-color: rgba(var(--primary-rgb), 0.05);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        .privacy-content table td {
+            color: var(--text-muted);
+        }
+        .privacy-content .highlight-box {
+            background-color: rgba(var(--primary-rgb), 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        .privacy-content .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+        .privacy-footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .privacy-footer p {
+            margin-bottom: 10px;
+        }
+        .toc {
+            background-color: rgba(var(--primary-rgb), 0.05);
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .toc ul li {
+            margin-bottom: 8px;
+        }
+        .toc ul li a {
+            text-decoration: none;
+            color: var(--text-color);
+            transition: color 0.2s ease;
+            display: block;
+            padding: 5px 0;
+        }
+        .toc ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .privacy-section {
+                padding: 40px 0;
+            }
+            .privacy-header h1 {
+                font-size: 2rem;
+            }
+            .privacy-content {
+                padding: 25px;
+            }
+            .privacy-content h2 {
+                font-size: 1.6rem;
+            }
+            .privacy-content h3 {
+                font-size: 1.3rem;
+            }
+        }
+        @media (max-width: 576px) {
+            .privacy-header h1 {
+                font-size: 1.8rem;
+            }
+            .privacy-content {
+                padding: 20px;
+            }
+            .privacy-content h2 {
+                font-size: 1.4rem;
+            }
+            .privacy-content h3 {
+                font-size: 1.2rem;
+            }
+            .privacy-content table th, .privacy-content table td {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="privacy-section">
+        <div class="privacy-header">
+            <h1>Privacy Policy</h1>
+            <p>Last updated: August 5, 2025</p>
+        </div>
+        
+        <div class="privacy-content">
+            <!-- Table of Contents -->
+            <div class="toc">
+                <h3>Table of Contents</h3>
+                <ul>
+                    <li><a href="#introduction">1. Introduction</a></li>
+                    <li><a href="#information-we-collect">2. Information We Collect</a></li>
+                    <li><a href="#how-we-use-information">3. How We Use Your Information</a></li>
+                    <li><a href="#data-sharing">4. How We Share Your Information</a></li>
+                    <li><a href="#data-security">5. Data Security and Protection</a></li>
+                    <li><a href="#user-rights">6. Your Privacy Rights</a></li>
+                    <li><a href="#cookies">7. Cookies and Tracking Technologies</a></li>
+                    <li><a href="#third-party-links">8. Third-Party Links and Services</a></li>
+                    <li><a href="#children">9. Children's Privacy</a></li>
+                    <li><a href="#international">10. International Data Transfers</a></li>
+                    <li><a href="#changes">11. Changes to This Privacy Policy</a></li>
+                    <li><a href="#contact">12. Contact Us</a></li>
+                </ul>
+            </div>
+
+            <!-- Introduction -->
+            <h2 id="introduction">1. Introduction</h2>
+            <p>Welcome to Tickzen ("we," "our," or "us"). We are committed to protecting your privacy and handling your data in a transparent and secure manner. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered stock analysis platform, website, and related services (collectively, the "Services").</p>
+            <p>By accessing or using our Services, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with our policies and practices, please do not use our Services.</p>
+
+            <!-- Information We Collect -->
+            <h2 id="information-we-collect">2. Information We Collect</h2>
+            <p>We collect several types of information from and about users of our Services:</p>
+            
+            <h3>2.1. Information You Provide to Us</h3>
+            <ul>
+                <li><strong>Account Information:</strong> When you register for an account, we collect your name, email address, and password.</li>
+                <li><strong>Profile Information:</strong> Information you provide in your user profile, such as profession, investment experience, and preferences.</li>
+                <li><strong>Financial Information:</strong> We may collect information about your investment preferences, watchlists, and portfolios that you create on our platform.</li>
+                <li><strong>Payment Information:</strong> If you subscribe to our premium services, we collect payment details, billing address, and transaction history.</li>
+                <li><strong>Communications:</strong> Information you provide when you contact us for support, respond to surveys, or communicate with us in any way.</li>
+                <li><strong>User Content:</strong> Information you post, upload, or otherwise share on our platform, including comments, feedback, and analysis.</li>
+            </ul>
+
+            <h3>2.2. Information We Collect Automatically</h3>
+            <ul>
+                <li><strong>Usage Data:</strong> Information about your interaction with our Services, such as features used, time spent, and actions taken.</li>
+                <li><strong>Device Information:</strong> Information about the device you use to access our Services, including hardware model, operating system, unique device identifiers, and mobile network information.</li>
+                <li><strong>Log Data:</strong> Internet protocol (IP) address, browser type, internet service provider (ISP), referring/exit pages, date/time stamps, clickstream data, and system configuration information.</li>
+                <li><strong>Location Data:</strong> General location information derived from your IP address.</li>
+                <li><strong>Cookies and Similar Technologies:</strong> Information collected through cookies, web beacons, and other tracking technologies (see Section 7 for more details).</li>
+            </ul>
+
+            <!-- How We Use Information -->
+            <h2 id="how-we-use-information">3. How We Use Your Information</h2>
+            <p>We use the information we collect for various purposes, including to:</p>
+            <ul>
+                <li>Provide, maintain, and improve our Services</li>
+                <li>Create and manage your account</li>
+                <li>Process transactions and send related information</li>
+                <li>Generate personalized stock analyses and investment recommendations</li>
+                <li>Send administrative notifications, such as security alerts and support messages</li>
+                <li>Send promotional communications, such as special offers, newsletters, and information about new features (with your consent where required by law)</li>
+                <li>Respond to your comments, questions, and requests</li>
+                <li>Monitor and analyze usage patterns and trends to improve user experience</li>
+                <li>Detect, prevent, and address technical issues, fraud, or illegal activities</li>
+                <li>Comply with legal obligations</li>
+            </ul>
+
+            <!-- How We Share Information -->
+            <h2 id="data-sharing">4. How We Share Your Information</h2>
+            <p>We may share your information with the following categories of recipients:</p>
+            <ul>
+                <li><strong>Service Providers:</strong> Third-party vendors, consultants, and other service providers who perform services on our behalf, such as payment processing, data analysis, email delivery, hosting, and customer service.</li>
+                <li><strong>Business Partners:</strong> Partners with whom we jointly offer products or services, or whose products or services may be integrated with ours.</li>
+                <li><strong>Affiliates:</strong> Our subsidiaries and affiliates, if any, with whom we need to share your information to provide the Services.</li>
+                <li><strong>Legal Requirements:</strong> When required to do so by law, regulation, or legal process, such as a court order or subpoena.</li>
+                <li><strong>Protection of Rights:</strong> When we believe disclosure is necessary to protect our rights, property, or safety, or that of our users or others.</li>
+                <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, bankruptcy, or sale of all or a portion of our assets, your information may be transferred to the acquiring entity.</li>
+            </ul>
+            <p>We do not sell your personal information to third parties.</p>
+
+            <!-- Data Security -->
+            <h2 id="data-security">5. Data Security and Protection</h2>
+            <p>We implement appropriate technical and organizational measures to protect the security, integrity, and confidentiality of your personal information. However, no method of transmission over the Internet or electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your personal information, we cannot guarantee its absolute security.</p>
+            <p>Some security measures we employ include:</p>
+            <ul>
+                <li>Encryption of sensitive data both in transit and at rest</li>
+                <li>Regular security assessments and penetration testing</li>
+                <li>Access controls to limit who can access personal data</li>
+                <li>Monitoring systems for detecting unauthorized access attempts</li>
+                <li>Regular security training for our employees</li>
+                <li>Physical security measures at our facilities</li>
+            </ul>
+            <p>In the event of a data breach that compromises your personal information, we will notify you and relevant authorities as required by applicable law.</p>
+
+            <!-- User Rights -->
+            <h2 id="user-rights">6. Your Privacy Rights</h2>
+            <p>Depending on your location, you may have certain rights regarding your personal information, including:</p>
+            <ul>
+                <li><strong>Access:</strong> You can request access to the personal information we hold about you.</li>
+                <li><strong>Correction:</strong> You can request that we correct inaccurate or incomplete information.</li>
+                <li><strong>Deletion:</strong> You can request that we delete your personal information in certain circumstances.</li>
+                <li><strong>Restriction:</strong> You can request that we restrict the processing of your information in certain circumstances.</li>
+                <li><strong>Data Portability:</strong> You can request a copy of your personal information in a structured, machine-readable format.</li>
+                <li><strong>Objection:</strong> You can object to our processing of your personal information in certain circumstances.</li>
+                <li><strong>Withdraw Consent:</strong> If we process your information based on your consent, you can withdraw that consent at any time.</li>
+            </ul>
+            <p>To exercise these rights, please contact us using the information provided in Section 12. We will respond to your request within the timeframe required by applicable law.</p>
+
+            <div class="highlight-box">
+                <p><strong>California Residents:</strong> Under the California Consumer Privacy Act (CCPA), California residents have specific rights regarding their personal information. Please see our <a href="#">California Privacy Notice</a> for more information.</p>
+                <p><strong>European Economic Area (EEA) Residents:</strong> If you are in the EEA, we process your personal data in accordance with the General Data Protection Regulation (GDPR). Please see our <a href="#">GDPR Compliance Statement</a> for more information.</p>
+            </div>
+
+            <!-- Cookies -->
+            <h2 id="cookies">7. Cookies and Tracking Technologies</h2>
+            <p>We use cookies and similar tracking technologies to track activity on our Services and to hold certain information. Cookies are files with a small amount of data that may include an anonymous unique identifier.</p>
+            <p>The types of cookies we use include:</p>
+            <ul>
+                <li><strong>Essential Cookies:</strong> Necessary for the basic functionality of our website.</li>
+                <li><strong>Analytical/Performance Cookies:</strong> Allow us to recognize and count the number of visitors and see how visitors move around our website.</li>
+                <li><strong>Functionality Cookies:</strong> Enable us to personalize content and remember your preferences.</li>
+                <li><strong>Targeting/Advertising Cookies:</strong> Record your visit to our website, the pages you have visited, and the links you have followed to deliver more relevant ads.</li>
+            </ul>
+            <p>You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our Services. For more information, please see our <a href="#">Cookie Policy</a>.</p>
+
+            <!-- Third-Party Links -->
+            <h2 id="third-party-links">8. Third-Party Links and Services</h2>
+            <p>Our Services may contain links to third-party websites, services, or applications that are not owned or controlled by us. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party websites or services. We encourage you to review the privacy policies of any third-party websites or services that you visit.</p>
+
+            <!-- Children's Privacy -->
+            <h2 id="children">9. Children's Privacy</h2>
+            <p>Our Services are not intended for children under the age of 18. We do not knowingly collect personal information from children under 18. If you are a parent or guardian and you believe your child has provided us with personal information, please contact us. If we become aware that we have collected personal information from children without verification of parental consent, we take steps to remove that information from our servers.</p>
+
+            <!-- International Transfers -->
+            <h2 id="international">10. International Data Transfers</h2>
+            <p>We may transfer, store, and process your information in countries other than your own. Our servers are located in the United States, and we may use service providers based in various countries. By using our Services, you consent to the transfer of information to countries outside your country of residence, which may have different data protection rules than those in your country.</p>
+            <p>For transfers from the EEA to countries not considered adequate by the European Commission, we implement appropriate safeguards, such as Standard Contractual Clauses approved by the European Commission.</p>
+
+            <!-- Changes to Privacy Policy -->
+            <h2 id="changes">11. Changes to This Privacy Policy</h2>
+            <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date at the top. We will also provide a more prominent notice if the changes are material, such as via email or a notice on our homepage.</p>
+            <p>You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.</p>
+
+            <!-- Contact Information -->
+            <h2 id="contact">12. Contact Us</h2>
+            <p>If you have any questions about this Privacy Policy or our data practices, please contact us at:</p>
+            <p><strong>Email:</strong> <a href="mailto:privacy@tickzen.app">privacy@tickzen.app</a></p>
+            <p><strong>Data Protection Officer:</strong> <a href="mailto:dpo@tickzen.app">dpo@tickzen.app</a></p>
+            <p><strong>Postal Address:</strong><br>
+            Tickzen Privacy Team<br>
+            123 Financial Avenue, Suite 500<br>
+            New York, NY 10001<br>
+            United States</p>
+        </div>
+        
+        <div class="privacy-footer">
+            <p>&copy; {{ now.year if now else '2025' }} Tickzen. All rights reserved.</p>
+            <p><a href="{{ url_for('info.about') }}">About</a> | <a href="{{ url_for('info.contact') }}">Contact</a> | <a href="{{ url_for('info.terms') }}">Terms of Service</a></p>
+        </div>
+    </section>
+</div>
+{% endblock %}
