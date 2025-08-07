@@ -3,7 +3,7 @@
 {% block title %}Market News - Tickzen Financial{% endblock %}
 
 {% block head_extra %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/market_news_modern_v2.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/market_news_modern_v2.css') }}?v=20250807_clean">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 <meta name="description" content="Latest financial market news, analysis, and insights - Real-time updates from global markets">
 <meta name="keywords" content="market news, financial news, stock market, economy, crypto, forex, earnings">
@@ -141,9 +141,6 @@
         <h2 class="section-title">Featured <span>Stories</span></h2>
         <div class="featured-news-grid" id="featuredNewsGrid">
             <!-- Featured news items will be inserted here dynamically -->
-            <div class="featured-news-skeleton"></div>
-            <div class="featured-news-skeleton"></div>
-            <div class="featured-news-skeleton"></div>
         </div>
     </div>
 </section>
@@ -164,20 +161,10 @@
         
         <div class="news-grid" id="newsGrid">
             <!-- News cards will be inserted here dynamically -->
-            <div class="news-card-skeleton"></div>
-            <div class="news-card-skeleton"></div>
-            <div class="news-card-skeleton"></div>
-            <div class="news-card-skeleton"></div>
-            <div class="news-card-skeleton"></div>
-            <div class="news-card-skeleton"></div>
         </div>
         
         <div class="news-list hidden" id="newsList">
             <!-- News list items will be inserted here dynamically -->
-            <div class="news-list-skeleton"></div>
-            <div class="news-list-skeleton"></div>
-            <div class="news-list-skeleton"></div>
-            <div class="news-list-skeleton"></div>
         </div>
         
         <div class="pagination-section">
@@ -267,7 +254,7 @@
             <div class="news-card-image">
                 <img src="" alt="News image" loading="lazy">
                 <div class="news-card-sentiment">
-                    <i class="fas"></i>
+                    <span class="sentiment-text"></span>
                 </div>
             </div>
             <div class="news-card-content">
@@ -693,16 +680,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 newsCard.querySelector('.news-card-source span').textContent = news.source;
                 newsCard.querySelector('.news-card-time span').textContent = formatDate(news.published_at);
                 
-                // Set sentiment icon
-                const sentimentIcon = newsCard.querySelector('.news-card-sentiment i');
+                // Set sentiment with text
+                const sentimentText = newsCard.querySelector('.sentiment-text');
                 if (news.sentiment === 'positive') {
-                    sentimentIcon.className = 'fas fa-arrow-up';
+                    sentimentText.textContent = 'Positive';
                     newsCard.querySelector('.news-card-sentiment').classList.add('positive');
                 } else if (news.sentiment === 'negative') {
-                    sentimentIcon.className = 'fas fa-arrow-down';
+                    sentimentText.textContent = 'Negative';
                     newsCard.querySelector('.news-card-sentiment').classList.add('negative');
                 } else {
-                    sentimentIcon.className = 'fas fa-minus';
+                    sentimentText.textContent = 'Neutral';
                     newsCard.querySelector('.news-card-sentiment').classList.add('neutral');
                 }
                 
@@ -802,14 +789,14 @@ document.addEventListener('DOMContentLoaded', function() {
         modalCategory.textContent = capitalizeFirstLetter(news.category);
         modalCategory.className = `modal-category ${news.category}`;
         
-        // Set sentiment with icon
+        // Set sentiment with text only
         modalSentiment.className = `modal-sentiment ${news.sentiment}`;
         if (news.sentiment === 'positive') {
-            modalSentiment.innerHTML = `<i class="fas fa-arrow-up"></i> Positive`;
+            modalSentiment.textContent = 'Positive';
         } else if (news.sentiment === 'negative') {
-            modalSentiment.innerHTML = `<i class="fas fa-arrow-down"></i> Negative`;
+            modalSentiment.textContent = 'Negative';
         } else {
-            modalSentiment.innerHTML = `<i class="fas fa-minus"></i> Neutral`;
+            modalSentiment.textContent = 'Neutral';
         }
         
         // Add topics
