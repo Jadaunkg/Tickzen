@@ -22,5 +22,5 @@ FORECAST_OPTIONS = {
 
 # Finnhub API Configuration for insider transactions and peer data
 # Get your free API key from: https://finnhub.io/register
-# Set this to your actual API key or set the FINNHUB_API_KEY environment variable
-FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY', 'your_finnhub_api_key_here')
+# Set the FINNHUB_API_KEY environment variable or add it to your .env file
+FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')

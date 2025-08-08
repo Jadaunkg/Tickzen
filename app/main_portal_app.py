@@ -1131,6 +1131,11 @@ def dashboard_analytics():
 def analyzer_input_page():
     return render_template('analyzer_input.html', title="Stock Analyzer Input")
 
+@app.route('/health')
+def simple_health_check():
+    """Simple health check endpoint for Azure App Service"""
+    return jsonify({'status': 'healthy', 'timestamp': datetime.now(timezone.utc).isoformat()}), 200
+
 @app.route('/api/health')
 def health_check():
     """Health check endpoint for monitoring Firebase and app status"""
@@ -4711,6 +4716,19 @@ def robots_txt():
     content = f"""User-agent: *
 Allow: /
 
+# Disallow sensitive endpoints
+Disallow: /health
+Disallow: /api/health
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /auth/
+Disallow: /user-profile
+Disallow: /site-profiles
+Disallow: /automation-runner
+Disallow: /reports
+
 # Main sitemap index
 Sitemap: {base_url}/sitemap-index.xml
 
@@ -4837,7 +4855,7 @@ def sitemap_xml():
                 '/favicon.ico', '/robots.txt', '/sitemap', '/humans.txt',
                 '/google-business-profile.json', '/start-analysis', '/check-user-exists',
                 '/verify-token', '/test/', '/debug/', '/wp-asset-generator',
-                '/wordpress-automation-portal', '/dashboard-analytics', '<'
+                '/wordpress-automation-portal', '/dashboard-analytics', '/health', '<'
             ]
             
             # Skip if route contains any skip pattern

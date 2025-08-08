@@ -33,15 +33,16 @@ echo "Starting Gunicorn with sync worker and threading..."
 exec gunicorn \
     --config gunicorn.conf.py \
     --worker-class sync \
-    --threads 50 \
+    --threads 100 \
     --workers 1 \
-    --worker-connections 1000 \
+    --worker-connections 2000 \
     --bind 0.0.0.0:${PORT:-8000} \
-    --timeout 300 \
-    --keepalive 5 \
-    --max-requests 1000 \
-    --max-requests-jitter 100 \
+    --timeout 600 \
+    --keepalive 10 \
+    --max-requests 2000 \
+    --max-requests-jitter 200 \
     --access-logfile - \
     --error-logfile - \
-    --log-level warning \
+    --log-level info \
+    --preload \
     wsgi:application

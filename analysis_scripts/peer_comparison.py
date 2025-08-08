@@ -43,14 +43,14 @@ def get_finnhub_api_key():
     except Exception as e:
         logging.warning(f"Could not read Finnhub API key from config: {e}")
     
-    # Fallback - you should set this in your environment or config
-    return "your_finnhub_api_key_here"
+    # Return None if not found anywhere
+    return None
 
 def fetch_company_peers(ticker):
     """Fetch peer companies using Finnhub API."""
     api_key = get_finnhub_api_key()
     
-    if api_key == "your_finnhub_api_key_here":
+    if not api_key or api_key == "your_finnhub_api_key_here":
         logging.warning("Finnhub API key not configured properly")
         return []
     
@@ -63,19 +63,93 @@ def fetch_company_peers(ticker):
             # Filter out the original ticker and limit to 4 peers
             if isinstance(peers, list):
                 filtered_peers = [peer for peer in peers if peer.upper() != ticker.upper()]
+                logging.info(f"Finnhub returned {len(filtered_peers)} peers for {ticker}: {filtered_peers}")
                 return filtered_peers[:4]  # Return up to 4 peers
         else:
-            logging.error(f"Finnhub API error: {response.status_code}")
+            logging.error(f"Finnhub API error for {ticker}: {response.status_code}")
     except Exception as e:
-        logging.error(f"Error fetching peers from Finnhub: {e}")
+        logging.error(f"Error fetching peers from Finnhub for {ticker}: {e}")
     
     return []
+
+def get_company_peers(ticker):
+    """Get peer companies - use Finnhub peers if available, otherwise use sector-based peers."""
+    logging.info(f"Getting peers for {ticker}")
+    
+    # Step 1: Try Finnhub API
+    finnhub_peers = fetch_company_peers(ticker)
+    
+    if finnhub_peers:
+        # Use Finnhub peers directly (up to 3 peers)
+        logging.info(f"Using Finnhub peers for {ticker}: {finnhub_peers[:3]}")
+        return finnhub_peers[:3]
+    
+    # Step 2: Fallback to sector-based peers
+    logging.info(f"No Finnhub peers found for {ticker}, using sector-based fallback")
+    return get_sector_peers(ticker)
+
+def analyze_insider_availability(ticker):
+    """Analyze why insider transaction data might not be available for a ticker."""
+    try:
+        import yfinance as yf
+        
+        stock = yf.Ticker(ticker)
+        info = stock.info
+        
+        reasons = []
+        
+        # Check if it's an ETF
+        if is_etf(ticker):
+            reasons.append("ETFs do not have corporate insiders as they are investment funds, not operating companies")
+            return reasons
+        
+        # Check market cap (smaller companies often have less insider activity)
+        market_cap = info.get('marketCap', 0)
+        if market_cap < 100e6:  # Less than $100M
+            reasons.append("Small market cap companies (under $100M) often have limited insider transaction reporting")
+        
+        # Check if it's a recent IPO or newer company
+        listing_date = info.get('firstTradeDateEpochUtc')
+        if listing_date:
+            import datetime
+            listing_datetime = datetime.datetime.fromtimestamp(listing_date)
+            years_since_listing = (datetime.datetime.now() - listing_datetime).days / 365.25
+            if years_since_listing < 2:
+                reasons.append(f"Recently public company (listed {years_since_listing:.1f} years ago) may have limited historical insider data")
+        
+        # Check exchange (some foreign or OTC stocks have limited reporting)
+        exchange = info.get('exchange', '').upper()
+        if exchange in ['OTC', 'PINK', 'OTCBB']:
+            reasons.append("OTC or Pink Sheet stocks often have limited insider transaction reporting requirements")
+        
+        # Check country (non-US companies may not report to SEC)
+        country = info.get('country', '').upper()
+        if country and country != 'UNITED STATES':
+            reasons.append(f"Non-US companies ({country}) may not file insider transactions with the SEC")
+        
+        # Check if it's a special purpose entity
+        business_summary = info.get('longBusinessSummary', '').lower()
+        company_name = info.get('longName', '').lower()
+        if any(term in business_summary or term in company_name for term in ['spac', 'acquisition corp', 'blank check']):
+            reasons.append("Special purpose acquisition companies (SPACs) often have limited insider activity")
+        
+        # Generic reasons if no specific issues found
+        if not reasons:
+            reasons.append("Company may have minimal insider trading activity in the recent 3-month period")
+            reasons.append("Insiders may primarily trade during scheduled trading windows not captured in recent data")
+            reasons.append("Company may have restrictive insider trading policies limiting transaction frequency")
+        
+        return reasons
+        
+    except Exception as e:
+        logging.warning(f"Error analyzing insider availability for {ticker}: {e}")
+        return ["Unable to determine specific reasons - may be due to limited public data availability"]
 
 def fetch_insider_transactions(ticker, months_back=3):
     """Fetch insider transactions for a ticker using Finnhub API with enhanced data collection."""
     api_key = get_finnhub_api_key()
     
-    if api_key == "your_finnhub_api_key_here":
+    if not api_key or api_key == "your_finnhub_api_key_here":
         logging.warning("Finnhub API key not configured properly for insider transactions")
         return []
     
@@ -553,10 +627,65 @@ def generate_insider_transactions_html(ticker):
     formatted_transactions = format_insider_transaction_data(transactions)
     
     if not formatted_transactions:
+        # Analyze why insider data might not be available
+        availability_reasons = analyze_insider_availability(ticker)
+        
+        reasons_html = ""
+        if availability_reasons:
+            reasons_list = "</li><li>".join(availability_reasons)
+            reasons_html = f"""
+            <div class="availability-analysis">
+                <h4>Why might insider transaction data be unavailable?</h4>
+                <ul>
+                    <li>{reasons_list}</li>
+                </ul>
+            </div>
+            """
+        
         return f"""
         <div class="insider-transactions">
             <h3>Insider Transactions (Last 3 Months)</h3>
-            <p>No insider transaction data is available for {ticker} in the past 3 months.</p>
+            <div class="no-data-container">
+                <p class="no-data-message">No insider transaction data is available for {ticker} in the past 3 months.</p>
+                {reasons_html}
+            </div>
+            
+            <style>
+            .no-data-container {{
+                padding: 20px;
+                background-color: #f8f9fa;
+                border-left: 4px solid #007bff;
+                border-radius: 4px;
+                margin: 15px 0;
+            }}
+            
+            .no-data-message {{
+                font-weight: 500;
+                color: #495057;
+                margin-bottom: 15px;
+            }}
+            
+            .availability-analysis {{
+                margin-top: 15px;
+            }}
+            
+            .availability-analysis h4 {{
+                color: #007bff;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }}
+            
+            .availability-analysis ul {{
+                margin: 0;
+                padding-left: 20px;
+                color: #6c757d;
+            }}
+            
+            .availability-analysis li {{
+                margin-bottom: 8px;
+                line-height: 1.5;
+            }}
+            </style>
         </div>
         """
     
@@ -873,6 +1002,30 @@ def generate_insider_transactions_html(ticker):
     
     return html
 
+def is_etf(ticker):
+    """Check if a ticker is an ETF based on common patterns and characteristics."""
+    try:
+        stock = yf.Ticker(ticker)
+        info = stock.info
+        
+        # Common ETF indicators
+        etf_indicators = [
+            'ETF' in str(info.get('longName', '')).upper(),
+            'EXCHANGE TRADED FUND' in str(info.get('longName', '')).upper(),
+            'INDEX FUND' in str(info.get('longName', '')).upper(),
+            info.get('quoteType') == 'ETF',
+            info.get('category') == 'Exchange Traded Fund',
+            # Common ETF ticker patterns
+            ticker.upper() in ['SPY', 'QQQ', 'VTI', 'IWM', 'EFA', 'VEA', 'VWO', 'GLD', 'SLV', 
+                             'TLT', 'IEF', 'HYG', 'LQD', 'XLF', 'XLE', 'XLV', 'XLI', 'XLK', 
+                             'XLU', 'XLP', 'XLY', 'XLB', 'XLRE', 'XME', 'GDX', 'USO', 'DIA']
+        ]
+        
+        return any(etf_indicators)
+    except:
+        # If we can't determine, assume it's not an ETF
+        return False
+
 def get_peer_metrics(ticker):
     """Get financial metrics for a single ticker using yfinance with multiple fallbacks."""
     try:
@@ -881,6 +1034,9 @@ def get_peer_metrics(ticker):
         
         # Debug logging for troubleshooting
         logging.info(f"Fetching metrics for {ticker}")
+        
+        # Check if this is an ETF
+        etf_flag = is_etf(ticker)
         
         # Get historical data for 52-week range calculation
         hist = stock.history(period="1y")
@@ -908,25 +1064,34 @@ def get_peer_metrics(ticker):
         # Get P/E Ratio with multiple fallbacks
         pe_ratio = get_metric_with_fallbacks('trailingPE', ['forwardPE', 'priceToEarningsTrailing12Months'])
         
-        # Get Revenue Growth with fallbacks
-        revenue_growth = get_metric_with_fallbacks('revenueGrowth', ['quarterlyRevenueGrowth'])
+        # For ETFs, certain metrics are not applicable
+        if etf_flag:
+            # ETFs don't have traditional company fundamentals
+            revenue_growth = "N/A (ETF)"
+            net_margin = "N/A (ETF)"
+            eps = "N/A (ETF)"
+            roe = "N/A (ETF)"
+            debt_to_equity = "N/A (ETF)"
+        else:
+            # Get Revenue Growth with fallbacks
+            revenue_growth = get_metric_with_fallbacks('revenueGrowth', ['quarterlyRevenueGrowth'])
+            
+            # Get Net Margin with fallbacks
+            net_margin = get_metric_with_fallbacks('profitMargins', ['netIncomeToCommon'])
+            
+            # Get EPS with fallbacks
+            eps = get_metric_with_fallbacks('trailingEps', ['forwardEps', 'earningsPerShare'])
+            
+            # Get ROE with fallbacks
+            roe = get_metric_with_fallbacks('returnOnEquity', ['roe'])
+            
+            # Get Debt-to-Equity with fallbacks
+            debt_to_equity = get_metric_with_fallbacks('debtToEquity', ['totalDebtToEquity'])
         
-        # Get Net Margin with fallbacks
-        net_margin = get_metric_with_fallbacks('profitMargins', ['netIncomeToCommon'])
-        
-        # Get EPS with fallbacks
-        eps = get_metric_with_fallbacks('trailingEps', ['forwardEps', 'earningsPerShare'])
-        
-        # Get ROE with fallbacks
-        roe = get_metric_with_fallbacks('returnOnEquity', ['roe'])
-        
-        # Get Debt-to-Equity with fallbacks
-        debt_to_equity = get_metric_with_fallbacks('debtToEquity', ['totalDebtToEquity'])
-        
-        # Get Dividend Yield with fallbacks
+        # Get Dividend Yield with fallbacks (ETFs can have dividend yields)
         dividend_yield = get_metric_with_fallbacks('dividendYield', ['trailingAnnualDividendYield', 'yield'])
         
-        # Get Market Cap with fallbacks
+        # Get Market Cap with fallbacks (for ETFs this represents total net assets)
         market_cap = get_metric_with_fallbacks('marketCap', ['sharesOutstanding'])
         if market_cap == "N/A" and info.get('sharesOutstanding') and info.get('currentPrice'):
             try:
@@ -947,34 +1112,74 @@ def get_peer_metrics(ticker):
             '52-Week Range': week_52_range
         }
         
-        # Log any remaining N/A values for debugging
+        # Log any remaining N/A values for debugging (but exclude ETF N/A values)
         na_metrics = [k for k, v in metrics.items() if v == "N/A"]
-        if na_metrics:
+        if na_metrics and not etf_flag:
             logging.warning(f"{ticker}: N/A values for: {na_metrics}")
+        elif etf_flag:
+            logging.info(f"{ticker}: ETF detected - fundamental metrics marked as N/A (ETF)")
         
         return metrics
     except Exception as e:
         logging.error(f"Error fetching metrics for {ticker}: {e}")
         return None
 
-def get_peer_comparison_data(ticker):
-    """Main function to get peer comparison data."""
-    try:
-        # Get peers from Finnhub
-        peers = fetch_company_peers(ticker)
+def get_sector_peers(ticker):
+    """Get sector-appropriate peers for a given ticker."""
+    # Define sector-based peer mapping
+    sector_peers = {
+        # Technology
+        'AAPL': ['MSFT', 'GOOGL', 'META'],
+        'MSFT': ['AAPL', 'GOOGL', 'AMZN'],
+        'GOOGL': ['AAPL', 'MSFT', 'META'],
+        'META': ['GOOGL', 'SNAP', 'TWTR'],
+        'NVDA': ['AMD', 'INTC', 'TSM'],
+        'AMD': ['NVDA', 'INTC', 'QCOM'],
+        'INTC': ['AMD', 'NVDA', 'QCOM'],
+        'NBIS': ['AAPL', 'MSFT', 'GOOGL'],  # Tech/cloud infrastructure
         
-        if not peers:
-            # Fallback peer list based on common stocks (you can customize this)
-            fallback_peers = {
-                'AAPL': ['MSFT', 'GOOGL', 'TSLA'],
-                'MSFT': ['AAPL', 'GOOGL', 'AMZN'],
-                'GOOGL': ['AAPL', 'MSFT', 'META'],
-                'TSLA': ['AAPL', 'NIO', 'RIVN'],
-                'AMZN': ['MSFT', 'GOOGL', 'WMT'],
-                'META': ['GOOGL', 'SNAP', 'TWTR'],
-                'NVDA': ['AMD', 'INTC', 'TSM']
-            }
-            peers = fallback_peers.get(ticker.upper(), ['SPY', 'QQQ', 'VTI'])  # Market ETFs as ultimate fallback
+        # Automotive/EV
+        'TSLA': ['F', 'GM', 'NIO'],
+        'F': ['GM', 'TSLA', 'STLA'],
+        'GM': ['F', 'TSLA', 'STLA'],
+        'NIO': ['TSLA', 'XPEV', 'LI'],
+        
+        # E-commerce/Retail
+        'AMZN': ['WMT', 'TGT', 'COST'],
+        'WMT': ['TGT', 'COST', 'AMZN'],
+        
+        # Financial
+        'JPM': ['BAC', 'WFC', 'C'],
+        'BAC': ['JPM', 'WFC', 'C'],
+        'BRK-B': ['JPM', 'BAC', 'WFC'],
+        
+        # Healthcare/Pharma
+        'JNJ': ['PFE', 'MRK', 'ABBV'],
+        'PFE': ['JNJ', 'MRK', 'ABBV'],
+        
+        # Energy
+        'XOM': ['CVX', 'COP', 'EOG'],
+        'CVX': ['XOM', 'COP', 'EOG'],
+        
+        # Consumer Goods
+        'KO': ['PEP', 'PG', 'UL'],
+        'PEP': ['KO', 'PG', 'MNST'],
+        
+        # Aerospace/Defense
+        'BA': ['LMT', 'RTX', 'NOC'],
+        'LMT': ['BA', 'RTX', 'NOC'],
+    }
+    
+    # Default fallback for unknown tickers - use large cap diversified companies
+    default_peers = ['AAPL', 'MSFT', 'GOOGL']
+    
+    return sector_peers.get(ticker.upper(), default_peers)
+
+def get_peer_comparison_data(ticker):
+    """Main function to get peer comparison data with simplified peer selection."""
+    try:
+        # Use simplified peer selection
+        peers = get_company_peers(ticker)
         
         # Get metrics for target company and peers
         comparison_data = {}
@@ -990,6 +1195,7 @@ def get_peer_comparison_data(ticker):
             if peer_metrics:
                 comparison_data[peer.upper()] = peer_metrics
         
+        logging.info(f"Peer comparison completed for {ticker} with {len(comparison_data)-1} peers: {list(comparison_data.keys())}")
         return comparison_data
     except Exception as e:
         logging.error(f"Error in get_peer_comparison_data: {e}")
@@ -998,6 +1204,10 @@ def get_peer_comparison_data(ticker):
 def format_metric_value(value, metric_name):
     """Format metric values for display with improved handling."""
     if value == "N/A" or value is None or (isinstance(value, float) and np.isnan(value)):
+        return "N/A"
+    
+    # Handle ETF-specific N/A values
+    if isinstance(value, str) and "N/A (ETF)" in value:
         return "N/A"
     
     try:

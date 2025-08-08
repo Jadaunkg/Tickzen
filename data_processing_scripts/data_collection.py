@@ -286,10 +286,10 @@ def fetch_stock_data(
         data[col] = pd.to_numeric(data[col], errors='coerce')
     
     # Drop rows where any of the essential OHLC columns became NaN after coercion
-    data.dropna(subset=['Open', 'High', 'Low', 'Close'], inplace=True)
+    data = data.dropna(subset=['Open', 'High', 'Low', 'Close'])
     # Fill NaN in Volume with 0 after attempting numeric conversion, as Volume can sometimes be 0.
     if 'Volume' in data.columns:
-        data['Volume'].fillna(0, inplace=True)
+        data['Volume'] = data['Volume'].fillna(0)
 
 
     if data.empty:

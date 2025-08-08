@@ -6,16 +6,15 @@ import multiprocessing
 bind = "0.0.0.0:8000"  # Azure expects port 8000
 workers = 1  # Single worker for SocketIO applications
 worker_class = "sync"  # Use sync worker class with threading for better compatibility
-threads = 50  # Reduced threads for faster startup
-worker_connections = 1000
-worker_connections = 1000
+worker_connections = 2000
 
-# Performance settings - Optimized for faster startup
-max_requests = 1000
-max_requests_jitter = 100
-timeout = 300  # Increased timeout for Azure startup
-keepalive = 5
-preload_app = False  # Disable preloading for faster startup
+# Performance settings - Optimized for Azure with longer timeouts
+max_requests = 2000
+max_requests_jitter = 200
+timeout = 600  # Increased timeout for analysis processes
+keepalive = 10
+preload_app = True  # Enable preloading for better performance
+threads = 100  # Increased threads for better concurrency
 
 # Process naming
 proc_name = "tickzen-app"
@@ -23,7 +22,7 @@ proc_name = "tickzen-app"
 # Logging
 accesslog = "-"  # Log to stdout (Azure captures this)
 errorlog = "-"   # Log to stderr (Azure captures this)
-loglevel = "warning"
+loglevel = "info"  # Changed to info for better debugging
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
 
 # Application settings

@@ -2104,10 +2104,14 @@ def generate_dividends_shareholder_returns_html(ticker, rdata):
         if ex_div_date:
             analysis_points.append(f"Investors must own the stock before the upcoming <strong>ex-dividend date of {format_html_value(ex_div_date, 'date')}</strong> to receive the next dividend.")
         
-        if last_split_date_str:
-            split_year = int(last_split_date_str.split('-')[0])
-            if datetime.now().year - split_year > 15:
-                analysis_points.append(f"The last stock split ({last_split_factor} in {split_year}) is outdated and likely irrelevant to the current valuation.")
+        if last_split_date_str and last_split_date_str != 'N/A':
+            try:
+                split_year = int(last_split_date_str.split('-')[0])
+                if datetime.now().year - split_year > 15:
+                    analysis_points.append(f"The last stock split ({last_split_factor} in {split_year}) is outdated and likely irrelevant to the current valuation.")
+            except (ValueError, IndexError):
+                # Handle cases where date parsing fails
+                pass
 
         para2 = "<h4>Key Observations & Analysis:</h4><ul>" + "".join([f"<li>{point}</li>" for point in analysis_points]) + "</ul>"
 

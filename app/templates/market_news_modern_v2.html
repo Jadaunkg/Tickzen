@@ -7,6 +7,12 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 <meta name="description" content="Latest financial market news, analysis, and insights - Real-time updates from global markets">
 <meta name="keywords" content="market news, financial news, stock market, economy, crypto, forex, earnings">
+<style>
+/* Hide the global loading overlay to prevent duplicate loaders */
+.loading-overlay:not(#loadingOverlay) {
+    display: none !important;
+}
+</style>
 {% endblock %}
 
 {% block content %}

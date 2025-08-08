@@ -23,15 +23,19 @@ def log_failed_analysis_attempt(user_uid, ticker, error_message):
     current_firebase_status = get_firebase_initialized_status()
     
     # Use current_app.logger if available, otherwise print
-    logger = current_app.logger if hasattr(current_app, 'logger') else print
+    if hasattr(current_app, 'logger'):
+        logger = current_app.logger
+    else:
+        import logging
+        logger = logging.getLogger(__name__)
     
     if not current_firebase_status:
-        logger("Firestore not available for logging failed analysis.")
+        logger.warning("Firestore not available for logging failed analysis.")
         return False
     
     db = get_firestore_client()
     if not db:
-        logger("Firestore client not available for logging failed analysis.")
+        logger.warning("Firestore client not available for logging failed analysis.")
         return False
     
     try:
@@ -52,27 +56,32 @@ def log_failed_analysis_attempt(user_uid, ticker, error_message):
         failed_analyses_collection = db.collection('failed_analyses')
         doc_ref = failed_analyses_collection.add(log_data)
         
-        logger(f"Failed analysis logged for ticker {ticker}. Document ID: {doc_ref[1].id}")
+        logger.info(f"Failed analysis logged for ticker {ticker}. Document ID: {doc_ref[1].id}")
         return True
         
     except Exception as e:
-        logger(f"Error logging failed analysis for ticker {ticker}: {e}")
+        logger.error(f"Error logging failed analysis for ticker {ticker}: {e}")
         return False
 
 def save_report_metadata_for_analytics(user_uid, ticker, filename, generated_at_dt, file_size=0, file_path=None, storage_path=None):
     """Save report metadata to 'reports' collection for analytics purposes"""
     # Get current Firebase initialization status
     current_firebase_status = get_firebase_initialized_status()
+    
+    # Use current_app.logger if available, otherwise print
+    if hasattr(current_app, 'logger'):
+        logger = current_app.logger
+    else:
+        import logging
+        logger = logging.getLogger(__name__)
+    
     if not current_firebase_status:
-        # Use current_app.logger if available, otherwise print
-        logger = current_app.logger if hasattr(current_app, 'logger') else print
-        logger("Firestore not available for saving report analytics metadata.")
+        logger.warning("Firestore not available for saving report analytics metadata.")
         return False
     
     db = get_firestore_client()
     if not db:
-        logger = current_app.logger if hasattr(current_app, 'logger') else print
-        logger("Firestore client not available for saving report analytics metadata.")
+        logger.warning("Firestore client not available for saving report analytics metadata.")
         return False
     
     try:
@@ -110,13 +119,9 @@ def save_report_metadata_for_analytics(user_uid, ticker, filename, generated_at_
         reports_collection = db.collection('reports')
         doc_ref = reports_collection.add(metadata)
         
-        # Use current_app.logger if available, otherwise print
-        logger = current_app.logger if hasattr(current_app, 'logger') else print
-        logger(f"Report analytics metadata saved for ticker {ticker}. Document ID: {doc_ref[1].id}")
+        logger.info(f"Report analytics metadata saved for ticker {ticker}. Document ID: {doc_ref[1].id}")
         return True
         
     except Exception as e:
-        # Use current_app.logger if available, otherwise print
-        logger = current_app.logger if hasattr(current_app, 'logger') else print
-        logger(f"Error saving report analytics metadata for ticker {ticker}: {e}")
+        logger.error(f"Error saving report analytics metadata for ticker {ticker}: {e}")
         return False
