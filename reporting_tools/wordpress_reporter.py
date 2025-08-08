@@ -38,6 +38,7 @@ ALL_REPORT_SECTIONS = {
     "short_selling_info": hc.generate_short_selling_info_html,
     "stock_price_statistics": hc.generate_stock_price_statistics_html,
     "dividends_shareholder_returns": hc.generate_dividends_shareholder_returns_html,
+    "peer_comparison": hc.generate_peer_comparison_html,
     "conclusion_outlook": hc.generate_conclusion_outlook_html,
     
     "risk_factors": hc.generate_risk_factors_html,
@@ -176,6 +177,7 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
         rdata['analyst_info_data'] = fa.extract_analyst_info(fundamentals)
         rdata['stock_price_stats_data'] = fa.extract_stock_price_stats_data(fundamentals)
         rdata['short_selling_data'] = fa.extract_short_selling_data(fundamentals)
+        rdata['peer_comparison_data'] = fa.extract_peer_comparison_data(ticker)
         rdata['industry'] = fundamentals.get('info', {}).get('industry', 'N/A')
         rdata['sector'] = fundamentals.get('info', {}).get('sector', 'N/A')
 

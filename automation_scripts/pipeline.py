@@ -199,10 +199,26 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
             info_data = yf_ticker_obj.info or {}
             recs_data = yf_ticker_obj.recommendations if hasattr(yf_ticker_obj, 'recommendations') and yf_ticker_obj.recommendations is not None else pd.DataFrame()
             news_data = yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news is not None else []
-            fundamentals = {'info': info_data, 'recommendations': recs_data, 'news': news_data}
+            
+            # Add balance sheet and financial data for enhanced financial efficiency analysis
+            balance_sheet_data = None
+            financials_data = None
+            try:
+                balance_sheet_data = yf_ticker_obj.balance_sheet
+                financials_data = yf_ticker_obj.financials
+            except Exception as fin_err:
+                pipeline_logger.warning(f"yfinance financial statements error for {ticker}: {fin_err}.")
+            
+            fundamentals = {
+                'info': info_data, 
+                'recommendations': recs_data, 
+                'news': news_data,
+                'balance_sheet': balance_sheet_data,
+                'financials': financials_data
+            }
         except Exception as yf_err:
             pipeline_logger.warning(f"yfinance fundamentals error for {ticker}: {yf_err}.")
-            fundamentals = {'info': {}, 'recommendations': pd.DataFrame(), 'news': []}
+            fundamentals = {'info': {}, 'recommendations': pd.DataFrame(), 'news': [], 'balance_sheet': None, 'financials': None}
 
         _emit_progress(socketio_instance, task_room, 65, "Gathering analyst consensus and recommendations...", "Analyst Consensus & Recommendations", ticker, event_name_progress)
         _emit_progress(socketio_instance, task_room, 70, "Analyzing macro economic indicators...", "Macro Economic Indicators", ticker, event_name_progress)
@@ -296,9 +312,30 @@ def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None
         
         _emit_progress(socketio_instance, task_room, 60, "Fetching fundamentals for WP assets...", "WP Fundamentals", ticker, event_name_progress)
         try:
-            yf_ticker_obj = yf.Ticker(ticker); info_data = yf_ticker_obj.info or {}; recs_data = yf_ticker_obj.recommendations if hasattr(yf_ticker_obj, 'recommendations') and yf_ticker_obj.recommendations is not None else pd.DataFrame(); news_data = yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news is not None else []
-            fundamentals = {'info': info_data, 'recommendations': recs_data, 'news': news_data}
-        except Exception as e: fundamentals = {'info': {}, 'recommendations': pd.DataFrame(), 'news': []}; pipeline_logger.warning(f"WP Fundamentals Warning for {ticker}: {e}")
+            yf_ticker_obj = yf.Ticker(ticker)
+            info_data = yf_ticker_obj.info or {}
+            recs_data = yf_ticker_obj.recommendations if hasattr(yf_ticker_obj, 'recommendations') and yf_ticker_obj.recommendations is not None else pd.DataFrame()
+            news_data = yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news is not None else []
+            
+            # Add balance sheet and financial data for enhanced financial efficiency analysis
+            balance_sheet_data = None
+            financials_data = None
+            try:
+                balance_sheet_data = yf_ticker_obj.balance_sheet
+                financials_data = yf_ticker_obj.financials
+            except Exception as fin_err:
+                pipeline_logger.warning(f"yfinance WP financial statements error for {ticker}: {fin_err}.")
+            
+            fundamentals = {
+                'info': info_data, 
+                'recommendations': recs_data, 
+                'news': news_data,
+                'balance_sheet': balance_sheet_data,
+                'financials': financials_data
+            }
+        except Exception as e: 
+            fundamentals = {'info': {}, 'recommendations': pd.DataFrame(), 'news': [], 'balance_sheet': None, 'financials': None}
+            pipeline_logger.warning(f"WP Fundamentals Warning for {ticker}: {e}")
 
         _emit_progress(socketio_instance, task_room, 75, "Generating HTML and chart assets...", "WP Asset Generation", ticker, event_name_progress)
         text_report_html, img_urls_dict_or_path = create_wordpress_report_assets(

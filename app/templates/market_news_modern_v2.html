@@ -242,8 +242,12 @@
 <!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner">
-        <div class="spinner"></div>
-        <p>Loading news data...</p>
+        <div class="spinner-container">
+            <div class="spinner"></div>
+        </div>
+        <div class="loading-text">
+            <p>Loading news data...</p>
+        </div>
     </div>
 </div>
 
@@ -523,6 +527,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         positiveSentimentCount.textContent = data.sentiment_counts.positive || 0;
                         neutralSentimentCount.textContent = data.sentiment_counts.neutral || 0;
                         negativeSentimentCount.textContent = data.sentiment_counts.negative || 0;
+                    }
+                    
+                    // Update data sources information
+                    if (data.data_sources) {
+                        debug('Data sources available:', data.data_sources);
+                        updateDataSourcesDisplay(data.data_sources);
                     }
                     
                     // Process featured news and sources only for "all" view
@@ -1015,6 +1025,72 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         return defaultImages[category] || '/static/images/defaults/news.jpg';
+    }
+    
+    function updateDataSourcesDisplay(dataSources) {
+        // Create or update a data sources indicator
+        let dataSourcesElement = document.getElementById('data-sources-info');
+        
+        if (!dataSourcesElement) {
+            // Create the element if it doesn't exist
+            const statsWrapper = document.querySelector('.stats-wrapper');
+            if (statsWrapper) {
+                dataSourcesElement = document.createElement('div');
+                dataSourcesElement.id = 'data-sources-info';
+                dataSourcesElement.className = 'stats-card data-sources-card';
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'stats-icon';
+                iconDiv.innerHTML = '<i class="fas fa-database"></i>';
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'stats-content';
+                
+                const valueDiv = document.createElement('h3');
+                valueDiv.className = 'stats-value';
+                valueDiv.id = 'data-sources-count';
+                
+                const labelDiv = document.createElement('p');
+                labelDiv.className = 'stats-label';
+                labelDiv.textContent = 'Data Sources';
+                
+                const sourcesList = document.createElement('div');
+                sourcesList.className = 'data-sources-list';
+                sourcesList.id = 'data-sources-list';
+                
+                contentDiv.appendChild(valueDiv);
+                contentDiv.appendChild(labelDiv);
+                contentDiv.appendChild(sourcesList);
+                
+                dataSourcesElement.appendChild(iconDiv);
+                dataSourcesElement.appendChild(contentDiv);
+                
+                statsWrapper.appendChild(dataSourcesElement);
+            }
+        }
+        
+        if (dataSourcesElement) {
+            const countElement = document.getElementById('data-sources-count');
+            const listElement = document.getElementById('data-sources-list');
+            
+            if (countElement) {
+                countElement.textContent = dataSources.length;
+            }
+            
+            if (listElement) {
+                const sourceNames = dataSources.map(source => {
+                    switch(source) {
+                        case 'alpha_vantage': return 'Alpha Vantage';
+                        case 'finnhub': return 'FinnHub';
+                        default: return source.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    }
+                });
+                
+                listElement.innerHTML = `<small>${sourceNames.join(' + ')}</small>`;
+            }
+        }
+        
+        debug('Updated data sources display', dataSources);
     }
     
     // Add event handler for modal close when clicking outside

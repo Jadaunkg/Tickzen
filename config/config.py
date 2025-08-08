@@ -19,3 +19,8 @@ FORECAST_OPTIONS = {
     "2 year": 730,
     "5 year": 1825
 }
+
+# Finnhub API Configuration for insider transactions and peer data
+# Get your free API key from: https://finnhub.io/register
+# Set this to your actual API key or set the FINNHUB_API_KEY environment variable
+FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY', 'your_finnhub_api_key_here')

@@ -194,7 +194,7 @@ def fetch_diverse_news_data(api_key, cache_key):
                     if isinstance(data, dict) and "feed" in data:
                         new_articles = data["feed"]
                         all_news.extend(new_articles)
-                        current_app.logger.info(f"Retrieved {len(new_articles)} articles from call {i+1}")
+                        current_app.logger.info(f"Retrieved {len(new_articles)} articles from Alpha Vantage call {i+1}")
                     else:
                         current_app.logger.warning(f"Invalid response structure from call {i+1}: {data}")
                 except json.JSONDecodeError:
@@ -205,6 +205,37 @@ def fetch_diverse_news_data(api_key, cache_key):
         except Exception as e:
             current_app.logger.error(f"Error in API call {i+1}: {str(e)}")
             continue
+    
+    # Fetch FinnHub news to supplement Alpha Vantage data
+    current_app.logger.info("Fetching supplementary news from FinnHub")
+    try:
+        finnhub_news = fetch_all_finnhub_news()
+        if finnhub_news:
+            # Process FinnHub news to match our format
+            processed_finnhub = process_finnhub_news(finnhub_news)
+            current_app.logger.info(f"Adding {len(processed_finnhub)} processed FinnHub articles")
+            
+            # Convert to Alpha Vantage format for consistency
+            for article in processed_finnhub:
+                # Transform to Alpha Vantage feed format
+                av_format_article = {
+                    "title": article["title"],
+                    "summary": article["summary"],
+                    "source": article["source"],
+                    "url": article["url"],
+                    "time_published": article["published_at"],
+                    "banner_image": article["image"],
+                    "overall_sentiment_label": article["sentiment"],
+                    "overall_sentiment_score": article["sentiment_score"],
+                    "topics": [{"topic": topic} for topic in article["topics"]],
+                    "id": article["id"]
+                }
+                all_news.append(av_format_article)
+            
+            current_app.logger.info(f"Total articles after adding FinnHub: {len(all_news)}")
+    except Exception as e:
+        current_app.logger.error(f"Error fetching FinnHub news: {str(e)}")
+        # Continue with Alpha Vantage data only
     
     # Remove duplicates based on URL
     seen_urls = set()
@@ -217,7 +248,7 @@ def fetch_diverse_news_data(api_key, cache_key):
             seen_urls.add(url)
             unique_news.append(article)
     
-    current_app.logger.info(f"Total unique articles collected: {len(unique_news)}")
+    current_app.logger.info(f"Total unique articles collected: {len(unique_news)} (Alpha Vantage + FinnHub)")
     
     # Process the combined data
     data_wrapper = {"feed": unique_news}
@@ -229,6 +260,7 @@ def fetch_diverse_news_data(api_key, cache_key):
     processed_data["api_calls_used"] = daily_api_calls
     processed_data["cache_timeout_minutes"] = NEWS_CACHE_TIMEOUT / 60
     processed_data["fresh_articles_count"] = len(unique_news)
+    processed_data["data_sources"] = ["alpha_vantage", "finnhub"]
     
     current_app.logger.info(f"Cached {len(processed_data.get('news', []))} articles for {NEWS_CACHE_TIMEOUT/60} minutes")
     return processed_data, 200
@@ -265,10 +297,178 @@ def get_alpha_vantage_api_key():
     current_app.logger.error("Alpha Vantage API key not found in environment variables or .env file")
     return None
 
+def get_finnhub_api_key():
+    """Get FinnHub API key from environment variables"""
+    # Check for API key in environment variables first
+    api_key = os.environ.get('FINNHUB_API_KEY')
+    if api_key:
+        return api_key
+    
+    # Try to force reload of environment variables
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+        api_key = os.environ.get('FINNHUB_API_KEY')
+        if api_key:
+            return api_key
+    except ImportError:
+        pass  # dotenv not available
+    
+    # As a fallback, try to read directly from the .env file
+    try:
+        with open(os.path.join(os.getcwd(), '.env'), 'r') as f:
+            content = f.read()
+            match = re.search(r'FINNHUB_API_KEY[=:][\s]*["\']?([^"\'\s\n]+)["\']?', content)
+            if match:
+                api_key = match.group(1)
+                current_app.logger.info(f"Found FinnHub API key in .env file: {api_key[:4]}...{api_key[-4:]}")
+                return api_key
+    except Exception:
+        pass  # .env file not found or not readable
+    
+    current_app.logger.error("FinnHub API key not found in environment variables or .env file")
+    return None
+
 @lru_cache(maxsize=10)
 def get_news_topics():
     """Return predefined news topics/categories for filtering"""
     return ['market', 'economy', 'crypto', 'forex', 'earnings']
+
+def fetch_finnhub_news(api_key, category='general', min_id=0):
+    """Fetch news from FinnHub API"""
+    base_url = "https://finnhub.io/api/v1/news"
+    
+    params = {
+        'category': category,
+        'token': api_key
+    }
+    
+    if min_id > 0:
+        params['minId'] = min_id
+    
+    try:
+        current_app.logger.info(f"Making FinnHub API call for category: {category}")
+        response = requests.get(base_url, params=params, timeout=30)
+        
+        if response.status_code == 200:
+            data = response.json()
+            current_app.logger.info(f"FinnHub returned {len(data)} articles for category: {category}")
+            return data
+        elif response.status_code == 429:
+            current_app.logger.warning("FinnHub rate limit hit")
+            return []
+        else:
+            current_app.logger.error(f"FinnHub API error: {response.status_code}")
+            return []
+    except Exception as e:
+        current_app.logger.error(f"Error fetching FinnHub news: {str(e)}")
+        return []
+
+def fetch_all_finnhub_news():
+    """Fetch news from all FinnHub categories"""
+    api_key = get_finnhub_api_key()
+    if not api_key:
+        current_app.logger.warning("FinnHub API key not available")
+        return []
+    
+    all_news = []
+    # FinnHub categories: general, forex, crypto, merger
+    categories = ['general', 'forex', 'crypto', 'merger']
+    
+    for category in categories:
+        try:
+            news_data = fetch_finnhub_news(api_key, category)
+            if news_data:
+                all_news.extend(news_data)
+                current_app.logger.info(f"Added {len(news_data)} articles from FinnHub category: {category}")
+                # Small delay to respect rate limits
+                time.sleep(0.1)
+        except Exception as e:
+            current_app.logger.error(f"Error fetching FinnHub {category} news: {str(e)}")
+            continue
+    
+    current_app.logger.info(f"Total FinnHub articles collected: {len(all_news)}")
+    return all_news
+
+def process_finnhub_news(finnhub_data):
+    """Process and transform FinnHub news data to match our format"""
+    processed_news = []
+    
+    if not isinstance(finnhub_data, list):
+        current_app.logger.warning("FinnHub data is not a list")
+        return []
+    
+    # Category mapping for FinnHub categories to our categories
+    finnhub_category_mapping = {
+        'general': 'market',
+        'forex': 'forex', 
+        'crypto': 'crypto',
+        'merger': 'market',
+        'technology': 'market',
+        'business': 'market',
+        'top news': 'market'
+    }
+    
+    # Keywords for better categorization
+    category_keywords = {
+        'crypto': ['bitcoin', 'cryptocurrency', 'crypto', 'blockchain', 'ethereum', 'digital currency', 'defi', 'nft'],
+        'forex': ['forex', 'currency', 'dollar', 'euro', 'yen', 'exchange rate', 'fx', 'gbp', 'usd', 'eur'],
+        'economy': ['federal reserve', 'inflation', 'gdp', 'unemployment', 'interest rate', 'monetary policy', 'fiscal policy', 'economy', 'recession'],
+        'earnings': ['earnings', 'quarterly results', 'revenue', 'profit', 'financial results', 'q1', 'q2', 'q3', 'q4']
+    }
+    
+    for item in finnhub_data:
+        if not isinstance(item, dict):
+            continue
+            
+        # Get category from FinnHub category first
+        finnhub_category = item.get("category", "general").lower()
+        category = finnhub_category_mapping.get(finnhub_category, 'market')
+        
+        # Enhance categorization with keyword matching
+        headline_summary = (item.get("headline", "") + " " + item.get("summary", "")).lower()
+        for cat, keywords in category_keywords.items():
+            if any(keyword in headline_summary for keyword in keywords):
+                category = cat
+                break
+        
+        # Convert datetime from UNIX timestamp
+        published_at = ""
+        try:
+            timestamp = item.get("datetime", 0)
+            if timestamp:
+                published_at = datetime.fromtimestamp(timestamp).strftime("%Y%m%dT%H%M%S")
+        except (ValueError, TypeError):
+            published_at = ""
+        
+        # Extract related stocks
+        related_stocks = []
+        if "related" in item and item["related"]:
+            # FinnHub related field contains stock symbols separated by commas
+            related_stocks = [stock.strip() for stock in str(item["related"]).split(",") if stock.strip()]
+        
+        news_item = {
+            "id": f"finnhub_{item.get('id', '')}",
+            "title": item.get("headline", ""),
+            "summary": item.get("summary", ""),
+            "source": f"{item.get('source', 'FinnHub')} (FinnHub)",
+            "url": item.get("url", ""),
+            "published_at": published_at,
+            "category": category,
+            "topics": [category],
+            "image": item.get("image", ""),
+            "sentiment": "neutral",  # FinnHub doesn't provide sentiment, default to neutral
+            "sentiment_score": 0,
+            "related_stocks": related_stocks,
+            "data_source": "finnhub"
+        }
+        processed_news.append(news_item)
+    
+    # Sort by published date (newest first)
+    processed_news.sort(key=lambda x: x.get("published_at", ""), reverse=True)
+    
+    current_app.logger.info(f"Processed {len(processed_news)} FinnHub articles")
+    return processed_news
 
 def fetch_alpha_vantage_news(topic=None):
     """Fetch news from Alpha Vantage API with intelligent caching and continuous refresh strategy"""
@@ -925,7 +1125,8 @@ def get_market_news():
             "total_all_news": len(all_news),
             "page": page,
             "category_counts": category_counts,
-            "sentiment_counts": sentiment_counts
+            "sentiment_counts": sentiment_counts,
+            "data_sources": news_data.get("data_sources", ["alpha_vantage"])
         }
         
         # Add enhanced API usage and cache information

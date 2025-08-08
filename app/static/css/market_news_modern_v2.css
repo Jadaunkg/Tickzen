@@ -419,6 +419,21 @@ body {
     line-height: 1.2;
 }
 
+/* Data Sources Card */
+.data-sources-card .stats-icon {
+    background: var(--news-accent);
+}
+
+.data-sources-list {
+    margin-top: 5px;
+}
+
+.data-sources-list small {
+    font-size: 0.75rem;
+    color: var(--news-secondary);
+    font-weight: 500;
+}
+
 /* Featured News Section */
 .featured-news-section {
     padding: 40px 0;
@@ -1345,6 +1360,18 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 15px;
+    /* Explicitly prevent any rotation on the container */
+    transform: none !important;
+    animation: none !important;
+}
+
+.spinner-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Isolate the spinner animation */
+    transform: none !important;
+    animation: none !important;
 }
 
 .spinner {
@@ -1356,12 +1383,27 @@ body {
     animation: greenSpin 1s linear infinite;
     -webkit-animation: greenSpin 1s linear infinite;
     display: inline-block;
+    /* Ensure animation is only applied to this element */
+    transform-origin: center center;
 }
 
-.loading-spinner p {
+.loading-text {
+    /* Completely isolate the text from any animations */
+    transform: none !important;
+    animation: none !important;
+    position: relative;
+    z-index: 1;
+}
+
+.loading-spinner p,
+.loading-text p {
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--news-primary);
+    /* Explicitly prevent any rotation on the text */
+    transform: none !important;
+    animation: none !important;
+    margin: 0;
 }
 
 /* No News Message */
@@ -1437,6 +1479,15 @@ body {
     }
 }
 
+/* Additional CSS to prevent animation inheritance */
+.loading-spinner * {
+    animation-fill-mode: none;
+}
+
+.loading-spinner .spinner {
+    animation-fill-mode: forwards;
+}
+
 /* Responsive Styles */
 @media (max-width: 1024px) {
     .title-main {
@@ -1497,6 +1548,32 @@ body {
     
     .modal-header {
         padding: 25px 20px 20px;
+    }
+    
+    /* Mobile-specific loading spinner fixes */
+    .loading-spinner {
+        transform: none !important;
+        animation: none !important;
+    }
+    
+    .spinner-container {
+        transform: none !important;
+        animation: none !important;
+    }
+    
+    .loading-text,
+    .loading-spinner p,
+    .loading-text p {
+        transform: none !important;
+        animation: none !important;
+        /* Prevent any potential text rotation on mobile */
+        will-change: auto;
+    }
+    
+    .spinner {
+        /* Ensure only the spinner rotates on mobile */
+        animation: greenSpin 1s linear infinite !important;
+        transform-origin: center center !important;
     }
     
     .modal-body {

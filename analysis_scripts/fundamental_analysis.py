@@ -1,6 +1,7 @@
 # fundamental_analysis.py
 import pandas as pd
 import numpy as np
+import logging
 from datetime import datetime # Import datetime
 
 # --- Helpers ---
@@ -347,11 +348,60 @@ def extract_share_statistics_data(fundamentals: dict, current_price=None):
 def extract_financial_efficiency_data(fundamentals: dict):
     """Extracts/Calculates data for the Financial Efficiency section."""
     info = fundamentals.get('info', {})
+    
+    # Get basic financial data
     total_revenue = safe_get(info, 'totalRevenue')
-    total_assets = safe_get(info, 'totalAssets') # Not always available in 'info'
+    total_assets = "N/A"
+    inventory = "N/A"
+    receivables = "N/A"
+    current_assets = "N/A"
+    working_capital = "N/A"
+    
+    # Try to get data from balance sheet if available
+    try:
+        balance_sheet = fundamentals.get('balance_sheet')
+        if balance_sheet is not None and not balance_sheet.empty:
+            # Get most recent period (first column)
+            recent_period = balance_sheet.columns[0] if len(balance_sheet.columns) > 0 else None
+            
+            if recent_period is not None:
+                if 'Total Assets' in balance_sheet.index:
+                    total_assets = balance_sheet.loc['Total Assets', recent_period]
+                if 'Inventory' in balance_sheet.index:
+                    inventory = balance_sheet.loc['Inventory', recent_period]
+                if 'Net Receivables' in balance_sheet.index:
+                    receivables = balance_sheet.loc['Net Receivables', recent_period]
+                elif 'Accounts Receivable' in balance_sheet.index:
+                    receivables = balance_sheet.loc['Accounts Receivable', recent_period]
+                if 'Current Assets' in balance_sheet.index:
+                    current_assets = balance_sheet.loc['Current Assets', recent_period]
+                if 'Working Capital' in balance_sheet.index:
+                    working_capital = balance_sheet.loc['Working Capital', recent_period]
+    except Exception as e:
+        logging.warning(f"Error accessing balance sheet data: {e}")
+    
+    # Try to get Cost of Revenue from income statement
+    cost_of_revenue = "N/A"
+    try:
+        financials = fundamentals.get('financials')
+        if financials is not None and not financials.empty:
+            recent_period = financials.columns[0] if len(financials.columns) > 0 else None
+            if recent_period is not None:
+                if 'Cost Of Revenue' in financials.index:
+                    cost_of_revenue = financials.loc['Cost Of Revenue', recent_period]
+                elif 'Total Revenue' in financials.index and total_revenue == "N/A":
+                    total_revenue = financials.loc['Total Revenue', recent_period]
+    except Exception as e:
+        logging.warning(f"Error accessing income statement data: {e}")
+    
+    # Calculate efficiency ratios
     asset_turnover = "N/A"
-
-    # Calculate Asset Turnover if possible
+    inventory_turnover = "N/A"
+    receivables_turnover = "N/A"
+    current_ratio = safe_get(info, 'currentRatio')  # Available directly
+    working_capital_turnover = "N/A"
+    
+    # Asset Turnover = Revenue / Total Assets
     if total_revenue != "N/A" and total_assets != "N/A":
         try:
             rev = float(total_revenue)
@@ -362,12 +412,117 @@ def extract_financial_efficiency_data(fundamentals: dict):
                 asset_turnover = "N/A (Zero Assets)"
         except (ValueError, TypeError):
             asset_turnover = "N/A (Calc Error)"
+    
+    # Inventory Turnover = Cost of Revenue / Inventory
+    if cost_of_revenue != "N/A" and inventory != "N/A":
+        try:
+            cogs = float(cost_of_revenue)
+            inv = float(inventory)
+            if inv != 0:
+                inventory_turnover = format_value(cogs / inv, 'ratio')
+            else:
+                inventory_turnover = "N/A (Zero Inventory)"
+        except (ValueError, TypeError):
+            inventory_turnover = "N/A (Calc Error)"
+    
+    # Receivables Turnover = Revenue / Net Receivables
+    if total_revenue != "N/A" and receivables != "N/A":
+        try:
+            rev = float(total_revenue)
+            rec = float(receivables)
+            if rec != 0:
+                receivables_turnover = format_value(rev / rec, 'ratio')
+            else:
+                receivables_turnover = "N/A (Zero Receivables)"
+        except (ValueError, TypeError):
+            receivables_turnover = "N/A (Calc Error)"
+    
+    # Working Capital Turnover = Revenue / Working Capital
+    if total_revenue != "N/A" and working_capital != "N/A":
+        try:
+            rev = float(total_revenue)
+            wc = float(working_capital)
+            if wc != 0:
+                working_capital_turnover = format_value(rev / wc, 'ratio')
+            else:
+                working_capital_turnover = "N/A (Zero WC)"
+        except (ValueError, TypeError):
+            working_capital_turnover = "N/A (Calc Error)"
+    
+    # Calculate Days Sales Outstanding (DSO) = 365 / Receivables Turnover
+    days_sales_outstanding = "N/A"
+    if receivables_turnover != "N/A" and "N/A" not in str(receivables_turnover):
+        try:
+            rt_val = float(str(receivables_turnover).replace('x', ''))
+            if rt_val != 0:
+                days_sales_outstanding = format_value(365 / rt_val, 'number', 1)
+        except (ValueError, TypeError):
+            pass
+    
+    # Calculate Days Inventory Outstanding (DIO) = 365 / Inventory Turnover
+    days_inventory_outstanding = "N/A"
+    if inventory_turnover != "N/A" and "N/A" not in str(inventory_turnover):
+        try:
+            it_val = float(str(inventory_turnover).replace('x', ''))
+            if it_val != 0:
+                days_inventory_outstanding = format_value(365 / it_val, 'number', 1)
+        except (ValueError, TypeError):
+            pass
+    
+    # Return on Invested Capital (ROIC) - use available data
+    roic = "N/A"
+    try:
+        # Try to get it from info first
+        roic_raw = safe_get(info, 'returnOnInvestedCapital')
+        if roic_raw != "N/A":
+            roic = format_value(roic_raw, 'percent')
+        else:
+            # Calculate approximate ROIC using available data
+            net_income = safe_get(info, 'netIncomeToCommon')
+            invested_capital = "N/A"
+            
+            # Try to get invested capital from balance sheet
+            try:
+                balance_sheet = fundamentals.get('balance_sheet')
+                if balance_sheet is not None and not balance_sheet.empty:
+                    recent_period = balance_sheet.columns[0]
+                    if 'Invested Capital' in balance_sheet.index:
+                        invested_capital = balance_sheet.loc['Invested Capital', recent_period]
+            except:
+                pass
+            
+            if net_income != "N/A" and invested_capital != "N/A":
+                ni = float(net_income)
+                ic = float(invested_capital)
+                if ic != 0:
+                    roic = format_value(ni / ic, 'percent')
+    except (ValueError, TypeError):
+        pass
+    
+    # Cash Conversion Cycle (CCC) = DIO + DSO - DPO (Days Payable Outstanding)
+    # For now, we'll calculate what we can with DIO + DSO
+    cash_conversion_cycle = "N/A"
+    if (days_inventory_outstanding != "N/A" and days_sales_outstanding != "N/A" and 
+        "N/A" not in str(days_inventory_outstanding) and "N/A" not in str(days_sales_outstanding)):
+        try:
+            dio_val = float(str(days_inventory_outstanding))
+            dso_val = float(str(days_sales_outstanding))
+            # Note: This is incomplete without DPO, but provides partial insight
+            partial_ccc = dio_val + dso_val
+            cash_conversion_cycle = f"~{partial_ccc:.1f} days (partial)"
+        except (ValueError, TypeError):
+            pass
 
     metrics = {
         "Asset Turnover (TTM)": asset_turnover,
-        "Inventory Turnover (TTM)": format_value(safe_get(info, 'inventoryTurnover'), 'ratio'), # Often N/A
-        "Receivables Turnover (TTM)": format_value(safe_get(info, 'receivablesTurnover'), 'ratio'), # Often N/A
-        "Return on Invested Capital (ROIC TTM)": "N/A", # Requires calculation from financials (NOPAT / Invested Capital)
+        "Inventory Turnover (TTM)": inventory_turnover,
+        "Receivables Turnover (TTM)": receivables_turnover,
+        "Working Capital Turnover (TTM)": working_capital_turnover,
+        "Current Ratio (MRQ)": format_value(current_ratio, 'ratio'),
+        "Days Sales Outstanding": days_sales_outstanding,
+        "Days Inventory Outstanding": days_inventory_outstanding,
+        "Cash Conversion Cycle": cash_conversion_cycle,
+        "Return on Invested Capital (ROIC TTM)": roic,
     }
     return metrics
 
@@ -397,3 +552,12 @@ def extract_short_selling_data(fundamentals: dict):
         "Short Date": format_value(safe_get(info, 'dateShortInterest'), 'date'), # Date of last short interest report
     }
     return metrics
+
+def extract_peer_comparison_data(ticker):
+    """Extracts peer comparison data using the peer_comparison module."""
+    try:
+        from analysis_scripts.peer_comparison import get_peer_comparison_data
+        return get_peer_comparison_data(ticker)
+    except Exception as e:
+        logging.warning(f"Error extracting peer comparison data: {e}")
+        return {}

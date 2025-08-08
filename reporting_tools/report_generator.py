@@ -67,7 +67,7 @@ from app.html_components import (
     generate_analyst_insights_html, generate_recent_news_html,
     generate_historical_performance_html,
     generate_conclusion_outlook_html, generate_faq_html,
-    generate_report_info_disclaimer_html
+    generate_report_info_disclaimer_html, generate_peer_comparison_html
 )
 from analysis_scripts.fundamental_analysis import (
     extract_company_profile, extract_valuation_metrics, extract_financial_health,
@@ -75,7 +75,7 @@ from analysis_scripts.fundamental_analysis import (
     extract_news, safe_get, extract_total_valuation_data,
     extract_share_statistics_data, extract_financial_efficiency_data,
     extract_stock_price_stats_data,
-    extract_short_selling_data
+    extract_short_selling_data, extract_peer_comparison_data
 )
 
 # --- Shared CSS (Keep Unchanged) ---
@@ -213,6 +213,18 @@ custom_style = """
    .stock-price-statistics td:first-child, .short-selling-information td:first-child { font-weight: 500; color: #495057; width: 40%; word-break: break-word; white-space: normal; }
    .total-valuation td:last-child, .share-statistics td:last-child, .financial-efficiency td:last-child,
    .stock-price-statistics td:last-child, .short-selling-information td:last-child { text-align: right; font-weight: 600; color: #343a40; white-space: nowrap;}
+
+  /* Peer Comparison Styles */
+  .peer-comparison .peer-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  .peer-comparison .peer-table th, .peer-comparison .peer-table td { padding: 0.9rem 0.8rem; text-align: left; border-bottom: 1px solid #dee2e6; font-size: 0.9rem; }
+  .peer-comparison .peer-table th { background-color: #e9ecef; color: #495057; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; border-bottom-width: 2px; text-align: center; }
+  .peer-comparison .peer-table th:first-child { text-align: left; }
+  .peer-comparison .peer-table td { text-align: center; white-space: nowrap; }
+  .peer-comparison .peer-table td:first-child { text-align: left; font-weight: 500; color: #495057; white-space: normal; }
+  .peer-comparison .peer-table .target-company { background-color: #e3f2fd; font-weight: 600; color: #1565c0; }
+  .peer-comparison .peer-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
+  .peer-comparison .peer-table tbody tr:hover { background-color: #e9ecef; }
+  .peer-comparison .peer-table .target-company:hover { background-color: #bbdefb; }
 
   /* Responsive Adjustments (Consolidated) */
   @media (max-width: 992px) {
@@ -604,6 +616,7 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
     data_out['financial_efficiency_data'] = extract_financial_efficiency_data(fundamentals)
     data_out['stock_price_stats_data'] = extract_stock_price_stats_data(fundamentals)
     data_out['short_selling_data'] = extract_short_selling_data(fundamentals)
+    data_out['peer_comparison_data'] = extract_peer_comparison_data(ticker)
 
     # --- Calculate Risk Items ---
     print("Calculating risk factors...")
@@ -851,6 +864,7 @@ def create_full_report(
         technical_analysis_summary_html = generate_technical_analysis_summary_html(ticker, rdata) 
         stock_price_statistics_html = generate_stock_price_statistics_html(ticker, rdata)
         short_selling_info_html = generate_short_selling_info_html(ticker, rdata)
+        peer_comparison_html = generate_peer_comparison_html(rdata.get('peer_comparison_data', {}), ticker)
         risk_factors_html = generate_risk_factors_html(ticker, rdata)
         analyst_insights_html = generate_analyst_insights_html(ticker, rdata)
         recent_news_html = generate_recent_news_html(ticker, rdata)
@@ -886,6 +900,7 @@ def create_full_report(
             ("Historical Performance", generate_historical_performance_html(ticker, rdata), "historical-performance"),
             ("Stock Price Statistics", stock_price_statistics_html, "stock-price-statistics"),
             ("Short Selling Information", short_selling_info_html, "short-selling-information"),
+            ("Peer Comparison", peer_comparison_html, "peer-comparison"),
             ("Risk Factors", risk_factors_html, "risk-factors"),
             ("Analyst Insights and Consensus", analyst_insights_html, "analyst-insights"),
             ("Recent News and Developments", recent_news_html, "recent-news"),
@@ -1107,6 +1122,7 @@ def create_wordpress_report_assets(
         technical_analysis_summary_html = generate_technical_analysis_summary_html(ticker, rdata)
         stock_price_statistics_html = generate_stock_price_statistics_html(ticker, rdata)
         short_selling_info_html = generate_short_selling_info_html(ticker, rdata)
+        peer_comparison_html = generate_peer_comparison_html(rdata.get('peer_comparison_data', {}), ticker)
         risk_factors_html = generate_risk_factors_html(ticker, rdata)
         analyst_insights_html = generate_analyst_insights_html(ticker, rdata)
         # recent_news_html = generate_recent_news_html(ticker, rdata) # USER REQUEST: Comment out news
@@ -1162,6 +1178,7 @@ def create_wordpress_report_assets(
              "historical-price-volume"),
             ("Stock Price Statistics", stock_price_statistics_html, "stock-price-statistics"),
             ("Short Selling Information", short_selling_info_html, "short-selling-information"),
+            ("Peer Comparison", peer_comparison_html, "peer-comparison"),
             ("Risk Factors", risk_factors_html, "risk-factors"),
             ("Analyst Insights and Consensus", analyst_insights_html, "analyst-insights"),
             # ("Recent News and Developments", recent_news_html, "recent-news"), # USER REQUEST: Comment out news

@@ -1448,7 +1448,40 @@ def generate_company_profile_html(ticker, rdata):
         narrative_focus = random.choice(narrative_focus_options)
 
         summary_text = str(profile_data.get('Summary', 'No detailed business summary available.')) 
-        summary_html = f"<h4>{summary_title}</h4><p>{narrative_focus} {summary_text}</p>"
+        
+        # Break long summary into shorter paragraphs for better readability
+        def break_into_paragraphs(text, max_length=300):
+            """Split long text into shorter paragraphs at sentence boundaries."""
+            if len(text) <= max_length:
+                return [text]
+            
+            sentences = text.replace('. The ', '. |SPLIT| The ').replace('; ', '; |SPLIT| ').split('|SPLIT|')
+            paragraphs = []
+            current_paragraph = ""
+            
+            for sentence in sentences:
+                sentence = sentence.strip()
+                if len(current_paragraph + sentence) <= max_length:
+                    current_paragraph += sentence + " "
+                else:
+                    if current_paragraph:
+                        paragraphs.append(current_paragraph.strip())
+                    current_paragraph = sentence + " "
+            
+            if current_paragraph:
+                paragraphs.append(current_paragraph.strip())
+            
+            return paragraphs if paragraphs else [text]
+        
+        summary_paragraphs = break_into_paragraphs(summary_text)
+        
+        # Create HTML with narrative focus in first paragraph and split summary
+        summary_html = f"<h4>{summary_title}</h4>"
+        summary_html += f"<p>{narrative_focus} {summary_paragraphs[0]}</p>"
+        
+        # Add remaining paragraphs if any
+        for paragraph in summary_paragraphs[1:]:
+            summary_html += f"<p>{paragraph}</p>"
 
         return profile_grid + summary_html
     except Exception as e:
@@ -1709,8 +1742,168 @@ def generate_financial_health_html(ticker, rdata):
 
 
 
+def generate_financial_efficiency_narrative(ticker, efficiency_data):
+    """
+    Generates a dynamic, intelligent two-paragraph narrative for financial efficiency metrics.
+    Analyzes the actual data and provides meaningful insights.
+    """
+    def safe_float(value):
+        """Safely convert value to float, handling formatted strings."""
+        if value is None or value == 'N/A':
+            return None
+        if isinstance(value, str):
+            # Remove formatting like 'x', '%', '$', 'B', 'M', '~', 'days', '(partial)', etc.
+            clean_value = value.replace('x', '').replace('%', '').replace('$', '').replace('B', '').replace('M', '').replace(',', '').replace('~', '').replace('days', '').replace('(partial)', '').strip()
+            try:
+                return float(clean_value)
+            except ValueError:
+                return None
+        return float(value) if value is not None else None
+
+    def get_company_name(ticker):
+        """Get company name from yfinance data, with fallback to ticker."""
+        try:
+            import yfinance as yf
+            ticker_obj = yf.Ticker(ticker)
+            info = ticker_obj.info or {}
+            
+            # Try longName first, then shortName, finally ticker
+            company_name = info.get('longName') or info.get('shortName') or ticker
+            
+            # Clean up common suffixes for better readability
+            if company_name and company_name != ticker:
+                # Remove common corporate suffixes for cleaner narrative
+                suffixes_to_remove = [', Inc.', ' Inc.', ', Inc', ' Inc', ' Corporation', ' Corp.', ' Corp', ' Ltd.', ' Ltd', ' Limited', ' LLC', ' L.L.C.', ' Co.', ' Company']
+                for suffix in suffixes_to_remove:
+                    if company_name.endswith(suffix):
+                        company_name = company_name[:-len(suffix)]
+                        break
+                        
+            return company_name or ticker
+        except Exception:
+            return ticker
+
+    # Get company name for better narrative
+    company_name = get_company_name(ticker)
+
+    # Extract and parse metrics (removed ROA and ROE since they're in financial health section)
+    asset_turnover = safe_float(efficiency_data.get('Asset Turnover (TTM)'))
+    inventory_turnover = safe_float(efficiency_data.get('Inventory Turnover (TTM)'))
+    receivables_turnover = safe_float(efficiency_data.get('Receivables Turnover (TTM)'))
+    working_capital_turnover = safe_float(efficiency_data.get('Working Capital Turnover (TTM)'))
+    current_ratio = safe_float(efficiency_data.get('Current Ratio (MRQ)'))
+    dso = safe_float(efficiency_data.get('Days Sales Outstanding'))
+    dio = safe_float(efficiency_data.get('Days Inventory Outstanding'))
+    ccc = safe_float(efficiency_data.get('Cash Conversion Cycle'))
+    roic = safe_float(efficiency_data.get('Return on Invested Capital (ROIC TTM)'))
+
+    # Build first paragraph - Operational efficiency analysis
+    paragraph1_parts = []
+    
+    # Asset turnover analysis
+    if asset_turnover is not None:
+        if asset_turnover > 1.5:
+            asset_desc = "excellent efficiency in utilizing its asset base"
+        elif asset_turnover > 1.0:
+            asset_desc = "solid efficiency in utilizing its asset base"
+        elif asset_turnover > 0.5:
+            asset_desc = "moderate efficiency in utilizing its asset base"
+        else:
+            asset_desc = "lower efficiency in asset utilization that may need improvement"
+        paragraph1_parts.append(f"{company_name}'s Asset Turnover ({efficiency_data.get('Asset Turnover (TTM)', 'N/A')}) suggests it generates ${asset_turnover:.2f} in revenue per dollar of assets, indicating {asset_desc}.")
+    
+    # Inventory and receivables analysis
+    if inventory_turnover is not None and dio is not None:
+        if inventory_turnover > 12:
+            inv_desc = "efficiently"
+        elif inventory_turnover > 6:
+            inv_desc = "reasonably"
+        else:
+            inv_desc = "slowly"
+        paragraph1_parts.append(f"Inventory Turnover ({efficiency_data.get('Inventory Turnover (TTM)', 'N/A')}) shows {company_name} {inv_desc} sells and replaces inventory roughly {inventory_turnover:.1f} times annually, translating to {dio:.1f} Days Inventory Outstanding.")
+    
+    if receivables_turnover is not None and dso is not None:
+        if dso < 30:
+            collection_desc = "excellent collections, meaning customers pay very quickly"
+        elif dso < 45:
+            collection_desc = "strong collections, meaning customers pay quickly"
+        elif dso < 60:
+            collection_desc = "adequate collection efficiency"
+        else:
+            collection_desc = "slower collections that may require attention"
+        paragraph1_parts.append(f"Meanwhile, Receivables Turnover ({efficiency_data.get('Receivables Turnover (TTM)', 'N/A')}) and {dso:.1f} Days Sales Outstanding reflect {collection_desc}.")
+    
+    # Working capital and liquidity
+    if working_capital_turnover is not None and current_ratio is not None:
+        if working_capital_turnover > 5:
+            wc_desc = "highly efficient"
+        elif working_capital_turnover > 2:
+            wc_desc = "efficient"
+        elif working_capital_turnover > 0:
+            wc_desc = "moderate"
+        else:
+            wc_desc = "concerning"
+        
+        if current_ratio > 2:
+            liquidity_desc = "excellent liquidity"
+        elif current_ratio > 1.5:
+            liquidity_desc = "healthy liquidity"
+        elif current_ratio > 1:
+            liquidity_desc = "adequate liquidity"
+        else:
+            liquidity_desc = "potential liquidity concerns"
+        
+        paragraph1_parts.append(f"The Working Capital Turnover ({efficiency_data.get('Working Capital Turnover (TTM)', 'N/A')}) indicates {wc_desc} use of short-term assets to support sales, supported by a Current Ratio ({efficiency_data.get('Current Ratio (MRQ)', 'N/A')}), signaling {liquidity_desc}.")
+
+    # Build second paragraph - Strategic analysis and cash flow
+    paragraph2_parts = []
+    
+    # Cash conversion cycle analysis
+    if ccc is not None:
+        ccc_months = ccc / 30
+        if ccc < 30:
+            ccc_desc = "excellent cash management"
+        elif ccc < 60:
+            ccc_desc = "good cash flow efficiency"
+        elif ccc < 90:
+            ccc_desc = "manageable cash conversion"
+        else:
+            ccc_desc = "extended cash conversion that may strain working capital"
+        paragraph2_parts.append(f"The Cash Conversion Cycle ({efficiency_data.get('Cash Conversion Cycle', 'N/A')}) suggests it takes about {ccc_months:.1f} months to convert inventory and receivables into cash, indicating {ccc_desc}.")
+    
+    # ROIC analysis (since it's more specific to invested capital efficiency)
+    if roic is not None:
+        if roic > 15:
+            roic_desc = "strong capital efficiency"
+        elif roic > 10:
+            roic_desc = "solid capital efficiency"
+        elif roic > 5:
+            roic_desc = "moderate capital efficiency"
+        else:
+            roic_desc = "lower capital efficiency that may need improvement"
+        
+        paragraph2_parts.append(f"{company_name}'s Return on Invested Capital ({efficiency_data.get('Return on Invested Capital (ROIC TTM)', 'N/A')}) indicates {roic_desc}, showing how effectively {company_name} generates returns from its invested capital.")
+    
+    # Strategic recommendations
+    if asset_turnover is not None:
+        if asset_turnover < 1.0:
+            recommendation = f"{company_name} may need higher asset utilization to boost profitability further"
+        elif asset_turnover < 1.5:
+            recommendation = f"{company_name} shows room for improvement in asset efficiency to enhance returns"
+        else:
+            recommendation = f"{company_name} demonstrates effective asset management that supports strong profitability"
+        paragraph2_parts.append(f"Overall, {recommendation}. Investors should compare these figures with industry peers to assess competitive positioning.")
+    else:
+        paragraph2_parts.append(f"Investors should compare {company_name}'s efficiency metrics with industry peers to assess competitive positioning and operational effectiveness.")
+
+    # Combine paragraphs
+    paragraph1 = " ".join(paragraph1_parts) if paragraph1_parts else f"Financial efficiency analysis for {company_name} provides insights into operational effectiveness and asset utilization."
+    paragraph2 = " ".join(paragraph2_parts) if paragraph2_parts else f"These efficiency metrics help evaluate {company_name}'s competitive position and management effectiveness."
+    
+    return f"<p>{paragraph1}</p><p>{paragraph2}</p>"
+
 def generate_financial_efficiency_html(ticker, rdata):
-    """Generates Financial Efficiency section with a default narrative focus."""
+    """Generates Financial Efficiency section with dynamic, intelligent narrative."""
     try:
         efficiency_data = rdata.get('financial_efficiency_data')
         if not isinstance(efficiency_data, dict):
@@ -1718,41 +1911,11 @@ def generate_financial_efficiency_html(ticker, rdata):
              logging.warning("financial_efficiency_data not found or not a dict, using empty.")
 
         content = generate_metrics_section_content(efficiency_data, ticker)
-
-        asset_turnover_fmt = format_html_value(efficiency_data.get('Asset Turnover (TTM)'), 'ratio')
-        inventory_turnover_fmt = format_html_value(efficiency_data.get('Inventory Turnover (TTM)'), 'ratio')
-        receivables_turnover_fmt = format_html_value(efficiency_data.get('Receivables Turnover (TTM)'), 'ratio')
-
-        efficiency_summary_options = [
-            f"Efficiency is gauged by how effectively {ticker} utilizes assets (Asset Turnover: {asset_turnover_fmt})",
-            f"Operational effectiveness can be seen in asset utilization (Asset Turnover: {asset_turnover_fmt})",
-            f"{ticker}'s efficiency in using its assets to generate sales is measured by Asset Turnover ({asset_turnover_fmt})"
-        ]
-        efficiency_summary = random.choice(efficiency_summary_options)
-
-        if inventory_turnover_fmt != 'N/A': efficiency_summary += f", manages inventory (Inventory Turnover: {inventory_turnover_fmt})"
-        if receivables_turnover_fmt != 'N/A': efficiency_summary += f", and collects payments (Receivables Turnover: {receivables_turnover_fmt})."
-        else: efficiency_summary += "." 
         
-        comparison_prompt_options = [
-            f"Comparing these turnover ratios against industry benchmarks {get_icon('peer')} and historical trends {get_icon('history')} reveals operational effectiveness.",
-            f"Benchmarking these efficiency metrics with industry peers {get_icon('peer')} and the company's history {get_icon('history')} provides valuable context.",
-            f"Relative performance in these turnover figures, compared to peers {get_icon('peer')} and past results {get_icon('history')}, indicates efficiency levels."
-        ]
-        comparison_prompt = random.choice(comparison_prompt_options)
+        # Generate dynamic narrative
+        narrative = generate_financial_efficiency_narrative(ticker, efficiency_data)
 
-        # Default Narrative
-        narrative_options = [
-            (
-                 f"Financial efficiency ratios measure how effectively {ticker} converts its assets into revenue and manages working capital. {efficiency_summary} {comparison_prompt}"
-            ),
-            (
-            f"This section examines {ticker}'s operational efficiency in asset usage and working capital management. {efficiency_summary} {comparison_prompt}"
-            )
-        ]
-        narrative = random.choice(narrative_options)
-
-        return f'<div class="narrative"><p>{narrative}</p></div>' + content
+        return f'<div class="narrative">{narrative}</div>' + content
     except Exception as e:
         return _generate_error_html("Financial Efficiency", str(e))
 
@@ -2924,3 +3087,19 @@ def generate_report_info_disclaimer_html(generation_time):
              <p>{disclaimer_body4}</p>
          </div>
     """
+
+def generate_peer_comparison_html(comparison_data, target_ticker):
+    """Generate HTML for peer comparison section."""
+    try:
+        if not comparison_data:
+            return f"""
+            <div class="peer-comparison">
+                <p>{get_icon('peer')} Peer comparison data is not available at this time.</p>
+            </div>
+            """
+        
+        from analysis_scripts.peer_comparison import generate_peer_comparison_html
+        return generate_peer_comparison_html(comparison_data, target_ticker)
+    except Exception as e:
+        logging.error(f"Error generating peer comparison HTML: {e}")
+        return _generate_error_html("Peer Comparison", str(e))
