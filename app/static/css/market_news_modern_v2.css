@@ -1,5 +1,16 @@
 /* ===== MODERN MARKET NEWS STYLES V2 ===== */
 
+/* Defensive CSS - Prevent global loading overlays from interfering */
+#loadingOverlay {
+    /* Highest priority for our specific loading overlay */
+    z-index: 10000 !important;
+}
+
+/* Ensure other loading overlays don't appear on this page */
+.loading-overlay:not(#loadingOverlay) {
+    display: none !important;
+}
+
 /* CSS Variables */
 :root {
     --news-primary: #16a34a;
@@ -1340,11 +1351,12 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(2px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 10000; /* Higher than global overlays */
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -1355,55 +1367,78 @@ body {
     visibility: visible;
 }
 
-.loading-spinner {
+/* Use a unique spinner class for the market news page */
+#loadingOverlay .news-loading-spinner {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
-    /* Explicitly prevent any rotation on the container */
-    transform: none !important;
+    gap: 20px;
+    text-align: center;
+    /* Prevent inheritance of any global animations */
     animation: none !important;
+    transform: none !important;
 }
 
-.spinner-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* Isolate the spinner animation */
-    transform: none !important;
-    animation: none !important;
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(22, 163, 74, 0.2);
-    border-top: 4px solid #16a34a;
+/* News-specific spinner - isolated from global spinner styles */
+#loadingOverlay .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(22, 163, 74, 0.15);
+    border-top: 4px solid var(--news-primary);
     border-radius: 50%;
-    animation: greenSpin 1s linear infinite;
-    -webkit-animation: greenSpin 1s linear infinite;
-    display: inline-block;
-    /* Ensure animation is only applied to this element */
-    transform-origin: center center;
+    /* Enforce rotation even if global rules try to stop animations */
+    -webkit-animation: newsSpinner 1s linear infinite !important;
+    animation: newsSpinner 1s linear infinite !important;
+    animation-play-state: running !important;
+    transform-origin: 50% 50%;
+    will-change: transform;
+    backface-visibility: hidden;
+    display: block;
+    /* Override any global Font Awesome or other spinner styles */
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: 1 !important;
+    content: none !important;
+}
+
+/* Force spinner animation even when user has reduced motion enabled (only for this specific spinner) */
+@media (prefers-reduced-motion: reduce) {
+    #loadingOverlay .spinner {
+        -webkit-animation: newsSpinner 1s linear infinite !important;
+        animation: newsSpinner 1s linear infinite !important;
+        animation-play-state: running !important;
+    }
+}
+
+/* WebKit keyframes fallback */
+@-webkit-keyframes newsSpinner {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+
+/* Ensure Font Awesome doesn't interfere */
+#loadingOverlay .spinner:before,
+#loadingOverlay .spinner:after {
+    content: none !important;
+    display: none !important;
 }
 
 .loading-text {
-    /* Completely isolate the text from any animations */
-    transform: none !important;
+    color: var(--news-primary);
+    font-weight: 500;
+    font-size: 1rem;
+    /* Prevent any animation inheritance */
     animation: none !important;
-    position: relative;
-    z-index: 1;
+    transform: none !important;
 }
 
-.loading-spinner p,
 .loading-text p {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--news-primary);
-    /* Explicitly prevent any rotation on the text */
-    transform: none !important;
-    animation: none !important;
     margin: 0;
+    color: var(--news-primary);
+    font-weight: 500;
+    /* Prevent any animation inheritance */
+    animation: none !important;
+    transform: none !important;
 }
 
 /* No News Message */
@@ -1457,35 +1492,13 @@ body {
     }
 }
 
-@keyframes greenSpin {
+@keyframes newsSpinner {
     0% { 
         transform: rotate(0deg); 
-        -webkit-transform: rotate(0deg);
     }
     100% { 
         transform: rotate(360deg); 
-        -webkit-transform: rotate(360deg);
     }
-}
-
-@-webkit-keyframes greenSpin {
-    0% { 
-        transform: rotate(0deg); 
-        -webkit-transform: rotate(0deg);
-    }
-    100% { 
-        transform: rotate(360deg); 
-        -webkit-transform: rotate(360deg);
-    }
-}
-
-/* Additional CSS to prevent animation inheritance */
-.loading-spinner * {
-    animation-fill-mode: none;
-}
-
-.loading-spinner .spinner {
-    animation-fill-mode: forwards;
 }
 
 /* Responsive Styles */
@@ -1548,32 +1561,6 @@ body {
     
     .modal-header {
         padding: 25px 20px 20px;
-    }
-    
-    /* Mobile-specific loading spinner fixes */
-    .loading-spinner {
-        transform: none !important;
-        animation: none !important;
-    }
-    
-    .spinner-container {
-        transform: none !important;
-        animation: none !important;
-    }
-    
-    .loading-text,
-    .loading-spinner p,
-    .loading-text p {
-        transform: none !important;
-        animation: none !important;
-        /* Prevent any potential text rotation on mobile */
-        will-change: auto;
-    }
-    
-    .spinner {
-        /* Ensure only the spinner rotates on mobile */
-        animation: greenSpin 1s linear infinite !important;
-        transform-origin: center center !important;
     }
     
     .modal-body {
