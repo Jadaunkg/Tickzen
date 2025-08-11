@@ -44,6 +44,11 @@
                         <span>All</span>
                         <span class="filter-count" id="all-count">0</span>
                     </button>
+                    <button class="filter-btn" data-filter="for_you" title="Personalized by your stocks">
+                        <i class="fas fa-user-check"></i>
+                        <span>Your Feed</span>
+                        <span class="filter-count" id="for_you-count">0</span>
+                    </button>
                     <button class="filter-btn" data-filter="market">
                         <i class="fas fa-chart-line"></i>
                         <span>Markets</span>
@@ -155,11 +160,33 @@
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
                     <option value="sentiment">By Sentiment</option>
+                    <option value="impact">High Impact</option>
+                    <option value="relevance">Most Relevant</option>
                 </select>
+                <button id="manageWatchlist" class="refresh-btn" title="Add stocks to personalize your news">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Personalize Feed</span>
+                </button>
             </div>
         </div>
         
-        <div class="news-grid" id="newsGrid">
+        <!-- Personalization Banner -->
+    <div class="personalize-banner" id="personalizeBanner">
+            <div class="personalize-text">
+        <i class="fas fa-wand-magic-sparkles"></i>
+                <strong>Personalize your market news</strong>
+                <span class="subtext" id="personalizeSubtext">Add your stocks to see more relevant articles.</span>
+            </div>
+            <div class="personalize-actions">
+                <div class="chips" id="watchlistChips"></div>
+                <button id="personalizeCtaBtn" class="cta-btn" title="Add or edit your stocks">
+                    <i class="fas fa-plus"></i>
+                    <span>Personalize</span>
+                </button>
+            </div>
+        </div>
+
+    <div class="news-grid" id="newsGrid">
             <!-- News cards will be inserted here dynamically -->
         </div>
         
@@ -223,6 +250,28 @@
                 <button class="modal-btn share-btn" id="shareBtn">
                     Share <i class="fas fa-share-alt"></i>
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Watchlist Modal -->
+<div class="news-modal" id="watchlistModal">
+    <div class="modal-content" style="max-width:520px">
+        <button class="modal-close" id="closeWatchlistModal"><i class="fas fa-times"></i></button>
+        <div class="modal-header">
+            <div class="modal-category">Your Feed</div>
+            <h3 class="modal-title">Personalize Your Feed</h3>
+            <div class="modal-meta"><span>Add your stocks to tailor the news you see.</span></div>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="watchlistInput">Your Stocks (comma-separated)</label>
+                <input type="text" id="watchlistInput" class="form-control" placeholder="Example: AAPL, MSFT, TSLA">
+                <small class="form-text">Saved to your browser and session. Profile integration can be added later.</small>
+            </div>
+            <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
+                <button id="saveWatchlistBtn" class="modal-btn">Save</button>
             </div>
         </div>
     </div>
@@ -335,12 +384,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Constants
     const API_URL = '/api/market-news';
     const ITEMS_PER_PAGE = 12;
+    const DEFAULT_TICKERS = localStorage.getItem('tz_watchlist') || '';
     
     // State variables
     let currentPage = 1;
     let currentFilter = 'all';
     let currentSort = 'newest';
     let currentView = 'grid';
+    let currentTickers = DEFAULT_TICKERS; // CSV string
     let allNewsData = [];
     let filteredNews = [];
     let totalPages = 1;
@@ -376,6 +427,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const gridViewBtn = document.getElementById('gridView');
     const listViewBtn = document.getElementById('listView');
     const sortSelect = document.getElementById('sortOptions');
+    const manageWatchlistBtn = document.getElementById('manageWatchlist');
+    const personalizeBanner = document.getElementById('personalizeBanner');
+    const personalizeCtaBtn = document.getElementById('personalizeCtaBtn');
+    const watchlistChips = document.getElementById('watchlistChips');
+    const personalizeSubtext = document.getElementById('personalizeSubtext');
+    const watchlistModal = document.getElementById('watchlistModal');
+    const closeWatchlistModalBtn = document.getElementById('closeWatchlistModal');
+    const watchlistInput = document.getElementById('watchlistInput');
+    const saveWatchlistBtn = document.getElementById('saveWatchlistBtn');
     const searchInput = document.getElementById('newsSearch');
     const clearSearchBtn = document.getElementById('clearSearch');
     const loadingOverlay = document.getElementById('loadingOverlay');
@@ -402,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Initialize
-    fetchNewsData();
+    hydrateWatchlist().then(() => { updatePersonalizeBanner(); fetchNewsData(); });
     
     // Event Listeners
     filterBtns.forEach(btn => {
@@ -410,7 +470,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const filter = btn.getAttribute('data-filter');
             setActiveFilter(filter);
             currentPage = 1;
-            fetchNewsData(); // Fetch new data for the selected filter
+            // Make sure we have watchlist before fetching For You
+            if (filter === 'for_you') {
+                hydrateWatchlist().then(() => fetchNewsData());
+            } else {
+                fetchNewsData();
+            }
         });
     });
     
@@ -464,8 +529,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     sortSelect.addEventListener('change', () => {
         currentSort = sortSelect.value;
-        sortNewsData();
-        updateNewsList();
+        // Refetch so server-side pagination aligns with sort
+        currentPage = 1;
+        fetchNewsData();
     });
     
     searchInput.addEventListener('input', () => {
@@ -486,12 +552,60 @@ document.addEventListener('DOMContentLoaded', function() {
     closeModalBtn.addEventListener('click', () => {
         hideModal();
     });
+
+    // Watchlist management
+    manageWatchlistBtn.addEventListener('click', () => {
+        const stored = localStorage.getItem('tz_watchlist') || '';
+        watchlistInput.value = stored;
+        watchlistModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+
+    // Top banner CTA opens the same modal
+    if (personalizeCtaBtn) {
+        personalizeCtaBtn.addEventListener('click', () => {
+            manageWatchlistBtn.click();
+        });
+    }
+
+    closeWatchlistModalBtn.addEventListener('click', () => {
+        watchlistModal.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    saveWatchlistBtn.addEventListener('click', async () => {
+        const val = (watchlistInput.value || '').toUpperCase().replace(/\s+/g, '');
+        currentTickers = val;
+        try { localStorage.setItem('tz_watchlist', val); } catch (e) {}
+        // Persist to session-backed endpoint (best-effort)
+        try {
+            await fetch('/api/watchlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tickers: val ? val.split(',') : [] }) });
+        } catch (e) { console.warn('Watchlist save error', e); }
+        watchlistModal.classList.remove('active');
+        document.body.style.overflow = '';
+        // If in For You, refresh feed
+        if (currentFilter === 'for_you') {
+            currentSort = 'relevance';
+            if (sortSelect) sortSelect.value = 'relevance';
+            currentPage = 1;
+            fetchNewsData();
+        }
+    // Update top banner chips
+    updatePersonalizeBanner();
+    });
     
     // Functions
     function fetchNewsData() {
         showLoadingOverlay();
+        const params = new URLSearchParams();
+        params.set('filter', currentFilter);
+        params.set('page', currentPage);
+        params.set('sort', currentSort);
+        if (currentFilter === 'for_you' && currentTickers) {
+            params.set('tickers', currentTickers);
+        }
         
-        fetch(`${API_URL}?filter=${currentFilter}&page=${currentPage}`)
+        fetch(`${API_URL}?${params.toString()}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -544,9 +658,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Process featured news and sources only for "all" view
                     processNewsData();
                 } else {
-                    // For filtered views, just update the news display
+                    // For filtered views, update the news display and the active filter's count
                     updateNewsList();
                     updatePaginationControls();
+                    try {
+                        const countElement = document.getElementById(`${currentFilter}-count`);
+                        if (countElement) {
+                            // Use API total if provided; fallback to rendered items length
+                            const totalForFilter = (typeof data.total === 'number') ? data.total : (filteredNews ? filteredNews.length : 0);
+                            countElement.textContent = totalForFilter;
+                        }
+                    } catch (e) {
+                        // no-op
+                    }
                 }
                 
                 hideLoadingOverlay();
@@ -599,6 +723,12 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'sentiment':
                 const sentimentOrder = { 'positive': 0, 'neutral': 1, 'negative': 2 };
                 filteredNews.sort((a, b) => sentimentOrder[a.sentiment] - sentimentOrder[b.sentiment]);
+                break;
+            case 'impact':
+                filteredNews.sort((a, b) => (b.impact_score || 0) - (a.impact_score || 0));
+                break;
+            case 'relevance':
+                filteredNews.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
                 break;
         }
     }
@@ -720,6 +850,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     imageEl.alt = capitalizeFirstLetter(news.category) + " news";
                 }
                 
+                // Badges for impact/divergence
+                const categoryEl = newsCard.querySelector('.news-card-category');
+                const badges = [];
+                if (news.impact_score && news.impact_score >= 0.5) badges.push('High Impact');
+                if (news.divergence_flag) badges.push('Divergence');
+                if (badges.length) {
+                    categoryEl.innerHTML = `${capitalizeFirstLetter(news.category)} · <span class="badge">${badges.join('</span> <span class="badge">')}</span>`;
+                }
+
                 // Add event listener for the button
                 newsCard.querySelector('.news-card-button').addEventListener('click', () => {
                     showNewsDetail(news);
@@ -869,6 +1008,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.classList.remove('active');
             }
         });
+
+        // For You UX: ensure tickers and relevance sorting
+        if (filter === 'for_you') {
+            // Prefer session; fall back to localStorage
+            try {
+                fetch('/api/watchlist').then(r => r.json()).then(j => {
+                    const sess = (j && Array.isArray(j.tickers)) ? j.tickers.join(',') : '';
+                    const local = localStorage.getItem('tz_watchlist') || '';
+                    currentTickers = sess || local;
+                    if (!currentTickers) {
+                        manageWatchlistBtn.click();
+                    }
+                }).catch(() => {
+                    const local = localStorage.getItem('tz_watchlist') || '';
+                    currentTickers = local;
+                    if (!currentTickers) manageWatchlistBtn.click();
+                });
+            } catch(e) {
+                const local = localStorage.getItem('tz_watchlist') || '';
+                currentTickers = local;
+                if (!currentTickers) manageWatchlistBtn.click();
+            }
+            // default to relevance sort for For You
+            currentSort = 'relevance';
+            if (sortSelect) sortSelect.value = 'relevance';
+        } else {
+            // If coming from For You relevance, restore to newest
+            if (currentSort === 'relevance') {
+                currentSort = 'newest';
+                if (sortSelect) sortSelect.value = 'newest';
+            }
+        }
     }
     
     function setViewMode(mode) {
@@ -949,6 +1120,56 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function hideToast() {
         toastNotification.classList.remove('active');
+    }
+
+    async function hydrateWatchlist() {
+        try {
+            const r = await fetch('/api/watchlist');
+            if (r.ok) {
+                const j = await r.json();
+                const sess = (j && Array.isArray(j.tickers)) ? j.tickers.join(',') : '';
+                const local = localStorage.getItem('tz_watchlist') || '';
+                currentTickers = sess || local;
+                if (!currentTickers) {
+                    // Pre-open modal to prompt user to set
+                    // Do not block; user can cancel, we’ll still fetch general news
+                }
+            }
+        } catch(e) {
+            const local = localStorage.getItem('tz_watchlist') || '';
+            currentTickers = local;
+        }
+    }
+
+    function updatePersonalizeBanner() {
+        if (!watchlistChips || !personalizeSubtext) return;
+        // Clear existing chips
+        watchlistChips.innerHTML = '';
+        const tickers = (currentTickers || '').split(',').map(t => t.trim()).filter(Boolean);
+        if (tickers.length === 0) {
+            personalizeSubtext.textContent = 'Add your stocks to see more relevant articles.';
+            // Show a few suggested chips (non-interactive)
+            ['AAPL','MSFT','TSLA'].forEach(sym => {
+                const chip = document.createElement('span');
+                chip.className = 'chip ghost';
+                chip.textContent = sym;
+                watchlistChips.appendChild(chip);
+            });
+        } else {
+            personalizeSubtext.textContent = 'Your stocks:';
+            tickers.slice(0, 10).forEach(sym => {
+                const chip = document.createElement('span');
+                chip.className = 'chip';
+                chip.textContent = sym;
+                watchlistChips.appendChild(chip);
+            });
+            if (tickers.length > 10) {
+                const more = document.createElement('span');
+                more.className = 'chip more';
+                more.textContent = `+${tickers.length - 10}`;
+                watchlistChips.appendChild(more);
+            }
+        }
     }
     
     // Helper Functions

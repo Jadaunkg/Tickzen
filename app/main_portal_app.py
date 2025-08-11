@@ -245,7 +245,7 @@ def get_firebase_client_config():
     """Get Firebase client configuration from environment variables"""
     return {
         'apiKey': os.getenv('FIREBASE_API_KEY'),
-        'authDomain': f"{os.getenv('FIREBASE_PROJECT_ID')}.firebaseapp.com",
+    'authDomain': os.getenv('FIREBASE_AUTH_DOMAIN') or f"{os.getenv('FIREBASE_PROJECT_ID')}.firebaseapp.com",
         'projectId': os.getenv('FIREBASE_PROJECT_ID'),
         'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET', f"{os.getenv('FIREBASE_PROJECT_ID')}.appspot.com"),
         'messagingSenderId': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),

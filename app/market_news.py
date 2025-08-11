@@ -4,10 +4,12 @@ import os
 import re
 import time
 import json
+import math
+import hashlib
 import traceback
 import requests
 from datetime import datetime, timedelta
-from flask import Blueprint, jsonify, request, render_template, current_app
+from flask import Blueprint, jsonify, request, render_template, current_app, session
 from functools import lru_cache
 
 market_news_bp = Blueprint('market_news', __name__)
@@ -23,6 +25,208 @@ last_successful_fetch = {}  # Track when we last successfully fetched from API
 daily_api_calls = 0
 last_api_reset = None
 MAX_DAILY_API_CALLS = 22  # Use 22 out of 25, leaving 3 as buffer
+
+# --- Scoring and clustering helpers (non-invasive and cache-friendly) ---
+
+SOURCE_QUALITY_SCORES = {
+    # High trust
+    'reuters': 1.2,
+    'bloomberg': 1.2,
+    'wsj': 1.15,
+    'wall street journal': 1.15,
+    'financial times': 1.15,
+    # Medium
+    'seeking alpha': 1.05,
+    'marketwatch': 1.05,
+    'the motley fool': 1.0,
+    'yahoo finance': 1.0,
+    # Default
+}
+
+def _normalize_text(s: str) -> str:
+    if not s:
+        return ''
+    s = s.lower()
+    s = re.sub(r"[^a-z0-9\s]", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+def _source_quality(source: str) -> float:
+    if not source:
+        return 1.0
+    s = source.lower()
+    # try exact, then contains
+    if s in SOURCE_QUALITY_SCORES:
+        return SOURCE_QUALITY_SCORES[s]
+    for key, val in SOURCE_QUALITY_SCORES.items():
+        if key in s:
+            return val
+    return 1.0
+
+def _parse_datetime_to_epoch(published_at: str) -> float:
+    """Handle formats like '20230822T123456' or ISO."""
+    if not published_at:
+        return 0.0
+    try:
+        # ISO or common formats
+        dt = datetime.fromisoformat(published_at.replace('Z',''))
+        return dt.timestamp()
+    except Exception:
+        pass
+    try:
+        # Alpha Vantage format YYYYMMDDTHHMMSS
+        if re.match(r"^\d{8}T\d{6}$", published_at):
+            year = int(published_at[0:4])
+            month = int(published_at[4:6])
+            day = int(published_at[6:8])
+            hour = int(published_at[9:11])
+            minute = int(published_at[11:13])
+            second = int(published_at[13:15]) if len(published_at) >= 15 else 0
+            dt = datetime(year, month, day, hour, minute, second)
+            return dt.timestamp()
+    except Exception:
+        return 0.0
+    return 0.0
+
+def _canonical_key(title: str, related_stocks: list) -> str:
+    norm = _normalize_text(title)[:120]
+    primary = (related_stocks[0] if related_stocks else '') or ''
+    raw = f"{primary}|{norm}"
+    return hashlib.md5(raw.encode('utf-8')).hexdigest()
+
+def _compute_storyline_id(news_item: dict) -> str:
+    base = (news_item.get('related_stocks') or ['GEN'])
+    title = news_item.get('title', '')
+    key = _canonical_key(title, base)
+    return f"sl_{key[:10]}"
+
+def _recency_factor(published_at: str) -> float:
+    ts = _parse_datetime_to_epoch(published_at)
+    if ts <= 0:
+        return 0.7  # modest default
+    hours = max(0.0, (time.time() - ts) / 3600.0)
+    # 0.5 life ~ 48h => factor = exp(-ln(2)*hours/48)
+    return math.exp(-0.693 * (hours / 48.0))
+
+def _sentiment_magnitude(sentiment: str, sentiment_score: float) -> float:
+    try:
+        s = float(sentiment_score or 0.0)
+    except Exception:
+        s = 0.0
+    base = abs(s)
+    # ensure a small lift if explicitly positive/negative but low score
+    if base < 0.05 and sentiment in ('positive','negative'):
+        base = 0.08
+    return min(1.0, max(0.0, base))
+
+def _augment_with_global_signals(items: list) -> None:
+    """Compute corroboration, divergence, storyline ids, impact and confidence without user context.
+    Mutates items in-place; safe to call repeatedly.
+    """
+    if not items:
+        return
+    # Grouping
+    by_canonical = {}
+    by_ticker = {}
+    for it in items:
+        related = it.get('related_stocks') or []
+        can_key = _canonical_key(it.get('title',''), related)
+        it.setdefault('canonical_key', can_key)
+        by_canonical.setdefault(can_key, []).append(it)
+        for tk in related:
+            if tk:
+                by_ticker.setdefault(tk, []).append(it)
+
+    # Corroboration counts per canonical thread
+    for group in by_canonical.values():
+        count = len(group)
+        for it in group:
+            it['corroboration_count'] = count
+
+    # Divergence detection per ticker within ~48h window
+    for tk, arts in by_ticker.items():
+        pos = False
+        neg = False
+        now = time.time()
+        recent = []
+        for it in arts:
+            ts = _parse_datetime_to_epoch(it.get('published_at',''))
+            if ts == 0.0 or (now - ts) <= 48*3600:
+                recent.append(it)
+        for it in recent:
+            sent = (it.get('sentiment') or 'neutral').lower()
+            if sent == 'positive':
+                pos = True
+            elif sent == 'negative':
+                neg = True
+        divergence = bool(pos and neg)
+        if divergence:
+            for it in recent:
+                it['divergence_flag'] = True
+
+    # Storyline id and trend (very light heuristic)
+    storyline_groups = {}
+    for it in items:
+        sid = _compute_storyline_id(it)
+        it['storyline_id'] = sid
+        storyline_groups.setdefault(sid, []).append(it)
+
+    for sid, group in storyline_groups.items():
+        # Sort by time asc
+        group_sorted = sorted(group, key=lambda x: _parse_datetime_to_epoch(x.get('published_at','')))
+        scores = []
+        for it in group_sorted:
+            try:
+                scores.append(float(it.get('sentiment_score') or 0.0))
+            except Exception:
+                scores.append(0.0)
+        if len(scores) >= 6:
+            prev = sum(scores[0:len(scores)//2]) / (len(scores)//2)
+            recent = sum(scores[len(scores)//2:]) / max(1, len(scores) - len(scores)//2)
+            trend = 'up' if recent > prev + 0.05 else ('down' if recent < prev - 0.05 else 'flat')
+        elif len(scores) >= 2:
+            prev = scores[0]
+            recent = scores[-1]
+            trend = 'up' if recent > prev + 0.05 else ('down' if recent < prev - 0.05 else 'flat')
+        else:
+            trend = 'flat'
+        for it in group:
+            it['storyline_sentiment_trend'] = trend
+
+    # Impact and confidence
+    for it in items:
+        sent_mag = _sentiment_magnitude(it.get('sentiment'), it.get('sentiment_score'))
+        rec = _recency_factor(it.get('published_at'))
+        qual = _source_quality(it.get('source'))
+        corroboration = float(it.get('corroboration_count', 1))
+        # impact: core signal * recency * quality * log(1+ corroboration)
+        impact = sent_mag * rec * qual * math.log1p(corroboration)
+        # confidence from corroboration and quality (bounded)
+        confidence = min(1.0, 0.4 + 0.15*corroboration + 0.2*(qual-0.8))
+        it['source_quality'] = round(qual, 3)
+        it['impact_score'] = round(impact, 4)
+        it['confidence_score'] = round(confidence, 3)
+
+def _compute_relevance_for_watchlist(items: list, watchlist: set) -> None:
+    if not items:
+        return
+    wl = {t.strip().upper() for t in watchlist if t.strip()}
+    if not wl:
+        return
+    for it in items:
+        related = {t.upper() for t in (it.get('related_stocks') or [])}
+        overlap = len(wl.intersection(related))
+        text = f"{it.get('title','')} {it.get('summary','')}"
+        # Light extra match for inline mentions
+        inline = sum(1 for tk in wl if re.search(fr"\b{re.escape(tk)}\b", text))
+        score = 0.0
+        if overlap > 0:
+            score += 0.7 + 0.2 * min(2, overlap-1)
+        if inline > 0 and overlap == 0:
+            score += 0.4
+        # blend with impact for better ordering
+        score += 0.5 * float(it.get('impact_score') or 0.0)
+        it['relevance_score'] = round(min(1.0, score), 4)
 
 def reset_daily_api_counter():
     """Reset daily API call counter if it's a new day"""
@@ -233,6 +437,20 @@ def fetch_diverse_news_data(api_key, cache_key):
                 all_news.append(av_format_article)
             
             current_app.logger.info(f"Total articles after adding FinnHub: {len(all_news)}")
+
+        # If we have a watchlist in session, fetch company-news for freshness
+        wl = []
+        try:
+            if isinstance(session.get('watchlist'), list):
+                wl = [str(t).strip().upper() for t in session.get('watchlist') if str(t).strip()]
+        except Exception:
+            wl = []
+        if wl:
+            current_app.logger.info(f"Fetching FinnHub company-news for watchlist: {wl[:10]}")
+            fresh_company = fetch_finnhub_company_news(wl, days_back=2)
+            if fresh_company:
+                all_news.extend(fresh_company)
+                current_app.logger.info(f"Added {len(fresh_company)} FinnHub company-news items")
     except Exception as e:
         current_app.logger.error(f"Error fetching FinnHub news: {str(e)}")
         # Continue with Alpha Vantage data only
@@ -389,6 +607,61 @@ def fetch_all_finnhub_news():
     
     current_app.logger.info(f"Total FinnHub articles collected: {len(all_news)}")
     return all_news
+
+def fetch_finnhub_company_news(symbols, days_back=3):
+    """Fetch recent company-specific news from FinnHub for given symbols."""
+    api_key = get_finnhub_api_key()
+    if not api_key or not symbols:
+        return []
+    base_url = "https://finnhub.io/api/v1/company-news"
+    end_date = datetime.utcnow().date()
+    start_date = end_date - timedelta(days=max(1, days_back))
+    out = []
+    for sym in list(dict.fromkeys([s.strip().upper() for s in symbols if s.strip()]))[:15]:
+        params = {
+            'symbol': sym,
+            'from': start_date.isoformat(),
+            'to': end_date.isoformat(),
+            'token': api_key
+        }
+        try:
+            resp = requests.get(base_url, params=params, timeout=20)
+            if resp.status_code == 200:
+                data = resp.json() or []
+                for item in data:
+                    try:
+                        ts = item.get('datetime') or item.get('time') or 0
+                        published_at = ''
+                        if ts:
+                            published_at = datetime.fromtimestamp(int(ts)).strftime("%Y%m%dT%H%M%S")
+                        news_item = {
+                            "id": f"finnhub_company_{sym}_{item.get('id', item.get('url',''))}",
+                            "title": item.get('headline') or item.get('title',''),
+                            "summary": item.get('summary',''),
+                            "source": f"{item.get('source','FinnHub')} (FinnHub)",
+                            "url": item.get('url',''),
+                            "published_at": published_at,
+                            "category": 'market',
+                            "topics": ["market"],
+                            "image": item.get('image',''),
+                            "sentiment": 'neutral',
+                            "sentiment_score": 0,
+                            "related_stocks": [sym],
+                            "data_source": "finnhub_company"
+                        }
+                        out.append(news_item)
+                    except Exception:
+                        continue
+            elif resp.status_code == 429:
+                current_app.logger.warning("FinnHub company-news rate limit hit")
+                break
+        except Exception as e:
+            current_app.logger.warning(f"FinnHub company-news error for {sym}: {e}")
+            continue
+        time.sleep(0.1)
+    # Newest first
+    out.sort(key=lambda x: x.get('published_at',''), reverse=True)
+    return out
 
 def process_finnhub_news(finnhub_data):
     """Process and transform FinnHub news data to match our format"""
@@ -816,6 +1089,23 @@ def process_alpha_vantage_news(data):
                 elif isinstance(topic, dict) and topic.get("topic"):
                     topics.append(topic.get("topic", ""))
         
+        # Extract related tickers if available in API structure
+        related_stocks = []
+        try:
+            if 'ticker_sentiment' in item and isinstance(item['ticker_sentiment'], list):
+                for t in item['ticker_sentiment']:
+                    sym = t.get('ticker') or t.get('symbol')
+                    if sym and sym not in related_stocks:
+                        related_stocks.append(sym)
+        except Exception:
+            pass
+        # Light fallback: guess ticker-like tokens in title
+        if not related_stocks:
+            title = item.get('title','')
+            for m in re.findall(r"\b[A-Z]{2,5}\b", title):
+                if m not in related_stocks:
+                    related_stocks.append(m)
+
         # Process sentiment with better handling
         sentiment = item.get("overall_sentiment_label", "neutral").lower()
         # Normalize sentiment values
@@ -846,7 +1136,8 @@ def process_alpha_vantage_news(data):
             "topics": topics,
             "image": item.get("banner_image", ""),
             "sentiment": sentiment,
-            "sentiment_score": sentiment_score
+            "sentiment_score": sentiment_score,
+            "related_stocks": related_stocks
         }
         processed_news.append(news_item)
     
@@ -866,6 +1157,12 @@ def process_alpha_vantage_news(data):
     current_app.logger.info(f"Category distribution: {category_counts}")
     current_app.logger.info(f"Sentiment distribution: {sentiment_counts}")
     
+    # Enrich with global signals (non-invasive)
+    try:
+        _augment_with_global_signals(processed_news)
+    except Exception as e:
+        current_app.logger.warning(f"Signal augmentation failed: {e}")
+
     return {
         "news": processed_news,
         "has_more": False,  # Alpha Vantage doesn't support pagination
@@ -1026,6 +1323,8 @@ def get_market_news():
     current_app.logger.info("API endpoint /api/market-news called")
     page = request.args.get('page', 1, type=int)
     filter_topic = request.args.get('filter', 'all')
+    sort_by = request.args.get('sort', 'newest')  # newest|oldest|sentiment|impact|relevance
+    tickers_param = request.args.get('tickers', '')  # comma-separated tickers for For You
     items_per_page = int(request.args.get('items_per_page', 12))
     force_refresh = request.args.get('force_refresh', 'false').lower() == 'true'
     
@@ -1045,6 +1344,15 @@ def get_market_news():
         if cache_key in last_cache_time:
             del last_cache_time[cache_key]
     
+    # If For You and explicit tickers provided, persist to session for freshness fetch downstream
+    if filter_topic == 'for_you' and tickers_param:
+        try:
+            wl_clean = [t.strip().upper() for t in tickers_param.split(',') if t.strip()]
+            session['watchlist'] = wl_clean
+            session.modified = True
+        except Exception:
+            pass
+
     # Fetch news with intelligent caching strategy
     current_app.logger.info(f"Fetching news with intelligent caching and continuous refresh strategy")
     try:
@@ -1060,7 +1368,7 @@ def get_market_news():
                 "has_more": False
             }), 500
         
-        # Extract relevant data
+    # Extract relevant data
         all_news = news_data.get("news", [])
         
         # Ensure news is a list
@@ -1090,11 +1398,56 @@ def get_market_news():
             'negative': len([n for n in all_news if n.get('sentiment') == 'negative'])
         }
         
-        # Filter news based on the selected filter
-        if filter_topic != 'all':
-            filtered_news = [n for n in all_news if n.get('category') == filter_topic]
+        # For You logic: if filter=for_you and tickers provided
+        watchlist = []
+        if filter_topic == 'for_you':
+            # Prefer explicit tickers; fall back to session watchlist
+            if tickers_param:
+                watchlist = [t.strip().upper() for t in tickers_param.split(',') if t.strip()]
+            elif isinstance(session.get('watchlist'), list):
+                watchlist = [str(t).strip().upper() for t in session.get('watchlist') if str(t).strip()]
+            # Compute relevance
+            try:
+                _compute_relevance_for_watchlist(all_news, set(watchlist))
+            except Exception as e:
+                current_app.logger.warning(f"Relevance computation failed: {e}")
+            # Use relevance threshold to filter, then sort by relevance desc and recency
+            filtered_news = [n for n in all_news if float(n.get('relevance_score', 0)) >= 0.1]
+            filtered_news.sort(key=lambda x: (x.get('relevance_score', 0), _parse_datetime_to_epoch(x.get('published_at',''))), reverse=True)
+            # If still too few, fallback to inline mentions among all news
+            if len(filtered_news) < 12 and watchlist:
+                wl = set(watchlist)
+                extras = []
+                for n in all_news:
+                    text = f"{n.get('title','')} {n.get('summary','')}"
+                    if any(re.search(fr"\b{re.escape(t)}\b", text) for t in wl):
+                        extras.append(n)
+                # de-dup by id
+                seen = {x.get('id') for x in filtered_news}
+                for e in extras:
+                    if e.get('id') not in seen:
+                        filtered_news.append(e)
+                        seen.add(e.get('id'))
+                filtered_news.sort(key=lambda x: (_parse_datetime_to_epoch(x.get('published_at','')), x.get('impact_score',0)), reverse=True)
         else:
-            filtered_news = all_news
+            # Filter news based on the selected category
+            if filter_topic != 'all':
+                filtered_news = [n for n in all_news if n.get('category') == filter_topic]
+            else:
+                filtered_news = all_news
+
+        # Additional sorting options
+        if sort_by == 'impact':
+            filtered_news.sort(key=lambda x: (x.get('impact_score', 0), _parse_datetime_to_epoch(x.get('published_at',''))), reverse=True)
+        elif sort_by == 'relevance' and filter_topic == 'for_you':
+            filtered_news.sort(key=lambda x: (x.get('relevance_score', 0), _parse_datetime_to_epoch(x.get('published_at',''))), reverse=True)
+        elif sort_by == 'sentiment':
+            sentiment_order = {'positive': 0, 'neutral': 1, 'negative': 2}
+            filtered_news.sort(key=lambda x: (sentiment_order.get(x.get('sentiment','neutral'), 1), -_parse_datetime_to_epoch(x.get('published_at',''))))
+        elif sort_by == 'oldest':
+            filtered_news.sort(key=lambda x: x.get('published_at',''))
+        else:  # newest
+            filtered_news.sort(key=lambda x: x.get('published_at',''), reverse=True)
             
         # Calculate total pages
         total_items = len(filtered_news)
@@ -1110,6 +1463,16 @@ def get_market_news():
         start_idx = (page - 1) * items_per_page
         end_idx = min(start_idx + items_per_page, total_items)
         
+        # Fallback for For You when empty: show top-impact latest overall
+        if filter_topic == 'for_you' and total_items == 0:
+            fallback = sorted(all_news, key=lambda x: (_parse_datetime_to_epoch(x.get('published_at','')), x.get('impact_score',0)), reverse=True)
+            filtered_news = fallback
+            total_items = len(filtered_news)
+            total_pages = max(1, (total_items + items_per_page - 1) // items_per_page)
+            if page > total_pages:
+                page = total_pages
+            start_idx = (page - 1) * items_per_page
+            end_idx = min(start_idx + items_per_page, total_items)
         paginated_news = filtered_news[start_idx:end_idx]
         has_more = end_idx < total_items
         
@@ -1147,6 +1510,13 @@ def get_market_news():
             "fresh_articles_count": news_data.get("fresh_articles_count", 0),
             "should_attempt_refresh": should_attempt_background_refresh(cache_key)
         }
+
+        # Include watchlist metadata if applicable
+        if filter_topic == 'for_you':
+            response_data["for_you"] = {
+                "tickers": watchlist,
+                "sort": sort_by,
+            }
         
         # Preserve fallback flag if it exists
         if news_data.get("fallback"):
@@ -1190,3 +1560,86 @@ def get_market_news():
                 "daily_limit": MAX_DAILY_API_CALLS
             }
         }), 500
+
+@market_news_bp.route('/api/market-news/storylines')
+def get_market_storylines():
+    """Return storyline clusters from cached 'all' news without triggering new API calls."""
+    try:
+        cache_key = 'news-all'
+        if cache_key not in news_cache or not isinstance(news_cache[cache_key], dict):
+            # Best effort: attempt fetch using existing strategy without forcing
+            data, status = fetch_alpha_vantage_news(topic=None)
+            if status != 200:
+                return jsonify({"storylines": [], "total": 0}), 200
+            items = data.get('news', []) if isinstance(data, dict) else []
+        else:
+            items = news_cache[cache_key].get('news', [])
+
+        # Ensure augmentation exists
+        try:
+            _augment_with_global_signals(items)
+        except Exception:
+            pass
+
+        clusters = {}
+        for it in items:
+            sid = it.get('storyline_id') or _compute_storyline_id(it)
+            grp = clusters.setdefault(sid, {
+                'storyline_id': sid,
+                'count': 0,
+                'latest_title': '',
+                'latest_published_at': '',
+                'sentiment_trend': it.get('storyline_sentiment_trend', 'flat'),
+                'tickers': set(),
+                'impact_max': 0.0,
+                'divergence': False,
+            })
+            grp['count'] += 1
+            ts = _parse_datetime_to_epoch(it.get('published_at',''))
+            if ts >= _parse_datetime_to_epoch(grp['latest_published_at'] or ''):
+                grp['latest_published_at'] = it.get('published_at','')
+                grp['latest_title'] = it.get('title','')
+            for tk in (it.get('related_stocks') or []):
+                grp['tickers'].add(tk)
+            grp['impact_max'] = max(grp['impact_max'], float(it.get('impact_score', 0) or 0))
+            if it.get('divergence_flag'):
+                grp['divergence'] = True
+
+        # Transform sets and sort
+        out = []
+        for grp in clusters.values():
+            grp['tickers'] = sorted(list(grp['tickers']))
+            out.append(grp)
+        out.sort(key=lambda x: (_parse_datetime_to_epoch(x['latest_published_at']), x['impact_max']), reverse=True)
+
+        return jsonify({
+            'storylines': out[:100],
+            'total': len(out)
+        }), 200
+    except Exception as e:
+        current_app.logger.error(f"Storylines endpoint error: {e}")
+        return jsonify({"storylines": [], "total": 0}), 200
+
+@market_news_bp.route('/api/watchlist', methods=['GET', 'POST'])
+def user_watchlist():
+    """Persist and retrieve a lightweight watchlist in session.
+    This complements client-side storage; safe and optional.
+    """
+    try:
+        if request.method == 'GET':
+            wl = session.get('watchlist', [])
+            if not isinstance(wl, list):
+                wl = []
+            return jsonify({"tickers": wl}), 200
+        else:
+            data = request.get_json(silent=True) or {}
+            tickers = data.get('tickers', [])
+            if not isinstance(tickers, list):
+                return jsonify({"error": "invalid_payload"}), 400
+            clean = [str(t).strip().upper() for t in tickers if isinstance(t, str) and t.strip()]
+            session['watchlist'] = clean
+            session.modified = True
+            return jsonify({"tickers": clean}), 200
+    except Exception as e:
+        current_app.logger.error(f"Watchlist endpoint error: {e}")
+        return jsonify({"tickers": []}), 200

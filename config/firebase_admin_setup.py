@@ -511,34 +511,23 @@ def verify_firebase_token(id_token):
     """
     Verifies a Firebase ID token using the initialized Firebase app.
     Returns the decoded token (user information) if valid, otherwise None.
-    Enhanced with comprehensive error handling and fallback mechanisms.
+    Strict mode: no local/unsafe fallback decoding will be used.
     """
     if not id_token or not isinstance(id_token, str):
         logger.warning("Invalid token provided to verify_firebase_token")
         return None
     
-    # Step 1: Network connectivity test for production environments
-    network_test_passed = False
+    # Step 1: Optional network connectivity test for diagnostics (no fallback)
     try:
-        # Use Azure-configured session if available, otherwise use default requests
         session_to_use = azure_session if azure_session else requests
-        
-        # Test Firebase certificate endpoint with timeout
         cert_test = session_to_use.get(
             "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
-            timeout=(10, 30)  # (connect_timeout, read_timeout)
+            timeout=(10, 30)
         )
-        if cert_test.ok:
-            logger.debug("✓ Network connectivity to Firebase certificate endpoints confirmed")
-            network_test_passed = True
-        else:
+        if not cert_test.ok:
             logger.warning(f"⚠ Certificate endpoint returned status: {cert_test.status_code}")
-    except requests.exceptions.Timeout as timeout_ex:
-        logger.warning(f"⚠ Certificate endpoint timeout (will use fallback): {timeout_ex}")
-    except requests.exceptions.ConnectionError as conn_ex:
-        logger.warning(f"⚠ Certificate endpoint connection error (will use fallback): {conn_ex}")
     except Exception as cert_ex:
-        logger.warning(f"⚠ Certificate endpoint test failed (will use fallback): {cert_ex}")
+        logger.warning(f"⚠ Certificate endpoint test failed: {cert_ex}")
     
     # Step 2: Get Firebase app
     app = get_firebase_app()
@@ -577,16 +566,7 @@ def verify_firebase_token(id_token):
     except firebase_admin.auth.CertificateFetchError as cert_error:
         logger.error(f"❌ Failed to fetch public key certificates: {cert_error}")
         _log_firebase_error(f"Certificate fetch error: {cert_error}", error_type="CERT_FETCH_ERROR")
-        
-        # Try fallback verification for Azure deployment or network issues
-        logger.info("🔄 Attempting fallback token verification due to certificate fetch error...")
-        fallback_result = verify_firebase_token_fallback(id_token)
-        if fallback_result:
-            logger.info("✓ Fallback token verification succeeded")
-            return fallback_result
-        else:
-            logger.error("❌ Both primary and fallback token verification failed")
-            return None
+        return None
         
     except ValueError as ve:
         logger.error(f"❌ ValueError verifying Firebase ID token (often project ID or app config issue): {ve}")
@@ -596,15 +576,6 @@ def verify_firebase_token(id_token):
     except Exception as e:
         logger.error(f"❌ Unexpected error verifying Firebase ID token: {e}")
         _log_firebase_error(f"Token verification unexpected error: {e}", e, "TOKEN_UNEXPECTED_ERROR")
-        
-        # Try fallback for any unexpected errors that might be network-related
-        if not network_test_passed:
-            logger.info("🔄 Attempting fallback token verification due to network issues...")
-            fallback_result = verify_firebase_token_fallback(id_token)
-            if fallback_result:
-                logger.info("✓ Fallback token verification succeeded after network error")
-                return fallback_result
-        
         return None
 
 def get_firestore_client():

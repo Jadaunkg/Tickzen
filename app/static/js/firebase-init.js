@@ -5,15 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // --- START: Firebase Configuration ---
         // Get Firebase configuration from global window object (set in base template)
-        const firebaseConfig = window.firebaseConfig || {
-            // Fallback configuration (should not be used in production)
-            apiKey: "AIzaSyAm-1IWTApPgJNmCsaUQtO0Waa1im12ZR0",
-            authDomain: "stock-report-automation.firebaseapp.com",
-            projectId: "stock-report-automation",
-            storageBucket: "stock-report-automation.appspot.com",
-            messagingSenderId: "623825735657",
-            appId: "1:623825735657:web:ea56f7a1d2193d0e9bc578"
-        };
+    const firebaseConfig = window.firebaseConfig;
         
         // Debug: Log Firebase config details
         console.log("Firebase config debug:", {
@@ -24,14 +16,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Check if Firebase config is properly set (not empty)
-        const hasValidConfig = firebaseConfig.apiKey && firebaseConfig.projectId && 
-                              firebaseConfig.apiKey !== '' && firebaseConfig.projectId !== '';
+    const hasValidConfig = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId && 
+                  firebaseConfig.apiKey !== '' && firebaseConfig.projectId !== '';
         
         // Log configuration source for debugging
         if (window.firebaseConfig && hasValidConfig) {
             console.log("✅ Using Firebase config from environment variables");
         } else if (hasValidConfig) {
-            console.warn("⚠️ Using fallback Firebase config - environment variables not available");
+            console.warn("⚠️ Using client config from template but verify environment variables are set on server.");
         } else {
             console.error("❌ Firebase configuration is incomplete - authentication will be disabled");
             displayAuthMessage("Firebase configuration incomplete. Authentication features disabled.", "warning", true);
@@ -42,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let app;
         let auth; // Declare here to be accessible throughout the try block
 
-        if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
+    if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function' && hasValidConfig) {
             app = firebase.initializeApp(firebaseConfig);
             
             if (typeof firebase.auth === 'function') {
@@ -325,6 +317,10 @@ document.addEventListener('DOMContentLoaded', function() {
             else console.warn("Google sign-in spinner element not found.");
         
             const provider = new firebase.auth.GoogleAuthProvider();
+            // Ensure we request email and profile and set prompt
+            provider.addScope('email');
+            provider.addScope('profile');
+            provider.setCustomParameters({ prompt: 'select_account' });
             try {
                 const result = await auth.signInWithPopup(provider);
                 const user = result.user;
