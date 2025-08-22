@@ -7,7 +7,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_from_directory, Response
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import json
 import time
@@ -18,6 +18,9 @@ from functools import wraps
 import re
 import traceback
 import urllib.parse
+import xml.etree.ElementTree as ET
+import glob
+import requests
 from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import firestore, auth as firebase_auth
@@ -438,15 +441,6 @@ def delete_file_from_storage(storage_path):
         app.logger.error(f"{error_msg}: {e}", exc_info=True)
         log_firebase_operation_error("delete_file", str(e), f"path: {storage_path}")
         return False
-        return False
-    try:
-        blob = bucket.blob(storage_path)
-        if blob.exists():
-            blob.delete()
-            app.logger.info(f"File {storage_path} deleted successfully from Firebase Storage.")
-        else:
-            app.logger.info(f"File {storage_path} not found in Firebase Storage for deletion (already deleted or never existed).")
-        return True
     except Exception as e:
         app.logger.error(f"Firebase Storage Deletion Error for '{storage_path}': {e}", exc_info=True)
         return False
@@ -1130,6 +1124,11 @@ def dashboard_analytics():
 @app.route('/analyzer', methods=['GET'])
 def analyzer_input_page():
     return render_template('analyzer_input.html', title="Stock Analyzer Input")
+
+@app.route('/ai-assistant')
+def ai_chatbot():
+    """Tickzen AI Assistant chatbot page"""
+    return render_template('ai_chatbot.html', title="Tickzen AI Assistant")
 
 @app.route('/health')
 def simple_health_check():
@@ -3714,7 +3713,6 @@ def waitlist_signup():
         
         # Also store in a simple JSON file as backup
         import json
-        import os
         waitlist_file = os.path.join(app.root_path, '..', 'generated_data', 'waitlist.json')
         
         try:
@@ -3795,8 +3793,6 @@ def change_password():
             
             # Import Firebase Auth
             from firebase_admin import auth
-            import requests
-            import json
             
             try:
                 # Get user by UID to get email
@@ -4705,7 +4701,6 @@ def api_password_reset():
 @app.route('/robots.txt')
 def robots_txt():
     """Generate robots.txt file for search engine crawlers"""
-    from flask import Response
     
     # Use production URL for live site
     if 'tickzen.app' in request.url_root or request.headers.get('Host', '').endswith('tickzen.app'):
@@ -4765,9 +4760,6 @@ Allow: /register
 @app.route('/sitemap-index.xml')
 def sitemap_index():
     """Generate sitemap index for multiple sitemaps"""
-    from flask import Response
-    import xml.etree.ElementTree as ET
-    from datetime import datetime
     
     # Use production URL for live site
     if 'tickzen.app' in request.url_root or request.headers.get('Host', '').endswith('tickzen.app'):
@@ -4798,11 +4790,7 @@ def sitemap_index():
 @app.route('/sitemap.xml')
 def sitemap_xml():
     """Generate comprehensive dynamic sitemap for all pages"""
-    from flask import Response
-    import xml.etree.ElementTree as ET
-    from datetime import datetime
     import os
-    import glob
     
     # Create sitemap XML structure
     urlset = ET.Element('urlset')
@@ -4906,7 +4894,6 @@ def sitemap_xml():
 @app.route('/humans.txt')
 def humans_txt():
     """Generate humans.txt file for transparency"""
-    from flask import Response
     
     content = """/* TEAM */
 Developer: Tickzen Team
@@ -4925,8 +4912,6 @@ Software: VS Code, Git
 @app.route('/sitemap-images.xml')
 def sitemap_images():
     """Generate image sitemap for better image indexing"""
-    from flask import Response
-    import xml.etree.ElementTree as ET
     import os
     
     # Use production URL for live site

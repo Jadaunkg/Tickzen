@@ -1,0 +1,9 @@
+{
+  "name": "tickzen-ai-assistant",
+  "version": "1.0.0",
+  "description": "AI-powered financial chat assistant for stock analysis and investment research - Tickzen",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "dependencies": {}
+}

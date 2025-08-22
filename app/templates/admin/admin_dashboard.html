@@ -733,25 +733,28 @@
                         <tbody id="contactSubmissionsTable">
                             {% if contact_submissions %}
                                 {% for submission in contact_submissions %}
-                                <tr data-id="{{ submission.id }}" class="{% if not submission.read %}unread-row{% endif %}">
+                                <tr 
+                                    data-id="{{ submission.id }}"
+                                    data-name="{{ submission.name|e }}"
+                                    data-email="{{ submission.email|e }}"
+                                    data-subject="{{ submission.subject|e }}"
+                                    data-message="{{ submission.message|e }}"
+                                    data-timestamp="{{ submission.timestamp }}"
+                                    class="{% if not submission.read %}unread-row{% endif %}">
                                     <td>{{ submission.timestamp }}</td>
                                     <td>{{ submission.name }}</td>
                                     <td><a href="mailto:{{ submission.email }}">{{ submission.email }}</a></td>
                                     <td>{{ submission.subject }}</td>
                                     <td>
-                                        <span class="status-badge status-{{ submission.status }}">
+                                        <span class="status-badge status-{{ submission.status|lower }}">
                                             {{ submission.status|capitalize }}
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="action-btn view-message-btn" 
-                                                onclick="viewContactMessage('{{ submission.id }}', '{{ submission.name|escape }}', 
-                                                '{{ submission.email|escape }}', '{{ submission.subject|escape }}',
-                                                '{{ submission.message|escape }}', '{{ submission.timestamp }}')">
+                                        <button class="action-btn view-message-btn" title="View Message">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="action-btn mark-btn" 
-                                                onclick="updateContactStatus('{{ submission.id }}', 'resolved')">
+                                        <button class="action-btn mark-btn" title="Mark Resolved">
                                             <i class="fas fa-check"></i>
                                         </button>
                                     </td>
@@ -1094,6 +1097,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const progress = parseFloat(bar.getAttribute('data-progress')) || 0;
         bar.style.width = Math.min(100, Math.max(0, progress)) + '%';
     });
+
+    // Delegated click handlers for contact submissions (avoid fragile inline JS)
+    document.addEventListener('click', (e) => {
+        const viewBtn = e.target.closest('.view-message-btn');
+        if (viewBtn) {
+            const tr = viewBtn.closest('tr');
+            if (tr) {
+                const { id, name, email, subject, message, timestamp } = tr.dataset;
+                viewContactMessage(id, name, email, subject, message, timestamp);
+            }
+            return;
+        }
+
+        const markBtn = e.target.closest('.mark-btn');
+        if (markBtn) {
+            const tr = markBtn.closest('tr');
+            if (tr && tr.dataset.id) {
+                updateContactStatus(tr.dataset.id, 'resolved');
+            }
+        }
+    });
 });
 
 function refreshDashboard() {
@@ -1143,29 +1167,43 @@ setInterval(() => {
 
 // Contact form submissions functionality
 function viewContactMessage(id, name, email, subject, message, timestamp) {
+    // Escape helper for safe HTML injection
+    const escapeHtml = (str) => String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/\n/g, '<br>');
+
+    const eName = escapeHtml(name);
+    const eEmail = escapeHtml(email);
+    const eSubject = escapeHtml(subject);
+    const eMessage = escapeHtml(message);
+    const eTimestamp = escapeHtml(timestamp);
     // Create a modal to display the message
     const modal = document.createElement('div');
     modal.className = 'admin-modal';
     modal.innerHTML = `
         <div class="admin-modal-content">
             <div class="admin-modal-header">
-                <h3>Message from ${name}</h3>
+                <h3>Message from ${eName}</h3>
                 <button class="admin-modal-close">&times;</button>
             </div>
             <div class="admin-modal-body">
                 <div class="message-info">
-                    <p><strong>From:</strong> ${name} (${email})</p>
-                    <p><strong>Subject:</strong> ${subject}</p>
-                    <p><strong>Date:</strong> ${timestamp}</p>
+                    <p><strong>From:</strong> ${eName} (${eEmail})</p>
+                    <p><strong>Subject:</strong> ${eSubject}</p>
+                    <p><strong>Date:</strong> ${eTimestamp}</p>
                 </div>
                 <div class="message-content">
                     <h4>Message:</h4>
-                    <p>${message}</p>
+                    <p>${eMessage}</p>
                 </div>
             </div>
             <div class="admin-modal-footer">
-                <button class="btn btn-primary" onclick="replyToMessage('${email}', '${subject}')">Reply via Email</button>
-                <button class="btn btn-success" onclick="updateContactStatus('${id}', 'resolved')">Mark as Resolved</button>
+                <button class="btn btn-primary" data-action="reply" data-email="${encodeURIComponent(email || '')}" data-subject="${encodeURIComponent(subject || '')}">Reply via Email</button>
+                <button class="btn btn-success" data-action="resolve" data-id="${id}">Mark as Resolved</button>
             </div>
         </div>
     `;
@@ -1191,10 +1229,34 @@ function viewContactMessage(id, name, email, subject, message, timestamp) {
     modal.querySelector('.admin-modal-close').addEventListener('click', () => {
         document.body.removeChild(modal);
     });
+
+    // Optional: close when clicking outside the content
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
+
+    // Modal footer actions (delegated)
+    const footer = modal.querySelector('.admin-modal-footer');
+    footer.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const action = btn.getAttribute('data-action');
+        if (action === 'reply') {
+            // Decode to pass readable strings; replyToMessage will encode again
+            const em = decodeURIComponent(btn.getAttribute('data-email') || '');
+            const sb = decodeURIComponent(btn.getAttribute('data-subject') || '');
+            replyToMessage(em, sb);
+        } else if (action === 'resolve') {
+            const messageId = btn.getAttribute('data-id');
+            if (messageId) updateContactStatus(messageId, 'resolved');
+        }
+    });
 }
 
 function replyToMessage(email, subject) {
-    const mailtoLink = `mailto:${email}?subject=Re: ${subject}`;
+    const mailtoLink = `mailto:${encodeURIComponent(email || '')}?subject=${encodeURIComponent('Re: ' + (subject || ''))}`;
     window.open(mailtoLink);
 }
 
@@ -1229,26 +1291,42 @@ function refreshContactSubmissions() {
                 const row = document.createElement('tr');
                 row.dataset.id = sub.id;
                 if (!sub.read) row.classList.add('unread-row');
-                
+                // Store data safely on the row to avoid inline JS quoting issues
+                row.dataset.name = sub.name || '';
+                row.dataset.email = sub.email || '';
+                row.dataset.subject = sub.subject || '';
+                row.dataset.message = sub.message || '';
+                row.dataset.timestamp = sub.timestamp || '';
+
+                // Basic HTML escaping to prevent injection in table cells
+                const escapeHtml = (str) => String(str ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+
+                const safeName = escapeHtml(sub.name);
+                const safeEmail = escapeHtml(sub.email);
+                const safeSubject = escapeHtml(sub.subject);
+                const safeTimestamp = escapeHtml(sub.timestamp);
+                const safeStatus = escapeHtml(sub.status);
+
                 row.innerHTML = `
-                    <td>${sub.timestamp}</td>
-                    <td>${sub.name}</td>
-                    <td><a href="mailto:${sub.email}">${sub.email}</a></td>
-                    <td>${sub.subject}</td>
+                    <td>${safeTimestamp}</td>
+                    <td>${safeName}</td>
+                    <td><a href="mailto:${encodeURIComponent(sub.email || '')}">${safeEmail}</a></td>
+                    <td>${safeSubject}</td>
                     <td>
-                        <span class="status-badge status-${sub.status}">
-                            ${sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
+                        <span class="status-badge status-${safeStatus}">
+                            ${safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1)}
                         </span>
                     </td>
                     <td>
-                        <button class="action-btn view-message-btn" 
-                                onclick="viewContactMessage(\`\${sub.id}\`, \`\${sub.name}\`, 
-                                \`\${sub.email}\`, \`\${sub.subject}\`,
-                                \`\${sub.message}\`, \`\${sub.timestamp}\`)">
+                        <button class="action-btn view-message-btn" title="View Message">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="action-btn mark-btn" 
-                                onclick="updateContactStatus(\`\${sub.id}\`, 'resolved')">
+                        <button class="action-btn mark-btn" title="Mark Resolved">
                             <i class="fas fa-check"></i>
                         </button>
                     </td>
@@ -1262,5 +1340,4 @@ function refreshContactSubmissions() {
         .catch(error => console.error('Error refreshing contact submissions:', error));
     }
     </script>
-</script>
 {% endblock %}
