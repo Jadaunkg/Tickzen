@@ -6,6 +6,8 @@ import yfinance as yf
 import numpy as np
 from datetime import datetime, timedelta
 import re
+import json
+import random
 
 # Assuming your other imports (config, data_collection, etc.) are set up
 try:
@@ -40,13 +42,296 @@ ALL_REPORT_SECTIONS = {
     "dividends_shareholder_returns": hc.generate_dividends_shareholder_returns_html,
     "peer_comparison": hc.generate_peer_comparison_html,
     "conclusion_outlook": hc.generate_conclusion_outlook_html,
-    
     "risk_factors": hc.generate_risk_factors_html,
     "faq": hc.generate_faq_html,
     "report_info_disclaimer": hc.generate_report_info_disclaimer_html
     # Add more if html_components.py has more generators
 }
 
+# Content Library Variation Support
+def load_content_library(app_root: str):
+    """Load content library variations from JSON file for WordPress posts only."""
+    try:
+        # Determine the actual project root based on the app_root parameter
+        # If app_root ends with 'app', then it's already pointing to the app directory
+        # If not, we assume it's the project root and look for app/content_library.json
+        
+        possible_paths = []
+        
+        # Case 1: app_root is already pointing to the app directory (from auto_publisher)
+        if os.path.basename(app_root) == 'app':
+            possible_paths.extend([
+                os.path.join(app_root, 'content_library.json'),
+                os.path.join(app_root, 'report_assets', 'content_library.json'),
+                os.path.join(app_root, 'report_assets', 'TSLA_1751805931', 'content_library.json')
+            ])
+        
+        # Case 2: app_root is the project root (from wordpress_reporter itself or other callers)
+        possible_paths.extend([
+            os.path.join(app_root, 'app', 'content_library.json'),
+            os.path.join(app_root, 'app', 'report_assets', 'content_library.json'),
+            os.path.join(app_root, 'content_library.json'),
+            os.path.join(app_root, 'app', 'report_assets', 'TSLA_1751805931', 'content_library.json')
+        ])
+        
+        # Case 3: Try going up one directory if we're in a subdirectory like reporting_tools
+        project_root = os.path.dirname(app_root)
+        possible_paths.extend([
+            os.path.join(project_root, 'app', 'content_library.json'),
+            os.path.join(project_root, 'app', 'report_assets', 'content_library.json')
+        ])
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+        
+        print(f"WARNING: content_library.json not found in expected locations. Searched paths:")
+        for path in possible_paths[:5]:  # Show first 5 paths for debugging
+            print(f"  - {path} {'✓' if os.path.exists(path) else '✗'}")
+        print("Using inline variations as fallback.")
+        return None
+    except Exception as e:
+        print(f"WARNING: Error loading content_library.json: {e}. Using inline variations.")
+        return None
+
+def get_variation(content_lib, section_path, fallback_list=None):
+    """Get a random variation from content library path or fallback to provided list."""
+    if not content_lib:
+        return random.choice(fallback_list) if fallback_list else ""
+    
+    try:
+        # Navigate through nested dict using dot notation like 'introduction.summary_sentence.intros'
+        keys = section_path.split('.')
+        current = content_lib
+        for key in keys:
+            current = current[key]
+        return random.choice(current) if isinstance(current, list) else current
+    except (KeyError, TypeError):
+        return random.choice(fallback_list) if fallback_list else ""
+
+def generate_wordpress_introduction_html(ticker, rdata, content_library=None):
+    """
+    Generate WordPress introduction using content library variations.
+    Falls back to original function if content library is not available.
+    """
+    try:
+        if not content_library:
+            # Fallback to original function if no content library
+            return hc.generate_introduction_html(ticker, rdata)
+        
+        # Extract data for template variables
+        profile_data = rdata.get('profile_data', {})
+        detailed_ta_data = rdata.get('detailed_ta_data', {})
+        analyst_data = rdata.get('analyst_info_data', {})
+        
+        company_name = profile_data.get('Company Name', ticker)
+        current_price_val = rdata.get('current_price')
+        current_price_fmt = hc.format_html_value(current_price_val, 'currency', ticker=ticker)
+        
+        last_date_obj = rdata.get('last_date', datetime.now())
+        last_date_fmt = last_date_obj.strftime('%B %Y')
+        
+        sma50_val = detailed_ta_data.get('SMA_50')
+        sma50_fmt = hc.format_html_value(sma50_val, 'currency', ticker=ticker)
+        sma200_val = detailed_ta_data.get('SMA_200')
+        sma200_fmt = hc.format_html_value(sma200_val, 'currency', ticker=ticker)
+        
+        analyst_target_val = hc._safe_float(analyst_data.get('Mean Target Price'))
+        analyst_target_fmt = hc.format_html_value(analyst_target_val, 'currency', ticker=ticker)
+        
+        upside_pct_val = rdata.get('overall_pct_change', 0.0)
+        upside_pct_fmt = f"{upside_pct_val:+.1f}%"
+        
+        # Build introduction using content library
+        html_parts = []
+        
+        # Summary sentence
+        intro = get_variation(content_library, 'introduction.summary_sentence.intros', ['This report provides'])
+        descriptor = get_variation(content_library, 'introduction.summary_sentence.descriptors', ['a detailed analysis of'])
+        summary_parts = f"{ticker} stock analysis, including technical indicators, fundamental metrics, and market outlook"
+        
+        html_parts.append(f"<p>{intro} {descriptor} {summary_parts}.</p>")
+        
+        # Core question
+        question_intro = get_variation(content_library, 'introduction.core_question.intros', ['The core question for investors is'])
+        question_topic = get_variation(content_library, 'introduction.core_question.topics', ['valuation and future prospects'])
+        
+        html_parts.append(f"<p>{question_intro} {question_topic}.</p>")
+        
+        # Momentum analysis
+        momentum_base = get_variation(content_library, 'introduction.momentum.base', 
+            ['The stock is currently {trading_verb} at <strong>{current_price_fmt}</strong> (as of {last_date_fmt}), and it\'s {momentum_phrase}.'])
+        
+        trading_verb = get_variation(content_library, 'introduction.momentum.trading_verbs', ['trading'])
+        
+        # Determine momentum phrase based on technical analysis
+        momentum_phrase = "showing mixed signals"
+        if current_price_val and sma50_val and sma200_val:
+            if current_price_val > sma50_val and current_price_val > sma200_val:
+                momentum_phrase = get_variation(content_library, 'introduction.momentum.phrases.positive',
+                    ['showing strong positive momentum, trading decisively above both its 50-day and 200-day moving averages'])
+            elif current_price_val < sma50_val and current_price_val < sma200_val:
+                momentum_phrase = get_variation(content_library, 'introduction.momentum.phrases.bearish',
+                    ['currently in a bearish trend, trading below both its 50-day and 200-day moving averages'])
+            elif current_price_val > sma50_val:
+                momentum_phrase = get_variation(content_library, 'introduction.momentum.phrases.mixed_short_strong',
+                    ['in a mixed technical state, trading above its short-term 50-day average but still under the long-term 200-day trendline'])
+            else:
+                momentum_phrase = get_variation(content_library, 'introduction.momentum.phrases.mixed_long_strong',
+                    ['experiencing a short-term pullback within a larger uptrend, as it trades below its 50-day average while holding above the 200-day'])
+        
+        momentum_text = momentum_base.format(
+            trading_verb=trading_verb,
+            current_price_fmt=current_price_fmt,
+            last_date_fmt=last_date_fmt,
+            momentum_phrase=momentum_phrase
+        )
+        
+        html_parts.append(f"<p>{momentum_text}</p>")
+        
+        # Analyst outlook
+        if analyst_target_val and analyst_target_val > 0:
+            source = get_variation(content_library, 'introduction.analyst_outlook.sources', ['Analysts'])
+            
+            sentiment_key = 'optimistic' if upside_pct_val > 5 else 'cautious' if upside_pct_val < -5 else 'stable'
+            sentiment = get_variation(content_library, f'introduction.analyst_outlook.sentiments.{sentiment_key}', ['are positive'])
+            connector = get_variation(content_library, 'introduction.analyst_outlook.connectors', ['with a 1-year price target of'])
+            result = get_variation(content_library, f'introduction.analyst_outlook.results.{sentiment_key}', [f'implying a potential {upside_pct_fmt} change'])
+            
+            result_text = result.format(upside_pct_fmt=upside_pct_fmt)
+            
+            analyst_text = f"{source} {sentiment}, {connector} <strong>{analyst_target_fmt}</strong>, {result_text}."
+            html_parts.append(f"<p>{analyst_text}</p>")
+        else:
+            unavailable_text = get_variation(content_library, 'introduction.analyst_outlook.unavailable',
+                [f'Analyst price targets are currently unavailable for {ticker}.'])
+            html_parts.append(f"<p>{unavailable_text}</p>")
+        
+        # Final hook
+        final_hook = get_variation(content_library, 'introduction.closing_paragraphs.final_hook',
+            [f'Ultimately, is {ticker} a stock worth adding to your watchlist? Read on for a deeper analysis.'])
+        
+        final_hook_text = final_hook.format(ticker=ticker, company_name=company_name)
+        html_parts.append(f"<p>{final_hook_text}</p>")
+        
+        return '\\n'.join(html_parts)
+        
+    except Exception as e:
+        print(f"Warning: Error in WordPress introduction generation: {e}. Using fallback.")
+        return hc.generate_introduction_html(ticker, rdata)
+
+def generate_wordpress_metrics_summary_html(ticker, rdata, content_library=None):
+    """
+    Generate WordPress metrics summary using content library variations.
+    Falls back to original function if content library is not available.
+    """
+    try:
+        if not content_library:
+            # Fallback to original function if no content library
+            return hc.generate_metrics_summary_html(ticker, rdata)
+        
+        # Extract data for template variables
+        current_price_val = rdata.get('current_price')
+        current_price_fmt = hc.format_html_value(current_price_val, 'currency', ticker=ticker)
+        
+        detailed_ta_data = rdata.get('detailed_ta_data', {})
+        sma50_fmt = hc.format_html_value(detailed_ta_data.get('SMA_50'), 'currency', ticker=ticker)
+        sma200_fmt = hc.format_html_value(detailed_ta_data.get('SMA_200'), 'currency', ticker=ticker)
+        
+        rsi_val = detailed_ta_data.get('RSI_14')
+        rsi_fmt = f"{rsi_val:.1f}" if isinstance(rsi_val, (int, float)) else "N/A"
+        
+        # Get 52-week range
+        high_52wk_fmt = hc.format_html_value(rdata.get('52_week_high'), 'currency', ticker=ticker)
+        low_52wk_fmt = hc.format_html_value(rdata.get('52_week_low'), 'currency', ticker=ticker)
+        
+        html_parts = []
+        
+        # Paragraph 1: Opening and technical pattern
+        opening = get_variation(content_library, 'metrics_summary.paragraph1.opening',
+            [f'Currently, {ticker} is priced at <strong>{current_price_fmt}</strong>.'])
+        
+        # Get trading verb for template substitution
+        trading_verb = get_variation(content_library, 'metrics_summary.paragraph1.trading_verbs', ['trading'])
+        
+        opening_text = opening.format(ticker=ticker, current_price_fmt=current_price_fmt, trading_verb=trading_verb)
+        html_parts.append(f"<p>{opening_text}</p>")
+        
+        # Technical pattern analysis
+        position_verb = get_variation(content_library, 'metrics_summary.paragraph1.technical_pattern.position_verbs', ['positioned'])
+        
+        # Determine technical pattern
+        technical_pattern_text = "mixed pattern"
+        momentum_key = "mixed"
+        
+        if current_price_val and detailed_ta_data.get('SMA_50') and detailed_ta_data.get('SMA_200'):
+            sma50_val = detailed_ta_data.get('SMA_50')
+            sma200_val = detailed_ta_data.get('SMA_200')
+            
+            if current_price_val > sma50_val and current_price_val > sma200_val:
+                technical_pattern_text = "bullish trend"
+                momentum_key = "bullish"
+            elif current_price_val < sma50_val and current_price_val < sma200_val:
+                technical_pattern_text = "bearish trend"
+                momentum_key = "bearish"
+        
+        technical_base = get_variation(content_library, 'metrics_summary.paragraph1.technical_pattern.base',
+            'The technical indicators are showing a <strong>{technical_pattern_text}</strong>, as the price is {position_verb} relative to the {sma50_fmt} (50-day) and {sma200_fmt} (200-day) moving averages.')
+        
+        technical_text = technical_base.format(
+            technical_pattern_text=technical_pattern_text,
+            position_verb=position_verb,
+            sma50_fmt=sma50_fmt,
+            sma200_fmt=sma200_fmt
+        )
+        
+        momentum_suggestion = get_variation(content_library, f'metrics_summary.paragraph1.technical_pattern.momentum_suggestion.{momentum_key}',
+            ['This suggests the stock is in a period of consolidation.'])
+        
+        html_parts.append(f"<p>{technical_text} {momentum_suggestion}</p>")
+        
+        # RSI and MACD indicators
+        rsi_key = "neutral"
+        if rsi_val:
+            if rsi_val > 70:
+                rsi_key = "overbought"
+            elif rsi_val < 30:
+                rsi_key = "oversold"
+        
+        rsi_phrase = get_variation(content_library, f'metrics_summary.paragraph1.indicators.rsi.{rsi_key}',
+            [f'the RSI of <strong>{rsi_fmt}</strong> suggests the stock is neither overbought nor oversold'])
+        
+        rsi_phrase = rsi_phrase.format(rsi_fmt=rsi_fmt)
+        
+        macd_phrase = "the MACD shows neutral signals"  # Simplified for now
+        implication = get_variation(content_library, f'metrics_summary.paragraph1.indicators.implications.{rsi_key}',
+            ['suggesting the stock is currently in equilibrium'])
+        
+        indicators_base = get_variation(content_library, 'metrics_summary.paragraph1.indicators.base',
+            'However, {rsi_phrase}, while {macd_phrase}, {implication_phrase}.')
+        
+        indicators_text = indicators_base.format(
+            rsi_phrase=rsi_phrase,
+            macd_phrase=macd_phrase,
+            implication_phrase=implication
+        )
+        
+        html_parts.append(f"<p>{indicators_text}</p>")
+        
+        # Paragraph 2: 52-week range
+        if high_52wk_fmt != 'N/A' and low_52wk_fmt != 'N/A':
+            range_intro = get_variation(content_library, 'metrics_summary.paragraph2.range_intro',
+                [f'Over the past year, {ticker}\'s stock has traded between <strong>{low_52wk_fmt} and {high_52wk_fmt}</strong>.'])
+            
+            range_text = range_intro.format(ticker=ticker, low_52wk_fmt=low_52wk_fmt, high_52wk_fmt=high_52wk_fmt)
+            html_parts.append(f"<p>{range_text}</p>")
+        
+        return '\\n'.join(html_parts)
+        
+    except Exception as e:
+        print(f"Warning: Error in WordPress metrics summary generation: {e}. Using fallback.")
+        return hc.generate_metrics_summary_html(ticker, rdata)
 
 def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report_sections_to_include: list):
     """
@@ -72,6 +357,14 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
     rdata = {}
 
     try:
+        # --- 0. Load Content Library for WordPress Variations ---
+        print("Step 0: Loading content library for WordPress variations...")
+        content_library = load_content_library(app_root)
+        if content_library:
+            print("✅ Content library loaded successfully")
+        else:
+            print("⚠️  Using fallback inline variations")
+        
         # --- 1. Data Collection (Same as before) ---
         print("Step 1: Fetching data...")
         stock_data = fetch_stock_data(ticker, app_root=app_root, start_date=START_DATE, end_date=END_DATE, timeout=30)
@@ -95,7 +388,8 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
         model, forecast_raw, actual_df, forecast_df = train_prophet_model(
             processed_data.copy(), ticker, forecast_horizon='1y', timestamp=ts
         )
-        if model is None or forecast_raw is None or actual_df is None or forecast_df is None:
+        # Note: model can be None when using WSL bridge, which is normal
+        if forecast_raw is None or actual_df is None or forecast_df is None:
             raise ValueError("Prophet model training or forecasting failed.")
 
 
@@ -235,10 +529,16 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
                     print(f"Skipping section '{section_key}' as forecast data is not available.")
                     continue
                 
-                # Special handling for introduction - no h2 header
+                # Special handling for introduction - no h2 header, use content library
                 if section_key == "introduction":
                     html_report_parts.append(f"<section id='{section_key}'>")
-                    html_report_parts.append(generator_func(ticker, rdata)) # Call the function from html_components
+                    html_report_parts.append(generate_wordpress_introduction_html(ticker, rdata, content_library))
+                    html_report_parts.append("</section>")
+                # Special handling for metrics_summary - use content library
+                elif section_key == "metrics_summary":
+                    html_report_parts.append(f"<section id='{section_key}'>")
+                    html_report_parts.append("<h2>Key Metrics Summary</h2>")
+                    html_report_parts.append(generate_wordpress_metrics_summary_html(ticker, rdata, content_library))
                     html_report_parts.append("</section>")
                 # Special handling for report_info_disclaimer - requires generation_time parameter
                 elif section_key == "report_info_disclaimer":

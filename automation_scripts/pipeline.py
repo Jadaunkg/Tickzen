@@ -187,7 +187,8 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
         model, forecast, actual_df, forecast_df = train_prophet_model(
             processed_data.copy(), ticker, forecast_horizon='1y', timestamp=ts
         )
-        if model is None or forecast is None or actual_df is None or forecast_df is None:
+        # Check if forecasting data is valid (model can be None when using WSL bridge)
+        if forecast is None or actual_df is None or forecast_df is None or forecast.empty or actual_df.empty or forecast_df.empty:
             error_msg = f"Unable to generate predictions for ticker '{ticker}'. The stock may not have enough historical data for reliable forecasting.\n\nPlease try again with a more established stock that has longer trading history."
             raise RuntimeError(error_msg)
         pipeline_logger.info(f"Model trained for {ticker}. Forecast generated.")
@@ -305,7 +306,8 @@ def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None
 
         _emit_progress(socketio_instance, task_room, 40, "Training model for WP assets...", "WP Model Training", ticker, event_name_progress)
         model, forecast, actual_df, forecast_df = train_prophet_model(processed_data.copy(), ticker, forecast_horizon='1y', timestamp=ts)
-        if model is None or forecast is None or actual_df is None or forecast_df is None:
+        # Check if forecasting data is valid (model can be None when using WSL bridge)
+        if forecast is None or actual_df is None or forecast_df is None or forecast.empty or actual_df.empty or forecast_df.empty:
             error_msg = f"Unable to generate predictions for ticker '{ticker}'. The stock may not have enough historical data for reliable forecasting.\n\nPlease try again with a more established stock that has longer trading history."
             raise RuntimeError(error_msg)
         pipeline_logger.info(f"WP Model trained for {ticker}.")

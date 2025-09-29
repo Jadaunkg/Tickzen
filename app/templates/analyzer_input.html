@@ -592,7 +592,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="${companyClass}">${suggestion.company}</div>
             `;
             
-            div.addEventListener('click', () => selectSuggestion(suggestion));
+            // Add multiple event handlers for better compatibility
+            div.addEventListener('mousedown', function(e) {
+                e.preventDefault(); // Prevent input blur
+            });
+            
+            div.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Suggestion clicked:', suggestion.symbol);
+                selectSuggestion(suggestion);
+            });
+            
+            // Touch support for mobile devices
+            div.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                selectSuggestion(suggestion);
+            });
+            
             div.addEventListener('mouseenter', () => {
                 selectedIndex = index;
                 updateSelectedSuggestion();
@@ -613,9 +630,13 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Function to select a suggestion
     function selectSuggestion(suggestion) {
-        tickerInput.value = suggestion.symbol;
+        console.log('Selecting suggestion:', suggestion.symbol);
+        tickerInput.value = suggestion.symbol.toUpperCase();
         hideSuggestions();
         tickerInput.focus();
+        // Mark input as active to hide typewriter
+        tickerInput.classList.add('search-input-active');
+        console.log('Ticker input value set to:', tickerInput.value);
     }
     
     // Function to update selected suggestion
@@ -630,9 +651,29 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // Enhanced event listeners for autocomplete
+    // Real-time uppercase conversion function
+    function convertToUppercase() {
+        // Store cursor position before conversion
+        let cursorPosition = tickerInput.selectionStart;
+        let originalValue = tickerInput.value;
+        
+        // Convert to uppercase in real-time as user types
+        let upperValue = originalValue.toUpperCase();
+        
+        // Only update if there's a change to prevent cursor jumping
+        if (originalValue !== upperValue) {
+            tickerInput.value = upperValue;
+            // Restore cursor position after uppercase conversion
+            tickerInput.setSelectionRange(cursorPosition, cursorPosition);
+        }
+    }
+    
+    // Enhanced event listeners for autocomplete with real-time uppercase conversion
     tickerInput.addEventListener('input', function() {
-        const query = this.value.trim();
+        // Convert to uppercase immediately
+        convertToUppercase();
+        
+        let query = this.value.trim();
         
         // Clear previous timeout
         if (searchTimeout) {
@@ -643,6 +684,25 @@ document.addEventListener('DOMContentLoaded', function () {
         searchTimeout = setTimeout(() => {
             fetchTickerSuggestions(query);
         }, 300);
+        
+        // Hide typewriter when user types
+        if (query !== '') {
+            tickerInput.classList.add('search-input-active');
+        } else {
+            tickerInput.classList.remove('search-input-active');
+        }
+    });
+    
+    // Handle paste events to ensure uppercase
+    tickerInput.addEventListener('paste', function(e) {
+        // Small delay to allow paste to complete, then convert
+        setTimeout(convertToUppercase, 10);
+    });
+    
+    // Handle blur event for hiding suggestions
+    tickerInput.addEventListener('blur', function() {
+        // Hide suggestions after delay (no need for uppercase conversion as it's done in real-time)
+        setTimeout(hideSuggestions, 150);
     });
     
     tickerInput.addEventListener('keydown', function(e) {
@@ -674,16 +734,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
     
+    // Prevent suggestions container from causing input blur
+    autocompleteSuggestions.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+    });
+    
+    autocompleteSuggestions.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+    
     // Hide suggestions when clicking outside
     document.addEventListener('click', function(e) {
         if (!tickerInput.contains(e.target) && !autocompleteSuggestions.contains(e.target)) {
             hideSuggestions();
         }
-    });
-    
-    // Hide suggestions when input loses focus (with delay to allow for clicks)
-    tickerInput.addEventListener('blur', function() {
-        setTimeout(hideSuggestions, 150);
     });
 
     let timerInterval;
@@ -821,7 +886,9 @@ document.addEventListener('DOMContentLoaded', function () {
         analyzeForm.addEventListener('submit', function (event) {
             event.preventDefault(); 
 
-            const ticker = tickerInput.value.trim().toUpperCase();
+            // Ticker is already uppercase due to real-time conversion
+            const ticker = tickerInput.value.trim();
+            
             if (!ticker) {
                 // Client-side validation (keep simple)
                 alert('Ticker symbol is required.'); // Simple alert
@@ -912,7 +979,8 @@ document.addEventListener('DOMContentLoaded', function () {
     tickerButtons.forEach(function(button) {
         button.addEventListener('click', function() {
             const ticker = this.getAttribute('data-ticker');
-            tickerInput.value = ticker;
+            tickerInput.value = ticker.toUpperCase();
+            tickerInput.classList.add('search-input-active'); // Hide typewriter
             tickerInput.focus();
             hideSuggestions(); // Hide any open autocomplete suggestions
         });
