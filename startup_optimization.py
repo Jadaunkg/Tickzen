@@ -85,7 +85,12 @@ def initialize_minimal_app():
     from flask import Flask
     
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-change-in-production')
+    secret_key = os.environ.get('SECRET_KEY')
+    if not secret_key:
+        import secrets
+        secret_key = secrets.token_hex(32)
+        print("Warning: No SECRET_KEY environment variable found. Generated a random secret key for this session.")
+    app.config['SECRET_KEY'] = secret_key
     
     @app.route('/health')
     def health():

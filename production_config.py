@@ -8,7 +8,7 @@ SOCKETIO_PROD_CONFIG = {
     'ping_timeout': 60,  # 1 minute
     'ping_interval': 25,  # 25 seconds
     'async_mode': 'threading',  # Use threading for better third-party SDK compatibility
-    'cors_allowed_origins': "*",
+    'cors_allowed_origins': os.environ.get('ALLOWED_ORIGINS', '').split(',') if os.environ.get('ALLOWED_ORIGINS') else [],
     'logger': False,  # Disable verbose logging in production
     'engineio_logger': False,
     'max_http_buffer_size': 1e6,  # 1MB
