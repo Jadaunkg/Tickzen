@@ -1,39 +1,44 @@
 import platform
 import logging
+import os
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Try to import WSL bridge for Windows compatibility
-USE_WSL_BRIDGE = False
-if platform.system() == 'Windows':
+# Check if WSL usage is explicitly enabled via environment variable
+USE_WSL_BRIDGE = os.environ.get('USE_WSL_PROPHET', 'false').lower() == 'true'
+
+# Always try to import native Prophet first (works on Windows with Prophet 1.1+)
+try:
+    from prophet import Prophet
+    import pandas as pd
+    import re
+    logger.info("Using native Prophet (direct Windows support)")
+    PROPHET_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Native Prophet not available: {e}")
+    PROPHET_AVAILABLE = False
+    import pandas as pd
+    import re
+
+# Only try WSL bridge if explicitly enabled and native prophet failed
+if USE_WSL_BRIDGE and not PROPHET_AVAILABLE:
     try:
         # Try relative import first
         from .wsl_prophet_bridge import train_prophet_model as wsl_train_prophet_model
-        USE_WSL_BRIDGE = True
-        logger.info("Using WSL Prophet Bridge for Windows compatibility")
+        logger.info("Using WSL Prophet Bridge (fallback)")
     except ImportError:
         try:
             # Try absolute import
             import wsl_prophet_bridge
             wsl_train_prophet_model = wsl_prophet_bridge.train_prophet_model
-            USE_WSL_BRIDGE = True
-            logger.info("Using WSL Prophet Bridge for Windows compatibility (absolute import)")
+            logger.info("Using WSL Prophet Bridge (fallback, absolute import)")
         except ImportError as e:
-            logger.warning(f"WSL Prophet Bridge not available: {e}. Falling back to native Prophet.")
+            logger.error(f"WSL Prophet Bridge not available: {e}")
             USE_WSL_BRIDGE = False
 
-# Import native prophet only if not using WSL bridge
-if not USE_WSL_BRIDGE:
-    try:
-        from prophet import Prophet
-        import pandas as pd
-        import re
-    except ImportError as e:
-        raise ImportError(f"Prophet not available and WSL bridge failed: {e}")
-else:
-    import pandas as pd
-    import re
+if not PROPHET_AVAILABLE and not USE_WSL_BRIDGE:
+    raise ImportError("Prophet is not available. Please install: pip install prophet")
 
 
 # ------------------ Helper Function ------------------
@@ -77,11 +82,12 @@ def train_prophet_model(data, ticker='STOCK', forecast_horizon='1y', timestamp=N
         agg_actual (pd.DataFrame): Aggregated actual data.
         agg_forecast (pd.DataFrame): Aggregated forecast data.
     """
-    if USE_WSL_BRIDGE:
-        # Use WSL bridge for Windows compatibility
+    # Always use native Prophet unless WSL is explicitly enabled
+    if USE_WSL_BRIDGE and not PROPHET_AVAILABLE:
+        # Use WSL bridge only as fallback
         return _train_prophet_model_wsl(data, ticker, forecast_horizon, timestamp, macro_data)
     else:
-        # Use native Prophet
+        # Use native Prophet (default for Windows)
         return _train_prophet_model_native(data, ticker, forecast_horizon, timestamp, macro_data)
 
 def _train_prophet_model_wsl(data, ticker='STOCK', forecast_horizon='1y', timestamp=None, macro_data=None):
