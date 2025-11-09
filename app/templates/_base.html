@@ -618,13 +618,13 @@
                                 <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#features">Features</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#how-it-works">How It Works</a>
+                                <a class="nav-link {% if request.endpoint == 'info.how_it_works' %}active{% endif %}" href="{{ url_for('info.how_it_works') }}">How It Works</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#pricing">Pricing</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#faq">FAQs</a>
+                                <a class="nav-link" href="{{ url_for('info.faq') }}">FAQs</a>
                             </li>
                         </ul>
                     {% endif %}
@@ -796,13 +796,13 @@
                         <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#features">Features</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#how-it-works">How It Works</a>
+                        <a class="nav-link {% if request.endpoint == 'info.how_it_works' %}active{% endif %}" href="{{ url_for('info.how_it_works') }}">How It Works</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#pricing">Pricing</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#faq">FAQs</a>
+                        <a class="nav-link" href="{{ url_for('info.faq') }}">FAQs</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link btn-login" href="{{ url_for('login') }}">Sign In</a>

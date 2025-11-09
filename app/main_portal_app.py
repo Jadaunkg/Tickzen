@@ -7,6 +7,11 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
+# Set the correct path for Firebase service account key
+FIREBASE_SERVICE_ACCOUNT_PATH = os.path.join(PROJECT_ROOT, 'config', 'firebase-service-account-key.json')
+if os.path.exists(FIREBASE_SERVICE_ACCOUNT_PATH):
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = FIREBASE_SERVICE_ACCOUNT_PATH
+
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_from_directory, Response
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import json
@@ -1796,10 +1801,10 @@ def start_stock_analysis():
 
     app.logger.info(f"\n--- Received /start-analysis for ticker: {ticker} (Target Room: {room_id}) ---")
 
-    # More permissive ticker pattern that allows common special characters
-    valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/]+(\.[A-Z]{1,2})?$'
+    # More permissive ticker pattern that allows common special characters including futures (=)
+    valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/=]+(\.[A-Z]{1,2})?$'
     if not ticker or not re.match(valid_ticker_pattern, ticker):
-        flash(f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, MSFT, GOOGL).", "danger")
+        flash(f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, MSFT, GOOGL, GC=F).", "danger")
         socketio.emit('analysis_error', {'message': f"Invalid ticker format: '{ticker}'. Please use standard stock symbols.", 'ticker': ticker}, room=room_id)
         return redirect(url_for('analyzer_input_page'))
 
@@ -3524,8 +3529,8 @@ def generate_wp_assets():
     app.logger.info(f"WP Asset request for {ticker} (Room: {room_id})")
 
 
-    # More permissive ticker pattern that allows common special characters
-    valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/]{1,15}$'
+    # More permissive ticker pattern that allows common special characters including futures (=)
+    valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/=]{1,15}$'
     if not ticker or not re.match(valid_ticker_pattern, ticker):
         socketio.emit('wp_asset_error', {'message': f"Invalid ticker: '{ticker}'.", 'ticker': ticker}, room=room_id)
         return jsonify({'status': 'error', 'message': f"Invalid ticker symbol: '{ticker}'. Please use standard symbols."}), 400

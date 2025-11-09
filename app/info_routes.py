@@ -70,3 +70,7 @@ def terms():
 @info_bp.route('/faq')
 def faq():
     return render_template('info/faq.html')
+
+@info_bp.route('/how-it-works')
+def how_it_works():
+    return render_template('how-it-works.html')

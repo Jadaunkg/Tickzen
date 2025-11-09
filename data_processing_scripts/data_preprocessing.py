@@ -108,6 +108,11 @@ def enforce_date_column(df, df_name):
         df_copy['Date'] = pd.to_datetime(df_copy['Date'], errors='coerce', utc=True)
         df_copy['Date'] = df_copy['Date'].dt.tz_localize(None) # Standardize to tz-naive
         df_copy = df_copy.dropna(subset=['Date']).sort_values('Date')
+        
+        # Remove any duplicate dates by keeping the last occurrence (most recent data)
+        if df_copy['Date'].duplicated().any():
+            df_copy = df_copy.drop_duplicates(subset=['Date'], keep='last')
+            
     else:
         # This case should ideally be caught by the elif above, but as a safeguard:
         raise ValueError(f"{df_name} data still missing 'Date' column after attempting to identify/rename it.")

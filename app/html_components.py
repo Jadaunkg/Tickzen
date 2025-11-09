@@ -197,7 +197,7 @@ def generate_introduction_html(ticker, rdata):
         volatility_val = rdata.get('volatility')
         volatility_fmt = format_html_value(volatility_val, 'percent_direct', 1)
 
-        rev_growth_val = _safe_float(profit_data.get('Revenue Growth (YoY)'))
+        rev_growth_val = _safe_float(profit_data.get('Quarterly Revenue Growth (YoY)'))
         rev_growth_fmt = format_html_value(rev_growth_val, 'percent_direct')
         
         debt_equity_val = _safe_float(health_data.get('Debt/Equity (MRQ)'))
@@ -1075,7 +1075,7 @@ def generate_conclusion_outlook_html(ticker, rdata):
         mean_target = _safe_float(analyst_data.get('Mean Target Price'))
         fwd_yield = _safe_float(dividend_data.get('Dividend Yield (Fwd)'))
         payout_ratio = _safe_float(dividend_data.get('Payout Ratio'))
-        rev_growth = _safe_float(profit_data.get('Revenue Growth (YoY)'))
+        rev_growth = _safe_float(profit_data.get('Quarterly Revenue Growth (YoY)'))
         earn_growth = _safe_float(profit_data.get('Earnings Growth (YoY)'))
         rsi_divergence_bearish = rdata.get('rsi_divergence_bearish', False)
         rsi_divergence_bullish = rdata.get('rsi_divergence_bullish', False)
@@ -1963,14 +1963,14 @@ def generate_profitability_growth_html(ticker, rdata):
         op_margin_raw = _parse_value(profit_data.get('Operating Margin (TTM)'))
         ebitda_margin_raw = _parse_value(profit_data.get('EBITDA Margin (TTM)'))
         net_margin_raw = _parse_value(profit_data.get('Profit Margin (TTM)'))
-        rev_growth_raw = _parse_value(profit_data.get('Revenue Growth (YoY)'))
+        rev_growth_raw = _parse_value(profit_data.get('Quarterly Revenue Growth (YoY)'))
         
         # Get formatted values for display
         gross_margin_fmt = profit_data.get('Gross Margin (TTM)', 'N/A')
         op_margin_fmt = profit_data.get('Operating Margin (TTM)', 'N/A')
         ebitda_margin_fmt = profit_data.get('EBITDA Margin (TTM)', 'N/A')
         net_margin_fmt = profit_data.get('Profit Margin (TTM)', 'N/A')
-        rev_growth_fmt = profit_data.get('Revenue Growth (YoY)', 'N/A')
+        rev_growth_fmt = profit_data.get('Quarterly Revenue Growth (YoY)', 'N/A')
         ebitda_fmt = profit_data.get('EBITDA (TTM)', 'N/A')
         gross_profit_fmt = profit_data.get('Gross Profit (TTM)', 'N/A')
         net_income_fmt = profit_data.get('Net Income (TTM)', 'N/A')
@@ -3054,13 +3054,17 @@ def generate_risk_factors_html(ticker, rdata):
 
 def generate_report_info_disclaimer_html(generation_time):
     """Generates the final disclaimer and timestamp section."""
+    time_str = "Error retrieving generation time."  # Default value
     try:
         if not isinstance(generation_time, datetime):
             logging.warning(f"Invalid generation_time type: {type(generation_time)}. Using current time.")
             generation_time = datetime.now()
         time_str = f"{generation_time.strftime('%Y-%m-%d %H:%M:%S %Z')}"
     except ValueError: 
-         time_str = f"{generation_time.strftime('%Y-%m-%d %H:%M:%S')} (Timezone N/A)"
+        try:
+            time_str = f"{generation_time.strftime('%Y-%m-%d %H:%M:%S')} (Timezone N/A)"
+        except:
+            time_str = "Error retrieving generation time."
     except Exception as e: 
          logging.error(f"Error formatting generation_time: {e}")
          time_str = "Error retrieving generation time."
@@ -3107,3 +3111,352 @@ def generate_peer_comparison_html(comparison_data, target_ticker):
     except Exception as e:
         logging.error(f"Error generating peer comparison HTML: {e}")
         return _generate_error_html("Peer Comparison", str(e))
+
+def generate_risk_analysis_html(ticker, rdata):
+    """Generate HTML for risk analysis section with dynamic narrative."""
+    try:
+        risk_data = rdata.get('risk_analysis_data', {})
+        if not isinstance(risk_data, dict) or not risk_data:
+            return _generate_error_html("Risk Analysis", "No risk analysis data available.")
+
+        # Extract key risk metrics for narrative
+        volatility = risk_data.get('Volatility (Annualized)', 'N/A')
+        sharpe_ratio = risk_data.get('Sharpe Ratio', 'N/A')
+        max_drawdown = risk_data.get('Maximum Drawdown', 'N/A')
+        var_5 = risk_data.get('Value at Risk (5%)', 'N/A')
+        sortino_ratio = risk_data.get('Sortino Ratio', 'N/A')
+
+        # Generate dynamic narrative based on risk levels
+        risk_level = "moderate"
+        volatility_desc = "moderate volatility"
+        
+        # Parse volatility for risk assessment
+        try:
+            vol_val = float(str(volatility).replace('%', ''))
+            if vol_val > 30:
+                risk_level = "high"
+                volatility_desc = "high volatility"
+            elif vol_val < 15:
+                risk_level = "low"
+                volatility_desc = "low volatility"
+        except:
+            pass
+
+        # Parse Sharpe ratio for performance assessment
+        performance_desc = "mixed risk-adjusted returns"
+        try:
+            sharpe_val = float(str(sharpe_ratio).replace('x', ''))
+            if sharpe_val > 1.0:
+                performance_desc = "strong risk-adjusted returns"
+            elif sharpe_val < 0:
+                performance_desc = "poor risk-adjusted returns"
+        except:
+            pass
+
+        # Parse max drawdown for worst-case scenario
+        drawdown_desc = "moderate downside risk"
+        try:
+            dd_val = abs(float(str(max_drawdown).replace('%', '')))
+            if dd_val > 30:
+                drawdown_desc = "significant downside risk"
+            elif dd_val < 15:
+                drawdown_desc = "limited downside risk"
+        except:
+            pass
+
+        # Generate narrative
+        narrative_html = f"""
+        <div class="narrative">
+            <p>{ticker}'s risk profile reveals {volatility_desc} with an annualized volatility of <strong>{volatility}</strong>, indicating {risk_level} investment risk. 
+            The Sharpe ratio of <strong>{sharpe_ratio}</strong> suggests {performance_desc}, while the maximum drawdown of <strong>{max_drawdown}</strong> 
+            indicates {drawdown_desc} during adverse market conditions.</p>
+            
+            <p>The Value at Risk (VaR) at 5% confidence level shows a potential loss of <strong>{var_5}</strong> in the worst 5% of scenarios. 
+            {'The Sortino ratio of ' + str(sortino_ratio) + ' focuses specifically on downside risk, providing additional insight into risk-adjusted performance.' if sortino_ratio != 'N/A' else ''}
+            Investors should consider these risk metrics alongside their own risk tolerance and investment objectives.</p>
+        </div>
+        """
+
+        # Generate table content
+        table_content = generate_metrics_section_content(risk_data, ticker)
+        
+        return narrative_html + table_content
+
+    except Exception as e:
+        return _generate_error_html("Risk Analysis", str(e))
+
+def generate_sentiment_analysis_html(ticker, rdata):
+    """Generate HTML for sentiment analysis section with dynamic narrative."""
+    try:
+        sentiment_data = rdata.get('sentiment_analysis_data', {})
+        if not isinstance(sentiment_data, dict) or not sentiment_data:
+            return _generate_error_html("Sentiment Analysis", "No sentiment analysis data available.")
+
+        # Extract key sentiment metrics
+        composite_score = sentiment_data.get('Composite Sentiment Score', 'N/A')
+        classification = sentiment_data.get('Sentiment Classification', 'Neutral')
+        confidence = sentiment_data.get('Sentiment Confidence', 'N/A')
+        news_sentiment = sentiment_data.get('News Sentiment', 'N/A')
+        analyst_sentiment = sentiment_data.get('Analyst Sentiment', 'N/A')
+        options_sentiment = sentiment_data.get('Options Sentiment', 'N/A')
+
+        # Generate sentiment icon based on classification
+        sentiment_icon = get_icon('up') if 'positive' in classification.lower() else get_icon('down') if 'negative' in classification.lower() else get_icon('neutral')
+        
+        # Determine sentiment strength
+        sentiment_strength = "moderate"
+        try:
+            score_val = float(str(composite_score).replace('x', ''))
+            conf_val = float(str(confidence).replace('%', ''))
+            
+            if abs(score_val) > 0.5 and conf_val > 60:
+                sentiment_strength = "strong"
+            elif abs(score_val) < 0.2 or conf_val < 40:
+                sentiment_strength = "weak"
+        except:
+            pass
+
+        # Generate narrative based on sentiment components
+        market_mood = "mixed signals"
+        if 'positive' in classification.lower():
+            market_mood = "optimistic outlook" if sentiment_strength == "strong" else "cautiously positive sentiment"
+        elif 'negative' in classification.lower():
+            market_mood = "pessimistic outlook" if sentiment_strength == "strong" else "cautiously negative sentiment"
+
+        narrative_html = f"""
+        <div class="narrative">
+            <p>{sentiment_icon} Current market sentiment analysis for {ticker} reveals {market_mood} with a composite sentiment score of <strong>{composite_score}</strong> 
+            and confidence level of <strong>{confidence}</strong>. This {classification.lower()} sentiment is derived from multiple data sources including news coverage, 
+            analyst recommendations, and options market activity.</p>
+            
+            <p>Breaking down the sentiment components: news analysis shows {news_sentiment}, analyst consensus indicates {analyst_sentiment}, 
+            and options market sentiment reflects {options_sentiment}. 
+            {'This ' + sentiment_strength + ' sentiment signal' if sentiment_strength != 'moderate' else 'These sentiment indicators'} 
+            should be considered alongside fundamental and technical analysis for a comprehensive investment perspective.</p>
+        </div>
+        """
+
+        # Generate table content
+        table_content = generate_metrics_section_content(sentiment_data, ticker)
+        
+        return narrative_html + table_content
+
+    except Exception as e:
+        return _generate_error_html("Sentiment Analysis", str(e))
+
+def generate_quarterly_earnings_html(ticker, rdata):
+    """Generate HTML for quarterly earnings performance section."""
+    try:
+        quarterly_data = rdata.get('quarterly_earnings_data', {})
+        if not isinstance(quarterly_data, dict) or not quarterly_data:
+            return _generate_error_html("Quarterly Earnings Performance", "No quarterly earnings data available.")
+
+        quarterly_results = quarterly_data.get('quarterly_data', {})
+        growth_metrics = quarterly_data.get('growth_metrics', {})
+        
+        if not quarterly_results:
+            return _generate_error_html("Quarterly Earnings Performance", "No quarterly results data available.")
+
+        # Generate dynamic narrative
+        q1_data = quarterly_results.get('Q1', {})
+        q2_data = quarterly_results.get('Q2', {})
+        
+        q1_revenue = q1_data.get('Total Revenue', 'N/A')
+        q1_income = q1_data.get('Net Income', 'N/A') 
+        qoq_revenue = growth_metrics.get('QoQ Revenue Growth', 'N/A')
+        yoy_revenue = growth_metrics.get('YoY Revenue Growth', 'N/A')
+        
+        # Create narrative based on performance
+        narrative_html = f"""
+        <div class="narrative">
+            <p>{ticker}'s recent quarterly performance shows the company's latest quarter with revenue of <strong>{q1_revenue}</strong> and net income of <strong>{q1_income}</strong>. 
+            The quarter-over-quarter revenue change was <strong>{qoq_revenue}</strong>, while year-over-year revenue growth stands at <strong>{yoy_revenue}</strong>.</p>
+        </div>
+        """
+
+        # Build quarterly results table
+        quarters_html = ""
+        for i in range(1, 5):  # Q1 to Q4
+            q_key = f"Q{i}"
+            if q_key in quarterly_results:
+                q_data = quarterly_results[q_key]
+                quarters_html += f"""
+                <div class="quarter-column">
+                    <h4>{q_data.get('date', f'Q{i}')}</h4>
+                    <div class="quarter-metrics">
+                        <div class="metric-item">
+                            <span class="metric-label">Revenue:</span>
+                            <span class="metric-value">{q_data.get('Total Revenue', 'N/A')}</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Net Income:</span>
+                            <span class="metric-value">{q_data.get('Net Income', 'N/A')}</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">EPS:</span>
+                            <span class="metric-value">{q_data.get('Diluted EPS', q_data.get('Basic EPS', 'N/A'))}</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Gross Margin:</span>
+                            <span class="metric-value">{q_data.get('Gross Margin', 'N/A')}</span>
+                        </div>
+                    </div>
+                </div>
+                """
+
+        # Build growth metrics section
+        growth_html = ""
+        if growth_metrics:
+            growth_items = []
+            for metric, value in growth_metrics.items():
+                if metric not in ['Next Earnings Date', 'Earnings Call Time']:
+                    growth_items.append(f"<li><strong>{metric}:</strong> {value}</li>")
+            
+            if growth_items:
+                growth_html = f"""
+                <div class="growth-metrics">
+                    <h3>Growth Metrics</h3>
+                    <ul>{"".join(growth_items)}</ul>
+                </div>
+                """
+
+        # Upcoming earnings section
+        earnings_schedule_html = ""
+        next_earnings = growth_metrics.get('Next Earnings Date')
+        earnings_call = growth_metrics.get('Earnings Call Time')
+        if next_earnings or earnings_call:
+            earnings_schedule_html = f"""
+            <div class="earnings-schedule">
+                <h3>Upcoming Earnings</h3>
+                <div class="schedule-item">
+                    <span class="schedule-label">Next Report:</span>
+                    <span class="schedule-value">{next_earnings or 'Not Available'}</span>
+                </div>
+                <div class="schedule-item">
+                    <span class="schedule-label">Earnings Call:</span>
+                    <span class="schedule-value">{earnings_call or 'Not Available'}</span>
+                </div>
+            </div>
+            """
+
+        # Combine all sections
+        quarterly_html = f"""
+        <div class="quarterly-earnings-section">
+            {narrative_html}
+            
+            <div class="quarterly-results">
+                <h3>Recent Quarterly Results (Last 4 Quarters)</h3>
+                <div class="quarters-grid">
+                    {quarters_html}
+                </div>
+            </div>
+            
+            {growth_html}
+            {earnings_schedule_html}
+        </div>
+        
+        <style>
+            .quarterly-earnings-section {{
+                margin: 20px 0;
+            }}
+            
+            .quarters-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin: 15px 0;
+            }}
+            
+            .quarter-column {{
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 15px;
+                background-color: #f9f9f9;
+            }}
+            
+            .quarter-column h4 {{
+                margin: 0 0 10px 0;
+                color: #333;
+                font-size: 1.1em;
+                text-align: center;
+                background-color: #e7f3ff;
+                padding: 5px;
+                border-radius: 4px;
+            }}
+            
+            .quarter-metrics {{
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }}
+            
+            .metric-item {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 5px 0;
+                border-bottom: 1px solid #eee;
+            }}
+            
+            .metric-item:last-child {{
+                border-bottom: none;
+            }}
+            
+            .metric-label {{
+                font-weight: 500;
+                color: #666;
+                font-size: 0.9em;
+            }}
+            
+            .metric-value {{
+                font-weight: bold;
+                color: #333;
+                font-size: 0.9em;
+            }}
+            
+            .growth-metrics, .earnings-schedule {{
+                margin: 20px 0;
+                padding: 15px;
+                background-color: #f8f9fa;
+                border-radius: 8px;
+                border-left: 4px solid #007bff;
+            }}
+            
+            .growth-metrics h3, .earnings-schedule h3 {{
+                margin: 0 0 10px 0;
+                color: #333;
+                font-size: 1.1em;
+            }}
+            
+            .growth-metrics ul {{
+                margin: 0;
+                padding-left: 20px;
+            }}
+            
+            .growth-metrics li {{
+                margin: 5px 0;
+            }}
+            
+            .schedule-item {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 5px 0;
+            }}
+            
+            .schedule-label {{
+                font-weight: 500;
+                color: #666;
+            }}
+            
+            .schedule-value {{
+                font-weight: bold;
+                color: #333;
+            }}
+        </style>
+        """
+
+        return quarterly_html
+
+    except Exception as e:
+        return _generate_error_html("Quarterly Earnings Performance", str(e))

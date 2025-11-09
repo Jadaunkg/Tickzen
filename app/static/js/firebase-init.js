@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 if (response.ok) {
                     // Don't display message here, redirect is immediate
-                    const nextUrl = new URLSearchParams(window.location.search).get('next') || '/site-profiles';
+                    const nextUrl = new URLSearchParams(window.location.search).get('next') || '/dashboard';
                     window.location.href = nextUrl;
                 } else {
                     const errorMessage = data.email_not_verified 

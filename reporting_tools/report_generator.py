@@ -67,7 +67,9 @@ from app.html_components import (
     generate_analyst_insights_html, generate_recent_news_html,
     generate_historical_performance_html,
     generate_conclusion_outlook_html, generate_faq_html,
-    generate_report_info_disclaimer_html, generate_peer_comparison_html
+    generate_report_info_disclaimer_html, generate_peer_comparison_html,
+    generate_risk_analysis_html, generate_sentiment_analysis_html,
+    generate_quarterly_earnings_html
 )
 from analysis_scripts.fundamental_analysis import (
     extract_company_profile, extract_valuation_metrics, extract_financial_health,
@@ -75,7 +77,9 @@ from analysis_scripts.fundamental_analysis import (
     extract_news, safe_get, extract_total_valuation_data,
     extract_share_statistics_data, extract_financial_efficiency_data,
     extract_stock_price_stats_data,
-    extract_short_selling_data, extract_peer_comparison_data
+    extract_short_selling_data, extract_peer_comparison_data,
+    extract_risk_analysis_data, extract_sentiment_analysis_data,
+    extract_quarterly_earnings_data
 )
 
 # --- Shared CSS (Keep Unchanged) ---
@@ -473,7 +477,7 @@ def _write_plotly_image(fig, path, fallback_msg="Chart could not be generated.",
 
 
 # Helper function to prepare common data (Keep Unchanged)
-def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fundamentals, plot_period_years):
+def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fundamentals, plot_period_years, current_price_info=None):
     # ... (implementation unchanged) ...
     data_out = {}
 
@@ -521,7 +525,14 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
 
     # --- Calculate Key Metrics ---
     print("Calculating key metrics...")
-    current_price = detailed_ta_data.get('Current_Price')
+    # Use real-time current price if available, otherwise fall back to historical data
+    if current_price_info and current_price_info.get('current_price'):
+        current_price = current_price_info.get('current_price')
+        print(f"Using real-time current price for {ticker}: ${current_price}")
+    else:
+        current_price = detailed_ta_data.get('Current_Price')
+        print(f"Using historical current price for {ticker}: ${current_price}")
+    
     last_date = historical_data['Date'].iloc[-1] if not historical_data.empty else datetime.now(pytz.utc)
     volatility = None; green_days = None; total_days = 0
     if len(historical_data) > 1:
@@ -610,13 +621,18 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
     data_out['profitability_data'] = extract_profitability(fundamentals)
     data_out['dividends_data'] = extract_dividends_splits(fundamentals)
     data_out['analyst_info_data'] = extract_analyst_info(fundamentals)
-    data_out['news_list'] = extract_news(fundamentals)
+    data_out['news_list'] = extract_news(fundamentals, ticker)
     data_out['total_valuation_data'] = extract_total_valuation_data(fundamentals, current_price)
     data_out['share_statistics_data'] = extract_share_statistics_data(fundamentals, current_price)
     data_out['financial_efficiency_data'] = extract_financial_efficiency_data(fundamentals)
     data_out['stock_price_stats_data'] = extract_stock_price_stats_data(fundamentals)
     data_out['short_selling_data'] = extract_short_selling_data(fundamentals)
     data_out['peer_comparison_data'] = extract_peer_comparison_data(ticker)
+    
+    # --- NEW: Extract Risk, Sentiment, and Quarterly Earnings Analysis Data ---
+    data_out['risk_analysis_data'] = extract_risk_analysis_data(historical_data, market_data=None, ticker=ticker)  # Use historical_data for raw price data with Close column
+    data_out['sentiment_analysis_data'] = extract_sentiment_analysis_data(fundamentals, ticker=ticker)
+    data_out['quarterly_earnings_data'] = extract_quarterly_earnings_data(fundamentals, ticker=ticker)
 
     # --- Calculate Risk Items ---
     print("Calculating risk factors...")
@@ -649,7 +665,7 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
               risk_items.append(f"Current Ratio ({current_ratio_str}) is below 1.0, suggesting potential short-term liquidity challenges.")
 
     # Check Revenue Growth from extracted data
-    revenue_growth_str = data_out['profitability_data'].get('Revenue Growth (YoY)', 'N/A')
+    revenue_growth_str = data_out['profitability_data'].get('Quarterly Revenue Growth (YoY)', 'N/A')
     if revenue_growth_str != 'N/A' and isinstance(revenue_growth_str, str) and '%' in revenue_growth_str:
         try: rev_growth = float(revenue_growth_str.replace('%',''))
         except (ValueError, TypeError): rev_growth = None
@@ -759,7 +775,8 @@ def create_full_report(
     ts,
     aggregation=None, 
     app_root=None,
-    plot_period_years=3
+    plot_period_years=3,
+    current_price_info=None  # NEW: Real-time current price information
     # removed evaluation_metrics - handled internally now
 ):
     global custom_style
@@ -771,7 +788,7 @@ def create_full_report(
     print(f"[Full Report] Reports directory: {reports_dir}")
 
     try:
-        rdata = _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fundamentals, plot_period_years)
+        rdata = _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fundamentals, plot_period_years, current_price_info)
         print("[Full Report] Generating plots...")
         def fig_to_html(fig, include_plotlyjs=True, full_html=False, div_id=None, config=None):
             # ... (fig_to_html implementation unchanged) ...
@@ -869,6 +886,11 @@ def create_full_report(
         analyst_insights_html = generate_analyst_insights_html(ticker, rdata)
         recent_news_html = generate_recent_news_html(ticker, rdata)
         
+        # --- NEW: Generate Risk, Sentiment, and Quarterly Earnings Analysis HTML ---
+        risk_analysis_html = generate_risk_analysis_html(ticker, rdata)
+        sentiment_analysis_html = generate_sentiment_analysis_html(ticker, rdata)
+        quarterly_earnings_html = generate_quarterly_earnings_html(ticker, rdata)
+        
         conclusion_outlook_html = generate_conclusion_outlook_html(ticker, rdata)
         faq_html = generate_faq_html(ticker, rdata)
         report_info_disclaimer_html = generate_report_info_disclaimer_html(datetime.now(pytz.utc))
@@ -899,7 +921,10 @@ def create_full_report(
             ("Historical Price & Volume Chart", historical_chart_html, "historical-chart", "<div class=\"narrative\"><p>Historical closing price and volume (with 20d avg). Use buttons above chart to change range.</p></div>"),
             ("Historical Performance", generate_historical_performance_html(ticker, rdata), "historical-performance"),
             ("Stock Price Statistics", stock_price_statistics_html, "stock-price-statistics"),
+            ("Quarterly Earnings Performance", quarterly_earnings_html, "quarterly-earnings"),
             ("Short Selling Information", short_selling_info_html, "short-selling-information"),
+            ("Risk Analysis", risk_analysis_html, "risk-analysis"),
+            ("Sentiment Analysis", sentiment_analysis_html, "sentiment-analysis"),
             ("Peer Comparison", peer_comparison_html, "peer-comparison"),
             ("Risk Factors", risk_factors_html, "risk-factors"),
             ("Analyst Insights and Consensus", analyst_insights_html, "analyst-insights"),
@@ -996,7 +1021,8 @@ def create_wordpress_report_assets(
     ts,
     aggregation=None,
     app_root=None,
-    plot_period_years=3
+    plot_period_years=3,
+    current_price_info=None
 ):
     global custom_style
     print(f"[WP Assets] Starting generation for {ticker}...") # Use logger
@@ -1014,7 +1040,7 @@ def create_wordpress_report_assets(
     saved_forecast_chart_path = None # To store the path of the saved forecast chart
 
     try:
-        rdata = _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fundamentals, plot_period_years)
+        rdata = _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fundamentals, plot_period_years, current_price_info)
         hist_data_for_images = rdata['historical_data'].copy()
 
         image_configs = [
@@ -1126,6 +1152,13 @@ def create_wordpress_report_assets(
         risk_factors_html = generate_risk_factors_html(ticker, rdata)
         analyst_insights_html = generate_analyst_insights_html(ticker, rdata)
         # recent_news_html = generate_recent_news_html(ticker, rdata) # USER REQUEST: Comment out news
+        recent_news_html = generate_recent_news_html(ticker, rdata)  # Re-enabled: News functionality fixed
+        
+        # --- NEW: Generate Risk, Sentiment, and Quarterly Earnings Analysis HTML ---
+        risk_analysis_html = generate_risk_analysis_html(ticker, rdata)
+        sentiment_analysis_html = generate_sentiment_analysis_html(ticker, rdata)
+        quarterly_earnings_html = generate_quarterly_earnings_html(ticker, rdata)
+        
         conclusion_outlook_html = generate_conclusion_outlook_html(ticker, rdata)
         faq_html = generate_faq_html(ticker, rdata)
 
@@ -1177,11 +1210,15 @@ def create_wordpress_report_assets(
              "<div class='narrative'><p>Historical closing price and volume. Range typically shows last 3 years.</p></div>",
              "historical-price-volume"),
             ("Stock Price Statistics", stock_price_statistics_html, "stock-price-statistics"),
+            ("Quarterly Earnings Performance", quarterly_earnings_html, "quarterly-earnings"),
             ("Short Selling Information", short_selling_info_html, "short-selling-information"),
+            ("Risk Analysis", risk_analysis_html, "risk-analysis"),
+            ("Sentiment Analysis", sentiment_analysis_html, "sentiment-analysis"),
             ("Peer Comparison", peer_comparison_html, "peer-comparison"),
             ("Risk Factors", risk_factors_html, "risk-factors"),
             ("Analyst Insights and Consensus", analyst_insights_html, "analyst-insights"),
             # ("Recent News and Developments", recent_news_html, "recent-news"), # USER REQUEST: Comment out news
+            ("Recent News and Developments", recent_news_html, "recent-news"),  # Re-enabled: News functionality fixed
             ("Conclusion and Outlook", conclusion_outlook_html, "conclusion-outlook"),
             ("Frequently Asked Questions", faq_html, "frequently-asked-questions")
         ]

@@ -4,6 +4,15 @@ import numpy as np
 import logging
 from datetime import datetime # Import datetime
 
+# Import the new analysis modules
+try:
+    from .risk_analysis import RiskAnalyzer
+    from .sentiment_analysis import SentimentAnalyzer
+except ImportError:
+    # Fallback for direct execution
+    from risk_analysis import RiskAnalyzer
+    from sentiment_analysis import SentimentAnalyzer
+
 # --- Helpers ---
 
 def safe_get(data_dict, key, default="N/A"):
@@ -166,7 +175,7 @@ def extract_profitability(fundamentals: dict):
         "Gross Margin (TTM)": format_value(safe_get(info, 'grossMargins'), 'percent'),
         "EBITDA Margin (TTM)": format_value(safe_get(info, 'ebitdaMargins'), 'percent'),
         "Revenue (TTM)": format_value(safe_get(info, 'totalRevenue'), 'large_number'),
-        "Revenue Growth (YoY)": format_value(safe_get(info, 'revenueGrowth'), 'percent'), # Quarterly YoY usually
+        "Quarterly Revenue Growth (YoY)": format_value(safe_get(info, 'revenueGrowth'), 'percent'), # Quarterly YoY growth
         "Gross Profit (TTM)": format_value(safe_get(info, 'grossProfits'), 'large_number'),
         "EBITDA (TTM)": format_value(safe_get(info, 'ebitda'), 'large_number'),
         "Net Income (TTM)": format_value(safe_get(info, 'netIncomeToCommon'), 'large_number'),
@@ -253,20 +262,86 @@ def extract_analyst_info(fundamentals: dict):
     }
     return metrics
 
-def extract_news(fundamentals: dict):
-    """Extracts recent news headlines."""
-    # --- This function remains the same as before ---
-    news_data = fundamentals.get('news')
+def extract_news(fundamentals: dict, ticker=None):
+    """Extracts recent news headlines using Finnhub API."""
     headlines = []
+    
+    # First try to get news from yfinance (fallback)
+    news_data = fundamentals.get('news')
     if isinstance(news_data, list) and news_data:
         for item in news_data[:5]: # Get top 5 headlines
              if isinstance(item, dict):
-                 headlines.append({
-                     'title': item.get('title', 'N/A'),
-                     'publisher': item.get('publisher', 'N/A'),
-                     'link': item.get('link', '#'),
-                     'published': format_value(item.get('providerPublishTime'), 'date') # Use formatter
-                 })
+                 # Handle new yfinance structure where news is nested under 'content'
+                 if 'content' in item:
+                     content = item['content']
+                     # Extract provider info
+                     provider_info = content.get('provider', {})
+                     provider_name = provider_info.get('displayName', 'N/A') if isinstance(provider_info, dict) else str(provider_info)
+                     
+                     headlines.append({
+                         'title': content.get('title', 'N/A'),
+                         'publisher': provider_name,
+                         'link': content.get('canonicalUrl', content.get('clickThroughUrl', '#')),
+                         'published': format_value(content.get('pubDate'), 'date') # Use pubDate for new structure
+                     })
+                 else:
+                     # Handle old yfinance structure (fallback)
+                     headlines.append({
+                         'title': item.get('title', 'N/A'),
+                         'publisher': item.get('publisher', 'N/A'),
+                         'link': item.get('link', '#'),
+                         'published': format_value(item.get('providerPublishTime'), 'date')
+                     })
+        if headlines:  # If we got news from yfinance, return it
+            return headlines
+    
+    # If no news from yfinance or empty, try Finnhub
+    if ticker:
+        try:
+            import finnhub
+            from config.config import FINNHUB_API_KEY
+            
+            if not FINNHUB_API_KEY:
+                print("Warning: FINNHUB_API_KEY not found. Please set the environment variable.")
+                return headlines
+            
+            # Initialize Finnhub client
+            finnhub_client = finnhub.Client(api_key=FINNHUB_API_KEY)
+            
+            # Get company news from Finnhub
+            from datetime import datetime, timedelta
+            to_date = datetime.now()
+            from_date = to_date - timedelta(days=30)  # Get news from last 30 days
+            
+            # Format dates for Finnhub API (YYYY-MM-DD)
+            from_str = from_date.strftime('%Y-%m-%d')
+            to_str = to_date.strftime('%Y-%m-%d')
+            
+            # Fetch news
+            news_response = finnhub_client.company_news(ticker, _from=from_str, to=to_str)
+            
+            if isinstance(news_response, list) and news_response:
+                for item in news_response[:5]:  # Get top 5 headlines
+                    if isinstance(item, dict):
+                        # Convert Unix timestamp to readable date
+                        published_time = item.get('datetime', 0)
+                        if published_time:
+                            published_date = datetime.fromtimestamp(published_time).strftime('%Y-%m-%d')
+                        else:
+                            published_date = 'N/A'
+                            
+                        headlines.append({
+                            'title': item.get('headline', 'N/A'),
+                            'publisher': item.get('source', 'N/A'),
+                            'link': item.get('url', '#'),
+                            'published': published_date
+                        })
+            
+        except Exception as e:
+            print(f"Error fetching news from Finnhub for {ticker}: {str(e)}")
+            # If Finnhub fails, return any yfinance headlines we might have
+            pass
+    
     return headlines
 
 
@@ -560,4 +635,199 @@ def extract_peer_comparison_data(ticker):
         return get_peer_comparison_data(ticker)
     except Exception as e:
         logging.warning(f"Error extracting peer comparison data: {e}")
+        return {}
+
+def extract_risk_analysis_data(historical_data, market_data=None, ticker=None):
+    """Extract risk analysis metrics using the RiskAnalyzer module."""
+    try:
+        risk_analyzer = RiskAnalyzer()
+        
+        if historical_data is None or historical_data.empty:
+            return {}
+        
+        # Ensure we have Close prices
+        if 'Close' not in historical_data.columns:
+            return {}
+        
+        price_data = historical_data['Close'].dropna()
+        
+        if len(price_data) < 30:  # Need sufficient data for meaningful risk analysis
+            return {}
+        
+        # Calculate comprehensive risk profile
+        risk_metrics = risk_analyzer.comprehensive_risk_profile(price_data, market_data)
+        
+        # Format the metrics for display
+        formatted_metrics = {
+            "Volatility (Annualized)": format_value(risk_metrics.get('volatility_annualized') * 100, 'percent_direct', 1),  # Convert decimal to percentage
+            "Value at Risk (5%)": format_value(risk_metrics.get('var_5') * 100, 'percent_direct', 2),  # Convert decimal to percentage
+            "Value at Risk (1%)": format_value(risk_metrics.get('var_1') * 100, 'percent_direct', 2),  # Convert decimal to percentage
+            "Sharpe Ratio": format_value(risk_metrics.get('sharpe_ratio'), 'ratio', 2),
+            "Sortino Ratio": format_value(risk_metrics.get('sortino_ratio'), 'ratio', 2),
+            "Maximum Drawdown": format_value(risk_metrics.get('max_drawdown') * 100, 'percent_direct', 2),  # Convert decimal to percentage
+            "Skewness": format_value(risk_metrics.get('skewness'), 'ratio', 2),
+            "Kurtosis": format_value(risk_metrics.get('kurtosis'), 'ratio', 2),
+        }
+        
+        # Add beta and correlation if market data is available
+        if market_data is not None:
+            formatted_metrics["Beta"] = format_value(risk_metrics.get('beta'), 'ratio', 2)
+            formatted_metrics["Market Correlation"] = format_value(risk_metrics.get('correlation_market'), 'ratio', 2)
+        
+        return formatted_metrics
+        
+    except Exception as e:
+        logging.error(f"Error in risk analysis for {ticker}: {e}")
+        return {}
+
+def extract_sentiment_analysis_data(fundamentals: dict, ticker=None):
+    """Extract sentiment analysis metrics using the SentimentAnalyzer module."""
+    try:
+        sentiment_analyzer = SentimentAnalyzer()
+        
+        # Extract news data
+        news_data = fundamentals.get('news', [])
+        
+        # Extract analyst data
+        analyst_data = extract_analyst_info(fundamentals)
+        
+        # Analyze different sentiment components
+        news_sentiment = sentiment_analyzer.analyze_news_sentiment(news_data)
+        analyst_sentiment = sentiment_analyzer.analyze_analyst_sentiment(analyst_data)
+        options_sentiment = sentiment_analyzer.analyze_options_sentiment(ticker) if ticker else {'score': 0, 'classification': 'neutral', 'confidence': 0}
+        
+        # Calculate composite sentiment
+        composite_sentiment = sentiment_analyzer.calculate_composite_sentiment(
+            news_sentiment, analyst_sentiment, options_sentiment
+        )
+        
+        # Format the metrics for display
+        formatted_metrics = {
+            "Composite Sentiment Score": format_value(composite_sentiment.get('score'), 'ratio', 2),
+            "Sentiment Classification": composite_sentiment.get('classification', 'neutral').title(),
+            "Sentiment Confidence": format_value(composite_sentiment.get('confidence') * 100, 'percent_direct', 1),  # Convert decimal to percentage
+            "News Sentiment": f"{news_sentiment.get('classification', 'neutral').title()} ({format_value(news_sentiment.get('score'), 'ratio', 2)})",
+            "Analyst Sentiment": f"{analyst_sentiment.get('classification', 'neutral').title()} ({format_value(analyst_sentiment.get('score'), 'ratio', 2)})",
+            "Options Sentiment": f"{options_sentiment.get('classification', 'neutral').title()} ({format_value(options_sentiment.get('score'), 'ratio', 2)})",
+        }
+        
+        # Add put/call ratio if available
+        if 'put_call_ratio' in options_sentiment:
+            formatted_metrics["Put/Call Ratio"] = format_value(options_sentiment.get('put_call_ratio'), 'ratio', 2)
+        
+        return formatted_metrics
+        
+    except Exception as e:
+        logging.error(f"Error in sentiment analysis for {ticker}: {e}")
+        return {}
+
+def extract_quarterly_earnings_data(fundamentals: dict, ticker=None):
+    """Extract quarterly earnings performance data."""
+    try:
+        import yfinance as yf
+        
+        # Get ticker object to access quarterly data
+        ticker_obj = yf.Ticker(ticker) if ticker else None
+        if not ticker_obj:
+            return {}
+        
+        # Get quarterly financials
+        quarterly_financials = ticker_obj.quarterly_financials
+        if quarterly_financials.empty:
+            return {}
+        
+        # Extract key quarterly metrics for last 4 quarters
+        quarterly_data = {}
+        quarters = quarterly_financials.columns[:4]  # Most recent 4 quarters
+        
+        key_metrics = ['Total Revenue', 'Net Income', 'Gross Profit', 'Operating Income', 'Diluted EPS', 'Basic EPS']
+        
+        for i, quarter in enumerate(quarters):
+            quarter_key = f"Q{i+1}"
+            # Fix quarter name formatting
+            if hasattr(quarter, 'strftime'):
+                quarter_num = (quarter.month - 1) // 3 + 1  # Calculate quarter number
+                quarter_name = f"{quarter.year}-Q{quarter_num}"
+            else:
+                quarter_name = str(quarter)[:10]
+            
+            quarterly_data[quarter_key] = {
+                'date': quarter_name,
+                'quarter_end': quarter
+            }
+            
+            # Extract financial metrics
+            for metric in key_metrics:
+                if metric in quarterly_financials.index:
+                    value = quarterly_financials.loc[metric, quarter]
+                    if pd.notna(value):
+                        if metric in ['Total Revenue', 'Net Income', 'Gross Profit', 'Operating Income']:
+                            # Format large numbers
+                            formatted_value = format_value(value, 'large_number')
+                        else:
+                            # EPS metrics
+                            formatted_value = format_value(value, 'ratio', 2)
+                        quarterly_data[quarter_key][metric] = formatted_value
+                        quarterly_data[quarter_key][f"{metric}_raw"] = value
+            
+            # Calculate gross margin if possible
+            if 'Gross Profit' in quarterly_financials.index and 'Total Revenue' in quarterly_financials.index:
+                gross_profit = quarterly_financials.loc['Gross Profit', quarter]
+                total_revenue = quarterly_financials.loc['Total Revenue', quarter]
+                if pd.notna(gross_profit) and pd.notna(total_revenue) and total_revenue != 0:
+                    gross_margin = (gross_profit / total_revenue) * 100
+                    quarterly_data[quarter_key]['Gross Margin'] = f"{gross_margin:.1f}%"
+                    quarterly_data[quarter_key]['Gross Margin_raw'] = gross_margin
+        
+        # Calculate growth metrics
+        growth_metrics = {}
+        if len(quarters) >= 2:
+            # Quarter-over-quarter growth (Q1 vs Q2)
+            q1_revenue = quarterly_data.get('Q1', {}).get('Total Revenue_raw')
+            q2_revenue = quarterly_data.get('Q2', {}).get('Total Revenue_raw')
+            if q1_revenue and q2_revenue:
+                qoq_revenue_growth = ((q1_revenue - q2_revenue) / q2_revenue) * 100
+                growth_metrics['QoQ Revenue Growth'] = f"{qoq_revenue_growth:+.1f}%"
+            
+            q1_income = quarterly_data.get('Q1', {}).get('Net Income_raw')
+            q2_income = quarterly_data.get('Q2', {}).get('Net Income_raw')
+            if q1_income and q2_income and q2_income != 0:
+                qoq_income_growth = ((q1_income - q2_income) / q2_income) * 100
+                growth_metrics['QoQ Net Income Growth'] = f"{qoq_income_growth:+.1f}%"
+        
+        if len(quarters) >= 4:
+            # Use the same yfinance revenueGrowth data for consistency instead of manual calculation
+            info = fundamentals.get('info', {})
+            yf_revenue_growth = info.get('revenueGrowth')
+            if yf_revenue_growth is not None:
+                growth_metrics['YoY Revenue Growth'] = f"{yf_revenue_growth * 100:+.1f}%"
+            else:
+                # Fallback to manual calculation if yfinance data unavailable
+                q1_revenue = quarterly_data.get('Q1', {}).get('Total Revenue_raw')
+                q4_revenue = quarterly_data.get('Q4', {}).get('Total Revenue_raw')
+                if q1_revenue and q4_revenue:
+                    yoy_revenue_growth = ((q1_revenue - q4_revenue) / q4_revenue) * 100
+                    growth_metrics['YoY Revenue Growth'] = f"{yoy_revenue_growth:+.1f}%"
+        
+        # Get next earnings date from fundamentals
+        info = fundamentals.get('info', {})
+        next_earnings = info.get('earningsTimestamp')
+        if next_earnings:
+            from datetime import datetime
+            earnings_date = datetime.fromtimestamp(next_earnings)
+            growth_metrics['Next Earnings Date'] = earnings_date.strftime('%B %d, %Y')
+            
+            earnings_call_start = info.get('earningsCallTimestampStart')
+            if earnings_call_start:
+                call_time = datetime.fromtimestamp(earnings_call_start)
+                growth_metrics['Earnings Call Time'] = call_time.strftime('%B %d, %Y at %I:%M %p ET')
+        
+        return {
+            'quarterly_data': quarterly_data,
+            'growth_metrics': growth_metrics,
+            'ticker': ticker
+        }
+        
+    except Exception as e:
+        logging.error(f"Error extracting quarterly earnings data for {ticker}: {e}")
         return {}

@@ -95,6 +95,7 @@ simple-websocket==1.1.0
 six==1.17.0
 soupsieve==2.7
 stanio==0.5.1
+textblob==0.17.1
 sympy==1.14.0
 ta==0.11.0
 threadpoolctl==3.6.0

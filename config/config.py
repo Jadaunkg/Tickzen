@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import os
 
 # List of tickers; you can later add more.
-TICKERS = ["PEP"]  # e.g., ["AAPL", "GOOGL", "MSFT"]
+TICKERS = ["TSLA"]  # e.g., ["AAPL", "GOOGL", "MSFT"]
 
 # Date range for data collection
 START_DATE = "2012-01-01"  # Earliest practical date
@@ -20,7 +20,5 @@ FORECAST_OPTIONS = {
     "5 year": 1825
 }
 
-# Finnhub API Configuration for insider transactions and peer data
-# Get your free API key from: https://finnhub.io/register
-# Set the FINNHUB_API_KEY environment variable or add it to your .env file
+
 FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')

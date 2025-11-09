@@ -1027,102 +1027,116 @@ def is_etf(ticker):
         return False
 
 def get_peer_metrics(ticker):
-    """Get financial metrics for a single ticker using yfinance with multiple fallbacks."""
-    try:
-        stock = yf.Ticker(ticker)
-        info = stock.info
-        
-        # Debug logging for troubleshooting
-        logging.info(f"Fetching metrics for {ticker}")
-        
-        # Check if this is an ETF
-        etf_flag = is_etf(ticker)
-        
-        # Get historical data for 52-week range calculation
-        hist = stock.history(period="1y")
-        if hist.empty:
-            hist = stock.history(period="5d")  # Fallback to recent data
-        
-        # Calculate 52-week range
-        week_52_range = "N/A"
-        if not hist.empty:
-            week_52_high = hist['High'].max()
-            week_52_low = hist['Low'].min()
-            week_52_range = f"{week_52_low:.2f} - {week_52_high:.2f}"
-        
-        # Helper function to get value with multiple fallbacks
-        def get_metric_with_fallbacks(primary_key, fallback_keys=None, default="N/A"):
-            value = info.get(primary_key, default)
-            if (value == default or value is None or (isinstance(value, float) and np.isnan(value))) and fallback_keys:
-                for fallback_key in fallback_keys:
-                    fallback_value = info.get(fallback_key, default)
-                    if fallback_value != default and fallback_value is not None and not (isinstance(fallback_value, float) and np.isnan(fallback_value)):
-                        logging.info(f"{ticker}: Using {fallback_key} for {primary_key}: {fallback_value}")
-                        return fallback_value
-            return value
-        
-        # Get P/E Ratio with multiple fallbacks
-        pe_ratio = get_metric_with_fallbacks('trailingPE', ['forwardPE', 'priceToEarningsTrailing12Months'])
-        
-        # For ETFs, certain metrics are not applicable
-        if etf_flag:
-            # ETFs don't have traditional company fundamentals
-            revenue_growth = "N/A (ETF)"
-            net_margin = "N/A (ETF)"
-            eps = "N/A (ETF)"
-            roe = "N/A (ETF)"
-            debt_to_equity = "N/A (ETF)"
-        else:
-            # Get Revenue Growth with fallbacks
-            revenue_growth = get_metric_with_fallbacks('revenueGrowth', ['quarterlyRevenueGrowth'])
+    """Get financial metrics for a single ticker using yfinance with multiple fallbacks and retry logic."""
+    max_retries = 3
+    base_delay = 2  # seconds
+    
+    for attempt in range(max_retries):
+        try:
+            logging.info(f"Fetching metrics for {ticker} (attempt {attempt + 1}/{max_retries})")
             
-            # Get Net Margin with fallbacks
-            net_margin = get_metric_with_fallbacks('profitMargins', ['netIncomeToCommon'])
+            stock = yf.Ticker(ticker)
+            info = stock.info
             
-            # Get EPS with fallbacks
-            eps = get_metric_with_fallbacks('trailingEps', ['forwardEps', 'earningsPerShare'])
+            # Check if this is an ETF
+            etf_flag = is_etf(ticker)
             
-            # Get ROE with fallbacks
-            roe = get_metric_with_fallbacks('returnOnEquity', ['roe'])
+            # Get historical data for 52-week range calculation with timeout handling
+            hist = stock.history(period="1y")
+            if hist.empty:
+                hist = stock.history(period="5d")  # Fallback to recent data
             
-            # Get Debt-to-Equity with fallbacks
-            debt_to_equity = get_metric_with_fallbacks('debtToEquity', ['totalDebtToEquity'])
-        
-        # Get Dividend Yield with fallbacks (ETFs can have dividend yields)
-        dividend_yield = get_metric_with_fallbacks('dividendYield', ['trailingAnnualDividendYield', 'yield'])
-        
-        # Get Market Cap with fallbacks (for ETFs this represents total net assets)
-        market_cap = get_metric_with_fallbacks('marketCap', ['sharesOutstanding'])
-        if market_cap == "N/A" and info.get('sharesOutstanding') and info.get('currentPrice'):
-            try:
-                market_cap = info['sharesOutstanding'] * info['currentPrice']
-                logging.info(f"{ticker}: Calculated market cap from shares * price: {market_cap}")
-            except:
-                market_cap = "N/A"
-        
-        metrics = {
-            'Market Cap': market_cap,
-            'P/E Ratio': pe_ratio,
-            'Revenue Growth': revenue_growth,
-            'Net Margin': net_margin,
-            'EPS': eps,
-            'ROE': roe,
-            'Debt-to-Equity': debt_to_equity,
-            'Dividend Yield': dividend_yield,
-            '52-Week Range': week_52_range
-        }
-        
-        # Log any remaining N/A values for debugging (but exclude ETF N/A values)
-        na_metrics = [k for k, v in metrics.items() if v == "N/A"]
-        if na_metrics and not etf_flag:
-            logging.warning(f"{ticker}: N/A values for: {na_metrics}")
-        elif etf_flag:
-            logging.info(f"{ticker}: ETF detected - fundamental metrics marked as N/A (ETF)")
-        
-        return metrics
-    except Exception as e:
-        logging.error(f"Error fetching metrics for {ticker}: {e}")
-        return None
+            # Calculate 52-week range
+            week_52_range = "N/A"
+            if not hist.empty:
+                week_52_high = hist['High'].max()
+                week_52_low = hist['Low'].min()
+                week_52_range = f"{week_52_low:.2f} - {week_52_high:.2f}"
+            
+            # Helper function to get value with multiple fallbacks
+            def get_metric_with_fallbacks(primary_key, fallback_keys=None, default="N/A"):
+                value = info.get(primary_key, default)
+                if (value == default or value is None or (isinstance(value, float) and np.isnan(value))) and fallback_keys:
+                    for fallback_key in fallback_keys:
+                        fallback_value = info.get(fallback_key, default)
+                        if fallback_value != default and fallback_value is not None and not (isinstance(fallback_value, float) and np.isnan(fallback_value)):
+                            logging.info(f"{ticker}: Using {fallback_key} for {primary_key}: {fallback_value}")
+                            return fallback_value
+                return value
+            
+            # Get P/E Ratio with multiple fallbacks
+            pe_ratio = get_metric_with_fallbacks('trailingPE', ['forwardPE', 'priceToEarningsTrailing12Months'])
+            
+            # For ETFs, certain metrics are not applicable
+            if etf_flag:
+                # ETFs don't have traditional company fundamentals
+                revenue_growth = "N/A (ETF)"
+                net_margin = "N/A (ETF)"
+                eps = "N/A (ETF)"
+                roe = "N/A (ETF)"
+                debt_to_equity = "N/A (ETF)"
+            else:
+                # Get Revenue Growth with fallbacks
+                revenue_growth = get_metric_with_fallbacks('revenueGrowth', ['quarterlyRevenueGrowth'])
+                
+                # Get Net Margin with fallbacks
+                net_margin = get_metric_with_fallbacks('profitMargins', ['netIncomeToCommon'])
+                
+                # Get EPS with fallbacks
+                eps = get_metric_with_fallbacks('trailingEps', ['forwardEps', 'earningsPerShare'])
+                
+                # Get ROE with fallbacks
+                roe = get_metric_with_fallbacks('returnOnEquity', ['roe'])
+                
+                # Get Debt-to-Equity with fallbacks
+                debt_to_equity = get_metric_with_fallbacks('debtToEquity', ['totalDebtToEquity'])
+            
+            # Get Dividend Yield with fallbacks (ETFs can have dividend yields)
+            dividend_yield = get_metric_with_fallbacks('dividendYield', ['trailingAnnualDividendYield', 'yield'])
+            
+            # Get Market Cap with fallbacks (for ETFs this represents total net assets)
+            market_cap = get_metric_with_fallbacks('marketCap', ['sharesOutstanding'])
+            if market_cap == "N/A" and info.get('sharesOutstanding') and info.get('currentPrice'):
+                try:
+                    market_cap = info['sharesOutstanding'] * info['currentPrice']
+                    logging.info(f"{ticker}: Calculated market cap from shares * price: {market_cap}")
+                except:
+                    market_cap = "N/A"
+            
+            metrics = {
+                'Market Cap': market_cap,
+                'P/E Ratio': pe_ratio,
+                'Revenue Growth': revenue_growth,
+                'Net Margin': net_margin,
+                'EPS': eps,
+                'ROE': roe,
+                'Debt-to-Equity': debt_to_equity,
+                'Dividend Yield': dividend_yield,
+                '52-Week Range': week_52_range
+            }
+            
+            # Log any remaining N/A values for debugging (but exclude ETF N/A values)
+            na_metrics = [k for k, v in metrics.items() if v == "N/A"]
+            if na_metrics and not etf_flag:
+                logging.warning(f"{ticker}: N/A values for: {na_metrics}")
+            elif etf_flag:
+                logging.info(f"{ticker}: ETF detected - fundamental metrics marked as N/A (ETF)")
+            
+            logging.info(f"Successfully retrieved metrics for {ticker}")
+            return metrics
+            
+        except Exception as e:
+            logging.warning(f"Error fetching metrics for {ticker} (attempt {attempt + 1}/{max_retries}): {e}")
+            
+            if attempt < max_retries - 1:  # Not the last attempt
+                delay = base_delay * (2 ** attempt)  # Exponential backoff
+                logging.info(f"Retrying {ticker} in {delay} seconds...")
+                import time
+                time.sleep(delay)
+            else:
+                # Last attempt failed
+                logging.error(f"All {max_retries} attempts failed for {ticker}")
+                return None
 
 def get_sector_peers(ticker):
     """Get sector-appropriate peers for a given ticker."""

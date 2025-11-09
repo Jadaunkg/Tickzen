@@ -5,6 +5,8 @@ __pycache__/
 *.pyd
 testsprite_tests
 z_next_process
+.github
+
 
 # Virtual environments
 venv/

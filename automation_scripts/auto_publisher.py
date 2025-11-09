@@ -90,7 +90,11 @@ def get_file_content_from_storage(storage_path, original_filename):
         return None
     try:
         bucket_name = os.getenv('FIREBASE_STORAGE_BUCKET')
-        bucket = storage.bucket(bucket_name if bucket_name else None) 
+        if not bucket_name:
+            app_logger.error("FIREBASE_STORAGE_BUCKET environment variable not set.")
+            return None
+        
+        bucket = storage.bucket(bucket_name)
         
         blob = bucket.blob(storage_path)
         if not blob.exists():

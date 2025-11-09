@@ -13,7 +13,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 from config.config import TICKERS
-from data_processing_scripts.data_collection import fetch_stock_data
+from data_processing_scripts.data_collection import fetch_stock_data, fetch_real_time_data
 from data_processing_scripts.macro_data import fetch_macro_indicators
 from data_processing_scripts.data_preprocessing import preprocess_data
 from Models.prophet_model import train_prophet_model
@@ -83,6 +83,7 @@ def _is_processed_data_current(processed_filepath, stock_data, macro_data, ticke
 def cleanup_old_processed_data(cache_dir, max_age_days=7):
     """
     Clean up old processed data files to prevent accumulation.
+    Enhanced to handle multiple files per ticker and keep only the most recent.
     """
     try:
         if not os.path.exists(cache_dir):
@@ -90,25 +91,54 @@ def cleanup_old_processed_data(cache_dir, max_age_days=7):
         
         current_time = datetime.now()
         files_cleaned = 0
+        ticker_files = {}  # Group files by ticker
         
+        # First pass: Group files by ticker
         for filename in os.listdir(cache_dir):
             if 'processed_data' in filename and filename.endswith('.csv'):
                 filepath = os.path.join(cache_dir, filename)
                 try:
-                    # Get file modification time
+                    # Extract ticker from filename (format: TICKER_processed_data_YYYY-MM-DD.csv)
+                    ticker = filename.split('_processed_data_')[0]
                     file_mtime = datetime.fromtimestamp(os.path.getmtime(filepath))
-                    age_days = (current_time - file_mtime).days
                     
-                    if age_days > max_age_days:
-                        os.remove(filepath)
-                        files_cleaned += 1
-                        pipeline_logger.info(f"Cleaned up old processed data file: {filename} (age: {age_days} days)")
-                
+                    if ticker not in ticker_files:
+                        ticker_files[ticker] = []
+                    
+                    ticker_files[ticker].append({
+                        'filepath': filepath,
+                        'filename': filename,
+                        'mtime': file_mtime,
+                        'age_days': (current_time - file_mtime).days
+                    })
+                    
                 except Exception as e:
-                    pipeline_logger.warning(f"Error cleaning processed data file {filename}: {e}")
+                    pipeline_logger.warning(f"Error processing cache file {filename}: {e}")
+        
+        # Second pass: For each ticker, keep only the most recent file and clean old ones
+        for ticker, files in ticker_files.items():
+            # Sort by modification time (newest first)
+            files.sort(key=lambda x: x['mtime'], reverse=True)
+            
+            for i, file_info in enumerate(files):
+                if i == 0:  # Keep the most recent file if it's not too old
+                    if file_info['age_days'] > max_age_days:
+                        try:
+                            os.remove(file_info['filepath'])
+                            files_cleaned += 1
+                            pipeline_logger.info(f"Cleaned up old processed data: {file_info['filename']} (age: {file_info['age_days']} days)")
+                        except Exception as e:
+                            pipeline_logger.warning(f"Error cleaning cache file {file_info['filename']}: {e}")
+                else:  # Remove all older files for this ticker
+                    try:
+                        os.remove(file_info['filepath'])
+                        files_cleaned += 1
+                        pipeline_logger.info(f"Cleaned up duplicate processed data: {file_info['filename']}")
+                    except Exception as e:
+                        pipeline_logger.warning(f"Error cleaning cache file {file_info['filename']}: {e}")
         
         if files_cleaned > 0:
-            pipeline_logger.info(f"Cleaned up {files_cleaned} old processed data files from {cache_dir}")
+            pipeline_logger.info(f"Cleaned up {files_cleaned} old/duplicate processed data files from {cache_dir}")
             
     except Exception as e:
         pipeline_logger.error(f"Error during processed data cleanup: {e}")
@@ -138,16 +168,49 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
         pipeline_logger.info(f"\n----- Starting ORIGINAL pipeline for {ticker} (Room: {task_room}) -----")
         _emit_progress(socketio_instance, task_room, 0, f"Initiating analysis for {ticker}...", "Initialization", ticker, event_name_progress)
         
-        # More permissive ticker pattern that allows common special characters
-        valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/]+(\.[A-Z]{1,2})?$'
+        # More permissive ticker pattern that allows common special characters including futures (=)
+        valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/=]+(\.[A-Z]{1,2})?$'
         if not ticker or not re.match(valid_ticker_pattern, ticker):
             raise ValueError(f"Invalid ticker format: {ticker}.")
 
-        _emit_progress(socketio_instance, task_room, 5, "Fetching stock data and generating introduction...", "Introduction & Key Metrics", ticker, event_name_progress)
-        stock_data = fetch_stock_data(ticker, app_root=app_root)
+        _emit_progress(socketio_instance, task_room, 5, "Fetching real-time stock data and generating introduction...", "Real-time Data & Key Metrics", ticker, event_name_progress)
+        
+        # Fetch real-time data for more accurate analysis
+        real_time_data = fetch_real_time_data(ticker, app_root, include_price=True, include_intraday=True)
+        stock_data = real_time_data.get('daily_data')
+        current_price_info = real_time_data.get('current_price_data')
+        
         if stock_data is None or stock_data.empty:
             error_msg = f"No data found for ticker '{ticker}'. This could mean:\n• The ticker symbol is incorrect\n• The stock is delisted or not available\n• No trading data exists for this symbol\n\nPlease try again with a different stock symbol (e.g., AAPL, MSFT, GOOGL)."
             raise RuntimeError(error_msg)
+        
+        # Log current price information if available
+        if current_price_info:
+            pipeline_logger.info(f"Current price for {ticker}: ${current_price_info.get('current_price', 'N/A')} "
+                               f"({current_price_info.get('market_state', 'Unknown')})")
+        
+        # Add current price data to processing context for enhanced reporting
+        if current_price_info:
+            # Add current price as the most recent data point for analysis
+            latest_close = current_price_info.get('current_price')
+            if latest_close:
+                # Convert today's date to string format to match existing data format
+                today_str = pd.Timestamp.now().normalize().strftime('%Y-%m-%d')
+                
+                # Check if today's date already exists to avoid duplicates
+                if today_str not in stock_data['Date'].values:
+                    stock_data.loc[len(stock_data), 'Date'] = today_str
+                    stock_data.loc[len(stock_data)-1, 'Close'] = latest_close
+                    # Convert Date column to datetime for proper sorting
+                    stock_data['Date'] = pd.to_datetime(stock_data['Date'])
+                    stock_data = stock_data.sort_values('Date').reset_index(drop=True)
+                    # Convert back to string format to maintain consistency
+                    stock_data['Date'] = stock_data['Date'].dt.strftime('%Y-%m-%d')
+                else:
+                    # Update the existing row for today with the latest close price
+                    today_mask = stock_data['Date'] == today_str
+                    if today_mask.any():
+                        stock_data.loc[today_mask, 'Close'] = latest_close
 
         _emit_progress(socketio_instance, task_room, 10, "Fetching macroeconomic data...", "Data Collection", ticker, event_name_progress)
         macro_data = fetch_macro_indicators(app_root=app_root)
@@ -199,7 +262,7 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
             yf_ticker_obj = yf.Ticker(ticker)
             info_data = yf_ticker_obj.info or {}
             recs_data = yf_ticker_obj.recommendations if hasattr(yf_ticker_obj, 'recommendations') and yf_ticker_obj.recommendations is not None else pd.DataFrame()
-            news_data = yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news is not None else []
+            # News will be fetched via Finnhub API in extract_news function
             
             # Add balance sheet and financial data for enhanced financial efficiency analysis
             balance_sheet_data = None
@@ -213,7 +276,7 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
             fundamentals = {
                 'info': info_data, 
                 'recommendations': recs_data, 
-                'news': news_data,
+                'news': yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news else [],  # Get actual news data for sentiment analysis
                 'balance_sheet': balance_sheet_data,
                 'financials': financials_data
             }
@@ -239,7 +302,8 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
         report_path, report_html = create_full_report(
             ticker=ticker, actual_data=actual_df, forecast_data=forecast_df,
             historical_data=processed_data.copy(), fundamentals=fundamentals, ts=ts,
-            app_root=app_root_for_report # Use the adjusted app_root here
+            app_root=app_root_for_report, # Use the adjusted app_root here
+            current_price_info=current_price_info  # Pass real-time current price data
         )
         if report_html is None or "Error Generating Report" in report_html:
             raise RuntimeError(f"Report generator failed for {ticker}")
@@ -271,8 +335,8 @@ def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None
     model = forecast = None
 
     try:
-        # More permissive ticker pattern that allows common special characters
-        valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/]+$'
+        # More permissive ticker pattern that allows common special characters including futures (=)
+        valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/=]+$'
         if not ticker or not re.match(valid_ticker_pattern, ticker):
             raise ValueError(f"Invalid ticker format: {ticker}.")
 
@@ -317,7 +381,7 @@ def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None
             yf_ticker_obj = yf.Ticker(ticker)
             info_data = yf_ticker_obj.info or {}
             recs_data = yf_ticker_obj.recommendations if hasattr(yf_ticker_obj, 'recommendations') and yf_ticker_obj.recommendations is not None else pd.DataFrame()
-            news_data = yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news is not None else []
+            # News will be fetched via Finnhub API in extract_news function
             
             # Add balance sheet and financial data for enhanced financial efficiency analysis
             balance_sheet_data = None
@@ -331,11 +395,11 @@ def run_wp_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None
             fundamentals = {
                 'info': info_data, 
                 'recommendations': recs_data, 
-                'news': news_data,
+                'news': yf_ticker_obj.news if hasattr(yf_ticker_obj, 'news') and yf_ticker_obj.news else [],  # Get actual news data for sentiment analysis
                 'balance_sheet': balance_sheet_data,
                 'financials': financials_data
             }
-        except Exception as e: 
+        except Exception as e:
             fundamentals = {'info': {}, 'recommendations': pd.DataFrame(), 'news': [], 'balance_sheet': None, 'financials': None}
             pipeline_logger.warning(f"WP Fundamentals Warning for {ticker}: {e}")
 

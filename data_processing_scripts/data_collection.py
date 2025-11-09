@@ -4,10 +4,22 @@ import time
 import logging
 import yfinance as yf
 import pandas as pd
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import os
 import re
 import requests
+import pytz
+
+# Import real-time configuration
+try:
+    from config.realtime_config import get_realtime_config, is_realtime_enabled
+    REALTIME_CONFIG_AVAILABLE = True
+except ImportError:
+    REALTIME_CONFIG_AVAILABLE = False
+    def get_realtime_config():
+        return {'enable_realtime_fetch': True, 'throttle_seconds': 0.3, 'timeout_seconds': 30}
+    def is_realtime_enabled():
+        return True
 
 # Configure logging
 # Basic config for direct script run, real app might have this in __init__ or main.
@@ -15,9 +27,52 @@ if not logging.getLogger().hasHandlers():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__) # Use module-specific logger
 
+def is_market_hours(ticker=None):
+    """
+    Check if it's currently market hours for the given ticker.
+    Default to US market hours if no specific ticker exchange is provided.
+    """
+    try:
+        # Default to US Eastern Time
+        market_tz = pytz.timezone('US/Eastern')
+        
+        # Get exchange timezone based on ticker suffix
+        exchange_suffix, _ = get_exchange_info(ticker) if ticker else (None, None)
+        
+        if exchange_suffix:
+            # Map exchange suffixes to timezones
+            exchange_timezones = {
+                '.L': 'Europe/London',       # London
+                '.TO': 'America/Toronto',    # Toronto
+                '.AX': 'Australia/Sydney',   # Australia
+                '.T': 'Asia/Tokyo',          # Tokyo
+                '.HK': 'Asia/Hong_Kong',     # Hong Kong
+                '.SS': 'Asia/Shanghai',      # Shanghai
+                '.NS': 'Asia/Kolkata',       # India NSE
+                '.BO': 'Asia/Kolkata',       # India BSE
+            }
+            market_tz = pytz.timezone(exchange_timezones.get(exchange_suffix, 'US/Eastern'))
+        
+        now_market = datetime.now(market_tz)
+        
+        # Check if it's a weekday (Monday=0, Sunday=6)
+        if now_market.weekday() > 4:  # Saturday or Sunday
+            return False
+        
+        # US market hours: 9:30 AM - 4:00 PM ET
+        market_open = now_market.replace(hour=9, minute=30, second=0, microsecond=0)
+        market_close = now_market.replace(hour=16, minute=0, second=0, microsecond=0)
+        
+        return market_open <= now_market <= market_close
+        
+    except Exception as e:
+        logger.warning(f"Error checking market hours: {e}")
+        return False
+
 def is_data_current_for_today(data, ticker):
     """
     Check if the data contains current/today's trading data.
+    Enhanced to be more intelligent about market hours and trading sessions.
     Returns True if data is current, False otherwise.
     """
     if data is None or data.empty:
@@ -41,15 +96,48 @@ def is_data_current_for_today(data, ticker):
             logger.warning(f"No valid dates found in cached data for {ticker}")
             return False
         
-        # Check if latest date is today or recent (within last 3 days for weekends)
+        # Check if latest date is today or recent
         days_diff = (today - latest_date).days
         
-        # For weekends, allow up to 3 days old (Friday data on Monday)
-        # For regular days, require today's data or at most 1 day old
-        is_current = days_diff <= 3
-        
-        logger.info(f"Data currency check for {ticker}: Latest date = {latest_date}, Today = {today}, Days diff = {days_diff}, Is current = {is_current}")
-        return is_current
+        # More aggressive data freshness policy - prioritize recent data
+        if days_diff == 0:
+            # Data is from today - always consider current
+            logger.info(f"Data currency check for {ticker}: Same day data - CURRENT")
+            return True
+        elif days_diff == 1:
+            # Data is from yesterday
+            if today.weekday() == 0:  # Today is Monday
+                # Monday: accept Friday's data (1 day old is actually 3 calendar days)
+                logger.info(f"Data currency check for {ticker}: Monday with Friday data - CURRENT")
+                return True
+            elif is_market_hours(ticker):
+                # During market hours, prefer same-day data if possible
+                logger.info(f"Data currency check for {ticker}: Market hours, yesterday data - STALE")
+                return False
+            else:
+                # After market hours, yesterday's data is acceptable only for recent yesterday
+                logger.info(f"Data currency check for {ticker}: After hours, yesterday data - CURRENT")
+                return True
+        elif days_diff == 2:
+            # Data is 2 days old - only accept on Monday (weekend gap)
+            if today.weekday() == 0:  # Today is Monday
+                logger.info(f"Data currency check for {ticker}: Monday with Saturday data - CURRENT")
+                return True
+            else:
+                logger.info(f"Data currency check for {ticker}: 2-day old data during weekday - STALE")
+                return False
+        elif days_diff == 3:
+            # Data is 3 days old - only accept on Monday (weekend gap from Friday)
+            if today.weekday() == 0:  # Today is Monday
+                logger.info(f"Data currency check for {ticker}: Monday with Friday data (3 days) - CURRENT")
+                return True
+            else:
+                logger.info(f"Data currency check for {ticker}: 3-day old data during weekday - STALE")
+                return False
+        else:
+            # Data is more than 3 days old - always stale
+            logger.warning(f"Data currency check for {ticker}: Data too old ({days_diff} days) - STALE (latest: {latest_date}, today: {today})")
+            return False
         
     except Exception as e:
         logger.error(f"Error checking data currency for {ticker}: {e}")
@@ -140,6 +228,86 @@ def get_exchange_info(ticker):
             return suffix, exchange_name
     return None, 'US Stock Exchange'
 
+def find_latest_cache_file(ticker, cache_dir, interval='1d'):
+    """
+    Find the most recent cache file for a ticker, handling multiple naming patterns.
+    Returns the most recent cache file path or None if no cache exists.
+    """
+    if not os.path.exists(cache_dir):
+        return None
+    
+    # Clean ticker for filename patterns
+    clean_ticker = ticker.replace(':', '_').replace('^', '_').replace('=', '_')
+    
+    # Possible cache file patterns (newest to oldest naming conventions)
+    patterns = [
+        f"{clean_ticker}_stock_data_{interval}.csv",  # Current pattern with interval
+        f"{clean_ticker}_stock_data.csv",             # Legacy pattern without interval
+    ]
+    
+    latest_file = None
+    latest_mtime = 0
+    
+    try:
+        for filename in os.listdir(cache_dir):
+            # Check if file matches any pattern for this ticker
+            if any(filename == pattern for pattern in patterns):
+                filepath = os.path.join(cache_dir, filename)
+                file_mtime = os.path.getmtime(filepath)
+                
+                if file_mtime > latest_mtime:
+                    latest_mtime = file_mtime
+                    latest_file = filepath
+                    
+        if latest_file:
+            logger.info(f"Found latest cache file for {ticker}: {os.path.basename(latest_file)} "
+                       f"(modified: {datetime.fromtimestamp(latest_mtime).strftime('%Y-%m-%d %H:%M:%S')})")
+        
+        return latest_file
+        
+    except Exception as e:
+        logger.warning(f"Error searching for cache files for {ticker}: {e}")
+        return None
+
+def cleanup_duplicate_cache_files(ticker, cache_dir, keep_latest=True):
+    """
+    Clean up duplicate cache files for a ticker, keeping only the most recent one.
+    """
+    if not os.path.exists(cache_dir):
+        return
+    
+    clean_ticker = ticker.replace(':', '_').replace('^', '_').replace('=', '_')
+    ticker_files = []
+    
+    try:
+        # Find all cache files for this ticker
+        for filename in os.listdir(cache_dir):
+            if (filename.startswith(f"{clean_ticker}_stock_data") and 
+                filename.endswith('.csv') and 
+                'processed_data' not in filename):
+                
+                filepath = os.path.join(cache_dir, filename)
+                file_mtime = os.path.getmtime(filepath)
+                ticker_files.append((filepath, file_mtime, filename))
+        
+        if len(ticker_files) > 1 and keep_latest:
+            # Sort by modification time (newest first)
+            ticker_files.sort(key=lambda x: x[1], reverse=True)
+            
+            # Keep the newest file, remove the rest
+            latest_file = ticker_files[0]
+            logger.info(f"Keeping latest cache file for {ticker}: {latest_file[2]}")
+            
+            for filepath, mtime, filename in ticker_files[1:]:
+                try:
+                    os.remove(filepath)
+                    logger.info(f"Removed duplicate cache file: {filename}")
+                except Exception as e:
+                    logger.warning(f"Error removing duplicate cache file {filename}: {e}")
+                    
+    except Exception as e:
+        logger.error(f"Error cleaning duplicate cache files for {ticker}: {e}")
+
 def fetch_stock_data(
     ticker,
     app_root,
@@ -147,9 +315,40 @@ def fetch_stock_data(
     end_date=None,
     max_retries=3,
     pause_secs=2,
-    throttle_secs=0.3,
-    timeout=30
+    throttle_secs=None,
+    timeout=None,
+    interval='1d',
+    include_intraday=False
 ):
+    """
+    Fetch stock data with enhanced real-time capabilities.
+    
+    Parameters:
+    - interval: '1d' (daily), '1h' (hourly), '5m' (5-minute), '1m' (1-minute)
+    - include_intraday: If True, fetches recent intraday data for current day analysis
+    """
+    # Get configuration settings
+    config = get_realtime_config()
+    
+    if throttle_secs is None:
+        throttle_secs = config.get('throttle_seconds', 0.3)
+    if timeout is None:
+        timeout = config.get('timeout_seconds', 30)
+    
+    # Check if real-time fetching is enabled
+    if not is_realtime_enabled():
+        logger.info(f"Real-time fetching disabled. Using cached data only for {ticker}")
+        # Return cached data if available, None otherwise
+        cache_dir = os.path.join(app_root, '..', 'generated_data', 'data_cache')
+        cache_filename = f"{ticker.replace(':', '_').replace('^', '_').replace('=', '_')}_stock_data_{interval}.csv"
+        cache_filepath = os.path.join(cache_dir, cache_filename)
+        
+        if os.path.exists(cache_filepath):
+            try:
+                return pd.read_csv(cache_filepath, parse_dates=['Date'])
+            except Exception as e:
+                logger.warning(f"Failed to load cached data: {e}")
+        return None
     if not app_root:
         logger.error("app_root not provided to fetch_stock_data. Cannot determine cache directory.")
         raise ValueError("app_root is required for cache path construction.")
@@ -162,14 +361,29 @@ def fetch_stock_data(
     
     # Clean up old cache files periodically
     cleanup_old_cache_files(cache_dir)
+    
+    # Clean up duplicate cache files for this ticker first
+    cleanup_duplicate_cache_files(ticker, cache_dir)
 
-    cache_filename = f"{ticker.replace(':', '_').replace('^', '_')}_stock_data.csv" # Sanitize ticker for filename
-    cache_filepath = os.path.join(cache_dir, cache_filename)
-    logger.info(f"Checking cache for {ticker} at: {cache_filepath}")
+    # Find the most recent cache file for this ticker
+    latest_cache_file = find_latest_cache_file(ticker, cache_dir, interval)
+    
+    # Fallback to standard naming if no cache found
+    if not latest_cache_file:
+        cache_filename = f"{ticker.replace(':', '_').replace('^', '_').replace('=', '_')}_stock_data_{interval}.csv"
+        cache_filepath = os.path.join(cache_dir, cache_filename)
+    else:
+        cache_filepath = latest_cache_file
+        cache_filename = os.path.basename(cache_filepath)
+    
+    logger.info(f"Checking cache for {ticker} ({interval}) at: {cache_filepath}")
 
     cache_exists = os.path.exists(cache_filepath)
     logger.info(f"Cache file exists: {cache_exists}")
 
+    # For intraday intervals, use stricter cache validation
+    cache_valid_hours = 1 if interval in ['1m', '5m', '15m', '30m', '1h'] else 24
+    
     if cache_exists:
         logger.info(f"Attempting to load cached stock data for {ticker} from: {cache_filename}")
         try:
@@ -185,6 +399,14 @@ def fetch_stock_data(
                  logger.warning(f"Cached file {cache_filename} contains invalid dates. Re-downloading.")
             elif not is_data_current_for_today(data, ticker):
                  logger.warning(f"Cached data for {ticker} is not current for today. Re-downloading to get latest data.")
+            elif interval in ['1m', '5m', '15m', '30m', '1h']:
+                # Check if intraday cache is fresh (within last hour)
+                file_age_hours = (datetime.now() - datetime.fromtimestamp(os.path.getmtime(cache_filepath))).total_seconds() / 3600
+                if file_age_hours > cache_valid_hours:
+                    logger.warning(f"Intraday cached data for {ticker} is {file_age_hours:.1f} hours old. Re-downloading for real-time analysis.")
+                else:
+                    logger.info(f"Successfully loaded {len(data)} rows for '{ticker}' from fresh intraday cache.")
+                    return data
             else:
                 logger.info(f"Successfully loaded {len(data)} rows for '{ticker}' from cache with current data.")
                 return data
@@ -202,10 +424,11 @@ def fetch_stock_data(
 
     logger.info(
         f"Fetching data for ticker: {ticker} "
-        f"from {start_date or 'the beginning'} to {end_date or 'today'}"
+        f"from {start_date or 'the beginning'} to {end_date or 'today'} "
+        f"with interval: {interval}"
     )
 
-    # Optimized single API call approach
+    # Optimized single API call approach with enhanced real-time support
     try:
         time.sleep(throttle_secs)
         yf_ticker = yf.Ticker(ticker)
@@ -217,22 +440,40 @@ def fetch_stock_data(
             logger.error(f"Ticker {ticker} appears to be invalid or delisted. yf.Ticker.info was empty or lacked key fields (e.g. regularMarketPrice). This could mean the ticker symbol is incorrect, the stock is delisted, or not available on Yahoo Finance.")
             return None # Critical: If info suggests invalid ticker, stop.
         
-        data = yf.download(
-            tickers=ticker,
-            start=start_date,
-            end=end_date,
-            period=period,
-            auto_adjust=True,
-            progress=False,
-            threads=False,
-            timeout=timeout
-        )
+        # Enhanced data fetching with interval support
+        download_params = {
+            'tickers': ticker,
+            'start': start_date,
+            'end': end_date,
+            'interval': interval,
+            'auto_adjust': True,
+            'progress': False,
+            'threads': False,
+            'timeout': timeout
+        }
+        
+        # For intraday data, limit the period to avoid too much data
+        if interval in ['1m', '5m', '15m', '30m'] and not start_date and not end_date:
+            # For minute data, get last 7 days max (yfinance limitation)
+            download_params['period'] = '7d'
+        elif interval == '1h' and not start_date and not end_date:
+            # For hourly data, get last 730 days max
+            download_params['period'] = '730d' 
+        elif not start_date and not end_date:
+            # For daily data, get full history
+            download_params['period'] = '10y'
+        
+        # Remove period if custom date range is provided
+        if start_date or end_date:
+            download_params.pop('period', None)
+        
+        data = yf.download(**download_params)
         
         if data.empty:
-            logger.warning(f"No data returned by yfinance.download for ticker: {ticker}. This could mean the ticker symbol is incorrect, the stock is delisted, or there's no trading data available for the requested period.")
+            logger.warning(f"No data returned by yfinance.download for ticker: {ticker} with interval {interval}. This could mean the ticker symbol is incorrect, the stock is delisted, or there's no trading data available for the requested period.")
             return None # If download returns empty, it's a failure for this ticker.
         
-        logger.info(f"Successfully downloaded data for {ticker} in single attempt.")
+        logger.info(f"Successfully downloaded {interval} data for {ticker} in single attempt.")
         
     except requests.exceptions.HTTPError as http_err: # Catch HTTP errors specifically
         if http_err.response.status_code == 404:
@@ -297,14 +538,112 @@ def fetch_stock_data(
         return None
 
     try:
+        # Ensure we use the consistent filename format for saving
+        save_cache_filename = f"{ticker.replace(':', '_').replace('^', '_').replace('=', '_')}_stock_data_{interval}.csv"
+        save_cache_filepath = os.path.join(cache_dir, save_cache_filename)
+        
+        # Remove any old cache files with different naming patterns before saving new one
+        cleanup_duplicate_cache_files(ticker, cache_dir, keep_latest=False)
+        
         data_to_save = data[required]
-        data_to_save.to_csv(cache_filepath, index=False)
-        logger.info(f"Saved downloaded data for {ticker} to cache: {cache_filename}")
+        data_to_save.to_csv(save_cache_filepath, index=False)
+        logger.info(f"Saved downloaded data for {ticker} to cache: {save_cache_filename}")
+        
+        # Update cache_filepath reference for return consistency
+        cache_filepath = save_cache_filepath
+        cache_filename = save_cache_filename
+        
     except Exception as e:
-        logger.error(f"Failed to save data for {ticker} to cache file {cache_filename}: {e}")
+        logger.error(f"Failed to save data for {ticker} to cache file {save_cache_filename}: {e}")
 
     logger.info(f"Successfully fetched and processed {len(data)} rows for '{ticker}'.")
     return data[required]
+
+
+def get_current_market_price(ticker, timeout=10):
+    """
+    Get the most current market price for a ticker with minimal delay.
+    Returns current price, change, and change percentage.
+    """
+    try:
+        yf_ticker = yf.Ticker(ticker)
+        info = yf_ticker.info
+        
+        if not info:
+            logger.warning(f"No info available for ticker {ticker}")
+            return None
+        
+        current_price = info.get('regularMarketPrice') or info.get('currentPrice')
+        previous_close = info.get('regularMarketPreviousClose') or info.get('previousClose')
+        
+        if current_price is None:
+            logger.warning(f"No current price available for ticker {ticker}")
+            return None
+        
+        # Calculate change if previous close is available
+        change = None
+        change_percent = None
+        if previous_close:
+            change = current_price - previous_close
+            change_percent = (change / previous_close) * 100
+        
+        market_state = info.get('marketState', 'Unknown')
+        last_updated = datetime.now().isoformat()
+        
+        price_data = {
+            'ticker': ticker,
+            'current_price': current_price,
+            'previous_close': previous_close,
+            'change': change,
+            'change_percent': change_percent,
+            'market_state': market_state,
+            'last_updated': last_updated,
+            'currency': info.get('currency', 'USD')
+        }
+        
+        logger.info(f"Current price for {ticker}: ${current_price} ({market_state})")
+        return price_data
+        
+    except Exception as e:
+        logger.error(f"Error getting current price for {ticker}: {e}")
+        return None
+
+def fetch_real_time_data(ticker, app_root, include_price=True, include_intraday=True):
+    """
+    Fetch the most current data available for a ticker.
+    Combines current price with recent intraday data for comprehensive real-time analysis.
+    """
+    logger.info(f"Fetching real-time data for {ticker}")
+    
+    result = {
+        'ticker': ticker,
+        'timestamp': datetime.now().isoformat(),
+        'current_price_data': None,
+        'intraday_data': None,
+        'daily_data': None
+    }
+    
+    try:
+        # Get current market price with minimal delay
+        if include_price:
+            result['current_price_data'] = get_current_market_price(ticker)
+        
+        # Get recent intraday data (5-minute intervals for last day)
+        if include_intraday and is_market_hours(ticker):
+            result['intraday_data'] = fetch_stock_data(
+                ticker, app_root, 
+                interval='5m', 
+                include_intraday=True
+            )
+        
+        # Get recent daily data
+        result['daily_data'] = fetch_stock_data(ticker, app_root)
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error fetching real-time data for {ticker}: {e}")
+        return result
 
 
 if __name__ == "__main__":
