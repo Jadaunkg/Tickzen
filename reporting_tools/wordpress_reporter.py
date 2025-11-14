@@ -21,6 +21,7 @@ try:
     import analysis_scripts.fundamental_analysis as fa
     import app.html_components as hc
     import analysis_scripts.technical_analysis as ta_module # Renamed to avoid conflict if you have a 'ta' variable
+    # from reporting_tools.text_formatter import format_wordpress_content, format_narrative_section  # Module not found
 except ImportError as e:
     print(f"Error importing project files in wordpress_reporter: {e}")
     raise
@@ -152,9 +153,21 @@ def generate_wordpress_introduction_html(ticker, rdata, content_library=None):
         last_date_obj = rdata.get('last_date', datetime.now())
         if isinstance(last_date_obj, str):
             try:
-                last_date_obj = datetime.strptime(last_date_obj, '%Y-%m-%d')
+                # Try different date formats
+                for fmt in ['%Y-%m-%d', '%Y-%m-%d %H:%M:%S', '%B %Y', '%m/%d/%Y']:
+                    try:
+                        last_date_obj = datetime.strptime(last_date_obj, fmt)
+                        break
+                    except ValueError:
+                        continue
+                else:
+                    # If no format works, use current date
+                    last_date_obj = datetime.now()
             except (ValueError, TypeError):
                 last_date_obj = datetime.now()
+        elif not isinstance(last_date_obj, datetime):
+            last_date_obj = datetime.now()
+        
         last_date_fmt = last_date_obj.strftime('%B %Y')
 
         sma50_val = detailed_ta_data.get('SMA_50')
@@ -253,12 +266,16 @@ def generate_wordpress_introduction_html(ticker, rdata, content_library=None):
             ['On one hand, the company {benefit_verb} from {positive_fundamental}. On the other, it {challenge_verb} with {negative_fundamental}.'])
         benefit_verb = get_variation(content_library, 'introduction.fundamental_story.verbs.benefit', ['benefits'])
         challenge_verb = get_variation(content_library, 'introduction.fundamental_story.verbs.challenge', ['faces challenges'])
+        boast_verb = get_variation(content_library, 'introduction.fundamental_story.verbs.boast', ['boasts'])
+        held_back_verb = get_variation(content_library, 'introduction.fundamental_story.verbs.held_back', ['held back'])
         
         fundamental_story_text = template.format(
             benefit_verb=benefit_verb, 
             positive_fundamental=positive_fundamental,
             challenge_verb=challenge_verb,
-            negative_fundamental=negative_fundamental
+            negative_fundamental=negative_fundamental,
+            boast_verb=boast_verb,
+            held_back_verb=held_back_verb
         )
 
         # Dynamic "What's Inside" text using content library
@@ -1893,13 +1910,7 @@ def generate_wordpress_valuation_metrics_html(ticker, rdata, content_library=Non
             else:
                 market_context = "this valuation range relative to market standards suggests reasonable pricing that aligns with sector expectations"
             
-            # Risk assessment with comprehensive context
-            contrast_word = get_variation(content_library, 'valuation_metrics.transition_words.contrast', 
-                ['however'])
-            
-            risk_context = f"{contrast_word}, in the current market environment, investors should consider that P/E ratios reflect market expectations and earnings quality, requiring comprehensive analysis beyond simple ratio comparison to assess true investment merit"
-            
-            paragraph1 = f"{pe_intro}. {pe_trend}. {continuation_word}, {market_context}. {risk_context}."
+            paragraph1 = f"{pe_intro}. {pe_trend}. {continuation_word}, {market_context}."
             html_parts.append(f"<p>{paragraph1}</p>")
         
         # --- Paragraph 2: Enhanced P/S and P/B Analysis with Market Positioning ---
@@ -1948,15 +1959,7 @@ def generate_wordpress_valuation_metrics_html(ticker, rdata, content_library=Non
             
             strategic_context = f"{continuation_word2}, these valuation multiples compared to sector peers provide essential context for assessing the company's competitive positioning, market expectations, and potential investment attractiveness"
             
-            # Risk and opportunity assessment
-            contrast_word2 = get_variation(content_library, 'valuation_metrics.transition_words.contrast', 
-                ['nevertheless'])
-            performance_desc2 = get_variation(content_library, 'valuation_metrics.performance_descriptors.neutral', 
-                ['comprehensive'])
-            
-            risk_opportunity = f"{contrast_word2}, {performance_desc2} valuation assessment requires integrating these ratio insights with operational performance, industry dynamics, competitive advantages, and macroeconomic factors for well-informed investment decisions"
-            
-            paragraph2 = f"{ps_pb_intro} {investment_context}. {strategic_context}. {risk_opportunity}."
+            paragraph2 = f"{ps_pb_intro} {investment_context}. {strategic_context}."
             html_parts.append(f"<p>{paragraph2}</p>")
         
         # --- Paragraph 3: Market-Standard Enterprise Value Analysis ---
@@ -2018,65 +2021,8 @@ def generate_wordpress_valuation_metrics_html(ticker, rdata, content_library=Non
             
             comprehensive_conclusion = f"{continuation_word3}, {performance_desc3} investors should integrate these valuation indicators with fundamental analysis, competitive positioning, industry comparisons, and macroeconomic considerations to develop well-informed investment strategies"
             
-            # Final synthesis with market dynamics using exact library conclusion
-            contrast_word3 = get_variation(content_library, 'valuation_metrics.transition_words.contrast', 
-                ['however'])
-            conclusion = get_variation(content_library, 'valuation_metrics.valuation_analysis.conclusions', 
-                ["These valuation metrics provide a comprehensive view of the company's current market positioning."])
-            
-            market_dynamics = f"{contrast_word3}, while these metrics offer valuable analytical foundation, {conclusion.lower()} and should be evaluated within the broader context of business quality, competitive advantages, and execution capability"
-            
-            paragraph3 = f"{ev_synthesis}. {investment_implications}. {comprehensive_conclusion}. {market_dynamics}."
+            paragraph3 = f"{ev_synthesis}. {investment_implications}. {comprehensive_conclusion}."
             html_parts.append(f"<p>{paragraph3}</p>")
-        
-        # --- Conditional Paragraph 4: Enhanced Margin Analysis Integration ---
-        if has_margin_data and (business_context_score > 60 or data_availability_score > 70):
-            # Use exact content library keys for margin analysis
-            if gross_margin_raw is not None and op_margin_raw is not None:
-                efficiency_statement = get_variation(content_library, 'valuation_metrics.margin_analysis.efficiency_statements',
-                    ["The company is successful in controlling its production costs, as shown by the gross margin of <strong>{gross_margin_fmt}</strong>, and it also profits well from its core operations, reflected in the <strong>{op_margin_fmt}</strong> operating margin."])
-                
-                margin_intro = efficiency_statement.format(
-                    gross_margin_fmt=gross_margin_fmt,
-                    op_margin_fmt=op_margin_fmt
-                )
-                
-                # Enhanced EBITDA analysis using exact library keys
-                if ebitda_margin_raw is not None:
-                    ebitda_statement = get_variation(content_library, 'valuation_metrics.margin_analysis.ebitda_statements',
-                        ["A <strong>{ebitda_margin_fmt}</strong> EBITDA margin indicates {ticker} is capable of generating strong cash flow from its operations before accounting for financing and tax strategies."])
-                    
-                    ebitda_context = ebitda_statement.format(
-                        ebitda_margin_fmt=ebitda_margin_fmt,
-                        ticker=ticker
-                    )
-                    
-                    continuation_word4 = get_variation(content_library, 'valuation_metrics.transition_words.continuation',
-                        ['furthermore'])
-                    margin_analysis = f"{margin_intro} {continuation_word4}, {ebitda_context}"
-                else:
-                    margin_analysis = margin_intro
-                
-                # Net margin analysis using exact library keys if available
-                if net_margin_raw is not None and net_profit_cents != 'N/A':
-                    net_margin_statement = get_variation(content_library, 'valuation_metrics.margin_analysis.net_margin_statements',
-                        ["All things considered, {ticker} can hold onto around <strong>{currency_symbol}{net_profit_cents}</strong> in net profit for every {currency_symbol}1 of its revenue over the last twelve months."])
-                    
-                    net_context = net_margin_statement.format(
-                        ticker=ticker,
-                        currency_symbol=currency_symbol,
-                        net_profit_cents=net_profit_cents
-                    )
-                    
-                    causation_word4 = get_variation(content_library, 'valuation_metrics.transition_words.causation',
-                        ['ultimately'])
-                    margin_conclusion = f"{causation_word4}, {net_context}"
-                    
-                    paragraph4 = f"{margin_analysis} {margin_conclusion}"
-                else:
-                    paragraph4 = margin_analysis
-                    
-                html_parts.append(f"<p>{paragraph4}</p>")
         
         # --- Adaptive Fallback Paragraph for Limited Data ---
         else:
@@ -2101,14 +2047,7 @@ def generate_wordpress_valuation_metrics_html(ticker, rdata, content_library=Non
             
             strategic_guidance = f"{causation_word_alt}, in the current investment landscape, {recommendation} to develop well-informed investment perspectives"
             
-            continuation_word_alt = get_variation(content_library, 'valuation_metrics.transition_words.continuation', 
-                ['furthermore'])
-            conclusion_alt = get_variation(content_library, 'valuation_metrics.valuation_analysis.conclusions', 
-                ["These valuation metrics provide a comprehensive view of the company's current market positioning."])
-            
-            comprehensive_guidance = f"{continuation_word_alt}, {conclusion_alt.lower()} and serve as essential components of broader investment analysis that should incorporate business quality assessment and competitive landscape evaluation"
-            
-            paragraph_alt = f"{fallback_analysis} {strategic_guidance}. {comprehensive_guidance}."
+            paragraph_alt = f"{fallback_analysis} {strategic_guidance}."
             html_parts.append(f"<p>{paragraph_alt}</p>")
 
         # --- 4. Assemble Enhanced Final HTML with Market-Standard Structure ---
@@ -2664,8 +2603,24 @@ def generate_wordpress_financial_health_html(ticker, rdata, content_library=None
         
         # Investment thesis and forward-looking assessment
         conclusion_word = get_variation(content_library, 'financial_health.transition_words.conclusive', ['consequently'])
-        conclusion_statement = get_variation(content_library, 'financial_health.conclusion_statements',
-            ['provides valuable insight for investment decisions'])
+        
+        # Get conclusion template from content library
+        conclusion_template = get_variation(content_library, 'financial_health.conclusion_statements',
+            ['On balance, {company_name} {strength_summary}, {leverage_summary}, {cash_flow_summary}, and {roe_summary}'])
+        
+        # Format the conclusion with actual values
+        try:
+            # Map variable names: template expects _summary but we have _assessment and _analysis
+            conclusion_statement = conclusion_template.format(
+                company_name=company_name,
+                strength_summary=strength_assessment,
+                leverage_summary=leverage_analysis, 
+                cash_flow_summary=cash_flow_analysis,
+                roe_summary=roe_analysis
+            )
+        except (KeyError, AttributeError) as e:
+            # If formatting fails, use a simple default
+            conclusion_statement = f"provides valuable insight for investment decisions"
         
         investment_context = f"{conclusion_word}, this financial health profile {conclusion_statement}, requiring continuous monitoring of leverage trends, cash flow sustainability, and return consistency for comprehensive investment thesis evaluation"
         
@@ -2780,16 +2735,40 @@ def generate_wordpress_financial_health_html(ticker, rdata, content_library=None
         contrast_word3 = get_variation(content_library, 'financial_health.transition_words.contrast', ['however'])
         temporal_phrase3 = get_variation(content_library, 'contextual_phrases.temporal', ['in the evolving market environment'])
         
-        conclusion = get_variation(content_library, 'financial_health.conclusion_statements',
-            [f'Overall, {company_name} demonstrates solid financial health that supports sustainable operations and growth potential.']).format(
-                company_name=company_name,
-                strength_summary=strength_assessment,
-                leverage_summary=leverage_analysis,
-                cash_flow_summary=cash_flow_analysis,
-                roe_summary=roe_analysis
-            )
+        # Get conclusion template - check if it has placeholders or is already formatted
+        conclusion_template = get_variation(content_library, 'financial_health.conclusion_statements',
+            [f'On balance, {{company_name}} {{strength_summary}}, {{leverage_summary}}, {{cash_flow_summary}}, and {{roe_summary}}'])
         
-        investment_context = f"{contrast_word3}, {temporal_phrase3}, {conclusion.lower()} while requiring ongoing monitoring of leverage trends, cash flow consistency, and profitability sustainability"
+        print(f"DEBUG: conclusion_template = '{conclusion_template}'")
+        print(f"DEBUG: strength_assessment = '{strength_assessment}'")
+        print(f"DEBUG: leverage_analysis = '{leverage_analysis}'")
+        print(f"DEBUG: cash_flow_analysis = '{cash_flow_analysis}'")
+        print(f"DEBUG: roe_analysis = '{roe_analysis}'")
+        
+        # Only format if the template actually has placeholders
+        if '{' in conclusion_template and '}' in conclusion_template:
+            try:
+                conclusion = conclusion_template.format(
+                    company_name=company_name,
+                    strength_summary=strength_assessment,  # NOTE: template uses _summary but variable is _assessment
+                    leverage_summary=leverage_analysis,     # NOTE: template uses _summary but variable is _analysis
+                    cash_flow_summary=cash_flow_analysis,   # NOTE: template uses _summary but variable is _analysis
+                    roe_summary=roe_analysis                # NOTE: template uses _summary but variable is _analysis
+                )
+                print(f"DEBUG: conclusion after format = '{conclusion}'")
+            except KeyError as e:
+                # If template has different placeholders, use a simple default
+                print(f"Warning: Template placeholder mismatch: {e}. Using default.")
+                conclusion = f"On balance, {company_name} demonstrates solid financial health that supports sustainable operations"
+            except Exception as e:
+                print(f"Warning: Unexpected error formatting conclusion: {e}. Using default.")
+                conclusion = f"On balance, {company_name} demonstrates solid financial health that supports sustainable operations"
+        else:
+            # Template is already formatted, use as-is
+            conclusion = conclusion_template
+            print(f"DEBUG: Using template as-is (no placeholders): '{conclusion}'")
+        
+        investment_context = f"{contrast_word3}, {temporal_phrase3}, {conclusion.lower()}, requiring ongoing monitoring of leverage trends, cash flow consistency, and profitability sustainability"
         
         paragraph3 = f"{roe_intro}. {sustainability_analysis}. {health_synthesis}. {investment_context}."
         html_parts.append(f"<p>{paragraph3}</p>")
@@ -2904,15 +2883,24 @@ def generate_wordpress_financial_efficiency_html(ticker, rdata, content_library=
         section_intro = get_variation(content_library, 'financial_efficiency.section_introductions',
             ['Financial Efficiency Analysis'])
 
-        # Extract margin analysis variations
-        gross_margin_analysis = get_variation(content_library, f'financial_efficiency.margin_analysis.gross_margin.{gross_margin_key}',
-            [f'achieves reasonable gross margin of <strong>{gross_margin_fmt}</strong>']).format(gross_margin_fmt=gross_margin_fmt)
+        # Extract margin analysis variations - ONLY if data exists
+        if gross_margin is not None:
+            gross_margin_analysis = get_variation(content_library, f'financial_efficiency.margin_analysis.gross_margin.{gross_margin_key}',
+                [f'achieves reasonable gross margin of <strong>{gross_margin_fmt}</strong>']).format(gross_margin_fmt=gross_margin_fmt)
+        else:
+            gross_margin_analysis = None
 
-        op_margin_analysis = get_variation(content_library, f'financial_efficiency.margin_analysis.operating_margin.{op_margin_key}',
-            [f'maintains reasonable operating margin of <strong>{op_margin_fmt}</strong>']).format(op_margin_fmt=op_margin_fmt)
+        if op_margin is not None:
+            op_margin_analysis = get_variation(content_library, f'financial_efficiency.margin_analysis.operating_margin.{op_margin_key}',
+                [f'maintains reasonable operating margin of <strong>{op_margin_fmt}</strong>']).format(op_margin_fmt=op_margin_fmt)
+        else:
+            op_margin_analysis = None
 
-        net_margin_analysis = get_variation(content_library, f'financial_efficiency.margin_analysis.net_margin.{net_margin_key}',
-            [f'delivers reasonable net margin of <strong>{net_margin_fmt}</strong>']).format(net_margin_fmt=net_margin_fmt)
+        if net_margin is not None:
+            net_margin_analysis = get_variation(content_library, f'financial_efficiency.margin_analysis.net_margin.{net_margin_key}',
+                [f'delivers reasonable net margin of <strong>{net_margin_fmt}</strong>']).format(net_margin_fmt=net_margin_fmt)
+        else:
+            net_margin_analysis = None
 
         # Asset turnover analysis
         asset_turnover_analysis = get_variation(content_library, f'financial_efficiency.asset_turnover_analysis.{turnover_key}',
@@ -2937,12 +2925,23 @@ def generate_wordpress_financial_efficiency_html(ticker, rdata, content_library=
 
         # --- 4. Enhanced Narrative Generation ---
 
-        # Paragraph 1: Comprehensive Margin Analysis with Market Context
+        # Paragraph 1: Comprehensive Margin Analysis with Market Context - ONLY include available metrics
         paragraph1_parts = []
-        paragraph1_parts.append(f"{company_name} {efficiency_assessment} through {performance_descriptor} margin management across all operational levels.")
-        paragraph1_parts.append(f"At the gross profit level, the company {gross_margin_analysis}, which reflects direct cost control effectiveness and pricing power in its core market segments.")
-        paragraph1_parts.append(f"{transition_emphasis}, {ticker} {op_margin_analysis}, demonstrating management's ability to control operational expenses while maintaining competitive positioning.")
-        paragraph1_parts.append(f"When examining bottom-line performance, the organization {net_margin_analysis}, indicating comprehensive profitability management after accounting for all operational, financial, and tax considerations.")
+        paragraph1_parts.append(f"{company_name} {efficiency_assessment} through {performance_descriptor} margin management across operational levels.")
+        
+        # Only add margin analyses if data exists
+        if gross_margin_analysis:
+            paragraph1_parts.append(f"At the gross profit level, the company {gross_margin_analysis}, which reflects direct cost control effectiveness and pricing power in its core market segments.")
+        
+        if op_margin_analysis:
+            paragraph1_parts.append(f"{transition_emphasis}, {ticker} {op_margin_analysis}, demonstrating management's ability to control operational expenses while maintaining competitive positioning.")
+        
+        if net_margin_analysis:
+            paragraph1_parts.append(f"When examining bottom-line performance, the organization {net_margin_analysis}, indicating comprehensive profitability management after accounting for all operational, financial, and tax considerations.")
+        
+        # If no margin data at all, add generic statement
+        if not gross_margin_analysis and not op_margin_analysis and not net_margin_analysis:
+            paragraph1_parts.append(f"The company maintains focus on operational efficiency and margin management, though detailed margin metrics require further analysis with updated financial disclosures.")
 
         # Paragraph 2: Asset Utilization and Capital Deployment Strategy
         paragraph2_parts = []
@@ -2967,17 +2966,24 @@ def generate_wordpress_financial_efficiency_html(ticker, rdata, content_library=
         # Paragraph 3: Strategic Assessment and Investment Implications
         paragraph3_parts = []
         
-        # Use conclusion statement variation with proper formatting
-        conclusion_statement = get_variation(content_library, 'financial_efficiency.conclusion_statements',
-            [f'Overall, {company_name} demonstrates solid operational efficiency with strong margin performance and effective asset utilization.']).format(
-                company_name=company_name,
-                efficiency_summary=efficiency_assessment,
-                gross_margin_summary=gross_margin_analysis,
-                operating_margin_summary=op_margin_analysis,
-                net_margin_summary=net_margin_analysis,
-                asset_turnover_summary=asset_turnover_analysis
-            )
-
+        # Build conclusion statement with only available metrics
+        conclusion_parts = [f"{company_name} {efficiency_assessment}"]
+        
+        metric_descriptions = []
+        if gross_margin_analysis:
+            metric_descriptions.append(gross_margin_analysis)
+        if op_margin_analysis:
+            metric_descriptions.append(op_margin_analysis)
+        if net_margin_analysis:
+            metric_descriptions.append(net_margin_analysis)
+        if asset_turnover_analysis and asset_turnover is not None:
+            metric_descriptions.append(asset_turnover_analysis)
+        
+        if metric_descriptions:
+            conclusion_parts.append("through " + ", ".join(metric_descriptions))
+        
+        conclusion_statement = ". ".join(conclusion_parts) + "."
+        
         paragraph3_parts.append(conclusion_statement)
         
         # Strategic implications based on efficiency assessment
@@ -4437,20 +4443,17 @@ def generate_wordpress_analyst_insights_html(ticker, rdata, content_library=None
 
 def generate_wordpress_technical_analysis_summary_html(ticker, rdata, content_library=None):
     """
-    Generate WordPress technical analysis summary content using content library variations.
-    Falls back to original function if content library is not available.
+    Generate DETAILED WordPress technical analysis with comprehensive sections.
+    Provides in-depth analysis similar to professional trading reports.
     """
     try:
         if not content_library:
-            # Fallback to original function if content library is not available
             return hc.generate_technical_analysis_summary_html(ticker, rdata)
 
         # --- 1. Data Extraction ---
         profile_data = rdata.get('profile_data', {})
         detailed_ta_data = rdata.get('detailed_ta_data', {})
-
-        company_name = profile_data.get('Company Name', ticker)
-
+        
         # Get technical indicators
         current_price = hc._safe_float(rdata.get('current_price'))
         sma20 = hc._safe_float(detailed_ta_data.get('SMA_20'))
@@ -4458,232 +4461,257 @@ def generate_wordpress_technical_analysis_summary_html(ticker, rdata, content_li
         sma200 = hc._safe_float(detailed_ta_data.get('SMA_200'))
         rsi = hc._safe_float(detailed_ta_data.get('RSI_14'))
         macd_hist = hc._safe_float(detailed_ta_data.get('MACD_Hist'))
+        macd_line = hc._safe_float(detailed_ta_data.get('MACD_Line'))
+        macd_signal = hc._safe_float(detailed_ta_data.get('MACD_Signal'))
         bb_upper = hc._safe_float(detailed_ta_data.get('BB_Upper'))
         bb_lower = hc._safe_float(detailed_ta_data.get('BB_Lower'))
+        volume_current = hc._safe_float(detailed_ta_data.get('Volume'))
         volume_avg = hc._safe_float(detailed_ta_data.get('Volume_Avg'))
-
+        
+        # Get 52-week high/low from profile
+        week_52_high = hc._safe_float(profile_data.get('52 Week High'))
+        week_52_low = hc._safe_float(profile_data.get('52 Week Low'))
+        
         # Format values
         current_price_fmt = hc.format_html_value(current_price, 'currency', ticker=ticker)
         sma20_fmt = hc.format_html_value(sma20, 'currency', ticker=ticker)
+        sma50_fmt = hc.format_html_value(sma50, 'currency', ticker=ticker)
         sma200_fmt = hc.format_html_value(sma200, 'currency', ticker=ticker)
-        rsi_fmt = f"{rsi:.1f}" if rsi is not None else "N/A"
         bb_upper_fmt = hc.format_html_value(bb_upper, 'currency', ticker=ticker)
         bb_lower_fmt = hc.format_html_value(bb_lower, 'currency', ticker=ticker)
-
-        # Determine market conditions
+        week_52_high_fmt = hc.format_html_value(week_52_high, 'currency', ticker=ticker)
+        week_52_low_fmt = hc.format_html_value(week_52_low, 'currency', ticker=ticker)
+        
+        rsi_fmt = f"{rsi:.1f}" if rsi is not None else "N/A"
+        
+        # Get 15-day change
         change_15d = rdata.get('change_15d', 0)
         change_15d_fmt = hc.format_html_value(change_15d, 'percent_direct', ticker=ticker)
-
-        # Determine momentum state
-        momentum_state = "sideways_movement"
-        if change_15d is not None:
-            if change_15d > 2:
-                momentum_state = "bullish_run"
-            elif change_15d < -2:
-                momentum_state = "bearish_pressure"
-
-        # --- 2. Dynamic Narrative Generation with Variations ---
-
-        # Section introduction
-        section_intro = get_variation(content_library, 'technical_analysis_summary.section_introductions',
-            ['Technical Analysis Summary'])
-
-        # Headline format
-        headline_format = get_variation(content_library, 'technical_analysis_summary.headline_formats',
-            ['<p><strong>CURRENT PRICE: {current_price_fmt}&nbsp;|&nbsp;TREND: {trend_status} {qualitative_assessment}</strong></p>'])
-
+        
         # Determine trend status
         trend_status = "SIDEWAYS"
-        qualitative_assessment = "with mixed signals"
-
+        trend_desc = "BUT SHOWS MIXED SIGNALS"
+        
         if current_price and sma20 and sma200:
             if current_price > sma20 and current_price > sma200:
                 trend_status = "BULLISH"
-                qualitative_assessment = "showing strong upward momentum"
+                if rsi and rsi > 70:
+                    trend_desc = "BUT SHOWS SIGNS OF SLOWING"
+                else:
+                    trend_desc = "WITH STRONG MOMENTUM"
             elif current_price < sma20 and current_price < sma200:
                 trend_status = "BEARISH"
-                qualitative_assessment = "under significant pressure"
-            elif current_price > sma20:
-                trend_status = "NEUTRAL"
-                qualitative_assessment = "in a short-term uptrend"
-
-        headline = headline_format.format(
-            current_price_fmt=current_price_fmt,
-            trend_status=trend_status,
-            qualitative_assessment=qualitative_assessment
-        )
-
-        # Introduction paragraph
-        intro_paragraph = get_variation(content_library, f'technical_analysis_summary.intro_paragraphs.{momentum_state}',
-            [f"The stock has shown recent price movement. Let's analyze the technical indicators to understand the current market dynamics."])
-
-        intro_text = intro_paragraph.format(
-            change_15d_fmt=change_15d_fmt,
-            ticker=ticker
-        )
-
-        # Trend analysis
-        trend_key = "bullish" if (current_price and sma20 and sma200 and current_price > sma20 and current_price > sma200) else "bearish"
-        trend_analysis = get_variation(content_library, f'technical_analysis_summary.trend_analysis.{trend_key}',
-            [f"{ticker} is positioned relative to key moving averages, indicating the current trend direction."])
-
-        trend_analysis = trend_analysis.format(ticker=ticker)
-
-        # Support/resistance levels
-        support_level = get_variation(content_library, 'technical_analysis_summary.support_levels',
-            [f"The <strong>20-day SMA at {sma20_fmt}</strong> is acting as immediate dynamic support."])
-
-        support_level = support_level.format(sma20_fmt=sma20_fmt)
-
-        resistance_level = get_variation(content_library, 'technical_analysis_summary.resistance_levels',
-            [f"The <strong>200-day SMA at {sma200_fmt}</strong> serves as a major long-term floor for the trend."])
-
-        resistance_level = resistance_level.format(sma200_fmt=sma200_fmt)
-
-        # Trader takeaways
-        trader_takeaways = get_variation(content_library, f'technical_analysis_summary.trader_takeaways.{trend_key}',
-            [f"As long as {ticker} holds above the 20-day SMA ({sma20_fmt}), the bullish momentum could continue."])
-
-        trader_takeaways_text = trader_takeaways.format(
-            ticker=ticker,
-            sma20_fmt=sma20_fmt
-        )
-
-        # Momentum analysis
-        rsi_key = "neutral"
-        if rsi is not None:
+                trend_desc = "UNDER PRESSURE"
+        
+        # Determine RSI state
+        rsi_state = "neutral"
+        rsi_interpretation = "balanced momentum conditions"
+        if rsi:
             if rsi > 70:
-                rsi_key = "overbought"
+                rsi_state = "overbought"
+                rsi_interpretation = f"flashing a strong overbought signal"
             elif rsi < 30:
-                rsi_key = "oversold"
-
-        momentum_analysis = get_variation(content_library, f'technical_analysis_summary.momentum_analysis.{rsi_key}',
-            [f"The <strong>RSI at {rsi_fmt}</strong> indicates the current momentum state."])
-
-        momentum_text = momentum_analysis.format(rsi_fmt=rsi_fmt)
-
-        # MACD signals
-        macd_key = "bullish" if (macd_hist and macd_hist > 0) else "bearish"
-        macd_signals = get_variation(content_library, f'technical_analysis_summary.macd_signals.{macd_key}',
-            ["The MACD histogram provides confirmation of the current momentum direction."])
-
-        # Trading strategies
-        trading_strategies = get_variation(content_library, f'technical_analysis_summary.trading_strategies.{rsi_key}',
-            ["Current momentum levels suggest appropriate trading strategies based on the RSI reading."])
-
-        # Bollinger Bands analysis
-        bb_key = "middle_range"
-        if current_price and bb_upper and bb_lower:
-            if current_price > bb_upper:
-                bb_key = "above_upper"
-            elif current_price < bb_lower:
-                bb_key = "below_lower"
-            elif current_price > (bb_upper + bb_lower) / 2:
-                bb_key = "near_upper"
-            elif current_price < (bb_upper + bb_lower) / 2:
-                bb_key = "near_lower"
-
-        bb_analysis = get_variation(content_library, f'technical_analysis_summary.bollinger_bands_analysis.{bb_key}',
-            [f"The price is positioned within the Bollinger Bands, indicating current volatility conditions."])
-
-        bb_text = bb_analysis.format(
-            bb_upper_fmt=bb_upper_fmt,
-            bb_lower_fmt=bb_lower_fmt,
-            sma20_fmt=sma20_fmt
-        )
-
+                rsi_state = "oversold"
+                rsi_interpretation = "showing oversold conditions"
+        
+        # Determine MACD state
+        macd_state = "neutral"
+        macd_interpretation = "showing mixed signals"
+        if macd_hist is not None:
+            if macd_hist > 0:
+                macd_state = "bullish"
+                macd_interpretation = "confirming bullish momentum"
+            else:
+                macd_state = "bearish"
+                macd_interpretation = "suggesting that the upward momentum is beginning to fade"
+        
         # Volume analysis
-        volume_key = "neutral_volume"
-        volume_analysis = get_variation(content_library, f'technical_analysis_summary.volume_analysis.{volume_key}',
-            ["Trading volume is at normal levels, providing neutral confirmation of price action."])
-
-        # Trading plan
-        trading_plan = get_variation(content_library, f'technical_analysis_summary.trading_plan.{trend_key}',
-            [f"✅&nbsp; <strong>If {ticker} holds above {sma20_fmt}</strong> &rarr; Bullish trend continues."])
-
-        trading_plan_text = trading_plan.format(
-            ticker=ticker,
-            sma20_fmt=sma20_fmt,
-            resistance_fmt=sma200_fmt,
-            bb_lower_fmt=bb_lower_fmt
-        )
-
-        # Key levels
-        key_levels = get_variation(content_library, 'technical_analysis_summary.key_levels',
-            [f"Resistance: <strong>{sma200_fmt}</strong> (200-day SMA) &rarr; A breakout could push {ticker} higher."])
-
-        key_levels_text = key_levels.format(
-            resistance_fmt=sma200_fmt,
-            ticker=ticker
-        )
-
-        # Support levels watch
-        support_levels_watch = get_variation(content_library, 'technical_analysis_summary.support_levels_watch',
-            [f"Support: <strong>{sma20_fmt}</strong> (20-day SMA) &rarr; If this breaks, expect a test of <strong>{bb_lower_fmt}</strong>."])
-
-        support_watch_text = support_levels_watch.format(
-            sma20_fmt=sma20_fmt,
-            bb_lower_fmt=bb_lower_fmt
-        )
-
-        # Final verdict
-        verdict_key = "short_term"
-        verdict_subkey = "caution" if rsi_key == "overbought" else "neutral"
-
-        final_verdict = get_variation(content_library, f'technical_analysis_summary.final_verdicts.{verdict_key}.{verdict_subkey}',
-            ["The technicals suggest monitoring key levels for the next directional move."])
-
-        final_verdict_text = final_verdict.format(
-            rsi_fmt=rsi_fmt,
-            resistance_fmt=sma200_fmt,
-            sma20_fmt=sma20_fmt
-        )
-
-        # Bottom line
-        bottom_line = get_variation(content_library, 'technical_analysis_summary.bottom_line',
-            ["The technicals suggest the rally may be running out of steam short-term. While the long-term trend remains bullish, a correction seems plausible before the next major move."])
-
-        # --- 3. Assemble Final HTML ---
+        volume_state = "declining"
+        volume_concern = "which is a red flag for trend sustainability"
+        if volume_current and volume_avg:
+            if volume_current > volume_avg:
+                volume_state = "increasing"
+                volume_concern = "which confirms buying interest"
+            else:
+                volume_concern = "which is a red flag for trend sustainability"
+        
+        # --- 2. Generate Detailed Narrative Sections ---
         html_parts = []
-
-        # Section header
-        html_parts.append(f"<h3>{section_intro}</h3>")
-
+        
+        # Header
+        html_parts.append(f"<h3>Technical Analysis</h3>")
+        
         # Headline
-        html_parts.append(headline)
-
-        # Narrative content
-        html_parts.append(f"""
-        <div class="narrative">
-            <p>{intro_text}</p>
-            <p>{trend_analysis}</p>
-            <p>{support_level} {resistance_level}</p>
-            <p>{trader_takeaways_text}</p>
-            <p>{momentum_text} {macd_signals}</p>
-            <p>{trading_strategies}</p>
-            <p>{bb_text}</p>
-            <p>{volume_analysis}</p>
-            <p><strong>Trading Plan:</strong><br>{trading_plan_text}</p>
-            <p><strong>Key Levels:</strong><br>{key_levels_text}<br>{support_watch_text}</p>
-            <p><strong>Final Verdict:</strong> {final_verdict_text}</p>
-            <p><strong>Bottom Line:</strong> {bottom_line}</p>
-        </div>
-        """)
-
+        html_parts.append(f'<p><strong>CURRENT PRICE: {current_price_fmt} | TREND: {trend_status} {trend_desc}</strong></p>')
+        
+        html_parts.append('<div class="narrative">')
+        
+        # Introduction - determine context based on 15-day performance
+        if change_15d > 5:
+            # Bullish run - use content library
+            intro_text = get_variation(content_library, 'technical_analysis_summary.intro_paragraphs.bullish_run',
+                [f"The stock has been on a notable run, gaining {change_15d_fmt} in just 15 days, but several technical signs suggest we should be cautious about chasing this momentum. Let's break down what the charts are telling us and how we can position ourselves."])
+        elif change_15d < -5:
+            # Bearish pressure - use content library
+            intro_text = get_variation(content_library, 'technical_analysis_summary.intro_paragraphs.bearish_pressure',
+                [f"The stock has faced downward pressure, losing {change_15d_fmt} in the last 15 days. We need to analyze the technicals to see if this is a buying opportunity or a warning of further declines. Let's break down the key levels."])
+        else:
+            # Sideways - use content library
+            intro_text = get_variation(content_library, 'technical_analysis_summary.intro_paragraphs.sideways_movement',
+                [f"The stock has been trading sideways recently. Let's dive into the technical indicators to identify the next potential move and key trading levels."])
+        
+        html_parts.append(f"<p>{intro_text}</p>")
+        
+        # Section 1: Trend Strength
+        html_parts.append("<p><strong>Trend Strength – Still Bullish</strong></p>")
+        if trend_status == "BULLISH":
+            trend_text = get_variation(content_library, 'technical_analysis_summary.trend_analysis.bullish',
+                [f"{ticker} is trading above its key moving averages, which confirms the uptrend remains intact."])
+        else:
+            trend_text = get_variation(content_library, 'technical_analysis_summary.trend_analysis.bearish',
+                [f"{ticker} is in a bearish trend, trading below its key moving averages, which signals caution."])
+        html_parts.append(f"<p>{trend_text} The 20-day SMA at {sma20_fmt} is acting as immediate dynamic support.</p>")
+        
+        # What This Means for Traders
+        html_parts.append("<p><strong>What This Means for Traders?</strong></p>")
+        if trend_status == "BULLISH":
+            trader_text = get_variation(content_library, 'technical_analysis_summary.trader_takeaways.bullish',
+                [f"As long as {ticker} holds above the 20-day SMA ({sma20_fmt}), the bullish momentum could continue. However, a rapid rise can push the stock far from its averages, increasing the risk of a pullback."])
+        else:
+            trader_text = get_variation(content_library, 'technical_analysis_summary.trader_takeaways.bearish',
+                [f"The 20-day SMA ({sma20_fmt}) is now acting as overhead resistance. As long as the price stays below this level, the bearish trend is likely to continue."])
+        html_parts.append(f"<p>{trader_text}</p>")
+        
+        # Section 2: Momentum Check
+        html_parts.append("<p><strong>Momentum Check – Time to Be Cautious</strong></p>")
+        
+        # RSI analysis - use content library
+        if rsi_state == "overbought":
+            rsi_text = get_variation(content_library, 'technical_analysis_summary.momentum_analysis.overbought',
+                [f"The RSI at {rsi_fmt} is {rsi_interpretation}"])
+        elif rsi_state == "oversold":
+            rsi_text = get_variation(content_library, 'technical_analysis_summary.momentum_analysis.oversold',
+                [f"The RSI at {rsi_fmt} shows {rsi_interpretation}"])
+        else:
+            rsi_text = get_variation(content_library, 'technical_analysis_summary.momentum_analysis.neutral',
+                [f"The RSI at {rsi_fmt} is {rsi_interpretation}"])
+        
+        # MACD analysis - use content library
+        if macd_state == "bullish":
+            macd_text = get_variation(content_library, 'technical_analysis_summary.macd_signals.bullish',
+                ["the MACD histogram is positive, confirming the upward momentum is still in play"])
+        else:
+            macd_text = get_variation(content_library, 'technical_analysis_summary.macd_signals.bearish',
+                ["the MACD histogram is negative, suggesting that the upward momentum is beginning to fade"])
+        
+        html_parts.append(f"<p>{rsi_text}. At the same time, {macd_text}.</p>")
+        
+        # Trading Strategy
+        html_parts.append("<p><strong>Trading Strategy:</strong></p>")
+        if rsi_state == "overbought":
+            strategy_text = get_variation(content_library, 'technical_analysis_summary.trading_strategies.overbought',
+                ["Aggressive traders might consider taking partial profits. Conservative traders should wait for the RSI to cool below 70 before considering new positions."])
+        elif rsi_state == "oversold":
+            strategy_text = get_variation(content_library, 'technical_analysis_summary.trading_strategies.oversold',
+                ["This oversold reading suggests a potential bounce. Aggressive traders might look for a short-term buy signal, while conservative traders should wait for the RSI to cross back above 30 to confirm a reversal."])
+        else:
+            strategy_text = get_variation(content_library, 'technical_analysis_summary.trading_strategies.neutral',
+                ["Current momentum levels provide flexibility for both entry and exit strategies. Watch for confirmation signals before making moves."])
+        html_parts.append(f"<p>{strategy_text}</p>")
+        
+        # Section 3: Bollinger Bands
+        html_parts.append("<p><strong>Bollinger Bands – Testing Key Levels</strong></p>")
+        bb_position = "middle"
+        if current_price and bb_upper and bb_lower:
+            bb_mid = (bb_upper + bb_lower) / 2
+            if current_price > bb_upper:
+                bb_text = get_variation(content_library, 'technical_analysis_summary.bollinger_bands_analysis.above_upper',
+                    [f"The price is 'walking the band,' trading above the upper Bollinger Band ({bb_upper_fmt}). This is a sign of a very strong trend, but also increases the risk of a sharp snap-back if momentum stalls."])
+            elif current_price < bb_lower:
+                bb_text = get_variation(content_library, 'technical_analysis_summary.bollinger_bands_analysis.below_lower',
+                    [f"The price has broken below the lower Bollinger Band ({bb_lower_fmt}), indicating strong selling pressure and a potential breakdown. Watch for signs of capitulation or reversal."])
+            elif current_price > bb_mid:
+                bb_text = get_variation(content_library, 'technical_analysis_summary.bollinger_bands_analysis.middle_range',
+                    ["The stock is trading comfortably in the upper half of its Bollinger Bands (between the 20-day SMA and the upper band), which is a sign of underlying strength."])
+            else:
+                bb_text = f"The stock is trading in the lower half of its Bollinger Bands, indicating potential support testing."
+        else:
+            bb_text = "Bollinger Band analysis is not available due to insufficient data."
+        
+        html_parts.append(f"<p>{bb_text}</p>")
+        
+        # Key Levels to Watch
+        html_parts.append("<p><strong>Key Levels to Watch:</strong></p>")
+        resistance_level = week_52_high_fmt if week_52_high else bb_upper_fmt
+        html_parts.append(f"<p>Resistance: {resistance_level} (Recent High) &rarr; A breakout could push {ticker} higher.<br>")
+        html_parts.append(f"Support: {sma20_fmt} (20-day SMA) &rarr; If this breaks, expect a test of {sma50_fmt}.</p>")
+        
+        # Section 4: Volume Trends
+        html_parts.append("<p><strong>Volume Trends – Checking for Conviction</strong></p>")
+        if volume_state == "declining":
+            volume_text = get_variation(content_library, 'technical_analysis_summary.volume_analysis.weak_volume',
+                ["While the stock has been rising, trading volume has been declining (below its 20-day average), which is a red flag for trend sustainability."])
+        else:
+            volume_text = get_variation(content_library, 'technical_analysis_summary.volume_analysis.neutral_volume',
+                ["Trading volume is near its recent average, providing neutral confirmation of the current price action."])
+        html_parts.append(f"<p>{volume_text}</p>")
+        
+        # Volume Concern
+        html_parts.append("<p><strong>What's the Concern?</strong></p>")
+        concern_text = get_variation(content_library, 'technical_analysis_summary.volume_concerns',
+            ["Low volume rallies are prone to sharp reversals. If we don't see a surge in buying interest to confirm the move, a pullback becomes more likely."])
+        html_parts.append(f"<p>{concern_text}</p>")
+        
+        # Section 5: Support & Resistance – Trading Plan
+        html_parts.append("<p><strong>Support & Resistance – The Trading Plan</strong></p>")
+        html_parts.append("<p><strong>Trading Plan:</strong></p>")
+        html_parts.append(f"<p>✅&nbsp; <strong>If {ticker} holds above {sma20_fmt}</strong> &rarr; Bullish trend continues, next target {resistance_level}.<br>")
+        html_parts.append(f"⚠️&nbsp; <strong>If it breaks below {sma20_fmt}</strong> &rarr; Expect a dip toward {sma50_fmt}.<br>")
+        html_parts.append(f"🛑&nbsp; <strong>A drop below {sma50_fmt}</strong> &rarr; Could trigger a deeper correction to the 200-day SMA ({sma200_fmt}).</p>")
+        
+        # Section 6: Final Verdict
+        html_parts.append("<p><strong>Final Verdict – Should You Buy, Hold, or Sell?</strong></p>")
+        verdict_texts = [
+            f"<strong>Short-Term Traders:</strong> Be cautious—RSI is {rsi_state} at {rsi_fmt}, and volume is weak. Consider locking in partial profits near {resistance_level} and waiting for a better entry near the 20-day SMA ({sma20_fmt}).",
+            f"<strong>Short-Term Traders:</strong> With RSI at {rsi_fmt} ({rsi_state}) and weak volume, profit-taking is prudent. Look for re-entry opportunities around {sma20_fmt} support.",
+            f"<strong>Short-Term Traders:</strong> The {rsi_state} RSI reading of {rsi_fmt} combined with declining volume suggests taking some chips off the table. Wait for {sma20_fmt} support test for better risk/reward."
+        ]
+        html_parts.append(f"<p>{get_variation(content_library, 'technical_analysis.verdict_short', verdict_texts)}</p>")
+        
+        longterm_texts = [
+            f"<strong>Long-Term Investors:</strong> The long-term uptrend is valid as long as the price holds above the 200-day SMA ({sma200_fmt}). A pullback to the 50-day SMA ({sma50_fmt}) area could present a safer buying opportunity.",
+            f"<strong>Long-Term Investors:</strong> Uptrend remains intact above {sma200_fmt} (200-day SMA). Patience for a {sma50_fmt} retest offers better entry points.",
+            f"<strong>Long-Term Investors:</strong> As long as {sma200_fmt} support holds, the bullish structure persists. Consider accumulating near the {sma50_fmt} level on any pullback."
+        ]
+        html_parts.append(f"<p>{get_variation(content_library, 'technical_analysis.verdict_long', longterm_texts)}</p>")
+        
+        newbuyer_texts = [
+            f"<strong>New Buyers:</strong> Avoid chasing the rally here. Wait for either a confirmed breakout above {resistance_level} with strong volume, or a pullback to the {sma20_fmt} area, which offers a better risk/reward entry.",
+            f"<strong>New Buyers:</strong> Don't chase here. Either wait for {resistance_level} breakout on volume, or let it pull back to {sma20_fmt} for optimal entry.",
+            f"<strong>New Buyers:</strong> Patience pays—wait for either volume-confirmed breakout above {resistance_level} or retracement to {sma20_fmt} support zone."
+        ]
+        html_parts.append(f"<p>{get_variation(content_library, 'technical_analysis.verdict_new', newbuyer_texts)}</p>")
+        
+        # Bottom Line
+        html_parts.append("<p><strong>Bottom Line:</strong> The technicals suggest the rally may be running out of steam short-term. While the long-term trend remains bullish, a correction seems plausible before the next major move. Trade carefully and wait for confirmation at key levels.</p>")
+        
+        html_parts.append('</div>')
+        
         return ''.join(html_parts)
 
     except Exception as e:
         print(f"Warning: Error in WordPress technical analysis summary generation: {e}. Using fallback.")
+        import traceback
+        traceback.print_exc()
         return hc.generate_technical_analysis_summary_html(ticker, rdata)
 
 def generate_wordpress_historical_performance_html(ticker, rdata, content_library=None):
     """
-    Generate WordPress historical performance content using content library variations.
-    Falls back to original function if content library is not available.
+    Generate SHORTER WordPress historical performance content with monthly data table.
+    Provides concise analysis with tabular data presentation.
     """
     try:
         if not content_library:
-            # Fallback to original function if content library is not available
             return hc.generate_historical_performance_html(ticker, rdata)
 
         # --- 1. Data Extraction ---
@@ -4692,11 +4720,12 @@ def generate_wordpress_historical_performance_html(ticker, rdata, content_librar
 
         company_name = profile_data.get('Company Name', ticker)
 
-        # Calculate performance metrics if historical data is available
+        # Calculate performance metrics
         performance_1y = None
         performance_3y = None
         performance_5y = None
         volatility_measure = None
+        monthly_data = []
 
         if historical_data is not None and not historical_data.empty:
             try:
@@ -4709,6 +4738,27 @@ def generate_wordpress_historical_performance_html(ticker, rdata, content_librar
                 data_1y = historical_data[historical_data['Date'] >= one_year_ago]
                 if not data_1y.empty:
                     performance_1y = ((data_1y['Close'].iloc[-1] / data_1y['Close'].iloc[0]) - 1) * 100
+                    
+                    # Generate monthly data for last 12 months
+                    data_1y['YearMonth'] = data_1y['Date'].dt.to_period('M')
+                    monthly_grouped = data_1y.groupby('YearMonth').agg({
+                        'Open': 'first',
+                        'Close': 'last',
+                        'High': 'max',
+                        'Low': 'min',
+                        'Volume': 'sum'
+                    }).reset_index()
+                    
+                    for _, row in monthly_grouped.iterrows():
+                        month_return = ((row['Close'] - row['Open']) / row['Open']) * 100 if row['Open'] > 0 else 0
+                        monthly_data.append({
+                            'month': row['YearMonth'].strftime('%b %Y'),
+                            'open': row['Open'],
+                            'close': row['Close'],
+                            'high': row['High'],
+                            'low': row['Low'],
+                            'return': month_return
+                        })
 
                 # 3-year performance
                 three_years_ago = datetime.now() - timedelta(days=1095)
@@ -4722,7 +4772,7 @@ def generate_wordpress_historical_performance_html(ticker, rdata, content_librar
                 if not data_5y.empty:
                     performance_5y = ((data_5y['Close'].iloc[-1] / data_5y['Close'].iloc[0]) - 1) * 100
 
-                # Volatility (annualized standard deviation of daily returns)
+                # Volatility
                 if len(historical_data) > 30:
                     volatility_measure = historical_data['Daily_Return'].std() * np.sqrt(252) * 100
 
@@ -4736,143 +4786,178 @@ def generate_wordpress_historical_performance_html(ticker, rdata, content_librar
         volatility_fmt = f"{volatility_measure:.1f}%" if volatility_measure is not None else "N/A"
 
         # Determine performance strength
-        performance_strength = "moderate_performance"
-        if performance_1y is not None and performance_3y is not None:
-            avg_performance = (performance_1y + performance_3y) / 2
-            if avg_performance > 20:
-                performance_strength = "strong_performance"
-            elif avg_performance < -10:
-                performance_strength = "weak_performance"
+        performance_strength = "strong" if (performance_1y and performance_1y > 20) else "moderate"
 
-        # --- 2. Dynamic Narrative Generation with Variations ---
-
-        # Section introduction
-        section_intro = get_variation(content_library, 'historical_performance.section_introductions',
-            ['Historical Performance Analysis'])
-
-        # Narrative introduction
-        narrative_intro = get_variation(content_library, f'historical_performance.narrative_introductions.{performance_strength}',
-            [f"{ticker} has demonstrated historical performance across different market conditions. Let's examine the key performance metrics."])
-
-        # Performance summaries
-        perf_1y_desc = "shown positive growth" if (performance_1y and performance_1y > 0) else "experienced declines" if (performance_1y and performance_1y < 0) else "traded relatively flat"
-        perf_3y_desc = "demonstrated strong long-term growth" if (performance_3y and performance_3y > 20) else "shown moderate performance" if (performance_3y and performance_3y > 0) else "faced challenges"
-        perf_5y_desc = "built substantial value" if (performance_5y and performance_5y > 50) else "maintained steady performance" if (performance_5y and performance_5y > 0) else "experienced difficulties"
-
-        market_context_1y = "outperforming the market" if (performance_1y and performance_1y > 10) else "in line with market trends" if (performance_1y and performance_1y > 0) else "underperforming"
-        market_context_3y = "showing resilience" if (performance_3y and performance_3y > 15) else "following market patterns" if (performance_3y and performance_3y > 0) else "facing headwinds"
-        market_context_5y = "demonstrating strong fundamentals" if (performance_5y and performance_5y > 30) else "maintaining stability" if (performance_5y and performance_5y > 0) else "navigating challenges"
-
-        performance_1y_summary = get_variation(content_library, 'historical_performance.performance_summaries.1_year',
-            ["Over the past year, {ticker} has {performance_description}, reflecting {market_context}."])
-
-        performance_1y_text = performance_1y_summary.format(
-            ticker=ticker,
-            performance_description=perf_1y_desc,
-            market_context=market_context_1y
-        )
-
-        performance_3y_summary = get_variation(content_library, 'historical_performance.performance_summaries.3_year',
-            ["Looking at the three-year timeframe, {ticker} has {performance_description}, indicating {market_context}."])
-
-        performance_3y_text = performance_3y_summary.format(
-            ticker=ticker,
-            performance_description=perf_3y_desc,
-            market_context=market_context_3y
-        )
-
-        performance_5y_summary = get_variation(content_library, 'historical_performance.performance_summaries.5_year',
-            ["Examining the five-year performance, {ticker} has {performance_description}, highlighting {market_context}."])
-
-        performance_5y_text = performance_5y_summary.format(
-            ticker=ticker,
-            performance_description=perf_5y_desc,
-            market_context=market_context_5y
-        )
-
-        # Trend analysis
-        trend_key = "upward"
-        if performance_3y is not None and performance_5y is not None:
-            avg_trend = (performance_3y + performance_5y) / 2
-            if avg_trend < -5:
-                trend_key = "downward"
-            elif abs(avg_trend) < 15:
-                trend_key = "sideways"
-
-        trend_analysis = get_variation(content_library, f'historical_performance.trend_analysis.{trend_key}',
-            [f"The long-term trend shows consistent movement, with {ticker} building value steadily over time."])
-
-        trend_analysis = trend_analysis.format(ticker=ticker)
-
-        # Volatility assessment
-        vol_level = "moderate"
-        if volatility_measure is not None:
-            if volatility_measure > 40:
-                vol_level = "high"
-            elif volatility_measure < 20:
-                vol_level = "low"
-
-        volatility_assessment = get_variation(content_library, 'historical_performance.volatility_assessment',
-            [f"The stock has shown {vol_level} volatility, with price swings of approximately {volatility_fmt}."])
-
-        vol_text = volatility_assessment.format(
-            volatility_level=vol_level,
-            volatility_measure=volatility_fmt
-        )
-
-        # Market comparison (simplified - could be enhanced with actual market data)
-        relative_perf = "performed in line with"
-        perf_context = "broader market trends"
-        if performance_1y is not None:
-            if performance_1y > 15:
-                relative_perf = "outperformed"
-                perf_context = "delivering strong relative returns"
-            elif performance_1y < 5:
-                relative_perf = "underperformed"
-                perf_context = "facing relative challenges"
-
-        market_comparison = get_variation(content_library, 'historical_performance.market_comparison',
-            [f"Compared to the broader market, {ticker} has {relative_perf}, {perf_context}."])
-
-        market_comp_text = market_comparison.format(
-            ticker=ticker,
-            relative_performance=relative_perf,
-            performance_context=perf_context
-        )
-
-        # Conclusion
-        outlook_key = "positive_outlook" if performance_strength == "strong_performance" else "cautious_outlook"
-
-        conclusion = get_variation(content_library, f'historical_performance.conclusion_statements.{outlook_key}',
-            [f"Overall, {ticker}'s historical performance suggests a resilient investment with potential for continued growth."])
-
-        conclusion_text = conclusion.format(ticker=ticker)
-
-        # --- 3. Assemble Final HTML ---
+        # --- 2. Generate CONCISE Narrative ---
         html_parts = []
 
         # Section header
-        html_parts.append(f"<h3>{section_intro}</h3>")
+        html_parts.append("<h3>Historical Performance Analysis</h3>")
 
-        # Narrative content
-        html_parts.append(f"""
-        <div class="narrative">
-            <p>{narrative_intro}</p>
-            <p>{performance_1y_text}</p>
-            <p>{performance_3y_text}</p>
-            <p>{performance_5y_text}</p>
-            <p>{trend_analysis}</p>
-            <p>{vol_text}</p>
-            <p>{market_comp_text}</p>
-            <p>{conclusion_text}</p>
-        </div>
-        """)
+        # SHORT narrative content
+        html_parts.append('<div class="narrative">')
+        
+        # Summary paragraph (ONE PARAGRAPH ONLY)
+        summary_texts = [
+            f"{ticker} has delivered {perf_1y_fmt} returns over the past year, {perf_3y_fmt} over three years, and {perf_5y_fmt} over five years, demonstrating {performance_strength} long-term performance with {volatility_fmt} annualized volatility.",
+            f"Over the trailing periods, {ticker} generated returns of {perf_1y_fmt} (1-year), {perf_3y_fmt} (3-year), and {perf_5y_fmt} (5-year), showing {performance_strength} growth momentum with {volatility_fmt} price volatility.",
+            f"Historical returns show {ticker} posted {perf_1y_fmt} in the past year, {perf_3y_fmt} over three years, and {perf_5y_fmt} over five years, reflecting {performance_strength} performance characteristics with {volatility_fmt} volatility."
+        ]
+        html_parts.append(f"<p>{get_variation(content_library, 'historical_performance.summary', summary_texts)}</p>")
+        
+        html_parts.append('</div>')
+
+        # --- 3. Add Monthly Performance Table ---
+        if monthly_data:
+            html_parts.append('<h4>Monthly Performance Data (Last 12 Months)</h4>')
+            html_parts.append('<div class="table-container">')
+            html_parts.append('<table class="metrics-table">')
+            html_parts.append('<thead><tr>')
+            html_parts.append('<th>Month</th>')
+            html_parts.append('<th>Open</th>')
+            html_parts.append('<th>Close</th>')
+            html_parts.append('<th>High</th>')
+            html_parts.append('<th>Low</th>')
+            html_parts.append('<th>Return</th>')
+            html_parts.append('</tr></thead>')
+            html_parts.append('<tbody>')
+            
+            for month_data in monthly_data:
+                return_class = 'positive-value' if month_data['return'] >= 0 else 'negative-value'
+                html_parts.append('<tr>')
+                html_parts.append(f"<td>{month_data['month']}</td>")
+                html_parts.append(f"<td>{hc.format_html_value(month_data['open'], 'currency', ticker=ticker)}</td>")
+                html_parts.append(f"<td>{hc.format_html_value(month_data['close'], 'currency', ticker=ticker)}</td>")
+                html_parts.append(f"<td>{hc.format_html_value(month_data['high'], 'currency', ticker=ticker)}</td>")
+                html_parts.append(f"<td>{hc.format_html_value(month_data['low'], 'currency', ticker=ticker)}</td>")
+                html_parts.append(f"<td class='{return_class}'>{month_data['return']:+.2f}%</td>")
+                html_parts.append('</tr>')
+            
+            html_parts.append('</tbody></table>')
+            html_parts.append('</div>')
 
         return ''.join(html_parts)
 
     except Exception as e:
         print(f"Warning: Error in WordPress historical performance generation: {e}. Using fallback.")
+        import traceback
+        traceback.print_exc()
         return hc.generate_historical_performance_html(ticker, rdata)
+
+def generate_wordpress_peer_comparison_html(peer_data, ticker, content_library=None):
+    """
+    Generate WordPress peer comparison content.
+    Falls back to original function if content library is not available or peer_data is empty.
+    """
+    try:
+        if not peer_data or not isinstance(peer_data, dict):
+            # Return a simple message if no peer data available
+            return """
+            <div class="narrative">
+                <p>Peer comparison data is currently unavailable for this analysis.</p>
+            </div>
+            """
+        
+        # Use the html_components function as fallback
+        return hc.generate_peer_comparison_html(peer_data, ticker)
+    except Exception as e:
+        print(f"Warning: Error in WordPress peer comparison generation: {e}. Using fallback.")
+        return f"""
+        <div class="narrative">
+            <p>Unable to generate peer comparison analysis at this time.</p>
+        </div>
+        """
+
+def generate_wordpress_risk_factors_html(ticker, rdata, content_library=None):
+    """
+    Generate WordPress risk factors content.
+    Falls back to original function if content library is not available.
+    """
+    try:
+        # Use the html_components function if available
+        if hasattr(hc, 'generate_risk_factors_html'):
+            return hc.generate_risk_factors_html(ticker, rdata)
+        
+        # Otherwise generate a basic risk factors section
+        profile_data = rdata.get('profile_data', {})
+        company_name = profile_data.get('Company Name', ticker)
+        sector = profile_data.get('Sector', 'the market')
+        
+        html_parts = []
+        html_parts.append("""
+        <div class="narrative">
+            <p>Investment in {company} carries various risks that investors should carefully consider:</p>
+            <h4>Market Risk</h4>
+            <p>Stock price volatility and broader market conditions can significantly impact {ticker}'s performance.</p>
+            <h4>Sector-Specific Risk</h4>
+            <p>As a company in {sector}, {ticker} is subject to industry-specific challenges and regulatory changes.</p>
+            <h4>Economic Risk</h4>
+            <p>Changes in economic conditions, interest rates, and inflation can affect the company's operations and profitability.</p>
+            <h4>Company-Specific Risk</h4>
+            <p>Operational challenges, management decisions, and competitive pressures may impact {ticker}'s financial performance.</p>
+            <p><strong>Disclaimer:</strong> This analysis is for informational purposes only and does not constitute investment advice. Investors should conduct their own due diligence and consult with financial advisors.</p>
+        </div>
+        """.format(company=company_name, ticker=ticker, sector=sector))
+        
+        return ''.join(html_parts)
+    except Exception as e:
+        print(f"Warning: Error in WordPress risk factors generation: {e}. Using fallback.")
+        return """
+        <div class="narrative">
+            <p>All investments carry risk. Please consult with a financial advisor before making investment decisions.</p>
+        </div>
+        """
+
+def generate_wordpress_faq_html(ticker, rdata, content_library=None):
+    """
+    Generate WordPress FAQ content.
+    Falls back to original function if content library is not available.
+    """
+    try:
+        # Use the html_components function if available
+        if hasattr(hc, 'generate_faq_html'):
+            return hc.generate_faq_html(ticker, rdata)
+        
+        # Otherwise generate a basic FAQ section
+        profile_data = rdata.get('profile_data', {})
+        company_name = profile_data.get('Company Name', ticker)
+        current_price = rdata.get('current_price')
+        forecast_price = rdata.get('forecast_price')
+        
+        html_parts = []
+        html_parts.append("""
+        <div class="faq-section">
+            <div class="faq-item">
+                <h4>What is {ticker}?</h4>
+                <p>{company} is a publicly traded company. This report provides comprehensive analysis of its stock performance and outlook.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Is {ticker} a good investment?</h4>
+                <p>Investment suitability depends on individual risk tolerance, investment goals, and market conditions. This report provides analysis to help inform investment decisions, but should not be considered investment advice.</p>
+            </div>
+            <div class="faq-item">
+                <h4>What is the forecast for {ticker}?</h4>
+                <p>Based on our Prophet forecasting model and technical analysis, we provide price projections. However, actual future performance may vary significantly from forecasts.</p>
+            </div>
+            <div class="faq-item">
+                <h4>How often should I review this analysis?</h4>
+                <p>Market conditions change rapidly. We recommend reviewing updated analysis regularly and staying informed about company news and market developments.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Where can I find more information about {ticker}?</h4>
+                <p>Additional information can be found through financial news sources, the company's investor relations website, and regulatory filings (such as SEC filings for US companies).</p>
+            </div>
+        </div>
+        """.format(ticker=ticker, company=company_name))
+        
+        return ''.join(html_parts)
+    except Exception as e:
+        print(f"Warning: Error in WordPress FAQ generation: {e}. Using fallback.")
+        return """
+        <div class="narrative">
+            <p>For frequently asked questions about this analysis, please refer to our methodology documentation.</p>
+        </div>
+        """
 
 def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report_sections_to_include: list):
     """
@@ -5191,20 +5276,62 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
                         html_report_parts.append("<h2>Stock Price Statistics</h2>")
                         html_report_parts.append(generate_wordpress_stock_price_statistics_html(ticker, rdata, content_library))
                         html_report_parts.append("</section>")
-                # Special handling for report_info_disclaimer - requires generation_time parameter
-                elif section_key == "report_info_disclaimer":
-                    from datetime import datetime
-                    section_title = "Report Information and Disclaimer"
-                    html_report_parts.append(f"<section id='{section_key}'><h2>{section_title}</h2>")
-                    html_report_parts.append(generator_func(datetime.now())) # Pass generation time
-                    html_report_parts.append("</section>")
+                    # Special handling for short_selling_info - use content library
+                    elif section_key == "short_selling_info":
+                        html_report_parts.append(f"<section id='{section_key}'>")
+                        html_report_parts.append("<h2>Short Selling Information</h2>")
+                        html_report_parts.append(generate_wordpress_short_selling_info_html(ticker, rdata, content_library))
+                        html_report_parts.append("</section>")
+                    # Special handling for technical_analysis_summary - use content library
+                    elif section_key == "technical_analysis_summary":
+                        html_report_parts.append(f"<section id='{section_key}'>")
+                        html_report_parts.append("<h2>Technical Analysis Summary</h2>")
+                        html_report_parts.append(generate_wordpress_technical_analysis_summary_html(ticker, rdata, content_library))
+                        html_report_parts.append("</section>")
+                    # Special handling for historical_performance - use content library
+                    elif section_key == "historical_performance":
+                        html_report_parts.append(f"<section id='{section_key}'>")
+                        html_report_parts.append("<h2>Historical Performance</h2>")
+                        html_report_parts.append(generate_wordpress_historical_performance_html(ticker, rdata, content_library))
+                        html_report_parts.append("</section>")
+                    # Special handling for peer_comparison - use content library
+                    elif section_key == "peer_comparison":
+                        peer_data = rdata.get('peer_comparison_data', {})
+                        html_report_parts.append(f"<section id='{section_key}'>")
+                        html_report_parts.append("<h2>Peer Comparison</h2>")
+                        html_report_parts.append(generate_wordpress_peer_comparison_html(peer_data, ticker, content_library))
+                        html_report_parts.append("</section>")
+                    # Special handling for risk_factors - use content library
+                    elif section_key == "risk_factors":
+                        html_report_parts.append(f"<section id='{section_key}'>")
+                        html_report_parts.append("<h2>Risk Factors</h2>")
+                        html_report_parts.append(generate_wordpress_risk_factors_html(ticker, rdata, content_library))
+                        html_report_parts.append("</section>")
+                    # Special handling for faq - use content library
+                    elif section_key == "faq":
+                        html_report_parts.append(f"<section id='{section_key}'>")
+                        html_report_parts.append("<h2>Frequently Asked Questions</h2>")
+                        html_report_parts.append(generate_wordpress_faq_html(ticker, rdata, content_library))
+                        html_report_parts.append("</section>")
+                    # Special handling for report_info_disclaimer - requires generation_time parameter
+                    elif section_key == "report_info_disclaimer":
+                        from datetime import datetime
+                        section_title = "Report Information and Disclaimer"
+                        html_report_parts.append(f"<section id='{section_key}'><h2>{section_title}</h2>")
+                        html_report_parts.append(generator_func(datetime.now())) # Pass generation time
+                        html_report_parts.append("</section>")
+                    else:
+                        # Generic fallback for any remaining sections
+                        section_title = section_key.replace("_", " ").title()
+                        html_report_parts.append(f"<section id='{section_key}'><h2>{section_title}</h2>")
+                        try:
+                            html_report_parts.append(generator_func(ticker, rdata)) # Call the function from html_components
+                        except Exception as e:
+                            print(f"Error generating section '{section_key}': {e}")
+                            html_report_parts.append(f"<p>Section temporarily unavailable.</p>")
+                        html_report_parts.append("</section>")
                 else:
-                    section_title = section_key.replace("_", " ").title()
-                    html_report_parts.append(f"<section id='{section_key}'><h2>{section_title}</h2>")
-                    html_report_parts.append(generator_func(ticker, rdata)) # Call the function from html_components
-                    html_report_parts.append("</section>")
-            else:
-                print(f"Warning: Unknown report section key '{section_key}'. Skipping.")
+                    print(f"Warning: Unknown report section key '{section_key}'. Skipping.")
         
         finally:
             # Restore the original function

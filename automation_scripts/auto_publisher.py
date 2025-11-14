@@ -31,11 +31,7 @@ except ImportError:
     storage = None 
 # --- END: Firebase Admin Storage Import ---
 
-try:
-    from app.main_portal_app import get_previous_ticker_status
-except ImportError:
-    def get_previous_ticker_status(user_uid, profile_id, ticker_symbol):
-        return None
+
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
@@ -778,7 +774,13 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                 # Fetch previous status for this ticker
                 previous_status = None
                 if save_status_callback:
-                    previous_status = get_previous_ticker_status(user_uid, profile_id, ticker_to_process)
+                    # Lazy import to avoid circular dependency
+                    try:
+                        from app.main_portal_app import get_previous_ticker_status
+                        previous_status = get_previous_ticker_status(user_uid, profile_id, ticker_to_process)
+                    except ImportError:
+                        app_logger.warning(f"Could not import get_previous_ticker_status for {ticker_to_process}")
+                        previous_status = None
                 gen_time_val = previous_status.get('generated_at') if previous_status else None
                 pub_time_val = previous_status.get('published_at') if previous_status else None
                 writer_val = previous_status.get('writer_username') if previous_status else None

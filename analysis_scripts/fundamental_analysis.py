@@ -4,14 +4,35 @@ import numpy as np
 import logging
 from datetime import datetime # Import datetime
 
-# Import the new analysis modules
+# Import the new analysis modules with proper fallback handling
 try:
+    # Try relative import first (when imported as part of analysis_scripts package)
     from .risk_analysis import RiskAnalyzer
     from .sentiment_analysis import SentimentAnalyzer
 except ImportError:
-    # Fallback for direct execution
-    from risk_analysis import RiskAnalyzer
-    from sentiment_analysis import SentimentAnalyzer
+    try:
+        # Try absolute import from analysis_scripts package
+        from analysis_scripts.risk_analysis import RiskAnalyzer
+        from analysis_scripts.sentiment_analysis import SentimentAnalyzer
+    except ImportError:
+        # Final fallback for direct execution
+        try:
+            from risk_analysis import RiskAnalyzer
+            from sentiment_analysis import SentimentAnalyzer
+        except ImportError:
+            # If all imports fail, create dummy classes
+            logging.warning("Could not import RiskAnalyzer and SentimentAnalyzer. Using dummy classes.")
+            class RiskAnalyzer:
+                def __init__(self):
+                    pass
+                def analyze_risk(self, *args, **kwargs):
+                    return {'risk_score': 'N/A', 'risk_factors': []}
+            
+            class SentimentAnalyzer:
+                def __init__(self):
+                    pass
+                def analyze_sentiment(self, *args, **kwargs):
+                    return {'sentiment': 'Neutral', 'score': 0}
 
 # --- Helpers ---
 
@@ -640,19 +661,42 @@ def extract_peer_comparison_data(ticker):
 def extract_risk_analysis_data(historical_data, market_data=None, ticker=None):
     """Extract risk analysis metrics using the RiskAnalyzer module."""
     try:
+        logging.info(f"Starting risk analysis for {ticker}")
+        
+        # Check if RiskAnalyzer is available (might be dummy class)
+        if not hasattr(RiskAnalyzer, 'comprehensive_risk_profile'):
+            logging.warning(f"RiskAnalyzer not fully available for {ticker}, using dummy class")
+            return {}
+        
         risk_analyzer = RiskAnalyzer()
         
         if historical_data is None or historical_data.empty:
+            logging.warning(f"No historical data available for risk analysis: {ticker}")
             return {}
         
-        # Ensure we have Close prices
-        if 'Close' not in historical_data.columns:
-            return {}
+        # Try to find Close column - might be named differently
+        close_col = None
+        for col in ['Close', 'close', 'Close Price', 'Adj Close']:
+            if col in historical_data.columns:
+                close_col = col
+                break
         
-        price_data = historical_data['Close'].dropna()
+        if close_col is None:
+            # If no Close column, check if there's a 'y' column from Prophet data
+            if 'y' in historical_data.columns:
+                close_col = 'y'
+                logging.info(f"Using 'y' column as price data for {ticker}")
+            else:
+                logging.warning(f"No price column found in historical data for {ticker}. Columns: {historical_data.columns.tolist()}")
+                return {}
+        
+        price_data = historical_data[close_col].dropna()
         
         if len(price_data) < 30:  # Need sufficient data for meaningful risk analysis
+            logging.warning(f"Insufficient price data for risk analysis: {ticker} (only {len(price_data)} data points)")
             return {}
+        
+        logging.info(f"Calculating risk metrics for {ticker} with {len(price_data)} data points using column '{close_col}'")
         
         # Calculate comprehensive risk profile
         risk_metrics = risk_analyzer.comprehensive_risk_profile(price_data, market_data)
@@ -674,32 +718,51 @@ def extract_risk_analysis_data(historical_data, market_data=None, ticker=None):
             formatted_metrics["Beta"] = format_value(risk_metrics.get('beta'), 'ratio', 2)
             formatted_metrics["Market Correlation"] = format_value(risk_metrics.get('correlation_market'), 'ratio', 2)
         
+        logging.info(f"Successfully calculated {len(formatted_metrics)} risk metrics for {ticker}")
         return formatted_metrics
         
     except Exception as e:
-        logging.error(f"Error in risk analysis for {ticker}: {e}")
+        logging.error(f"Error in risk analysis for {ticker}: {e}", exc_info=True)
+        import traceback
+        traceback.print_exc()
         return {}
 
 def extract_sentiment_analysis_data(fundamentals: dict, ticker=None):
     """Extract sentiment analysis metrics using the SentimentAnalyzer module."""
     try:
+        logging.info(f"Starting sentiment analysis for {ticker}")
+        
+        # Check if SentimentAnalyzer is available (might be dummy class)
+        if not hasattr(SentimentAnalyzer, 'analyze_news_sentiment'):
+            logging.warning(f"SentimentAnalyzer not fully available for {ticker}, using dummy class")
+            return {}
+        
         sentiment_analyzer = SentimentAnalyzer()
         
         # Extract news data
         news_data = fundamentals.get('news', [])
+        logging.info(f"Found {len(news_data) if news_data else 0} news items for {ticker}")
         
         # Extract analyst data
         analyst_data = extract_analyst_info(fundamentals)
+        logging.info(f"Extracted analyst data for {ticker}")
         
         # Analyze different sentiment components
         news_sentiment = sentiment_analyzer.analyze_news_sentiment(news_data)
+        logging.info(f"News sentiment for {ticker}: {news_sentiment}")
+        
         analyst_sentiment = sentiment_analyzer.analyze_analyst_sentiment(analyst_data)
+        logging.info(f"Analyst sentiment for {ticker}: {analyst_sentiment}")
+        
         options_sentiment = sentiment_analyzer.analyze_options_sentiment(ticker) if ticker else {'score': 0, 'classification': 'neutral', 'confidence': 0}
+        logging.info(f"Options sentiment for {ticker}: {options_sentiment}")
         
         # Calculate composite sentiment
         composite_sentiment = sentiment_analyzer.calculate_composite_sentiment(
             news_sentiment, analyst_sentiment, options_sentiment
         )
+        
+        logging.info(f"Composite sentiment for {ticker}: {composite_sentiment}")
         
         # Format the metrics for display
         formatted_metrics = {
@@ -715,10 +778,13 @@ def extract_sentiment_analysis_data(fundamentals: dict, ticker=None):
         if 'put_call_ratio' in options_sentiment:
             formatted_metrics["Put/Call Ratio"] = format_value(options_sentiment.get('put_call_ratio'), 'ratio', 2)
         
+        logging.info(f"Successfully calculated sentiment metrics for {ticker}")
         return formatted_metrics
         
     except Exception as e:
-        logging.error(f"Error in sentiment analysis for {ticker}: {e}")
+        logging.error(f"Error in sentiment analysis for {ticker}: {e}", exc_info=True)
+        import traceback
+        traceback.print_exc()
         return {}
 
 def extract_quarterly_earnings_data(fundamentals: dict, ticker=None):

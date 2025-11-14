@@ -1241,6 +1241,8 @@ def create_wordpress_report_assets(
 
 
         final_html_fragment = f"{custom_style}\n<div class=\"report-container\">\n{report_body_content}\n</div>"
+        
+        
         print(f"[WP Assets] HTML fragment generation complete for {ticker}.")
 
         # Return the HTML fragment AND the path to the saved forecast chart
