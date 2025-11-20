@@ -40,18 +40,12 @@ if PROJECT_ROOT not in sys.path:
 load_dotenv()
 
 try:
-    from reporting_tools.wordpress_reporter import generate_wordpress_report, ALL_REPORT_SECTIONS
+    from gemini_article_system import generate_article_from_pipeline
+    GEMINI_ARTICLE_SYSTEM_AVAILABLE = True
 except ImportError:
     logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
-    logging.error("CRITICAL: Failed to import 'generate_wordpress_report' or 'ALL_REPORT_SECTIONS'. Ensure it's accessible.")
-    ALL_REPORT_SECTIONS = {
-        "introduction": None, "metrics_summary": None, "detailed_forecast_table": None,
-        "company_profile": None, "valuation_metrics": None, "total_valuation": None,
-        "profitability_growth": None, "analyst_insights": None, "financial_health": None,
-        "technical_analysis_summary": None, "short_selling_info": None,
-        "stock_price_statistics": None, "dividends_shareholder_returns": None,
-        "conclusion_outlook": None, "risk_factors": None, "faq": None
-    }
+    logging.error("CRITICAL: Failed to import 'generate_article_from_pipeline'. Ensure gemini_article_system is accessible.")
+    GEMINI_ARTICLE_SYSTEM_AVAILABLE = False
     if __name__ == '__main__': exit(1)
     else: raise
 
@@ -803,16 +797,55 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
             _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Ticker Processing", "Begin", f"Starting {ticker_to_process}", "info")
 
             try:
-                _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Starting", "Generating content...", "info")
-                report_app_root = os.path.join(APP_ROOT, '..', 'app')
-                rdata, html_content, css_content = generate_wordpress_report(
-                    profile_name, ticker_to_process, report_app_root, 
-                    profile_config.get("report_sections_to_include", list(ALL_REPORT_SECTIONS.keys()))
+                _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Starting", "Generating AI-powered article...", "info")
+                
+                # Use new Gemini article generation pipeline
+                import yfinance as yf
+                
+                # Get company name
+                try:
+                    ticker_obj = yf.Ticker(ticker_to_process)
+                    info = ticker_obj.info
+                    company_name = info.get('longName') or info.get('shortName') or ticker_to_process
+                except:
+                    company_name = ticker_to_process
+                
+                # Generate article using complete pipeline (analysis + Gemini rewrite)
+                article_path, metadata = generate_article_from_pipeline(
+                    ticker=ticker_to_process,
+                    company_name=company_name,
+                    timeframe='1mo',
+                    output_dir=os.path.join(APP_ROOT, '..', 'generated_data', 'wordpress_articles'),
+                    app_root=os.path.join(APP_ROOT, '..', 'app')
                 )
+                
+                # Read the generated article
+                with open(article_path, 'r', encoding='utf-8') as f:
+                    html_content = f.read()
+                
+                # Extract body content (remove DOCTYPE, html, head tags)
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(html_content, 'html.parser')
+                body_content = soup.find('body')
+                if body_content:
+                    html_content = str(body_content)
+                    # Remove body tags but keep content
+                    html_content = html_content.replace('<body>', '').replace('</body>', '')
+                
+                # Create minimal rdata for compatibility
+                rdata = {
+                    'ticker': ticker_to_process,
+                    'company_name': company_name,
+                    'sector': info.get('sector', 'N/A') if 'info' in locals() else 'N/A',
+                    'overall_pct_change': 0,  # Not used in new flow
+                    'profile_data': {'Company Name': company_name, 'Sector': info.get('sector', 'N/A') if 'info' in locals() else 'N/A'},
+                }
+                
                 gen_time_iso = datetime.now(timezone.utc).isoformat()
+                css_content = ""  # Not needed with new article system
 
-                if "Error generating report" in html_content or not html_content or not rdata:
-                    error_message_for_log = f"Content generation failed for {ticker_to_process}."
+                if not html_content or len(html_content) < 1000:
+                    error_message_for_log = f"AI article generation failed for {ticker_to_process}."
                     _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Failed", error_message_for_log, "error")
                     final_post_status = f"Failed: Content Gen"
                     state.get('failed_tickers_by_profile', {}).setdefault(profile_id, []).append(ticker_to_process)
@@ -835,13 +868,20 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                         })
                         break 
 
-                    # Extract sector and other dynamic data from rdata/profile_data if available
-                    sector = rdata.get('sector') or rdata.get('profile_data', {}).get('Sector', 'N/A')
-                    forecast_direction = 'Upside' if rdata.get('overall_pct_change', 0) > 0 else 'Downside' if rdata.get('overall_pct_change', 0) < 0 else 'Flat'
-                    recent_performance = f"Up {rdata.get('overall_pct_change', 0):.1f}% YTD" if rdata.get('overall_pct_change', 0) > 0 else f"Down {abs(rdata.get('overall_pct_change', 0)):.1f}% YTD" if rdata.get('overall_pct_change', 0) < 0 else 'Flat YTD'
-                    unique_feature = 'Strong Cash Flow' if rdata.get('financial_health_data', {}).get('Operating Cash Flow (TTM)', 0) else 'Growth Potential'
-                    market_context = rdata.get('sentiment', 'Neutral')
-                    article_title = generate_dynamic_headline_v2(ticker_to_process, profile_name, sector, forecast_direction, recent_performance, unique_feature, market_context)
+                    # Extract title from generated article (Gemini already created SEO-optimized title)
+                    article_title = None
+                    soup = BeautifulSoup(html_content, 'html.parser')
+                    h1_tag = soup.find('h1')
+                    if h1_tag:
+                        article_title = h1_tag.get_text().strip()
+                    
+                    # Fallback: generate title if not found in article
+                    if not article_title:
+                        sector = rdata.get('sector', 'N/A')
+                        article_title = f"{company_name} ({ticker_to_process}) Stock Analysis - Complete Investment Guide"
+                    
+                    app_logger.info(f"Article title for {ticker_to_process}: {article_title}")
+                    
                     feature_img_dir = os.path.join(APP_ROOT, "..", "generated_data", "temp_images", profile_id)
                     os.makedirs(feature_img_dir, exist_ok=True)
                     sanitized_ticker = re.sub(r'[^\w]', '_', ticker_to_process)
