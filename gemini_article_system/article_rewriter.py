@@ -196,11 +196,37 @@ CRITICAL INSTRUCTIONS:
    - Use contractions occasionally (it's, here's, that's)
    - Address the reader directly ("you might wonder", "if you're looking at")
 
-4. DATA HANDLING:
-   - Preserve ALL numerical values EXACTLY as shown
-   - If data shows "N/A", "nan", or "null" - SKIP that specific metric entirely
-   - Only include sections where data is actually available
-   - DO NOT mention missing data or unavailable information
+4. DATA HANDLING (CRITICAL - READ CAREFULLY):
+   
+   ⚠️ EXACT DATA PRESERVATION:
+   - Preserve ALL numerical values EXACTLY as shown in the original report
+   - DO NOT change, round, or modify any numbers, percentages, or values
+   - Copy dates, prices, percentages, ratios EXACTLY character-by-character
+   - If original shows "$123.45", write "$123.45" (not "$123" or "approximately $123")
+   - If original shows "5.67%", write "5.67%" (not "5.7%" or "around 6%")
+   
+   ⚠️ HANDLING MISSING/INVALID DATA:
+   - If a metric shows "N/A", "nan", "null", "0.0", or "None" - COMPLETELY SKIP that metric
+   - DO NOT write about metrics with missing or zero values
+   - DO NOT mention that data is "unavailable", "not available", or "missing"
+   - DO NOT explain why data is absent
+   - DO NOT create placeholder text for missing metrics
+   - Simply exclude that entire metric/row from tables and skip it in narrative
+   
+   ⚠️ ZERO VALUES:
+   - If a value is genuinely 0 (like "0% change") - include it if it's meaningful
+   - If a value is 0 because data is missing - SKIP it entirely
+   - When in doubt about whether 0 is real or missing data - SKIP it
+   
+   EXAMPLES:
+   ✅ CORRECT: If P/E ratio is "N/A", don't include P/E ratio in the table or text at all
+   ❌ WRONG: "The P/E ratio is currently unavailable" or "P/E: N/A"
+   
+   ✅ CORRECT: If Revenue is "$0" or "0.0", skip revenue entirely
+   ❌ WRONG: "Revenue data is not currently available"
+   
+   ✅ CORRECT: Only write about metrics that have real, valid numbers
+   ❌ WRONG: Including rows with N/A, 0, null, or explaining missing data
 
 5. SEO OPTIMIZATION:
    - Enhance headings to be descriptive and keyword-rich
@@ -283,8 +309,11 @@ ORIGINAL REPORT TO REWRITE:
    - Use short, clear sentences
 
 OUTPUT FORMAT REQUIREMENTS:
-- Start directly with the content (no DOCTYPE or wrapper)
+- Start directly with the first content paragraph or section (NO article header div with title/metadata)
+- Begin with the main content - the article title will be added separately by WordPress
 - Use proper HTML tags ONLY (no Markdown)
+- DO NOT include <h1> tags - WordPress will generate the title
+- Start with <h2> for the first main section heading
 - Preserve exact report structure and section order
 - Use <strong> for bold, NEVER use **
 - Use proper <table> tags for all tabular data
@@ -321,7 +350,15 @@ FAQ SCHEMA EXAMPLE (add this after FAQ section):
 </script>
 ```
 
-Now rewrite the COMPLETE report with proper HTML formatting (remember: use <strong> NOT **):
+⚠️ FINAL CRITICAL REMINDERS:
+1. Copy ALL numbers EXACTLY - do not round, estimate, or modify
+2. SKIP any metrics with N/A, 0, null, or nan - don't mention them at all
+3. NEVER write about missing or unavailable data
+4. Include ONLY metrics that have real, valid numerical values
+5. Process the ENTIRE report - don't stop early
+6. Use <strong> for bold, NEVER **
+
+Now rewrite the COMPLETE report with proper HTML formatting:
 """
         return prompt
     
@@ -371,6 +408,7 @@ Now rewrite the COMPLETE report with proper HTML formatting (remember: use <stro
         # Remove any Markdown syntax that might have slipped through
         # Replace **text** with <strong>text</strong>
         import re
+        from bs4 import BeautifulSoup
         
         # Replace **text** with <strong>text</strong>
         article_html = re.sub(r'\*\*([^\*]+?)\*\*', r'<strong>\1</strong>', article_html)
@@ -380,6 +418,47 @@ Now rewrite the COMPLETE report with proper HTML formatting (remember: use <stro
         
         # Remove any remaining markdown code blocks
         article_html = article_html.replace('```html', '').replace('```', '')
+        
+        # Parse HTML to remove problematic content
+        soup = BeautifulSoup(article_html, 'html.parser')
+        
+        # Remove table rows that contain N/A, nan, null, or 0 values
+        for table in soup.find_all('table'):
+            rows_to_remove = []
+            for row in table.find_all('tr'):
+                cells = row.find_all(['td', 'th'])
+                row_text = ' '.join([cell.get_text().strip() for cell in cells]).lower()
+                
+                # Check if row contains invalid/missing data indicators
+                if any(indicator in row_text for indicator in ['n/a', 'nan', 'null', 'none', ': 0', ': 0.0', ': $0', '$0.00']):
+                    # Don't remove header rows
+                    if not row.find('th'):
+                        rows_to_remove.append(row)
+            
+            # Remove problematic rows
+            for row in rows_to_remove:
+                row.decompose()
+        
+        # Remove paragraphs that explicitly mention unavailable/missing data
+        for p in soup.find_all('p'):
+            p_text = p.get_text().lower()
+            if any(phrase in p_text for phrase in [
+                'not available', 'unavailable', 'no data', 'data is missing',
+                'information is not', 'currently unavailable', 'data not available',
+                'n/a', 'is n/a', 'shows n/a', 'not applicable'
+            ]):
+                p.decompose()
+        
+        # Remove list items mentioning missing data
+        for li in soup.find_all('li'):
+            li_text = li.get_text().lower()
+            if any(phrase in li_text for phrase in [
+                'not available', 'unavailable', 'no data', 'n/a', 'is n/a'
+            ]):
+                li.decompose()
+        
+        # Convert back to string
+        article_html = str(soup)
         
         # Remove the disclaimer section if present (multiple patterns for thorough removal)
         disclaimer_patterns = [
@@ -736,15 +815,6 @@ Now rewrite the COMPLETE report with proper HTML formatting (remember: use <stro
 <body>
     {article_html}
     
-    <div class="metadata">
-        <strong>Article Metadata:</strong><br>
-        Generated: {metadata['generated_date']}<br>
-        Word Count: {metadata['word_count']:,}<br>
-        Sections: {metadata['section_count']}<br>
-        Model: {metadata['model']}<br>
-        FAQ Included: {'Yes' if metadata['has_faq'] else 'No'}<br>
-        Schema Markup: {'Yes' if metadata['has_schema'] else 'No'}
-    </div>
 </body>
 </html>
 """

@@ -3509,6 +3509,378 @@ def stop_automation_run(profile_id):
         return jsonify({'status': 'error', 'message': f'An error occurred while processing the stop request: {str(e)[:100]}...'}), 500
 
 
+@app.route('/automation-earnings-runner')
+@login_required
+def automation_earnings_runner():
+    """Display the earnings report automation page with site profiles"""
+    user_uid = session['firebase_user_uid']
+    
+    # Get user site profiles (same as stock analysis automation)
+    user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
+    
+    # Get shared context for automation
+    shared_context = get_automation_shared_context(user_uid, user_site_profiles)
+    
+    return render_template('run_automation_earnings.html',
+                         title="Earnings Report Automation - Tickzen",
+                         user_site_profiles=user_site_profiles,
+                         **shared_context)
+
+@app.route('/run-earnings-automation', methods=['POST'])
+@login_required
+def run_earnings_automation():
+    """Run earnings report generation and publish to WordPress sites"""
+    user_uid = session['firebase_user_uid']
+    db = get_firestore_client()
+
+    if not AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY:
+        flash("Automation service is currently unavailable. Please try again later.", "danger")
+        return redirect(url_for('automation_earnings_runner'))
+
+    # Get selected profile IDs
+    profile_ids_to_run = request.form.getlist('run_profile_ids[]')
+    if not profile_ids_to_run:
+        flash("No profiles selected to run earnings automation.", "info")
+        return redirect(url_for('automation_earnings_runner'))
+
+    # Get ticker from form
+    ticker = request.form.get('ticker', '').strip().upper()
+    if not ticker or len(ticker) < 1 or len(ticker) > 5:
+        flash("Invalid ticker symbol. Must be 1-5 characters.", "danger")
+        return redirect(url_for('automation_earnings_runner'))
+
+    # Get all user profiles and filter selected ones
+    all_user_profiles_from_db = get_user_site_profiles_from_firestore(user_uid)
+    selected_profiles_data_for_run = []
+    profiles_db_map = {p.get("profile_id"): p for p in all_user_profiles_from_db}
+
+    # Build articles map (how many posts per profile) and capture per-profile settings
+    articles_map = {}
+    profile_settings = {}  # Store category, status, schedule time per profile
+    
+    for profile_id_from_form in profile_ids_to_run:
+        profile_data_from_db = profiles_db_map.get(profile_id_from_form)
+        if not profile_data_from_db:
+            flash(f"Profile ID {profile_id_from_form} not found for user. Skipping.", "warning")
+            continue
+        selected_profiles_data_for_run.append(profile_data_from_db)
+
+        pid = profile_id_from_form
+        try:
+            articles_map[pid] = max(0, int(request.form.get(f'posts_for_profile_{pid}', 1)))
+        except ValueError:
+            articles_map[pid] = 1
+            flash(f"Invalid number of posts for '{profile_data_from_db.get('profile_name', pid)}', defaulting to 1.", "warning")
+        
+        # Get category ID
+        category_id = request.form.get(f'category_id_{pid}', '').strip()
+        if category_id and category_id.isdigit():
+            category_id = int(category_id)
+        else:
+            category_id = profile_data_from_db.get('category_id')  # Use profile default
+        
+        # Get publish status
+        publish_status = request.form.get(f'publish_status_{pid}', 'publish')
+        
+        # Get schedule time if status is 'future'
+        schedule_time = None
+        if publish_status == 'future':
+            schedule_time_str = request.form.get(f'schedule_time_{pid}', '')
+            if schedule_time_str:
+                try:
+                    # Parse datetime-local format: YYYY-MM-DDTHH:MM
+                    schedule_time = datetime.strptime(schedule_time_str, '%Y-%m-%dT%H:%M')
+                    schedule_time = schedule_time.replace(tzinfo=timezone.utc)
+                except ValueError:
+                    flash(f"Invalid schedule time for '{profile_data_from_db.get('profile_name', pid)}', using immediate publish.", "warning")
+                    publish_status = 'publish'
+        
+        profile_settings[pid] = {
+            'category_id': category_id,
+            'publish_status': publish_status,
+            'schedule_time': schedule_time
+        }
+
+    app.logger.info(f"Earnings automation starting for {ticker} across {len(selected_profiles_data_for_run)} profiles by user {user_uid}")
+
+    try:
+        # Import earnings writer
+        import sys
+        earnings_reports_path = os.path.join(PROJECT_ROOT, 'earnings_reports')
+        if earnings_reports_path not in sys.path:
+            sys.path.insert(0, earnings_reports_path)
+        
+        from earnings_reports.gemini_earnings_writer import GeminiEarningsWriter
+        
+        # Emit start message to all selected profiles
+        for profile_data in selected_profiles_data_for_run:
+            profile_id = profile_data.get('profile_id')
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'message': f'Starting earnings report generation for {ticker}...',
+                'level': 'info'
+            }, room=user_uid)
+
+        # Step 1: Generate the earnings article
+        for profile_data in selected_profiles_data_for_run:
+            profile_id = profile_data.get('profile_id')
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'message': f'Step 1/4: Collecting earnings data for {ticker}...',
+                'level': 'info'
+            }, room=user_uid)
+
+        writer = GeminiEarningsWriter()
+        result = writer.generate_complete_report(ticker)
+
+        if not result or not result.get('success'):
+            error_msg = result.get('error', 'Unknown error') if result else 'Generation failed'
+            for profile_data in selected_profiles_data_for_run:
+                profile_id = profile_data.get('profile_id')
+                socketio.emit('automation_update', {
+                    'profile_id': profile_id,
+                    'message': f'Failed to generate earnings report: {error_msg}',
+                    'level': 'error'
+                }, room=user_uid)
+            flash(f"Failed to generate earnings report: {error_msg}", "danger")
+            return redirect(url_for('automation_earnings_runner'))
+
+        app.logger.info(f"Earnings article generated successfully for {ticker}: {result.get('word_count', 0)} words")
+        
+        for profile_data in selected_profiles_data_for_run:
+            profile_id = profile_data.get('profile_id')
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'message': f'✓ Generated {result.get("word_count", 0)} word earnings article',
+                'level': 'success'
+            }, room=user_uid)
+
+        # Step 2: Extract article content for WordPress
+        for profile_data in selected_profiles_data_for_run:
+            profile_id = profile_data.get('profile_id')
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'message': f'Step 2/4: Preparing content for WordPress...',
+                'level': 'info'
+            }, room=user_uid)
+
+        # Step 2: Extract article content for WordPress
+        for profile_data in selected_profiles_data_for_run:
+            profile_id = profile_data.get('profile_id')
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'message': f'Step 2/4: Preparing content for WordPress...',
+                'level': 'info'
+            }, room=user_uid)
+        
+        file_path = result.get('file_path')
+        article_content = result.get('article_html', '')
+        
+        if not article_content:
+            # Fallback: read from file if HTML not in result
+            if file_path and os.path.exists(file_path):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    article_content = f.read()
+            else:
+                error_msg = "Generated content not available"
+                for profile_data in selected_profiles_data_for_run:
+                    profile_id = profile_data.get('profile_id')
+                    socketio.emit('automation_update', {
+                        'profile_id': profile_id,
+                        'message': error_msg,
+                        'level': 'error'
+                    }, room=user_uid)
+                flash(error_msg, "danger")
+                return redirect(url_for('automation_earnings_runner'))
+
+        # Extract title and clean content from HTML
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(article_content, 'html.parser')
+        
+        # Extract title from h1 tag
+        h1_tag = soup.find('h1')
+        article_title = h1_tag.get_text(strip=True) if h1_tag else f"{ticker} Quarterly Earnings Analysis"
+        
+        # Remove the h1 from content since WordPress adds the title separately
+        if h1_tag:
+            h1_tag.decompose()
+        
+        # Remove any document structure tags if present (html, head, body)
+        for tag in soup.find_all(['html', 'head', 'body', 'style', 'script', 'meta', 'title']):
+            tag.unwrap() if tag.name in ['html', 'body'] else tag.decompose()
+        
+        # Get clean HTML content - preserve all semantic tags (h2, h3, p, ul, li, table, etc.)
+        article_content = str(soup).strip()
+        
+        # Final cleanup - remove any remaining document tags
+        article_content = article_content.replace('<html>', '').replace('</html>', '')
+        article_content = article_content.replace('<body>', '').replace('</body>', '')
+        article_content = article_content.strip()
+
+        # Step 3: Publish to each selected WordPress site
+        for profile_data in selected_profiles_data_for_run:
+            profile_id = profile_data.get('profile_id')
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'message': f'Step 3/4: Publishing to WordPress...',
+                'level': 'info'
+            }, room=user_uid)
+
+        for profile_data in selected_profiles_data_for_run:
+            profile_id = profile_data.get('profile_id')
+            profile_name = profile_data.get('profile_name', profile_id)
+            site_url = profile_data.get('site_url')
+            authors = profile_data.get('authors', [])
+            
+            if not authors:
+                socketio.emit('automation_update', {
+                    'profile_id': profile_id,
+                    'message': f'✗ No authors configured for this profile',
+                    'level': 'error'
+                }, room=user_uid)
+                flash(f"No authors configured for '{profile_name}'", "danger")
+                continue
+            
+            # Use the first author
+            author = authors[0]
+            
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'message': f'Publishing earnings report for {ticker}...',
+                'level': 'info'
+            }, room=user_uid)
+
+            try:
+                # Get profile-specific settings
+                settings = profile_settings.get(profile_id, {})
+                cat_id = settings.get('category_id')
+                publish_status = settings.get('publish_status', 'publish')
+                schedule_time = settings.get('schedule_time')
+                
+                # Use schedule time if provided, otherwise current time
+                publish_time = schedule_time if schedule_time else datetime.now(timezone.utc)
+                
+                # Improve article title - make it more attractive and informative
+                # Remove robotic patterns and make it engaging
+                improved_title = article_title
+                if "Quarterly Earnings Analysis:" in improved_title:
+                    # Extract the compelling part after the colon
+                    parts = improved_title.split(':', 1)
+                    if len(parts) > 1:
+                        improved_title = f"{ticker} {parts[1].strip()}"
+                
+                # Ensure title is concise but informative (60-70 chars ideal for SEO)
+                if len(improved_title) > 70:
+                    # Try to cut at a natural break point
+                    words = improved_title.split()
+                    improved_title = ' '.join(words[:8]) + '...'
+                
+                # Extract company name from article title for better slug
+                company_name = None
+                if article_title:
+                    # Remove ticker and common phrases to extract company name
+                    temp = article_title.replace(f'{ticker}', '').replace('Quarterly Earnings Analysis:', '')
+                    temp = temp.replace('Earnings Report', '').replace('Analysis', '').strip()
+                    parts = temp.split('-')
+                    if parts:
+                        company_name = parts[0].strip()[:30]  # Limit company name length
+                
+                # Create WordPress post with improved settings
+                post_id = auto_publisher.create_wordpress_post(
+                    site_url=site_url,
+                    author=author,
+                    title=improved_title,
+                    content=article_content,
+                    sched_time=publish_time,
+                    cat_id=cat_id,
+                    media_id=None,
+                    ticker=ticker,
+                    company_name=company_name,
+                    status=publish_status
+                )
+
+                if post_id:
+                    post_url = f"{site_url.rstrip('/')}/wp-admin/post.php?post={post_id}&action=edit"
+                    status = "published"
+                    
+                    # Save status to Firestore
+                    status_data = {
+                        'status': status,
+                        'message': f"Earnings report {status}",
+                        'post_url': post_url,
+                        'generated_at': datetime.now(timezone.utc).isoformat(),
+                        'published_at': datetime.now(timezone.utc).isoformat(),
+                        'writer_username': author.get('wp_username')
+                    }
+                    
+                    save_processed_ticker_status(
+                        user_uid=user_uid,
+                        profile_id=profile_id,
+                        ticker_symbol=ticker,
+                        status_data=status_data
+                    )
+
+                    socketio.emit('automation_update', {
+                        'profile_id': profile_id,
+                        'message': f'✓ Earnings report published for {ticker}',
+                        'level': 'success'
+                    }, room=user_uid)
+
+                    socketio.emit('ticker_status_persisted', {
+                        'profile_id': profile_id,
+                        'ticker': ticker,
+                        'status': status,
+                        'message': f"Earnings report {status}",
+                        'timestamp': datetime.now(timezone.utc).isoformat(),
+                        'post_url': post_url
+                    }, room=user_uid)
+
+                    flash(f"Earnings report for {ticker} published to '{profile_name}'", "success")
+                else:
+                    error = "Failed to create WordPress post"
+                    socketio.emit('automation_update', {
+                        'profile_id': profile_id,
+                        'message': f'✗ {error}',
+                        'level': 'error'
+                    }, room=user_uid)
+                    flash(f"Failed to publish earnings report to '{profile_name}': {error}", "danger")
+
+            except Exception as e:
+                error_msg = str(e)
+                app.logger.error(f"Error publishing earnings report for {ticker} to profile {profile_id}: {error_msg}")
+                socketio.emit('automation_update', {
+                    'profile_id': profile_id,
+                    'message': f'✗ Error: {error_msg}',
+                    'level': 'error'
+                }, room=user_uid)
+                flash(f"Error publishing to '{profile_name}': {error_msg}", "danger")
+
+        # Final completion message to all profiles
+        for profile_data in selected_profiles_data_for_run:
+            profile_id = profile_data.get('profile_id')
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'message': f'✅ Earnings automation completed for {ticker}',
+                'level': 'success'
+            }, room=user_uid)
+
+        flash(f"Earnings automation completed for {ticker}", "success")
+
+    except Exception as e:
+        error_msg = str(e)
+        app.logger.error(f"Error in earnings automation for {ticker}: {error_msg}")
+        for profile_data in selected_profiles_data_for_run:
+            profile_id = profile_data.get('profile_id')
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'message': f'Error: {error_msg}',
+                'level': 'error'
+            }, room=user_uid)
+        flash(f"Earnings automation error: {error_msg}", "danger")
+
+    return redirect(url_for('automation_earnings_runner'))
+
+
 @app.route('/wp-asset-generator')
 @login_required
 def wp_generator_page():

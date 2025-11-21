@@ -98,10 +98,97 @@
             font-size: 14px;
         }
 
-        .automation-dashboard-container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
+        .automation-layout {
+            display: flex;
+            min-height: calc(100vh - 120px);
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 1rem;
+            gap: 1.5rem;
+        }
+
+        .automation-sidebar {
+            width: 260px;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 0;
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: hsl(var(--muted-foreground));
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 0;
+            padding: 1.25rem 1.25rem 0.75rem 1.25rem;
+            border-bottom: 1px solid hsl(var(--border));
+            background: hsl(var(--muted));
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0.75rem 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.875rem 1.25rem;
+            text-decoration: none;
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover {
+            background: var(--green-50);
+            color: var(--green-700);
+            border-left-color: var(--green-600);
+        }
+
+        .sidebar-menu a.active {
+            background: var(--green-50);
+            color: var(--green-700);
+            border-left-color: var(--green-600);
+            font-weight: 600;
+        }
+
+        .sidebar-menu a i {
+            font-size: 1.125rem;
+            width: 20px;
+            text-align: center;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .sidebar-menu a.active i,
+        .sidebar-menu a:hover i {
+            color: var(--green-600);
+        }
+
+        .automation-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .automation-dashboard-container { 
+            max-width: 100%; 
+            margin: 0; 
+            padding: 0;
         }
         
         .page-header { 
@@ -784,6 +871,13 @@
         }
 
         @media (max-width: 768px) {
+            .automation-layout {
+                flex-direction: column;
+            }
+            .automation-sidebar {
+                width: 100%;
+                position: static;
+            }
             .automation-dashboard-container {
                 padding: 0.75rem;
             }
@@ -811,10 +905,30 @@
 {% endblock %}
 
 {% block content %}
+<div class="automation-layout">
+    <aside class="automation-sidebar">
+        <div class="sidebar-header">Tools</div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('automation_runner_page') }}" class="active">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Stock Analysis</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('automation_earnings_runner') }}">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Earnings Report</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <div class="automation-content">
 <div class="automation-dashboard-container"> 
     <div class="page-header">
-        <h1><i class="fas fa-robot"></i> Automation Control</h1>
-        <p class="text-muted">Configure and launch automated tasks for your WordPress profiles.</p>
+        <h1><i class="fas fa-robot"></i> Stock Analysis Automation</h1>
+        <p class="text-muted">Configure and launch automated stock analysis tasks for your WordPress profiles.</p>
     </div>
 
     {% if user_site_profiles and user_site_profiles|length > 0 %}
@@ -1018,6 +1132,8 @@
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
+    </div> <!-- Close automation-content -->
+</div> <!-- Close automation-layout -->
 {% endblock %}
 
 {% block scripts_extra %}

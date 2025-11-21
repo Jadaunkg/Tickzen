@@ -385,16 +385,38 @@ def upload_image_to_wordpress(image_path, site_url, author, title="Featured Imag
         response.raise_for_status(); return response.json().get('id')
     except Exception as e: app_logger.error(f"Image upload error to {site_url} for {title}: {e}"); return None
 
-def create_wordpress_post(site_url, author, title, content, sched_time, cat_id=None, media_id=None, ticker=None, company_name=None):
+def create_wordpress_post(site_url, author, title, content, sched_time, cat_id=None, media_id=None, ticker=None, company_name=None, status="future"):
     url = f"{site_url.rstrip('/')}/wp-json/wp/v2/posts"
     creds = base64.b64encode(f"{author['wp_username']}:{author['app_password']}".encode()).decode('utf-8')
     headers = {"Authorization": f"Basic {creds}", "Content-Type": "application/json"}
+    
+    # Create SEO-friendly slug
     if ticker and company_name:
+        # Create a descriptive slug: ticker-company-name (up to 100 chars)
         company_slug = re.sub(r'[^\w]+', '-', company_name.lower()).strip('-')
-        slug = f"{ticker.upper()}-{company_slug}"
+        slug = f"{ticker.lower()}-{company_slug}"
+        # Limit to reasonable length but allow more than 70 chars
+        if len(slug) > 100:
+            slug = slug[:100].rsplit('-', 1)[0]  # Cut at word boundary
     else:
-        slug = re.sub(r'[^\w]+', '-', title.lower()).strip('-')[:70]
-    payload = {"title": title, "content": content, "status": "future", "date_gmt": sched_time.isoformat(), "author": author['wp_user_id'], "slug": slug}
+        # Fallback: use title-based slug (up to 100 chars)
+        slug = re.sub(r'[^\w]+', '-', title.lower()).strip('-')
+        if len(slug) > 100:
+            slug = slug[:100].rsplit('-', 1)[0]  # Cut at word boundary
+    
+    # Build payload with flexible status
+    payload = {
+        "title": title,
+        "content": content,
+        "status": status,
+        "author": author['wp_user_id'],
+        "slug": slug
+    }
+    
+    # Only add date_gmt for scheduled posts
+    if status == "future":
+        payload["date_gmt"] = sched_time.isoformat()
+    
     if media_id: payload["featured_media"] = media_id
     if cat_id:
         try: payload["categories"] = [int(cat_id)]
@@ -403,7 +425,8 @@ def create_wordpress_post(site_url, author, title, content, sched_time, cat_id=N
         response = requests.post(url, headers=headers, json=payload, timeout=90)
         response.raise_for_status(); 
         post_id = response.json().get('id')
-        app_logger.info(f"Post '{title}' scheduled on {site_url}. ID: {post_id}")
+        status_msg = "scheduled" if status == "future" else status
+        app_logger.info(f"Post '{title}' {status_msg} on {site_url}. ID: {post_id}")
         return post_id # MODIFIED: Return post ID
     except Exception as e: app_logger.error(f"WP post error for '{title}' on {site_url}: {e}"); return None # MODIFIED: Return None on error
 
@@ -715,6 +738,7 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
 
         published_count_this_profile_run = 0
         total_tickers_for_profile = len(tickers_for_this_profile_run)
+        app_logger.info(f"[LOOP_START] Starting to process {total_tickers_for_profile} tickers for profile '{profile_name}'. Target: {to_attempt} posts.")
 
         for i, ticker_to_process in enumerate(tickers_for_this_profile_run):
             gen_time_iso = None; pub_time_iso = None; writer_name = None; final_post_status = "Processing" # Default
@@ -797,6 +821,7 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
             _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Ticker Processing", "Begin", f"Starting {ticker_to_process}", "info")
 
             try:
+                app_logger.info(f"[LOOP_DEBUG] Processing ticker {i+1}/{total_tickers_for_profile}: {ticker_to_process} for profile {profile_name}")
                 _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Starting", "Generating AI-powered article...", "info")
                 
                 # Use new Gemini article generation pipeline
@@ -807,10 +832,12 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                     ticker_obj = yf.Ticker(ticker_to_process)
                     info = ticker_obj.info
                     company_name = info.get('longName') or info.get('shortName') or ticker_to_process
-                except:
+                except Exception as e_yf:
+                    app_logger.warning(f"yfinance error for {ticker_to_process}: {e_yf}")
                     company_name = ticker_to_process
                 
                 # Generate article using complete pipeline (analysis + Gemini rewrite)
+                app_logger.info(f"[ARTICLE_GEN] Starting article generation for {ticker_to_process}")
                 article_path, metadata = generate_article_from_pipeline(
                     ticker=ticker_to_process,
                     company_name=company_name,
@@ -818,6 +845,7 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                     output_dir=os.path.join(APP_ROOT, '..', 'generated_data', 'wordpress_articles'),
                     app_root=os.path.join(APP_ROOT, '..', 'app')
                 )
+                app_logger.info(f"[ARTICLE_GEN] Successfully generated article for {ticker_to_process}: {article_path}")
                 
                 # Read the generated article
                 with open(article_path, 'r', encoding='utf-8') as f:
@@ -846,9 +874,12 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
 
                 if not html_content or len(html_content) < 1000:
                     error_message_for_log = f"AI article generation failed for {ticker_to_process}."
+                    app_logger.error(f"[ARTICLE_GEN_FAIL] {error_message_for_log}")
                     _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Failed", error_message_for_log, "error")
                     final_post_status = f"Failed: Content Gen"
                     state.get('failed_tickers_by_profile', {}).setdefault(profile_id, []).append(ticker_to_process)
+                    # Continue to next ticker instead of breaking
+                    app_logger.info(f"[LOOP_DEBUG] Skipping {ticker_to_process} due to content generation failure, continuing to next ticker")
                 else:
                     _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Done", "Content generated.", "success")
                     final_post_status = "Generated" # Intermediate status
@@ -871,14 +902,41 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                     # Extract title from generated article (Gemini already created SEO-optimized title)
                     article_title = None
                     soup = BeautifulSoup(html_content, 'html.parser')
+                    
+                    # Remove the article header section (headline + metadata) from content
+                    article_header = soup.find('div', class_='article-header')
+                    if article_header:
+                        article_header.decompose()
+                    
+                    # Extract h1 for title before removing it from content
                     h1_tag = soup.find('h1')
                     if h1_tag:
                         article_title = h1_tag.get_text().strip()
+                        # Remove h1 from content as it will be the WordPress post title
+                        h1_tag.decompose()
                     
-                    # Fallback: generate title if not found in article
+                    # Update html_content after removing header elements
+                    html_content = str(soup)
+                    
+                    # Generate dynamic, descriptive title if not found in article
                     if not article_title:
-                        sector = rdata.get('sector', 'N/A')
-                        article_title = f"{company_name} ({ticker_to_process}) Stock Analysis - Complete Investment Guide"
+                        # Extract first h2 heading to determine content focus
+                        first_h2 = soup.find('h2')
+                        sector = rdata.get('sector', 'Technology')
+                        
+                        if first_h2:
+                            h2_text = first_h2.get_text().strip().lower()
+                            # Create descriptive title based on article content
+                            if 'forecast' in h2_text or 'prediction' in h2_text:
+                                article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Price Forecast, Technicals & Investment Outlook"
+                            elif 'technical' in h2_text:
+                                article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Technical Indicators, Price Targets & Risk Analysis"
+                            elif 'fundamental' in h2_text:
+                                article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Fundamentals, Financial Performance & Latest News"
+                            else:
+                                article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Comprehensive Investment Guide & Market Insights"
+                        else:
+                            article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Technicals, Price Forecast & Investment Outlook"
                     
                     app_logger.info(f"Article title for {ticker_to_process}: {article_title}")
                     
@@ -935,6 +993,7 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                         state['published_tickers_log_by_profile'].setdefault(profile_id, set()).add(ticker_to_process)
                         published_count_this_profile_run += 1
                         final_post_status = "Scheduled" # MODIFIED: Status is Scheduled, not Published immediately
+                        app_logger.info(f"[SUCCESS] Successfully scheduled {ticker_to_process}. Count: {published_count_this_profile_run}/{to_attempt}")
                         _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Publishing", "Scheduled", f"Post for {ticker_to_process} scheduled by {writer_name} for {next_schedule_time.strftime('%Y-%m-%d %H:%M')}. WP ID: {created_post_id}", "success")
                         
                         # NEW: Save status after successful scheduling
@@ -982,11 +1041,12 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                                 app_logger.error(f"Error saving status for failed ticker {ticker_to_process}: {e_cb}", exc_info=True)
 
             except Exception as e_ticker_loop:
-                app_logger.error(f"Error processing ticker {ticker_to_process} for profile {profile_name}: {e_ticker_loop}", exc_info=True)
+                app_logger.error(f"[ERROR] Exception processing ticker {ticker_to_process} for profile {profile_name}: {e_ticker_loop}", exc_info=True)
                 error_message_for_log = f"Error with {ticker_to_process}: {str(e_ticker_loop)[:100]}"
                 final_post_status = f"Failed: {error_message_for_log}"
                 _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Ticker Processing", "Error", error_message_for_log, "error")
                 state.get('failed_tickers_by_profile', {}).setdefault(profile_id, []).append(ticker_to_process)
+                app_logger.info(f"[LOOP_DEBUG] Continuing to next ticker after error with {ticker_to_process}. Current count: {published_count_this_profile_run}/{to_attempt}")
                 
                 # NEW: Save status for exception case
                 if save_status_callback:
@@ -1024,10 +1084,12 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
 
             _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process,
                                     "Ticker Processing", "Progress",
-                                    f"Processed {i+1}/{total_tickers_for_profile} for {profile_name}.", "info")
+                                    f"Processed {i+1}/{total_tickers_for_profile} for {profile_name}. Published so far: {published_count_this_profile_run}/{to_attempt}", "info")
 
             if not _active_runs[user_uid][profile_id].get("stop_requested", False):
                  time.sleep(random.uniform(1, 3)) # Small delay between tickers if not stopping
+            
+            app_logger.info(f"[LOOP_DEBUG] End of iteration {i+1}. Status: {final_post_status}, Published count: {published_count_this_profile_run}, Target: {to_attempt}")
 
         # After loop for a profile finishes or breaks
         if not (source_type == "Manual Entry" or source_type == "Uploaded File (Storage)"): # Only manage pending list for Excel/State
