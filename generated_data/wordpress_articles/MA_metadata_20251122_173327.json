@@ -1,0 +1,13 @@
+{
+  "ticker": "MA",
+  "company_name": "Mastercard Incorporated",
+  "word_count": 6764,
+  "section_count": 1,
+  "sections": [
+    "MA Stock Analysis & Price Forecast: Unlocking Mastercard's Investment Potential"
+  ],
+  "has_faq": true,
+  "has_schema": true,
+  "generated_date": "2025-11-22T17:33:27.760298",
+  "model": "gemini-2.5-flash"
+}
