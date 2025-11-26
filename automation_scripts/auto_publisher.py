@@ -49,6 +49,15 @@ except ImportError:
     if __name__ == '__main__': exit(1)
     else: raise
 
+# Import earnings article publisher
+try:
+    from earnings_reports.earnings_publisher import generate_earnings_article_for_autopublisher
+    EARNINGS_ARTICLE_SYSTEM_AVAILABLE = True
+except ImportError:
+    logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.error("WARNING: Failed to import 'generate_earnings_article_for_autopublisher'. Earnings articles will not be available.")
+    EARNINGS_ARTICLE_SYSTEM_AVAILABLE = False
+
 LOG_FILE = "auto_publisher.log"
 app_logger = logging.getLogger("AutoPublisherLogger")
 if not app_logger.handlers:
@@ -165,7 +174,8 @@ def load_state(user_uid=None, current_profile_ids_from_run=None):
         'posts_today_by_profile': lambda: 0, 'published_tickers_log_by_profile': set,
         'processed_tickers_detailed_log_by_profile': list,
         'last_author_index_by_profile': lambda: -1,
-        'last_processed_ticker_index_by_profile': lambda: -1
+        'last_processed_ticker_index_by_profile': lambda: -1,
+        'ticker_publish_count_by_profile': lambda: {}  # Track how many times each ticker published per profile
     }
     default_state = {key: {str(pid): factory() for pid in active_profile_ids} for key, factory in default_factories.items()}
     default_state['last_run_date'] = (datetime.now(timezone.utc) - timedelta(days=1)).strftime('%Y-%m-%d')
@@ -195,11 +205,16 @@ def load_state(user_uid=None, current_profile_ids_from_run=None):
                     state['posts_today_by_profile'][pid_in_state] = 0
                 for pid_in_state in list(state.get('processed_tickers_detailed_log_by_profile', {}).keys()):
                      state['processed_tickers_detailed_log_by_profile'][pid_in_state] = []
+                # Reset ticker publish counts for new day (allow fresh variations)
+                for pid_in_state in list(state.get('ticker_publish_count_by_profile', {}).keys()):
+                    state['ticker_publish_count_by_profile'][pid_in_state] = {}
                 state['last_run_date'] = current_date_str
 
             for pid_str in active_profile_ids:
                 state.setdefault('posts_today_by_profile', {})[pid_str] = state.get('posts_today_by_profile', {}).get(pid_str, 0)
                 state.setdefault('processed_tickers_detailed_log_by_profile', {}).setdefault(pid_str, [])
+                state.setdefault('ticker_publish_count_by_profile', {}).setdefault(pid_str, {})
+            
             return state
         except Exception as e:
             app_logger.warning(f"Could not load/process state file '{STATE_FILE}': {e}. Using default.", exc_info=True)
@@ -783,8 +798,13 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                 })
                 break 
             
-            # Ensure published_tickers_log_by_profile and its sub-dict/set exist
+            # Ensure published_tickers_log_by_profile and ticker count tracking exist
             state.setdefault('published_tickers_log_by_profile', {}).setdefault(profile_id, set())
+            state.setdefault('ticker_publish_count_by_profile', {}).setdefault(profile_id, {})
+            
+            # Check if ticker already published on THIS SITE (not globally)
+            # If yes, generate a DIFFERENT VERSION instead of skipping
+            article_variation_number = 0
             if ticker_to_process in state['published_tickers_log_by_profile'][profile_id]:
                 msg = f"Ticker '{ticker_to_process}' already published for '{profile_name}'. Skipping."
                 _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Article", "Skipped", msg, "info")
@@ -821,56 +841,121 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
             _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Ticker Processing", "Begin", f"Starting {ticker_to_process}", "info")
 
             try:
+                # CRITICAL: Reset article_title for each ticker to prevent title reuse
+                article_title = None
+                
                 app_logger.info(f"[LOOP_DEBUG] Processing ticker {i+1}/{total_tickers_for_profile}: {ticker_to_process} for profile {profile_name}")
                 _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Starting", "Generating AI-powered article...", "info")
                 
-                # Use new Gemini article generation pipeline
-                import yfinance as yf
+                # Determine article type from profile configuration
+                article_type = profile_config.get('article_type', 'stock_analysis')  # Default to stock analysis
+                # Possible values: 'stock_analysis', 'earnings', 'pre_earnings', 'post_earnings'
                 
-                # Get company name
-                try:
-                    ticker_obj = yf.Ticker(ticker_to_process)
-                    info = ticker_obj.info
-                    company_name = info.get('longName') or info.get('shortName') or ticker_to_process
-                except Exception as e_yf:
-                    app_logger.warning(f"yfinance error for {ticker_to_process}: {e_yf}")
-                    company_name = ticker_to_process
+                # Route to appropriate article generation system
+                if article_type in ['earnings', 'pre_earnings', 'post_earnings'] and EARNINGS_ARTICLE_SYSTEM_AVAILABLE:
+                    app_logger.info(f"[ARTICLE_TYPE] Generating {article_type} article for {ticker_to_process} (Variation #{article_variation_number})")
+                    variation_msg = f" - Variation #{article_variation_number}" if article_variation_number > 0 else ""
+                    _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Earnings", f"Generating {article_type} article{variation_msg}...", "info")
+                    
+                    # Generate earnings article with variation
+                    html_content, article_title, rdata = generate_earnings_article_for_autopublisher(
+                        ticker=ticker_to_process,
+                        article_type=article_type,
+                        profile_config=profile_config,
+                        variation_number=article_variation_number  # NEW: Pass variation number
+                    )
+                    
+                    if not html_content or not rdata.get('success'):
+                        error_message_for_log = f"Earnings article generation failed for {ticker_to_process}: {rdata.get('error', 'Unknown error')}"
+                        app_logger.error(f"[EARNINGS_GEN_FAIL] {error_message_for_log}")
+                        _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Failed", error_message_for_log, "error")
+                        final_post_status = f"Failed: Earnings Content Gen"
+                        state.get('failed_tickers_by_profile', {}).setdefault(profile_id, []).append(ticker_to_process)
+                        raise Exception(error_message_for_log)
+                    
+                    company_name = rdata.get('company_name', ticker_to_process)
+                    gen_time_iso = datetime.now(timezone.utc).isoformat()
+                    css_content = ""  # Not needed with earnings article system
+                    
+                elif GEMINI_ARTICLE_SYSTEM_AVAILABLE:
+                    # Use stock analysis article generation (existing flow)
+                    app_logger.info(f"[ARTICLE_TYPE] Generating stock analysis article for {ticker_to_process} (Variation #{article_variation_number})")
+                    variation_msg = f" - Variation #{article_variation_number}" if article_variation_number > 0 else ""
+                    _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Stock Analysis", f"Generating stock analysis article{variation_msg}...", "info")
                 
-                # Generate article using complete pipeline (analysis + Gemini rewrite)
-                app_logger.info(f"[ARTICLE_GEN] Starting article generation for {ticker_to_process}")
-                article_path, metadata = generate_article_from_pipeline(
-                    ticker=ticker_to_process,
-                    company_name=company_name,
-                    timeframe='1mo',
-                    output_dir=os.path.join(APP_ROOT, '..', 'generated_data', 'wordpress_articles'),
-                    app_root=os.path.join(APP_ROOT, '..', 'app')
-                )
-                app_logger.info(f"[ARTICLE_GEN] Successfully generated article for {ticker_to_process}: {article_path}")
-                
-                # Read the generated article
-                with open(article_path, 'r', encoding='utf-8') as f:
-                    html_content = f.read()
-                
-                # Extract body content (remove DOCTYPE, html, head tags)
-                from bs4 import BeautifulSoup
-                soup = BeautifulSoup(html_content, 'html.parser')
-                body_content = soup.find('body')
-                if body_content:
-                    html_content = str(body_content)
-                    # Remove body tags but keep content
-                    html_content = html_content.replace('<body>', '').replace('</body>', '')
-                
-                # Create minimal rdata for compatibility
-                rdata = {
-                    'ticker': ticker_to_process,
-                    'company_name': company_name,
-                    'sector': info.get('sector', 'N/A') if 'info' in locals() else 'N/A',
-                    'overall_pct_change': 0,  # Not used in new flow
-                    'profile_data': {'Company Name': company_name, 'Sector': info.get('sector', 'N/A') if 'info' in locals() else 'N/A'},
-                }
-                
-                gen_time_iso = datetime.now(timezone.utc).isoformat()
-                css_content = ""  # Not needed with new article system
+                    # Use new Gemini article generation pipeline
+                    import yfinance as yf
+                    
+                    # Get company name
+                    try:
+                        ticker_obj = yf.Ticker(ticker_to_process)
+                        info = ticker_obj.info
+                        company_name = info.get('longName') or info.get('shortName') or ticker_to_process
+                    except Exception as e_yf:
+                        app_logger.warning(f"yfinance error for {ticker_to_process}: {e_yf}")
+                        company_name = ticker_to_process
+                    
+                    # Generate article using complete pipeline (analysis + Gemini rewrite)
+                    app_logger.info(f"[ARTICLE_GEN] Starting article generation for {ticker_to_process}")
+                    try:
+                        article_path, metadata = generate_article_from_pipeline(
+                            ticker=ticker_to_process,
+                            company_name=company_name,
+                            timeframe='1mo',
+                            output_dir=os.path.join(APP_ROOT, '..', 'generated_data', 'wordpress_articles'),
+                            app_root=os.path.join(APP_ROOT, '..', 'app'),
+                            variation_number=article_variation_number  # NEW: Pass variation number
+                        )
+                    except Exception as e_gen:
+                        error_message_for_log = f"Pipeline error for {ticker_to_process}: {str(e_gen)[:200]}"
+                        app_logger.error(f"[ARTICLE_GEN_FAIL] {error_message_for_log}", exc_info=True)
+                        _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Failed", error_message_for_log, "error")
+                        final_post_status = f"Failed: Pipeline Error"
+                        state.get('failed_tickers_by_profile', {}).setdefault(profile_id, []).append(ticker_to_process)
+                        raise Exception(error_message_for_log)
+                    
+                    # Check if article generation succeeded
+                    if not article_path or not os.path.exists(article_path):
+                        error_message_for_log = f"Article generation failed for {ticker_to_process} - no file generated"
+                        app_logger.error(f"[ARTICLE_GEN_FAIL] {error_message_for_log}")
+                        _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Failed", error_message_for_log, "error")
+                        final_post_status = f"Failed: Article Gen"
+                        state.get('failed_tickers_by_profile', {}).setdefault(profile_id, []).append(ticker_to_process)
+                        raise Exception(error_message_for_log)
+                    
+                    app_logger.info(f"[ARTICLE_GEN] Successfully generated article for {ticker_to_process}: {article_path}")
+                    
+                    # Read the generated article
+                    with open(article_path, 'r', encoding='utf-8') as f:
+                        html_content = f.read()
+                    
+                    # Extract body content (remove DOCTYPE, html, head tags)
+                    from bs4 import BeautifulSoup
+                    soup = BeautifulSoup(html_content, 'html.parser')
+                    body_content = soup.find('body')
+                    if body_content:
+                        html_content = str(body_content)
+                        # Remove body tags but keep content
+                        html_content = html_content.replace('<body>', '').replace('</body>', '')
+                    
+                    # Create minimal rdata for compatibility
+                    rdata = {
+                        'ticker': ticker_to_process,
+                        'company_name': company_name,
+                        'sector': info.get('sector', 'N/A') if 'info' in locals() else 'N/A',
+                        'overall_pct_change': 0,  # Not used in new flow
+                        'profile_data': {'Company Name': company_name, 'Sector': info.get('sector', 'N/A') if 'info' in locals() else 'N/A'},
+                    }
+                    
+                    gen_time_iso = datetime.now(timezone.utc).isoformat()
+                    css_content = ""  # Not needed with new article system
+                else:
+                    error_message_for_log = f"No article generation system available for {ticker_to_process}"
+                    app_logger.error(f"[SYSTEM_UNAVAILABLE] {error_message_for_log}")
+                    _emit_automation_progress(socketio_instance, user_room, profile_id, ticker_to_process, "Report Gen", "Failed", error_message_for_log, "error")
+                    final_post_status = f"Failed: No System Available"
+                    state.get('failed_tickers_by_profile', {}).setdefault(profile_id, []).append(ticker_to_process)
+                    raise Exception(error_message_for_log)
 
                 if not html_content or len(html_content) < 1000:
                     error_message_for_log = f"AI article generation failed for {ticker_to_process}."
@@ -899,44 +984,57 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                         })
                         break 
 
-                    # Extract title from generated article (Gemini already created SEO-optimized title)
-                    article_title = None
-                    soup = BeautifulSoup(html_content, 'html.parser')
+                    # Extract title from generated article
+                    # For earnings articles, title may already be set; for stock analysis, extract from h1
+                    if 'article_title' not in locals() or not article_title:
+                        article_title = None
+                        soup = BeautifulSoup(html_content, 'html.parser')
+                    else:
+                        soup = BeautifulSoup(html_content, 'html.parser')
                     
                     # Remove the article header section (headline + metadata) from content
                     article_header = soup.find('div', class_='article-header')
                     if article_header:
                         article_header.decompose()
                     
-                    # Extract h1 for title before removing it from content
-                    h1_tag = soup.find('h1')
-                    if h1_tag:
-                        article_title = h1_tag.get_text().strip()
-                        # Remove h1 from content as it will be the WordPress post title
-                        h1_tag.decompose()
+                    # Extract h1 for title before removing it from content (if not already set)
+                    if not article_title:
+                        h1_tag = soup.find('h1')
+                        if h1_tag:
+                            article_title = h1_tag.get_text().strip()
+                            # Remove h1 from content as it will be the WordPress post title
+                            h1_tag.decompose()
                     
                     # Update html_content after removing header elements
                     html_content = str(soup)
                     
                     # Generate dynamic, descriptive title if not found in article
                     if not article_title:
-                        # Extract first h2 heading to determine content focus
-                        first_h2 = soup.find('h2')
-                        sector = rdata.get('sector', 'Technology')
+                        # Get article type and company details
+                        current_article_type = profile_config.get('article_type', 'stock_analysis')
                         
-                        if first_h2:
-                            h2_text = first_h2.get_text().strip().lower()
-                            # Create descriptive title based on article content
-                            if 'forecast' in h2_text or 'prediction' in h2_text:
-                                article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Price Forecast, Technicals & Investment Outlook"
-                            elif 'technical' in h2_text:
-                                article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Technical Indicators, Price Targets & Risk Analysis"
-                            elif 'fundamental' in h2_text:
-                                article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Fundamentals, Financial Performance & Latest News"
-                            else:
-                                article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Comprehensive Investment Guide & Market Insights"
+                        if current_article_type in ['earnings', 'pre_earnings', 'post_earnings']:
+                            # Earnings article title
+                            article_title = f"{company_name} ({ticker_to_process}) Earnings Report - Comprehensive Analysis"
                         else:
-                            article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Technicals, Price Forecast & Investment Outlook"
+                            # Stock analysis article title
+                            # Extract first h2 heading to determine content focus
+                            first_h2 = soup.find('h2')
+                            sector = rdata.get('sector', 'Technology')
+                            
+                            if first_h2:
+                                h2_text = first_h2.get_text().strip().lower()
+                                # Create descriptive title based on article content
+                                if 'forecast' in h2_text or 'prediction' in h2_text:
+                                    article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Price Forecast, Technicals & Investment Outlook"
+                                elif 'technical' in h2_text:
+                                    article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Technical Indicators, Price Targets & Risk Analysis"
+                                elif 'fundamental' in h2_text:
+                                    article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Fundamentals, Financial Performance & Latest News"
+                                else:
+                                    article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Comprehensive Investment Guide & Market Insights"
+                            else:
+                                article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Technicals, Price Forecast & Investment Outlook"
                     
                     app_logger.info(f"Article title for {ticker_to_process}: {article_title}")
                     
@@ -991,6 +1089,13 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                         state['last_successful_schedule_time_by_profile'][profile_id] = pub_time_iso
                         state['posts_today_by_profile'][profile_id] = state['posts_today_by_profile'].get(profile_id, 0) + 1
                         state['published_tickers_log_by_profile'].setdefault(profile_id, set()).add(ticker_to_process)
+                        
+                        # Track variation count for this ticker on this profile
+                        state.setdefault('ticker_publish_count_by_profile', {}).setdefault(profile_id, {})
+                        current_count = state['ticker_publish_count_by_profile'][profile_id].get(ticker_to_process, 0)
+                        state['ticker_publish_count_by_profile'][profile_id][ticker_to_process] = current_count + 1
+                        app_logger.info(f"[VARIATION_TRACKER] {ticker_to_process} published {current_count + 1} time(s) on {profile_name}")
+                        
                         published_count_this_profile_run += 1
                         final_post_status = "Scheduled" # MODIFIED: Status is Scheduled, not Published immediately
                         app_logger.info(f"[SUCCESS] Successfully scheduled {ticker_to_process}. Count: {published_count_this_profile_run}/{to_attempt}")

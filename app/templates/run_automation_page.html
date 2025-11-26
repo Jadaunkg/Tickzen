@@ -108,34 +108,76 @@
         }
 
         .automation-sidebar {
-            width: 260px;
+            width: 240px;
             background: white;
             border: 1px solid hsl(var(--border));
-            border-radius: 12px;
+            border-radius: 0;
             padding: 0;
-            height: fit-content;
+            height: calc(100vh - 100px);
             position: sticky;
             top: 80px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 8px 0 rgba(0, 0, 0, 0.05);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin-left: -1rem;
         }
 
         .sidebar-header {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: white;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin: 0;
-            padding: 1.25rem 1.25rem 0.75rem 1.25rem;
-            border-bottom: 1px solid hsl(var(--border));
-            background: hsl(var(--muted));
+            letter-spacing: 0.05em;
+            padding: 1.5rem 1.25rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, var(--green-700) 0%, var(--green-800) 100%);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-header i {
+            font-size: 1.125rem;
         }
 
         .sidebar-menu {
             list-style: none;
             padding: 0.75rem 0;
             margin: 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid hsl(var(--border));
+            padding: 1rem;
+            background: hsl(var(--muted));
+        }
+
+        .sidebar-footer a {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.75rem;
+            text-decoration: none;
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+            font-weight: 500;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-footer a:hover {
+            background: var(--green-50);
+            border-color: var(--green-600);
+            color: var(--green-700);
+        }
+
+        .sidebar-footer a i {
+            color: var(--green-600);
         }
 
         .sidebar-menu li {
@@ -183,6 +225,7 @@
         .automation-content {
             flex: 1;
             min-width: 0;
+            max-width: calc(100vw - 280px);
         }
 
         .automation-dashboard-container { 
@@ -198,6 +241,21 @@
             padding: 1.5rem; 
             margin-bottom: 1.5rem; 
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .automation-layout {
+                flex-direction: column;
+            }
+            .automation-sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+                margin-left: 0;
+            }
+            .automation-content {
+                max-width: 100%;
+            }
         }
         
         .page-header h1 { 
@@ -907,7 +965,10 @@
 {% block content %}
 <div class="automation-layout">
     <aside class="automation-sidebar">
-        <div class="sidebar-header">Tools</div>
+        <div class="sidebar-header">
+            <i class="fas fa-robot"></i>
+            Automation Menu
+        </div>
         <ul class="sidebar-menu">
             <li>
                 <a href="{{ url_for('automation_runner_page') }}" class="active">
@@ -922,6 +983,12 @@
                 </a>
             </li>
         </ul>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('manage_site_profiles') }}">
+                <i class="fas fa-cog"></i>
+                <span>Manage Profiles</span>
+            </a>
+        </div>
     </aside>
 
     <div class="automation-content">

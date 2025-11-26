@@ -204,26 +204,68 @@ DATA GAPS AND LIMITATIONS:
         
         return '\n'.join([f"- {item}" for item in data]) + '\n'
     
-    def generate_article_with_gemini(self, ticker: str, earnings_context: str) -> str:
+    def generate_article_with_gemini(self, ticker: str, earnings_context: str, variation_number: int = 0) -> str:
         """
         Use Gemini to generate a professional earnings analysis article
         
         Args:
             ticker: Stock ticker symbol
             earnings_context: Earnings data context
+            variation_number: Article variation number (0=first, 1=second variation, etc.)
             
         Returns:
             Generated article HTML
         """
-        logger.info(f"Generating article for {ticker} using Gemini AI")
+        logger.info(f"Generating article for {ticker} using Gemini AI (Variation #{variation_number})")
+        
+        # Add variation instructions if this is a variation
+        variation_instructions = ""
+        if variation_number > 0:
+            variation_instructions = f"""
+⚠️ VARIATION MODE (CRITICAL - READ FIRST):
+   - This is VARIATION #{variation_number + 1} of this earnings article
+   - You MUST generate a DIFFERENT VERSION than previous attempts
+   - Use DIFFERENT wording, DIFFERENT explanations, DIFFERENT perspectives
+   - However, the section structure MUST remain exactly the same
+   - Focus on different aspects of the earnings (e.g., if variation 1 focused on revenue growth, focus on margin trends)
+   - Use synonyms and rephrase sentences completely
+   - Change sentence structures and paragraph flow
+   - Present the same earnings data from a fresh angle
+   - This ensures unique content when same ticker publishes to same site multiple times
+   - CRITICAL: Section structure stays identical, but presentation and language must differ significantly
+
+"""
         
         prompt = f"""You are a professional financial analyst presenting YOUR analysis of {ticker}'s earnings to individual investors. Think of yourself as a trusted advisor explaining the results directly to your audience.
 
 🎯 YOUR ROLE: You are THE analyst. This is YOUR research, YOUR insights, YOUR recommendations. Speak directly to readers as "you" and refer to your work as "we" or "our analysis."
 
+{variation_instructions}⚠️ CRITICAL DATA FRESHNESS REQUIREMENT:
+   - You MUST use ONLY the latest information from the last 2-3 days
+   - ALL data, news, events, and market information MUST be current and recent
+   - This is financial content - NO OUTDATED DATA ALLOWED
+   - Only cite trusted sources: SEC filings, official company announcements, major financial news (Bloomberg, Reuters, WSJ, CNBC, Yahoo Finance)
+   - If you reference any external information beyond the provided data, it MUST be from the last 2-3 days only
+   - NEVER use old data, historical news from weeks/months ago, or outdated analysis
+   - For earnings reports, focus on the MOST RECENT quarter only
+
 📝 WRITING STYLE RULES:
 
-**1. USE SIMPLE, CLEAR ENGLISH:**
+**1. PARAGRAPH LENGTH (CRITICAL - NON-NEGOTIABLE):**
+   ⚠️ MAXIMUM 4-5 SENTENCES PER PARAGRAPH
+   ✅ Keep paragraphs short and scannable
+   ✅ Break long explanations into multiple short paragraphs
+   ✅ Each paragraph should cover ONE focused idea
+   ✅ Use frequent paragraph breaks for better readability
+   ❌ NEVER write paragraphs longer than 5 sentences
+   ❌ NEVER create dense blocks of text
+   
+   Example Structure:
+   <p>First key point explained in 3-4 sentences. Make it clear and focused.</p>
+   <p>Second related point in another short paragraph. Keep it digestible.</p>
+   <p>Third point with supporting detail. Maximum 5 sentences total.</p>
+
+**2. USE SIMPLE, CLEAR ENGLISH:**
    ✅ Say "grew" not "exhibited growth trajectory"
    ✅ Say "profit margin" not "EBITDA margin expansion dynamics"
    ✅ Say "the company made less money" not "profitability metrics deteriorated"
@@ -231,7 +273,7 @@ DATA GAPS AND LIMITATIONS:
    ❌ Avoid jargon unless you immediately explain it in plain terms
    ❌ No corporate buzzwords: "synergies", "headwinds", "tailwinds" (unless explaining what they mean)
 
-**2. BE A STORYTELLER, NOT A REPORTER:**
+**3. BE A STORYTELLER, NOT A REPORTER:**
    ✅ "Apple's iPhone sales jumped 12% this quarter. This is huge because..."
    ✅ "We're seeing a troubling pattern in Tesla's margins. Here's what's happening..."
    ✅ "Let me break down why this revenue number matters to you as an investor..."
@@ -239,7 +281,7 @@ DATA GAPS AND LIMITATIONS:
    ❌ NOT: "According to the financial statements..."
    ❌ NOT: "The data indicates..."
 
-**3. ANALYTICAL APPROACH - EXPLAIN THE "WHY" AND "SO WHAT":**
+**4. ANALYTICAL APPROACH - EXPLAIN THE "WHY" AND "SO WHAT":**
    Every number needs context:
    - What caused this change?
    - Why does it matter to investors?
@@ -251,7 +293,7 @@ DATA GAPS AND LIMITATIONS:
    ❌ BAD: "Revenue grew 15% to $50 billion"
    ✅ GOOD: "Revenue grew 15% to $50 billion. This growth came primarily from cloud services, which now make up 35% of total revenue. We see this as positive because cloud has higher margins and recurring revenue, making the business more predictable."
 
-**4. DIRECT ANALYST-TO-AUDIENCE COMMUNICATION:**
+**5. DIRECT ANALYST-TO-AUDIENCE COMMUNICATION:**
    ✅ "Let me walk you through the key numbers..."
    ✅ "Here's what stands out to me in this report..."
    ✅ "We believe this signals a turning point because..."
@@ -259,27 +301,27 @@ DATA GAPS AND LIMITATIONS:
    ✅ "Our analysis suggests that investors should consider..."
    ❌ NEVER say: "according to data", "based on available information", "the context shows"
 
-**5. MAKE IT CONVERSATIONAL BUT PROFESSIONAL:**
+**6. MAKE IT CONVERSATIONAL BUT PROFESSIONAL:**
    - Write like you're explaining to a smart friend who isn't a finance expert
    - Use short sentences for key points. Longer sentences for explanations.
    - Break down complex concepts: "Think of it this way...", "Here's what this means..."
    - Ask rhetorical questions: "Why does this matter? Because..."
    - Use analogies when helpful: "It's like when a store opens more locations but each one sells less..."
 
-**6. ALWAYS PROVIDE CONTEXT AND COMPARISON:**
+**7. ALWAYS PROVIDE CONTEXT AND COMPARISON:**
    Never present a number alone:
    ✅ "Earnings per share hit $2.50, up from $2.10 last year and beating analyst estimates of $2.35"
    ✅ "Profit margins fell to 15%, down from 18% last quarter. This is concerning because..."
    ✅ "The company holds $20 billion in cash, which is enough to cover two years of operations"
    ❌ NOT: "EPS was $2.50"
 
-**7. BE HONEST AND BALANCED:**
+**8. BE HONEST AND BALANCED:**
    - Point out both strengths and weaknesses
    - Don't sugarcoat problems: "This is a red flag because..."
    - Don't be overly negative either: "Despite challenges, here's what's working..."
    - Express uncertainty when appropriate: "It's too early to tell if...", "We'll need to watch..."
 
-**8. USE YOUR KNOWLEDGE ACTIVELY:**
+**9. USE YOUR KNOWLEDGE ACTIVELY:**
    - Fill in ANY missing information about {ticker} from your knowledge
    - Add industry context and competitive comparisons
    - Include recent news, analyst opinions, and market reactions
@@ -292,8 +334,13 @@ You MUST generate ONLY the article content as clean, semantic HTML - NO <html>, 
 
 **CRITICAL HTML REQUIREMENTS:**
 ✅ Start directly with content (first tag should be <h1>)
-✅ Use proper semantic HTML5 tags: <h2>, <h3>, <p>, <ul>, <li>, <ol>, <table>, <strong>, <em>
-✅ Maintain strict heading hierarchy: h2 for main sections, h3 for subsections
+✅ Use proper semantic HTML5 tags: <h2>, <h3>, <h4>, <p>, <ul>, <li>, <ol>, <table>, <strong>, <em>
+✅ STRICT HEADING HIERARCHY (CRITICAL):
+   - <h2> for ALL main sections (e.g., "Financial Results", "Key Metrics", "Investment Outlook")
+   - <h3> for subsections under h2 (e.g., "Revenue Analysis" under "Financial Results")
+   - <h4> for sub-subsections under h3 (e.g., "Product Segment Breakdown" under "Revenue Analysis")
+   - NEVER skip levels: h2 → h3 → h4 (never h2 → h4)
+   - NEVER use h3 as main section headings
 ✅ Wrap ALL text in <p> tags - never have loose text outside tags
 ✅ Use <ul> and <li> for bullet lists with proper nesting
 ✅ Use <table>, <thead>, <tbody>, <tr>, <th>, <td> for tabular data
@@ -301,6 +348,89 @@ You MUST generate ONLY the article content as clean, semantic HTML - NO <html>, 
 ❌ NO document structure tags: <html>, <head>, <body>, <meta>, <title>, <style>, <script>
 ❌ NO inline styles or CSS classes
 ❌ NO placeholder text like "[Company Name]" or "[Quarter]"
+
+**EXTERNAL LINKS REQUIREMENT (CRITICAL - NON-NEGOTIABLE):**
+⚠️ YOU MUST INCLUDE EXACTLY 2-3 HIGH-QUALITY, VALID EXTERNAL LINKS
+⚠️ ALL LINKS MUST BE WORKING, ACCESSIBLE, AND PROPERLY FORMATTED
+⚠️ NO BROKEN LINKS, NO PLACEHOLDER LINKS, NO GENERIC URLs
+⚠️ AT LEAST ONE LINK MUST BE A FOLLOW LINK (rel="follow") FOR SEO
+
+**REQUIRED LINK STRUCTURE:**
+✅ FIRST LINK (FOLLOW LINK - CRITICAL FOR SEO):
+   - Format: <a href="FULL_URL" target="_blank" rel="follow">descriptive anchor text</a>
+   - Use rel="follow" (NOT "nofollow" or "noopener") for SEO link juice
+   - This should be your most authoritative source (SEC Edgar or Yahoo Finance)
+   
+✅ REMAINING LINKS (NOOPENER):
+   - Format: <a href="FULL_URL" target="_blank" rel="noopener noreferrer">descriptive anchor text</a>
+   - Use rel="noopener noreferrer" for security
+
+✅ Use COMPLETE URLs including https://
+✅ Use ONLY these verified, reliable sources:
+   
+   1. **SEC EDGAR Filings** (ALWAYS WORKS - BEST FOR FOLLOW LINK):
+      - Format: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=TICKER&type=10-Q&dateb=&owner=exclude&count=40
+      - Anchor text example: "SEC 10-Q filings for TICKER"
+      - Place in: Financial Results or Guidance sections
+      - ✅ USE THIS AS YOUR FOLLOW LINK (rel="follow")
+   
+   2. **Yahoo Finance** (ALWAYS WORKS - GOOD FOR FOLLOW LINK):
+      - Format: https://finance.yahoo.com/quote/TICKER
+      - Anchor text example: "TICKER stock quote and financials"
+      - Place in: Stock Price or Valuation sections
+      - ✅ CAN ALSO BE USED AS FOLLOW LINK
+   
+   3. **Investor Relations** (USE ONLY IF YOU KNOW THE EXACT URL):
+      - Common formats: https://investors.COMPANY.com or https://ir.COMPANY.com
+      - Example: https://investor.apple.com (Apple), https://investors.microsoft.com (Microsoft)
+      - Anchor text example: "Company Name investor relations page"
+      - Place in: Guidance or Management sections
+      - ⚠️ ONLY use if you're 100% certain the URL exists and is correct
+      - Use rel="noopener noreferrer" for these links
+
+**PLACEMENT RULES:**
+✅ Spread links naturally across different sections
+✅ First link: In "Financial Results" or "Revenue" section (use SEC Edgar with rel="follow")
+✅ Second link: In "Valuation" or "Stock Price" section (use Yahoo Finance with rel="noopener noreferrer")
+✅ Third link (optional): In "Guidance" or "Analyst Views" section (use IR page if known, otherwise skip)
+
+**FORBIDDEN PRACTICES:**
+❌ NO broken or non-working links
+❌ NO placeholder text like "[Insert URL]" or "example.com"
+❌ NO clustering all links in one section
+❌ NO bare URLs - always use descriptive anchor text
+❌ NO forgetting target="_blank" attribute
+❌ NO using rel="nofollow" on the first link (must be rel="follow")
+❌ NO guessing URLs - if unsure, use SEC Edgar or Yahoo Finance only
+❌ NO affiliate, promotional, or suspicious links
+❌ NO links to paywalled content
+❌ NO links to outdated pages or 404 errors
+
+**VALIDATION CHECKLIST (BEFORE SUBMITTING):**
+✅ Did I include at least 2 external links?
+✅ Is the FIRST link using rel="follow" (NOT rel="noopener")? (CRITICAL)
+✅ Are all links using COMPLETE URLs starting with https://?
+✅ Did I use the EXACT format for SEC Edgar and Yahoo Finance links?
+✅ Is each link wrapped in proper <a> tags with target="_blank"?
+✅ Does each link have descriptive anchor text (not "click here")?
+✅ Are the links spread across at least 2 different sections?
+✅ Did I avoid guessing any URLs?
+
+**EXAMPLE IMPLEMENTATION:**
+```html
+<h3>Revenue Analysis</h3>
+<p>According to the company's <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=AAPL&type=10-Q&dateb=&owner=exclude&count=40" target="_blank" rel="follow">SEC 10-Q filings</a>, revenue grew 15% year-over-year...</p>
+
+<h2>Valuation: Is the Stock Cheap or Expensive?</h2>
+<p>Based on current market data from <a href="https://finance.yahoo.com/quote/AAPL" target="_blank" rel="noopener noreferrer">Yahoo Finance</a>, the stock is trading at a P/E ratio of 28.5...</p>
+```
+
+**CRITICAL RULES:**
+- MINIMUM 2 LINKS, MAXIMUM 3 LINKS
+- FIRST LINK MUST USE rel="follow" FOR SEO (NON-NEGOTIABLE)
+- ALL LINKS MUST BE VALID AND WORKING
+- USE SEC EDGAR AND YAHOO FINANCE AS YOUR PRIMARY SOURCES
+- NEVER GUESS OR CREATE FAKE URLs
 
 **STRUCTURE YOUR ANALYSIS:**
 
@@ -431,7 +561,29 @@ You MUST generate ONLY the article content as clean, semantic HTML - NO <html>, 
 </ul>
 <p>End with: Despite these risks, here's why this might still be worth considering... (or why caution is warranted)</p>
 
+<h2>Frequently Asked Questions (FAQ)</h2>
+<p>Generate 5-7 relevant questions and comprehensive answers about {ticker} and this earnings report. Structure each Q&A clearly:</p>
+
+<h3>Question 1: [Create natural, investor-focused question]</h3>
+<p>Provide detailed, helpful answer with specific insights from the analysis above.</p>
+
+<h3>Question 2: [Another relevant question]</h3>
+<p>Answer with specific data and actionable information.</p>
+
+<p><em>Continue with 5-7 total questions covering: stock valuation, buy/sell recommendations, risks, growth prospects, dividend/returns, comparison to competitors, and outlook.</em></p>
+
 **WRITING CHECKLIST BEFORE SUBMITTING:**
+✅ Did I keep ALL paragraphs to 4-5 sentences maximum? (CRITICAL)
+✅ Did I break long explanations into multiple short paragraphs?
+✅ Did I include EXACTLY 2-3 VALID external links? (CRITICAL - NON-NEGOTIABLE)
+✅ Is the FIRST link using rel="follow" for SEO? (CRITICAL - NON-NEGOTIABLE)
+✅ Are ALL links properly formatted with https:// and working URLs?
+✅ Did I use SEC Edgar and Yahoo Finance links (never guess URLs)?
+✅ Does the first link have target="_blank" rel="follow"? (CRITICAL)
+✅ Do remaining links have target="_blank" rel="noopener noreferrer"?
+✅ Did I use ONLY current information from the last 2-3 days? (CRITICAL)
+✅ Did I cite only trusted financial sources? (Bloomberg, Reuters, WSJ, SEC, Yahoo Finance)
+✅ Are all headings properly structured: h2 (main) → h3 (sub) → h4 (sub-sub)?
 ✅ Did I explain numbers with context, not just state them?
 ✅ Did I use simple, everyday English throughout?
 ✅ Did I explain WHY things matter to investors?
@@ -442,22 +594,42 @@ You MUST generate ONLY the article content as clean, semantic HTML - NO <html>, 
 ✅ Is my analysis balanced (both positives and negatives)?
 ✅ Did I provide my clear opinion and reasoning?
 ✅ Is every paragraph wrapped in <p> tags?
-✅ Are all headings properly nested (h2, then h3)?
 ✅ Are lists properly formatted with <ul>/<ol> and <li>?
 ✅ Did I avoid saying "according to data" or "N/A" anywhere?
+✅ Did I include a comprehensive FAQ section with 5-7 questions?
 
 **CRITICAL WRITING RULES:**
 ❌ NEVER SAY: "according to provided data", "based on available information", "the context shows", "N/A", "data indicates"
 ✅ INSTEAD SAY: "the company reported", "we see", "our analysis shows", "this tells us", "looking at the numbers"
 
+**FINAL VALIDATION - EXTERNAL LINKS (MANDATORY):**
+Before submitting, verify:
+1. You included EXACTLY 2-3 external links (not more, not less)
+2. THE FIRST LINK USES rel="follow" (NOT rel="noopener") - CRITICAL FOR SEO
+3. ALL links use complete URLs starting with https://
+4. You used ONLY these verified sources:
+   - SEC Edgar: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=TICKER&type=10-Q&dateb=&owner=exclude&count=40 (USE AS FOLLOW LINK)
+   - Yahoo Finance: https://finance.yahoo.com/quote/TICKER (CAN BE FOLLOW LINK)
+   - Investor Relations (ONLY if you know the exact URL)
+5. First link has target="_blank" rel="follow"
+6. Remaining links have target="_blank" rel="noopener noreferrer"
+7. Each link has descriptive anchor text
+8. Links are spread across at least 2 different sections
+9. NO broken links, NO placeholder URLs, NO guessed URLs
+
+**ARTICLE STRUCTURE CONFIRMATION:**
 ✅ Content starts with <h1>, ends with closing tag
-✅ Every section has <h2>, subsections use <h3>
+✅ Every main section has <h2>, subsections use <h3>, sub-subsections use <h4>
 ✅ All text wrapped in <p> tags
+✅ All paragraphs are 4-5 sentences maximum (CRITICAL)
 ✅ Lists use <ul>/<ol> and <li> properly
 ✅ Tables have proper structure with <thead> and <tbody>
+✅ 2-3 external links with AT LEAST ONE rel="follow" link (CRITICAL FOR SEO)
+✅ FAQ section with 5-7 questions using h3 for each question
 ✅ No loose text outside tags
 ✅ No document structure tags (<html>, <body>, etc.)
 ✅ Clean, valid HTML that WordPress can directly publish
+✅ NO hardcoded FAQ schema - the FAQ content will be used to generate schema separately
 
 **DATA CONTEXT (use but don't mention):**
 {earnings_context}
@@ -465,9 +637,18 @@ You MUST generate ONLY the article content as clean, semantic HTML - NO <html>, 
 Now write your complete, analytical earnings report in simple English as if you're personally explaining this to investors:"""
 
         try:
+            # Adjust temperature for variations to get different perspectives
+            config = self.generation_config.copy()
+            
+            # Increase temperature for variations to get more diverse content
+            if variation_number > 0:
+                # Base: 0.7, Variation 1: 0.85, Variation 2: 1.0, etc.
+                config['temperature'] = min(1.0, 0.7 + (variation_number * 0.15))
+                logger.info(f"Temperature set to {config['temperature']} for variation #{variation_number}")
+            
             response = self.model.generate_content(
                 prompt,
-                generation_config=self.generation_config
+                generation_config=config
             )
             article_html = response.text
             logger.info(f"Successfully generated article for {ticker}")
@@ -546,17 +727,19 @@ Now write your complete, analytical earnings report in simple English as if you'
         
         return filepath
     
-    def generate_complete_report(self, ticker: str) -> Dict[str, str]:
+    def generate_complete_report(self, ticker: str, return_metadata: bool = True, variation_number: int = 0) -> Dict[str, str]:
         """
         Complete workflow: collect data, generate article, save
         
         Args:
             ticker: Stock ticker symbol
+            return_metadata: Whether to include detailed metadata in response
+            variation_number: Article variation number (0=first, 1=second variation, etc.)
             
         Returns:
-            Dict with success, article_html, file_path, word_count, and error (if any)
+            Dict with success, article_html, file_path, word_count, metadata, and error (if any)
         """
-        logger.info(f"Starting complete earnings article generation for {ticker}")
+        logger.info(f"Starting complete earnings article generation for {ticker} (Variation #{variation_number})")
         
         try:
             # Step 1: Collect data
@@ -567,6 +750,18 @@ Now write your complete, analytical earnings report in simple English as if you'
             print("Step 1: Collecting earnings data...")
             raw_data = self.collect_earnings_data(ticker)
             print(f"  ✓ Data collected for {ticker}\n")
+            
+            # Get company name and sector from raw data
+            import yfinance as yf
+            try:
+                ticker_obj = yf.Ticker(ticker)
+                info = ticker_obj.info
+                company_name = info.get('longName') or info.get('shortName') or ticker
+                sector = info.get('sector', 'Technology')
+            except Exception as e_yf:
+                logger.warning(f"Could not fetch company info for {ticker}: {e_yf}")
+                company_name = ticker
+                sector = 'Technology'
             
             # Step 2: Process data
             print("Step 2: Processing and normalizing data...")
@@ -581,8 +776,10 @@ Now write your complete, analytical earnings report in simple English as if you'
             
             # Step 4: Generate article with Gemini
             print("Step 4: Generating professional article with Gemini AI...")
+            if variation_number > 0:
+                print(f"  ⚙ VARIATION MODE: Generating different perspective (variation #{variation_number + 1})")
             print("  (This may take 30-60 seconds...)")
-            article_html = self.generate_article_with_gemini(ticker, earnings_context)
+            article_html = self.generate_article_with_gemini(ticker, earnings_context, variation_number=variation_number)
             word_count = len(article_html.split())
             print(f"  ✓ Article generated ({word_count} words)\n")
             
@@ -596,13 +793,27 @@ Now write your complete, analytical earnings report in simple English as if you'
             print("✅ SUCCESS!")
             print(f"{'='*80}\n")
             
+            # Prepare detailed metadata for publishing integration
+            metadata = {
+                'ticker': ticker,
+                'company_name': company_name,
+                'sector': sector,
+                'word_count': word_count,
+                'data_quality_score': quality,
+                'generated_at': datetime.now().isoformat(),
+                'article_type': 'earnings'
+            } if return_metadata else {}
+            
             return {
                 'success': True,
                 'article_html': article_html,
                 'file_path': article_path,
                 'metadata_path': metadata_path,
                 'ticker': ticker,
-                'word_count': word_count
+                'word_count': word_count,
+                'metadata': metadata,
+                'company_name': company_name,
+                'sector': sector
             }
             
         except Exception as e:

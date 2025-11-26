@@ -55,6 +55,42 @@ def is_macro_data_current_for_today(data):
         logger.error(f"Error checking macro data currency: {e}")
         return False
 
+def is_stock_data_newer_than_macro(stock_data, macro_data):
+    """
+    Check if stock data has dates newer than the macro data.
+    Returns True if stock data extends beyond macro data date range.
+    """
+    if stock_data is None or stock_data.empty:
+        return False
+    if macro_data is None or macro_data.empty:
+        return True  # Need fresh macro data
+    
+    try:
+        # Ensure Date columns are datetime
+        if 'Date' not in stock_data.columns or 'Date' not in macro_data.columns:
+            return False
+        
+        stock_dates = pd.to_datetime(stock_data['Date'], errors='coerce')
+        macro_dates = pd.to_datetime(macro_data['Date'], errors='coerce')
+        
+        stock_max = stock_dates.max()
+        macro_max = macro_dates.max()
+        
+        if pd.isna(stock_max) or pd.isna(macro_max):
+            return False
+        
+        # Check if stock data is newer
+        is_newer = stock_max > macro_max
+        
+        if is_newer:
+            logger.info(f"Stock data extends to {stock_max.date()}, macro data only to {macro_max.date()}. Triggering macro refresh.")
+        
+        return is_newer
+        
+    except Exception as e:
+        logger.error(f"Error comparing stock and macro data dates: {e}")
+        return False
+
 def cleanup_old_macro_cache(cache_dir, max_age_days=7):
     """
     Clean up old macro cache files to prevent accumulation.
@@ -88,10 +124,16 @@ def cleanup_old_macro_cache(cache_dir, max_age_days=7):
     except Exception as e:
         logger.error(f"Error during macro cache cleanup: {e}")
 
-def fetch_macro_indicators(app_root, start_date=None, end_date=None):
+def fetch_macro_indicators(app_root, start_date=None, end_date=None, stock_data=None):
     """
     Fetch macroeconomic indicators from FRED, checking local cache first.
     Uses app_root for consistent cache path. Applies consistent processing and NaN handling.
+    
+    Args:
+        app_root: Application root directory for cache path
+        start_date: Optional start date for FRED data fetch
+        end_date: Optional end date for FRED data fetch
+        stock_data: Optional stock data DataFrame to check if macro refresh is needed
     """
     if not app_root:
         logger.error("app_root not provided to fetch_macro_indicators. Cannot determine cache directory.")
@@ -122,6 +164,8 @@ def fetch_macro_indicators(app_root, start_date=None, end_date=None):
                  logger.warning(f"Cached file {CACHE_FILENAME} is empty. Re-downloading.") 
             elif macro_data_cache['Date'].isna().any(): #
                  logger.warning(f"Cached file {CACHE_FILENAME} contains invalid dates. Re-downloading.")
+            elif stock_data is not None and is_stock_data_newer_than_macro(stock_data, macro_data_cache):
+                 logger.warning(f"Stock data is newer than cached macro data. Re-downloading to get latest macro data.")
             elif not is_macro_data_current_for_today(macro_data_cache):
                  logger.warning(f"Cached macro data is not current for today. Re-downloading to get latest data.")
             else:

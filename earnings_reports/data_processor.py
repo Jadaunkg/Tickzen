@@ -161,14 +161,45 @@ class EarningsDataProcessor:
         if yf_calendar and isinstance(yf_calendar, dict):
             earnings_date = yf_calendar.get('Earnings Date')
             if earnings_date:
-                # Handle list of dates (pick first one)
+                from datetime import datetime, timezone
+                today = datetime.now(timezone.utc).date()
+                
+                # Handle list of dates (filter for future dates only)
                 if isinstance(earnings_date, list) and len(earnings_date) > 0:
-                    earnings_date = earnings_date[0]
+                    # Filter for future dates only
+                    future_dates = []
+                    for date in earnings_date:
+                        try:
+                            if hasattr(date, 'date'):
+                                date_obj = date.date()
+                            elif isinstance(date, str):
+                                date_obj = datetime.strptime(date, '%Y-%m-%d').date()
+                            else:
+                                date_obj = date
+                            
+                            # Only include dates that are today or in the future
+                            if date_obj >= today:
+                                future_dates.append(date)
+                        except Exception as e:
+                            logger.warning(f"Error parsing earnings date {date}: {e}")
+                            continue
+                    
+                    # Use the earliest future date, or first date if no future dates
+                    if future_dates:
+                        earnings_date = future_dates[0]
+                    else:
+                        # No future dates available, mark as N/A
+                        earnings_date = None
+                        logger.warning(f"All earnings dates are in the past for this ticker")
+                
                 # Convert to string format
-                if hasattr(earnings_date, 'strftime'):
-                    timeline_data['earnings_date'] = earnings_date.strftime('%Y-%m-%d')
+                if earnings_date:
+                    if hasattr(earnings_date, 'strftime'):
+                        timeline_data['earnings_date'] = earnings_date.strftime('%Y-%m-%d')
+                    else:
+                        timeline_data['earnings_date'] = str(earnings_date)
                 else:
-                    timeline_data['earnings_date'] = str(earnings_date)
+                    timeline_data['earnings_date'] = 'N/A'
             else:
                 timeline_data['earnings_date'] = 'N/A'
         else:

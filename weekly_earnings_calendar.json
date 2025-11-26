@@ -1,0 +1,483 @@
+{
+  "last_refreshed": "2025-11-26T11:52:55.189150",
+  "last_refreshed_date": "2025-11-26",
+  "calendar": {
+    "2025-11-26": [
+      {
+        "ticker": "LEE",
+        "name": null,
+        "date": "2025-11-26"
+      },
+      {
+        "ticker": "NRSN",
+        "name": null,
+        "date": "2025-11-26"
+      },
+      {
+        "ticker": "IMTE",
+        "name": null,
+        "date": "2025-11-26"
+      },
+      {
+        "ticker": "NAT",
+        "name": null,
+        "date": "2025-11-26"
+      },
+      {
+        "ticker": "FECOF",
+        "name": null,
+        "date": "2025-11-26"
+      },
+      {
+        "ticker": "CLGN",
+        "name": null,
+        "date": "2025-11-26"
+      },
+      {
+        "ticker": "DE",
+        "name": null,
+        "date": "2025-11-26"
+      },
+      {
+        "ticker": "KEN",
+        "name": null,
+        "date": "2025-11-26"
+      },
+      {
+        "ticker": "LVRLF",
+        "name": null,
+        "date": "2025-11-26"
+      }
+    ],
+    "2025-11-27": [
+      {
+        "ticker": "DHCC",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "ABTI",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "RGBP",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "GLBS",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "ELLO",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "CRKN",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "TMRC",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "CNBX",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "NXEN",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "AWF",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "DIDIY",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "LEDS",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "BIORQ",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "KRBP",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "PIKM",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "SNAX",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "EVOH",
+        "name": null,
+        "date": "2025-11-27"
+      },
+      {
+        "ticker": "DSL",
+        "name": null,
+        "date": "2025-11-27"
+      }
+    ],
+    "2025-11-28": [
+      {
+        "ticker": "GOGL",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "FTW",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "AFJK",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "CNXX",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "WHEN",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "PSHG",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "GCO",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "IMII",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "ATMV",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "PBPB",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "WINT",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "TRX",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "RIME",
+        "name": null,
+        "date": "2025-11-28"
+      },
+      {
+        "ticker": "TBMC",
+        "name": null,
+        "date": "2025-11-28"
+      }
+    ],
+    "2025-11-29": [],
+    "2025-11-30": [],
+    "2025-12-01": [
+      {
+        "ticker": "CTRN",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "MHRE",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "ATON",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "CURV",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "BASE",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "MDB",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "TVTV",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "NXP",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "RASP",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "XFLT",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "ITOX",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "REX",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "PLCE",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "UGRO",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "VSTS",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "SLP",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "AXXA",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "LGHL",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "SJ",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "SATX",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "OPTT",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "CRDO",
+        "name": null,
+        "date": "2025-12-01"
+      },
+      {
+        "ticker": "NKLAQ",
+        "name": null,
+        "date": "2025-12-01"
+      }
+    ],
+    "2025-12-02": [
+      {
+        "ticker": "UNFI",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "COOT",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "SCWX",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "LICT",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "PSTG",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "JCTC",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "SIG",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "GTLB",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "BOX",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "SBSAA",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "PVH",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "IMPP",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "ASAN",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "GOTU",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "HUBC",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "AMWD",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "FL",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "OKTA",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "BNR",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "AEO",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "NIM",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "CHWY",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "FINR",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "MRVL",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "CRWD",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "NTRB",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "DLTR",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "CNM",
+        "name": null,
+        "date": "2025-12-02"
+      },
+      {
+        "ticker": "FIVE",
+        "name": null,
+        "date": "2025-12-02"
+      }
+    ]
+  }
+}

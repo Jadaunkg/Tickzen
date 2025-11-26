@@ -406,12 +406,24 @@ def extract_total_valuation_data(fundamentals: dict, current_price=None):
              except: pass # Keep N/A if calc fails
 
 
+    # Filter earnings timestamp to only future dates
+    earnings_ts = safe_get(info, 'earningsTimestamp')
+    if earnings_ts != "N/A":
+        from datetime import datetime, timezone
+        try:
+            earnings_date = datetime.fromtimestamp(earnings_ts)
+            today = datetime.now(timezone.utc)
+            if earnings_date.date() < today.date():
+                earnings_ts = "N/A"  # Past date, don't show
+        except (ValueError, TypeError, OSError):
+            earnings_ts = "N/A"
+    
     metrics = {
         "Market Cap": format_value(market_cap, 'large_number'),
         "Enterprise Value": format_value(enterprise_value, 'large_number'),
         "EV/Revenue (TTM)": format_value(ev_revenue, 'ratio') if ev_revenue != "N/A" else "N/A",
         "EV/EBITDA (TTM)": format_value(ev_ebitda, 'ratio') if ev_ebitda != "N/A" else "N/A",
-        "Next Earnings Date": format_value(safe_get(info, 'earningsTimestamp'), 'date'), # Approximation
+        "Next Earnings Date": format_value(earnings_ts, 'date'),
         "Ex-Dividend Date": format_value(safe_get(info, 'exDividendDate'), 'date'),
     }
     return metrics
@@ -875,18 +887,22 @@ def extract_quarterly_earnings_data(fundamentals: dict, ticker=None):
                     yoy_revenue_growth = ((q1_revenue - q4_revenue) / q4_revenue) * 100
                     growth_metrics['YoY Revenue Growth'] = f"{yoy_revenue_growth:+.1f}%"
         
-        # Get next earnings date from fundamentals
+        # Get next earnings date from fundamentals (ONLY future dates)
         info = fundamentals.get('info', {})
         next_earnings = info.get('earningsTimestamp')
         if next_earnings:
-            from datetime import datetime
+            from datetime import datetime, timezone
             earnings_date = datetime.fromtimestamp(next_earnings)
-            growth_metrics['Next Earnings Date'] = earnings_date.strftime('%B %d, %Y')
+            today = datetime.now(timezone.utc)
             
-            earnings_call_start = info.get('earningsCallTimestampStart')
-            if earnings_call_start:
-                call_time = datetime.fromtimestamp(earnings_call_start)
-                growth_metrics['Earnings Call Time'] = call_time.strftime('%B %d, %Y at %I:%M %p ET')
+            # Only set if earnings date is in the future
+            if earnings_date.date() >= today.date():
+                growth_metrics['Next Earnings Date'] = earnings_date.strftime('%B %d, %Y')
+                
+                earnings_call_start = info.get('earningsCallTimestampStart')
+                if earnings_call_start:
+                    call_time = datetime.fromtimestamp(earnings_call_start)
+                    growth_metrics['Earnings Call Time'] = call_time.strftime('%B %d, %Y at %I:%M %p ET')
         
         return {
             'quarterly_data': quarterly_data,

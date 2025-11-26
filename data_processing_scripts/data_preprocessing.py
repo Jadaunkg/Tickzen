@@ -138,11 +138,28 @@ def preprocess_data(stock_df, macro_df):
 
 
     # Date Alignment
-    start_date = max(stock['Date'].min(), macro['Date'].min())
-    end_date = min(stock['Date'].max(), macro['Date'].max())
+    stock_min = stock['Date'].min()
+    stock_max = stock['Date'].max()
+    macro_min = macro['Date'].min()
+    macro_max = macro['Date'].max()
     
-    if start_date > end_date:
-        raise ValueError(f"Date range misalignment: Stock data range {stock['Date'].min()} to {stock['Date'].max()}, Macro data range {macro['Date'].min()} to {macro['Date'].max()}. No overlapping period found.")
+    # Handle case where stock data is newer than macro data
+    # Use the most recent macro data available for newer stock dates
+    if stock_min > macro_max:
+        # All stock data is newer than macro data - extend macro data forward
+        start_date = stock_min
+        end_date = stock_max
+        logger.warning(f"Stock data ({stock_min} to {stock_max}) is newer than macro data ({macro_min} to {macro_max}). Will forward-fill macro data.")
+    elif stock_max < macro_min:
+        # All stock data is older than macro data - this is unusual
+        raise ValueError(f"Date range misalignment: Stock data ({stock_min} to {stock_max}) is entirely before macro data ({macro_min} to {macro_max}). Cannot proceed.")
+    else:
+        # Normal case with overlap
+        start_date = max(stock_min, macro_min)
+        end_date = min(stock_max, macro_max)
+        
+        if start_date > end_date:
+            raise ValueError(f"Date range misalignment: Stock data range {stock_min} to {stock_max}, Macro data range {macro_min} to {macro_max}. No overlapping period found.")
 
     date_range = pd.date_range(start=start_date, end=end_date, freq='D') # Daily frequency
 

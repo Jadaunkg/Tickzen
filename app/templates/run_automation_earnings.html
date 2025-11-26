@@ -47,33 +47,76 @@
         }
 
         .automation-sidebar {
-            width: 260px;
+            width: 240px;
             background: white;
             border: 1px solid hsl(var(--border));
-            border-radius: 12px;
+            border-radius: 0;
             padding: 0;
-            height: fit-content;
+            height: calc(100vh - 100px);
             position: sticky;
             top: 80px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 8px 0 rgba(0, 0, 0, 0.05);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin-left: -1rem;
         }
 
         .sidebar-header {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: white;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            padding: 1.25rem 1.25rem 0.75rem;
-            border-bottom: 1px solid hsl(var(--border));
-            background: hsl(var(--muted));
+            letter-spacing: 0.05em;
+            padding: 1.5rem 1.25rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, var(--green-700) 0%, var(--green-800) 100%);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-header i {
+            font-size: 1.125rem;
         }
 
         .sidebar-menu {
             list-style: none;
             padding: 0.75rem 0;
             margin: 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid hsl(var(--border));
+            padding: 1rem;
+            background: hsl(var(--muted));
+        }
+
+        .sidebar-footer a {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.75rem;
+            text-decoration: none;
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+            font-weight: 500;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-footer a:hover {
+            background: var(--green-50);
+            border-color: var(--green-600);
+            color: var(--green-700);
+        }
+
+        .sidebar-footer a i {
+            color: var(--green-600);
         }
 
         .sidebar-menu a {
@@ -192,6 +235,208 @@
             color: var(--green-600);
         }
 
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .calendar-info {
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .refresh-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-indicator.outdated {
+            color: #dc2626;
+        }
+
+        .refresh-indicator.fresh {
+            color: var(--green-600);
+        }
+
+        .btn-refresh {
+            background: var(--blue-600);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-refresh:hover {
+            background: var(--blue-700);
+        }
+
+        .btn-refresh:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .earnings-calendar-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            background: hsl(var(--muted));
+        }
+
+        .calendar-day-group {
+            margin-bottom: 0;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .calendar-day-group:last-child {
+            border-bottom: none;
+        }
+
+        .calendar-day-header {
+            background: white;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: hsl(var(--foreground));
+            border-bottom: 1px solid hsl(var(--border));
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .calendar-day-header i {
+            color: var(--green-600);
+        }
+
+        .ticker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.5rem;
+            padding: 1rem;
+            background: white;
+        }
+
+        .ticker-item {
+            padding: 0.5rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+        }
+
+        .ticker-item:hover {
+            background: var(--green-50);
+            border-color: var(--green-600);
+            color: var(--green-700);
+        }
+
+        .ticker-item.selected {
+            background: var(--green-600);
+            color: white;
+            border-color: var(--green-600);
+        }
+
+        .manual-ticker-input {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid hsl(var(--border));
+        }
+
+        .manual-ticker-input label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .selected-tickers-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: hsl(var(--muted));
+            border-radius: 8px;
+            min-height: 50px;
+        }
+
+        .selected-ticker-badge {
+            background: var(--green-600);
+            color: white;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .selected-ticker-badge .remove-ticker {
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .selected-ticker-badge .remove-ticker:hover {
+            opacity: 1;
+        }
+
+        .selection-mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: hsl(var(--muted));
+            border-radius: 8px;
+        }
+
+        .selection-mode-toggle button {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: 1px solid hsl(var(--border));
+            background: white;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .selection-mode-toggle button.active {
+            background: var(--green-600);
+            color: white;
+            border-color: var(--green-600);
+        }
+
+        .selection-mode-toggle button:hover:not(.active) {
+            background: var(--green-50);
+            border-color: var(--green-600);
+        }
+
+        .no-earnings-message {
+            padding: 2rem;
+            text-align: center;
+            color: hsl(var(--muted-foreground));
+            font-size: 0.9375rem;
+        }
+
         .form-group label {
             display: block;
             font-weight: 600;
@@ -223,14 +468,22 @@
             display: block;
         }
 
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
         .profile-run-card {
             background: white;
             border: 1px solid hsl(var(--border));
             border-radius: 12px;
-            margin-bottom: 1.5rem;
             overflow: hidden;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .profile-run-card:hover {
@@ -371,6 +624,12 @@
         .log-entry.status-warning { color: #fbbf24; }
         .log-entry.status-error { color: #f87171; }
 
+        @media (max-width: 1200px) {
+            .profiles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 768px) {
             .automation-layout {
                 flex-direction: column;
@@ -378,6 +637,11 @@
             .automation-sidebar {
                 width: 100%;
                 position: static;
+                height: auto;
+                margin-left: 0;
+            }
+            .profiles-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -386,7 +650,10 @@
 {% block content %}
 <div class="automation-layout">
     <aside class="automation-sidebar">
-        <div class="sidebar-header">Automation Tools</div>
+        <div class="sidebar-header">
+            <i class="fas fa-robot"></i>
+            Automation Menu
+        </div>
         <ul class="sidebar-menu">
             <li>
                 <a href="{{ url_for('automation_runner_page') }}">
@@ -401,6 +668,12 @@
                 </a>
             </li>
         </ul>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('manage_site_profiles') }}">
+                <i class="fas fa-cog"></i>
+                <span>Manage Profiles</span>
+            </a>
+        </div>
     </aside>
 
     <div class="automation-content">
@@ -416,30 +689,96 @@
                 Today's Counts ({{ last_run_date_for_counts if last_run_date_for_counts else 'N/A' }}).
             </div>
 
+            <!-- Refresh Calendar Form (separate from main form) -->
+            <form action="{{ url_for('refresh_earnings_calendar') }}" method="POST" id="refreshCalendarForm" style="display: none;">
+                <input type="hidden" name="refresh" value="1">
+            </form>
+
             <form action="{{ url_for('run_earnings_automation') }}" method="POST" id="earningsAutomationForm">
                 
                 <!-- Ticker Input Section -->
                 <div class="ticker-input-section">
-                    <h3><i class="fas fa-chart-line"></i> Select Stock Ticker</h3>
-                    <div class="form-group">
+                    <div class="calendar-header">
+                        <h3><i class="fas fa-calendar-alt"></i> Select Stock from Earnings Calendar</h3>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            {% if last_refreshed_date %}
+                            <div class="calendar-info">
+                                <span class="refresh-indicator {{ 'outdated' if calendar_outdated else 'fresh' }}">
+                                    <i class="fas fa-{{ 'exclamation-triangle' if calendar_outdated else 'check-circle' }}"></i>
+                                    Last refreshed: {{ last_refreshed_date }}
+                                    {% if calendar_outdated %}
+                                    <span style="color: #dc2626; font-weight: 600;">(Outdated)</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% endif %}
+                            <button type="button" class="btn-refresh" id="refreshCalendarBtn" onclick="document.getElementById('refreshCalendarForm').submit()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh Calendar
+                            </button>
+                        </div>
+                    </div>
+
+                    {% if earnings_calendar and earnings_calendar|length > 0 %}
+                    <div class="earnings-calendar-list">
+                        {% for date, tickers in earnings_calendar.items() %}
+                        {% if tickers and tickers|length > 0 %}
+                        <div class="calendar-day-group">
+                            <div class="calendar-day-header">
+                                <i class="fas fa-calendar-day"></i>
+                                {{ date }}
+                                <span style="color: hsl(var(--muted-foreground)); font-weight: 400; font-size: 0.875rem;">
+                                    ({{ tickers|length }} companies)
+                                </span>
+                            </div>
+                            <div class="ticker-grid">
+                                {% for ticker_data in tickers %}
+                                <div class="ticker-item" data-ticker="{{ ticker_data.ticker }}" onclick="selectTicker('{{ ticker_data.ticker }}')">
+                                    {{ ticker_data.ticker }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="no-earnings-message">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; color: var(--blue-600); margin-bottom: 0.5rem;"></i>
+                        <p>No earnings calendar data available. Click "Refresh Calendar" to load the latest data.</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="manual-ticker-input">
+                        <div class="selection-mode-toggle">
+                            <button type="button" id="singleModeBtn" class="active" onclick="setSelectionMode('single')">
+                                <i class="fas fa-mouse-pointer"></i> Single Selection
+                            </button>
+                            <button type="button" id="multiModeBtn" onclick="setSelectionMode('multi')">
+                                <i class="fas fa-hand-pointer"></i> Multiple Selection
+                            </button>
+                        </div>
+                        
                         <label for="ticker">
-                            Stock Ticker Symbol <span style="color: #dc2626;">*</span>
+                            Selected Ticker(s) <span style="color: #dc2626;">*</span>
                         </label>
+                        
+                        <div class="selected-tickers-display" id="selectedTickersDisplay">
+                            <small style="color: hsl(var(--muted-foreground)); align-self: center;">No tickers selected. Click tickers above to select.</small>
+                        </div>
+                        
                         <input 
-                            type="text" 
+                            type="hidden" 
                             id="ticker" 
                             name="ticker" 
-                            class="form-control" 
-                            placeholder="Enter ticker (e.g., MSFT, AAPL, GOOGL)" 
                             required
-                            pattern="[A-Za-z]{1,5}"
-                            maxlength="5"
                         >
-                        <small class="form-text">Enter the stock ticker for the earnings report you want to generate and publish</small>
+                        <small class="form-text">Single mode: Select one ticker. Multiple mode: Select multiple tickers (comma-separated reports)</small>
                     </div>
                 </div>
 
                 <!-- Site Profile Selection -->
+                <div class="profiles-grid">
                 {% for profile in user_site_profiles %}
                 <div class="profile-run-card" data-profile-id="{{ profile.profile_id }}">
                     <div class="profile-run-header">
@@ -478,9 +817,28 @@
                             </div>
 
                             <div class="form-group schedule-time-group" id="schedule_time_group_{{ profile.profile_id }}" style="margin-top: 1rem; display: none;">
-                                <label for="schedule_time_{{ profile.profile_id }}">Schedule Date & Time:</label>
-                                <input type="datetime-local" class="form-control" id="schedule_time_{{ profile.profile_id }}" name="schedule_time_{{ profile.profile_id }}">
-                                <small class="form-text">Select when to publish this article</small>
+                                <div class="scheduling-info-card" style="background: hsl(var(--muted)); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                        <i class="fas fa-clock" style="color: var(--orange-600);"></i>
+                                        <strong style="color: hsl(var(--foreground));">Scheduling Interval (from profile settings)</strong>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem;">
+                                        <div>
+                                            <small class="form-text" style="color: hsl(var(--muted-foreground)); display: block; margin-bottom: 0.25rem;">Minimum Interval:</small>
+                                            <strong style="color: var(--orange-600); font-size: 1.1rem;">{{ profile.min_scheduling_gap_minutes|default(45) }} minutes</strong>
+                                        </div>
+                                        <div>
+                                            <small class="form-text" style="color: hsl(var(--muted-foreground)); display: block; margin-bottom: 0.25rem;">Maximum Interval:</small>
+                                            <strong style="color: var(--orange-600); font-size: 1.1rem;">{{ profile.max_scheduling_gap_minutes|default(68) }} minutes</strong>
+                                        </div>
+                                    </div>
+                                    <small class="form-text" style="color: hsl(var(--muted-foreground)); margin-top: 0.75rem; display: block;">
+                                        <i class="fas fa-info-circle"></i> 
+                                        <span id="schedule_help_{{ profile.profile_id }}">
+                                            Articles will be scheduled with random intervals between min and max to avoid spam-like posting patterns
+                                        </span>
+                                    </small>
+                                </div>
                             </div>
                         </div>
                         
@@ -491,6 +849,7 @@
                     </div>
                 </div>
                 {% endfor %}
+                </div>
 
                 <!-- Submit Button -->
                 <div class="submit-section">
@@ -517,15 +876,122 @@
 
 {% block scripts_extra %}
 <script>
+// Global state for selection mode
+let selectionMode = 'single';
+let selectedTickers = [];
+
+// Function to set selection mode
+function setSelectionMode(mode) {
+    selectionMode = mode;
+    selectedTickers = [];
+    updateTickerDisplay();
+    
+    // Update button states
+    document.getElementById('singleModeBtn').classList.toggle('active', mode === 'single');
+    document.getElementById('multiModeBtn').classList.toggle('active', mode === 'multi');
+    
+    // Clear all selections
+    document.querySelectorAll('.ticker-item.selected').forEach(item => {
+        item.classList.remove('selected');
+    });
+}
+
+// Function to select a ticker from the calendar
+function selectTicker(ticker) {
+    ticker = ticker.toUpperCase();
+    
+    if (selectionMode === 'single') {
+        // Single selection mode
+        selectedTickers = [ticker];
+        
+        // Remove previous selection
+        document.querySelectorAll('.ticker-item.selected').forEach(item => {
+            item.classList.remove('selected');
+        });
+        
+        // Highlight the selected ticker
+        document.querySelectorAll(`.ticker-item[data-ticker="${ticker}"]`).forEach(item => {
+            item.classList.add('selected');
+        });
+    } else {
+        // Multiple selection mode
+        const index = selectedTickers.indexOf(ticker);
+        
+        if (index > -1) {
+            // Remove if already selected
+            selectedTickers.splice(index, 1);
+            document.querySelectorAll(`.ticker-item[data-ticker="${ticker}"]`).forEach(item => {
+                item.classList.remove('selected');
+            });
+        } else {
+            // Add to selection
+            selectedTickers.push(ticker);
+            document.querySelectorAll(`.ticker-item[data-ticker="${ticker}"]`).forEach(item => {
+                item.classList.add('selected');
+            });
+        }
+    }
+    
+    updateTickerDisplay();
+}
+
+// Function to remove a ticker from selection
+function removeTicker(ticker) {
+    const index = selectedTickers.indexOf(ticker);
+    if (index > -1) {
+        selectedTickers.splice(index, 1);
+        document.querySelectorAll(`.ticker-item[data-ticker="${ticker}"]`).forEach(item => {
+            item.classList.remove('selected');
+        });
+        updateTickerDisplay();
+    }
+}
+
+// Function to update the ticker display
+function updateTickerDisplay() {
+    const tickerInput = document.getElementById('ticker');
+    const displayArea = document.getElementById('selectedTickersDisplay');
+    
+    if (!tickerInput || !displayArea) return;
+    
+    // Update hidden input value
+    tickerInput.value = selectedTickers.join(',');
+    
+    // Update display area
+    if (selectedTickers.length === 0) {
+        displayArea.innerHTML = '<small style="color: hsl(var(--muted-foreground)); align-self: center;">No tickers selected. Click tickers above to select.</small>';
+    } else {
+        displayArea.innerHTML = selectedTickers.map(ticker => 
+            `<span class="selected-ticker-badge">
+                ${ticker}
+                <i class="fas fa-times remove-ticker" onclick="removeTicker('${ticker}')"></i>
+            </span>`
+        ).join('');
+    }
+    
+    // Update schedule help text for all profiles
+    document.querySelectorAll('[id^="publish_status_"]').forEach(select => {
+        const profileId = select.id.replace('publish_status_', '');
+        if (select.value === 'future') {
+            updateScheduleHelpText(profileId);
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('earningsAutomationForm');
     const runBtn = document.getElementById('runAutomationBtn');
     const tickerInput = document.getElementById('ticker');
+    const refreshBtn = document.getElementById('refreshCalendarBtn');
 
-    // Convert ticker to uppercase
-    if (tickerInput) {
-        tickerInput.addEventListener('input', function() {
-            this.value = this.value.toUpperCase();
+    // Initialize selection mode
+    setSelectionMode('single');
+
+    // Handle refresh button loading state
+    if (refreshBtn) {
+        refreshBtn.closest('form').addEventListener('submit', function() {
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
         });
     }
 
@@ -533,20 +999,28 @@ document.addEventListener('DOMContentLoaded', function() {
     window.toggleScheduleTime = function(profileId) {
         const statusSelect = document.getElementById(`publish_status_${profileId}`);
         const scheduleGroup = document.getElementById(`schedule_time_group_${profileId}`);
-        const scheduleInput = document.getElementById(`schedule_time_${profileId}`);
+        const scheduleHelp = document.getElementById(`schedule_help_${profileId}`);
         
         if (statusSelect.value === 'future') {
             scheduleGroup.style.display = 'block';
-            scheduleInput.required = true;
             
-            // Set default to 1 hour from now
-            const now = new Date();
-            now.setHours(now.getHours() + 1);
-            const formatted = now.toISOString().slice(0, 16);
-            scheduleInput.value = formatted;
+            // Update help text based on number of selected tickers
+            updateScheduleHelpText(profileId);
         } else {
             scheduleGroup.style.display = 'none';
-            scheduleInput.required = false;
+        }
+    };
+    
+    // Update schedule help text based on ticker count
+    window.updateScheduleHelpText = function(profileId) {
+        const scheduleHelp = document.getElementById(`schedule_help_${profileId}`);
+        
+        if (scheduleHelp) {
+            if (selectedTickers.length > 1) {
+                scheduleHelp.textContent = `${selectedTickers.length} articles will be scheduled with random intervals (min-max range) to avoid spam-like posting patterns`;
+            } else {
+                scheduleHelp.textContent = 'Articles will be scheduled with random intervals between min and max to avoid spam-like posting patterns';
+            }
         }
     };
 
@@ -605,10 +1079,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form validation
     if (form) {
         form.addEventListener('submit', function(e) {
+            // Make sure the hidden input is updated with latest selections
+            if (tickerInput && selectedTickers.length > 0) {
+                tickerInput.value = selectedTickers.join(',');
+            }
+            
             const ticker = tickerInput ? tickerInput.value.trim() : '';
-            if (!ticker || ticker.length < 1 || ticker.length > 5) {
+            if (!ticker || selectedTickers.length === 0) {
                 e.preventDefault();
-                alert('Please enter a valid stock ticker (1-5 letters)');
+                alert('Please select at least one stock ticker');
                 return;
             }
 
@@ -634,6 +1113,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     logConsole.innerHTML = '<div class="log-entry status-info">Initializing...</div>';
                 }
             });
+            
+            // Log form submission for debugging
+            console.log('Form submitting with ticker(s):', ticker);
+            console.log('Selected profiles:', checkedProfiles.length);
         });
     }
 });

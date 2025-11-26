@@ -16,6 +16,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import json
 import time
+import random
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 import io
@@ -1785,6 +1786,166 @@ def ticker_suggestions():
         app.logger.error(f"Error in ticker suggestions: {e}")
         return jsonify([])
 
+
+@app.route('/api/notifications')
+@login_required
+def get_notifications():
+    """Get user notifications"""
+    user_uid = session.get('firebase_user_uid')
+    if not user_uid:
+        return jsonify({'status': 'error', 'notifications': []}), 401
+    
+    try:
+        db = get_firestore_client()
+        notifications_ref = db.collection('users').document(user_uid).collection('notifications')
+        
+        # Get last 50 notifications, ordered by timestamp desc
+        notifications_query = notifications_ref.order_by('timestamp', direction=firestore.Query.DESCENDING).limit(50)
+        notifications_docs = notifications_query.get()
+        
+        notifications = []
+        for doc in notifications_docs:
+            notif_data = doc.to_dict()
+            notif_data['id'] = doc.id
+            
+            # Calculate time ago
+            timestamp = notif_data.get('timestamp')
+            if timestamp:
+                from datetime import datetime, timezone
+                if isinstance(timestamp, str):
+                    timestamp = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                
+                now = datetime.now(timezone.utc)
+                diff = now - timestamp
+                
+                if diff.total_seconds() < 60:
+                    time_ago = "Just now"
+                elif diff.total_seconds() < 3600:
+                    minutes = int(diff.total_seconds() / 60)
+                    time_ago = f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+                elif diff.total_seconds() < 86400:
+                    hours = int(diff.total_seconds() / 3600)
+                    time_ago = f"{hours} hour{'s' if hours != 1 else ''} ago"
+                else:
+                    days = int(diff.total_seconds() / 86400)
+                    time_ago = f"{days} day{'s' if days != 1 else ''} ago"
+                
+                notif_data['time_ago'] = time_ago
+            else:
+                notif_data['time_ago'] = "Unknown"
+            
+            notifications.append(notif_data)
+        
+        return jsonify({'status': 'success', 'notifications': notifications})
+    
+    except Exception as e:
+        app.logger.error(f"Error fetching notifications: {e}")
+        return jsonify({'status': 'error', 'notifications': [], 'message': str(e)}), 500
+
+
+@app.route('/api/notifications/<notification_id>/read', methods=['POST'])
+@login_required
+def mark_notification_read(notification_id):
+    """Mark a notification as read"""
+    user_uid = session.get('firebase_user_uid')
+    if not user_uid:
+        return jsonify({'status': 'error'}), 401
+    
+    try:
+        db = get_firestore_client()
+        notification_ref = db.collection('users').document(user_uid).collection('notifications').document(notification_id)
+        notification_ref.update({'read': True})
+        
+        return jsonify({'status': 'success'})
+    
+    except Exception as e:
+        app.logger.error(f"Error marking notification as read: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/notifications/mark-all-read', methods=['POST'])
+@login_required
+def mark_all_notifications_read():
+    """Mark all notifications as read"""
+    user_uid = session.get('firebase_user_uid')
+    if not user_uid:
+        return jsonify({'status': 'error'}), 401
+    
+    try:
+        db = get_firestore_client()
+        notifications_ref = db.collection('users').document(user_uid).collection('notifications')
+        
+        # Get all unread notifications
+        unread_query = notifications_ref.where('read', '==', False).get()
+        
+        # Update all to read
+        batch = db.batch()
+        for doc in unread_query:
+            batch.update(doc.reference, {'read': True})
+        
+        batch.commit()
+        
+        return jsonify({'status': 'success'})
+    
+    except Exception as e:
+        app.logger.error(f"Error marking all notifications as read: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/notifications/clear-all', methods=['POST'])
+@login_required
+def clear_all_notifications():
+    """Delete all notifications"""
+    user_uid = session.get('firebase_user_uid')
+    if not user_uid:
+        return jsonify({'status': 'error'}), 401
+    
+    try:
+        db = get_firestore_client()
+        notifications_ref = db.collection('users').document(user_uid).collection('notifications')
+        
+        # Get all notifications
+        all_notifications = notifications_ref.get()
+        
+        # Delete all
+        batch = db.batch()
+        for doc in all_notifications:
+            batch.delete(doc.reference)
+        
+        batch.commit()
+        
+        return jsonify({'status': 'success'})
+    
+    except Exception as e:
+        app.logger.error(f"Error clearing all notifications: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+def create_notification(user_uid, title, message, notification_type='success', post_url=None, ticker=None):
+    """Helper function to create a notification for a user"""
+    try:
+        db = get_firestore_client()
+        notifications_ref = db.collection('users').document(user_uid).collection('notifications')
+        
+        notification_data = {
+            'title': title,
+            'message': message,
+            'type': notification_type,
+            'read': False,
+            'timestamp': datetime.now(timezone.utc),
+            'post_url': post_url,
+            'ticker': ticker
+        }
+        
+        notifications_ref.add(notification_data)
+        app.logger.info(f"Created notification for user {user_uid}: {title}")
+        
+        return True
+    except Exception as e:
+        app.logger.error(f"Error creating notification: {e}")
+        return False
+
+
 @app.route('/start-analysis', methods=['POST'])
 def start_stock_analysis():
     ticker = request.form.get('ticker', '').strip().upper()
@@ -3521,10 +3682,80 @@ def automation_earnings_runner():
     # Get shared context for automation
     shared_context = get_automation_shared_context(user_uid, user_site_profiles)
     
+    # Load weekly earnings calendar
+    earnings_calendar = None
+    last_refreshed = None
+    last_refreshed_date = None
+    calendar_outdated = False
+    
+    calendar_path = os.path.join(PROJECT_ROOT, 'weekly_earnings_calendar.json')
+    if os.path.exists(calendar_path):
+        try:
+            with open(calendar_path, 'r', encoding='utf-8') as f:
+                calendar_data = json.load(f)
+                
+                # Check if it's the new format with metadata
+                if isinstance(calendar_data, dict) and 'calendar' in calendar_data:
+                    earnings_calendar = calendar_data.get('calendar', {})
+                    last_refreshed = calendar_data.get('last_refreshed')
+                    last_refreshed_date = calendar_data.get('last_refreshed_date')
+                    
+                    # Check if calendar is outdated (older than today)
+                    if last_refreshed_date:
+                        from datetime import datetime
+                        refresh_date = datetime.strptime(last_refreshed_date, '%Y-%m-%d').date()
+                        today = datetime.now().date()
+                        calendar_outdated = refresh_date < today
+                else:
+                    # Old format without metadata
+                    earnings_calendar = calendar_data
+                    calendar_outdated = True  # Assume outdated if no metadata
+                    
+        except Exception as e:
+            app.logger.error(f"Error loading earnings calendar: {e}")
+            earnings_calendar = None
+    
     return render_template('run_automation_earnings.html',
                          title="Earnings Report Automation - Tickzen",
                          user_site_profiles=user_site_profiles,
+                         earnings_calendar=earnings_calendar,
+                         last_refreshed=last_refreshed,
+                         last_refreshed_date=last_refreshed_date,
+                         calendar_outdated=calendar_outdated,
                          **shared_context)
+
+@app.route('/refresh-earnings-calendar', methods=['POST'])
+@login_required
+def refresh_earnings_calendar():
+    """Manually refresh the weekly earnings calendar"""
+    user_uid = session['firebase_user_uid']
+    
+    try:
+        # Import and run the fetch function
+        import sys
+        earnings_reports_path = os.path.join(PROJECT_ROOT, 'earnings_reports')
+        if earnings_reports_path not in sys.path:
+            sys.path.insert(0, earnings_reports_path)
+        
+        from earnings_reports.fetch_weekly_earnings_calendar import fetch_weekly_earnings_calendar
+        
+        app.logger.info(f"Manual earnings calendar refresh initiated by user {user_uid}")
+        
+        # Fetch the calendar
+        calendar_data = fetch_weekly_earnings_calendar()
+        
+        if calendar_data:
+            flash(f"Earnings calendar refreshed successfully! Found earnings data for {len(calendar_data.get('calendar', {}))} days.", "success")
+            app.logger.info(f"Earnings calendar refreshed successfully by user {user_uid}")
+        else:
+            flash("Failed to refresh earnings calendar. Please try again later.", "warning")
+            app.logger.warning(f"Earnings calendar refresh returned no data for user {user_uid}")
+            
+    except Exception as e:
+        app.logger.error(f"Error refreshing earnings calendar for user {user_uid}: {e}", exc_info=True)
+        flash(f"Error refreshing earnings calendar: {str(e)[:100]}", "danger")
+    
+    return redirect(url_for('automation_earnings_runner'))
 
 @app.route('/run-earnings-automation', methods=['POST'])
 @login_required
@@ -3532,21 +3763,40 @@ def run_earnings_automation():
     """Run earnings report generation and publish to WordPress sites"""
     user_uid = session['firebase_user_uid']
     db = get_firestore_client()
+    
+    app.logger.info(f"Earnings automation endpoint hit by user {user_uid}")
 
     if not AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY:
+        app.logger.error(f"AUTO_PUBLISHER not imported successfully for user {user_uid}")
         flash("Automation service is currently unavailable. Please try again later.", "danger")
         return redirect(url_for('automation_earnings_runner'))
 
     # Get selected profile IDs
     profile_ids_to_run = request.form.getlist('run_profile_ids[]')
+    app.logger.info(f"Profile IDs from form: {profile_ids_to_run}")
+    
     if not profile_ids_to_run:
         flash("No profiles selected to run earnings automation.", "info")
         return redirect(url_for('automation_earnings_runner'))
 
-    # Get ticker from form
-    ticker = request.form.get('ticker', '').strip().upper()
-    if not ticker or len(ticker) < 1 or len(ticker) > 5:
-        flash("Invalid ticker symbol. Must be 1-5 characters.", "danger")
+    # Get ticker(s) from form - can be comma-separated for multiple tickers
+    ticker_input = request.form.get('ticker', '').strip().upper()
+    app.logger.info(f"Ticker input from form: '{ticker_input}'")
+    if not ticker_input:
+        flash("Please select at least one ticker symbol.", "danger")
+        return redirect(url_for('automation_earnings_runner'))
+    
+    # Parse multiple tickers (comma-separated)
+    tickers = [t.strip() for t in ticker_input.split(',') if t.strip()]
+    
+    # Validate each ticker
+    invalid_tickers = [t for t in tickers if len(t) < 1 or len(t) > 5 or not t.isalpha()]
+    if invalid_tickers:
+        flash(f"Invalid ticker symbol(s): {', '.join(invalid_tickers)}. Each ticker must be 1-5 letters.", "danger")
+        return redirect(url_for('automation_earnings_runner'))
+    
+    if len(tickers) == 0:
+        flash("Please select at least one valid ticker symbol.", "danger")
         return redirect(url_for('automation_earnings_runner'))
 
     # Get all user profiles and filter selected ones
@@ -3582,26 +3832,18 @@ def run_earnings_automation():
         # Get publish status
         publish_status = request.form.get(f'publish_status_{pid}', 'publish')
         
-        # Get schedule time if status is 'future'
-        schedule_time = None
-        if publish_status == 'future':
-            schedule_time_str = request.form.get(f'schedule_time_{pid}', '')
-            if schedule_time_str:
-                try:
-                    # Parse datetime-local format: YYYY-MM-DDTHH:MM
-                    schedule_time = datetime.strptime(schedule_time_str, '%Y-%m-%dT%H:%M')
-                    schedule_time = schedule_time.replace(tzinfo=timezone.utc)
-                except ValueError:
-                    flash(f"Invalid schedule time for '{profile_data_from_db.get('profile_name', pid)}', using immediate publish.", "warning")
-                    publish_status = 'publish'
+        # Get scheduling intervals from profile configuration (like stock analysis system)
+        min_interval = profile_data_from_db.get('min_scheduling_gap_minutes', 45)
+        max_interval = profile_data_from_db.get('max_scheduling_gap_minutes', 68)
         
         profile_settings[pid] = {
             'category_id': category_id,
             'publish_status': publish_status,
-            'schedule_time': schedule_time
+            'min_scheduling_gap_minutes': min_interval,
+            'max_scheduling_gap_minutes': max_interval
         }
 
-    app.logger.info(f"Earnings automation starting for {ticker} across {len(selected_profiles_data_for_run)} profiles by user {user_uid}")
+    app.logger.info(f"Earnings automation starting for {len(tickers)} ticker(s): {', '.join(tickers)} across {len(selected_profiles_data_for_run)} profiles by user {user_uid}")
 
     try:
         # Import earnings writer
@@ -3612,263 +3854,331 @@ def run_earnings_automation():
         
         from earnings_reports.gemini_earnings_writer import GeminiEarningsWriter
         
-        # Emit start message to all selected profiles
-        for profile_data in selected_profiles_data_for_run:
-            profile_id = profile_data.get('profile_id')
-            socketio.emit('automation_update', {
-                'profile_id': profile_id,
-                'message': f'Starting earnings report generation for {ticker}...',
-                'level': 'info'
-            }, room=user_uid)
-
-        # Step 1: Generate the earnings article
-        for profile_data in selected_profiles_data_for_run:
-            profile_id = profile_data.get('profile_id')
-            socketio.emit('automation_update', {
-                'profile_id': profile_id,
-                'message': f'Step 1/4: Collecting earnings data for {ticker}...',
-                'level': 'info'
-            }, room=user_uid)
-
-        writer = GeminiEarningsWriter()
-        result = writer.generate_complete_report(ticker)
-
-        if not result or not result.get('success'):
-            error_msg = result.get('error', 'Unknown error') if result else 'Generation failed'
-            for profile_data in selected_profiles_data_for_run:
-                profile_id = profile_data.get('profile_id')
-                socketio.emit('automation_update', {
-                    'profile_id': profile_id,
-                    'message': f'Failed to generate earnings report: {error_msg}',
-                    'level': 'error'
-                }, room=user_uid)
-            flash(f"Failed to generate earnings report: {error_msg}", "danger")
-            return redirect(url_for('automation_earnings_runner'))
-
-        app.logger.info(f"Earnings article generated successfully for {ticker}: {result.get('word_count', 0)} words")
+        # Load state for writer rotation tracking
+        from automation_scripts.firestore_state_manager import firestore_state_manager
+        profile_ids = [p.get('profile_id') for p in selected_profiles_data_for_run]
+        state = firestore_state_manager.load_state_from_firestore(user_uid, profile_ids)
         
-        for profile_data in selected_profiles_data_for_run:
-            profile_id = profile_data.get('profile_id')
-            socketio.emit('automation_update', {
-                'profile_id': profile_id,
-                'message': f'✓ Generated {result.get("word_count", 0)} word earnings article',
-                'level': 'success'
-            }, room=user_uid)
-
-        # Step 2: Extract article content for WordPress
-        for profile_data in selected_profiles_data_for_run:
-            profile_id = profile_data.get('profile_id')
-            socketio.emit('automation_update', {
-                'profile_id': profile_id,
-                'message': f'Step 2/4: Preparing content for WordPress...',
-                'level': 'info'
-            }, room=user_uid)
-
-        # Step 2: Extract article content for WordPress
-        for profile_data in selected_profiles_data_for_run:
-            profile_id = profile_data.get('profile_id')
-            socketio.emit('automation_update', {
-                'profile_id': profile_id,
-                'message': f'Step 2/4: Preparing content for WordPress...',
-                'level': 'info'
-            }, room=user_uid)
+        # Ensure last_author_index_by_profile exists in state
+        if 'last_author_index_by_profile' not in state:
+            state['last_author_index_by_profile'] = {}
+        for pid in profile_ids:
+            if pid not in state['last_author_index_by_profile']:
+                state['last_author_index_by_profile'][pid] = -1  # Start from beginning
         
-        file_path = result.get('file_path')
-        article_content = result.get('article_html', '')
+        app.logger.info(f"[WRITER_ROTATION] Loaded state for user {user_uid}: last_author_index_by_profile = {state.get('last_author_index_by_profile', {})}")
         
-        if not article_content:
-            # Fallback: read from file if HTML not in result
-            if file_path and os.path.exists(file_path):
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    article_content = f.read()
-            else:
-                error_msg = "Generated content not available"
-                for profile_data in selected_profiles_data_for_run:
-                    profile_id = profile_data.get('profile_id')
-                    socketio.emit('automation_update', {
-                        'profile_id': profile_id,
-                        'message': error_msg,
-                        'level': 'error'
-                    }, room=user_uid)
-                flash(error_msg, "danger")
-                return redirect(url_for('automation_earnings_runner'))
-
-        # Extract title and clean content from HTML
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(article_content, 'html.parser')
+        # Process each ticker
+        total_published = 0
+        failed_tickers = []
         
-        # Extract title from h1 tag
-        h1_tag = soup.find('h1')
-        article_title = h1_tag.get_text(strip=True) if h1_tag else f"{ticker} Quarterly Earnings Analysis"
+        # Track which tickers have been published already (for variation logic)
+        # Key: ticker, Value: number of times published across all sites
+        ticker_publish_count = {}
         
-        # Remove the h1 from content since WordPress adds the title separately
-        if h1_tag:
-            h1_tag.decompose()
-        
-        # Remove any document structure tags if present (html, head, body)
-        for tag in soup.find_all(['html', 'head', 'body', 'style', 'script', 'meta', 'title']):
-            tag.unwrap() if tag.name in ['html', 'body'] else tag.decompose()
-        
-        # Get clean HTML content - preserve all semantic tags (h2, h3, p, ul, li, table, etc.)
-        article_content = str(soup).strip()
-        
-        # Final cleanup - remove any remaining document tags
-        article_content = article_content.replace('<html>', '').replace('</html>', '')
-        article_content = article_content.replace('<body>', '').replace('</body>', '')
-        article_content = article_content.strip()
-
-        # Step 3: Publish to each selected WordPress site
-        for profile_data in selected_profiles_data_for_run:
-            profile_id = profile_data.get('profile_id')
-            socketio.emit('automation_update', {
-                'profile_id': profile_id,
-                'message': f'Step 3/4: Publishing to WordPress...',
-                'level': 'info'
-            }, room=user_uid)
-
-        for profile_data in selected_profiles_data_for_run:
+        # NEW APPROACH: Process profile by profile (not ticker by ticker)
+        # This ensures we generate articles sequentially to avoid token limit issues
+        for profile_idx, profile_data in enumerate(selected_profiles_data_for_run):
             profile_id = profile_data.get('profile_id')
             profile_name = profile_data.get('profile_name', profile_id)
             site_url = profile_data.get('site_url')
             authors = profile_data.get('authors', [])
             
             if not authors:
-                socketio.emit('automation_update', {
-                    'profile_id': profile_id,
-                    'message': f'✗ No authors configured for this profile',
-                    'level': 'error'
-                }, room=user_uid)
-                flash(f"No authors configured for '{profile_name}'", "danger")
-                continue
-            
-            # Use the first author
-            author = authors[0]
-            
-            socketio.emit('automation_update', {
-                'profile_id': profile_id,
-                'message': f'Publishing earnings report for {ticker}...',
-                'level': 'info'
-            }, room=user_uid)
-
-            try:
-                # Get profile-specific settings
-                settings = profile_settings.get(profile_id, {})
-                cat_id = settings.get('category_id')
-                publish_status = settings.get('publish_status', 'publish')
-                schedule_time = settings.get('schedule_time')
-                
-                # Use schedule time if provided, otherwise current time
-                publish_time = schedule_time if schedule_time else datetime.now(timezone.utc)
-                
-                # Improve article title - make it more attractive and informative
-                # Remove robotic patterns and make it engaging
-                improved_title = article_title
-                if "Quarterly Earnings Analysis:" in improved_title:
-                    # Extract the compelling part after the colon
-                    parts = improved_title.split(':', 1)
-                    if len(parts) > 1:
-                        improved_title = f"{ticker} {parts[1].strip()}"
-                
-                # Ensure title is concise but informative (60-70 chars ideal for SEO)
-                if len(improved_title) > 70:
-                    # Try to cut at a natural break point
-                    words = improved_title.split()
-                    improved_title = ' '.join(words[:8]) + '...'
-                
-                # Extract company name from article title for better slug
-                company_name = None
-                if article_title:
-                    # Remove ticker and common phrases to extract company name
-                    temp = article_title.replace(f'{ticker}', '').replace('Quarterly Earnings Analysis:', '')
-                    temp = temp.replace('Earnings Report', '').replace('Analysis', '').strip()
-                    parts = temp.split('-')
-                    if parts:
-                        company_name = parts[0].strip()[:30]  # Limit company name length
-                
-                # Create WordPress post with improved settings
-                post_id = auto_publisher.create_wordpress_post(
-                    site_url=site_url,
-                    author=author,
-                    title=improved_title,
-                    content=article_content,
-                    sched_time=publish_time,
-                    cat_id=cat_id,
-                    media_id=None,
-                    ticker=ticker,
-                    company_name=company_name,
-                    status=publish_status
-                )
-
-                if post_id:
-                    post_url = f"{site_url.rstrip('/')}/wp-admin/post.php?post={post_id}&action=edit"
-                    status = "published"
-                    
-                    # Save status to Firestore
-                    status_data = {
-                        'status': status,
-                        'message': f"Earnings report {status}",
-                        'post_url': post_url,
-                        'generated_at': datetime.now(timezone.utc).isoformat(),
-                        'published_at': datetime.now(timezone.utc).isoformat(),
-                        'writer_username': author.get('wp_username')
-                    }
-                    
-                    save_processed_ticker_status(
-                        user_uid=user_uid,
-                        profile_id=profile_id,
-                        ticker_symbol=ticker,
-                        status_data=status_data
-                    )
-
+                for ticker in tickers:
                     socketio.emit('automation_update', {
                         'profile_id': profile_id,
-                        'message': f'✓ Earnings report published for {ticker}',
-                        'level': 'success'
-                    }, room=user_uid)
-
-                    socketio.emit('ticker_status_persisted', {
-                        'profile_id': profile_id,
-                        'ticker': ticker,
-                        'status': status,
-                        'message': f"Earnings report {status}",
-                        'timestamp': datetime.now(timezone.utc).isoformat(),
-                        'post_url': post_url
-                    }, room=user_uid)
-
-                    flash(f"Earnings report for {ticker} published to '{profile_name}'", "success")
-                else:
-                    error = "Failed to create WordPress post"
-                    socketio.emit('automation_update', {
-                        'profile_id': profile_id,
-                        'message': f'✗ {error}',
+                        'message': f'[{ticker}] ✗ No authors configured for {profile_name}',
                         'level': 'error'
                     }, room=user_uid)
-                    flash(f"Failed to publish earnings report to '{profile_name}': {error}", "danger")
-
-            except Exception as e:
-                error_msg = str(e)
-                app.logger.error(f"Error publishing earnings report for {ticker} to profile {profile_id}: {error_msg}")
+                continue
+            
+            # WRITER ROTATION: Get last used writer index and create rotating iterator
+            from itertools import cycle
+            author_start_index = state.get('last_author_index_by_profile', {}).get(profile_id, -1)
+            author_iterator = cycle(authors)
+            
+            # Advance iterator to start from the next writer after last used
+            for _ in range((author_start_index + 1) % len(authors)):
+                next(author_iterator)
+            
+            # Get profile-specific settings
+            settings = profile_settings.get(profile_id, {})
+            cat_id = settings.get('category_id')
+            publish_status = settings.get('publish_status', 'publish')
+            min_interval = settings.get('min_scheduling_gap_minutes', 45)
+            max_interval = settings.get('max_scheduling_gap_minutes', 68)
+            
+            # Initialize publish time for this profile
+            last_publish_time = None
+            
+            # Process each ticker for THIS profile
+            for ticker_idx, ticker in enumerate(tickers, 1):
+                # WRITER ROTATION: Get next author from rotating iterator
+                author = next(author_iterator)
+                state['last_author_index_by_profile'][profile_id] = authors.index(author)
+                writer_name = author.get('wp_username', 'Unknown')
+                
+                # Determine variation number based on how many times this ticker has been published
+                variation_number = ticker_publish_count.get(ticker, 0)
+                variation_msg = f" - Variation #{variation_number + 1}" if variation_number > 0 else ""
+                
                 socketio.emit('automation_update', {
                     'profile_id': profile_id,
-                    'message': f'✗ Error: {error_msg}',
-                    'level': 'error'
+                    'message': f'[{ticker_idx}/{len(tickers)}] Starting earnings report for {ticker} on {profile_name}{variation_msg} (Writer: {writer_name})...',
+                    'level': 'info'
                 }, room=user_uid)
-                flash(f"Error publishing to '{profile_name}': {error_msg}", "danger")
+                
+                # Step 1: Generate earnings article WITH variation
+                socketio.emit('automation_update', {
+                    'profile_id': profile_id,
+                    'message': f'[{ticker}] Step 1/4: Collecting earnings data{variation_msg}...',
+                    'level': 'info'
+                }, room=user_uid)
 
-        # Final completion message to all profiles
+                writer = GeminiEarningsWriter()
+                result = writer.generate_complete_report(ticker, variation_number=variation_number)
+
+                if not result or not result.get('success'):
+                    error_msg = result.get('error', 'Unknown error') if result else 'Generation failed'
+                    failed_tickers.append(f"{ticker} on {profile_name} ({error_msg})")
+                    socketio.emit('automation_update', {
+                        'profile_id': profile_id,
+                        'message': f'[{ticker}] Failed to generate earnings report: {error_msg}',
+                        'level': 'error'
+                    }, room=user_uid)
+                    app.logger.warning(f"Failed to generate earnings report for {ticker} on {profile_name}: {error_msg}")
+                    continue  # Skip to next ticker for this profile
+
+                app.logger.info(f"Earnings article generated for {ticker} on {profile_name} (Variation #{variation_number}): {result.get('word_count', 0)} words")
+                
+                socketio.emit('automation_update', {
+                    'profile_id': profile_id,
+                    'message': f'[{ticker}] ✓ Generated {result.get("word_count", 0)} word earnings article{variation_msg}',
+                    'level': 'success'
+                }, room=user_uid)
+
+                # Step 2: Extract article content for WordPress
+                socketio.emit('automation_update', {
+                    'profile_id': profile_id,
+                    'message': f'[{ticker}] Step 2/4: Preparing content for WordPress...',
+                    'level': 'info'
+                }, room=user_uid)
+                
+                file_path = result.get('file_path')
+                article_content = result.get('article_html', '')
+                
+                if not article_content:
+                    # Fallback: read from file if HTML not in result
+                    if file_path and os.path.exists(file_path):
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            article_content = f.read()
+                    else:
+                        error_msg = "Generated content not available"
+                        failed_tickers.append(f"{ticker} on {profile_name} (No content)")
+                        socketio.emit('automation_update', {
+                            'profile_id': profile_id,
+                            'message': f'[{ticker}] {error_msg}',
+                            'level': 'error'
+                        }, room=user_uid)
+                        continue  # Skip to next ticker for this profile
+
+                # Extract title and clean content from HTML
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(article_content, 'html.parser')
+                
+                # Extract title from h1 tag
+                h1_tag = soup.find('h1')
+                article_title = h1_tag.get_text(strip=True) if h1_tag else f"{ticker} Quarterly Earnings Analysis"
+                
+                # Remove the h1 from content since WordPress adds the title separately
+                if h1_tag:
+                    h1_tag.decompose()
+                
+                # Remove any document structure tags if present (html, head, body)
+                for tag in soup.find_all(['html', 'head', 'body', 'style', 'script', 'meta', 'title']):
+                    if tag.name in ['html', 'body']:
+                        tag.unwrap()
+                    else:
+                        tag.decompose()
+                
+                # Get clean HTML content - preserve all semantic tags (h2, h3, p, ul, li, table, etc.)
+                article_content = str(soup).strip()
+                
+                # Final cleanup - remove any remaining document tags
+                article_content = article_content.replace('<html>', '').replace('</html>', '')
+                article_content = article_content.replace('<body>', '').replace('</body>', '')
+                article_content = article_content.strip()
+
+                # Step 3: Publish to WordPress
+                socketio.emit('automation_update', {
+                    'profile_id': profile_id,
+                    'message': f'[{ticker}] Step 3/4: Publishing to WordPress...',
+                    'level': 'info'
+                }, room=user_uid)
+
+                try:
+                    # Calculate publish time using RANDOM INTERVALS
+                    publish_time = datetime.now(timezone.utc)
+                    
+                    if publish_status == 'future':
+                        # Use random interval scheduling to avoid spam-like patterns
+                        if last_publish_time is None:
+                            # First article for this profile: schedule 1-3 minutes from now
+                            publish_time = datetime.now(timezone.utc) + timedelta(minutes=random.randint(1, 3))
+                        else:
+                            # Subsequent articles: add random interval from last publish time
+                            random_interval = random.randint(min_interval, max_interval)
+                            publish_time = last_publish_time + timedelta(minutes=random_interval)
+                        
+                        # Update last publish time for next article
+                        last_publish_time = publish_time
+                        
+                        socketio.emit('automation_update', {
+                            'profile_id': profile_id,
+                            'message': f'[{ticker}] Scheduled for {publish_time.strftime("%Y-%m-%d %H:%M UTC")} (random interval)',
+                            'level': 'info'
+                        }, room=user_uid)
+                    
+                    # Improve article title - make it more attractive and informative
+                    improved_title = article_title
+                    if "Quarterly Earnings Analysis:" in improved_title:
+                        # Extract the compelling part after the colon
+                        parts = improved_title.split(':', 1)
+                        if len(parts) > 1:
+                            improved_title = f"{ticker} {parts[1].strip()}"
+                    
+                    # Ensure title is concise but informative (60-70 chars ideal for SEO)
+                    if len(improved_title) > 70:
+                        # Try to cut at a natural break point
+                        words = improved_title.split()
+                        improved_title = ' '.join(words[:8]) + '...'
+                    
+                    # Extract company name from article title for better slug
+                    company_name = None
+                    if article_title:
+                        # Remove ticker and common phrases to extract company name
+                        temp = article_title.replace(f'{ticker}', '').replace('Quarterly Earnings Analysis:', '')
+                        temp = temp.replace('Earnings Report', '').replace('Analysis', '').strip()
+                        parts = temp.split('-')
+                        if parts:
+                            company_name = parts[0].strip()[:30]  # Limit company name length
+                    
+                    # Create WordPress post
+                    post_id = auto_publisher.create_wordpress_post(
+                        site_url=site_url,
+                        author=author,
+                        title=improved_title,
+                        content=article_content,
+                        sched_time=publish_time,
+                        cat_id=cat_id,
+                        media_id=None,
+                        ticker=ticker,
+                        company_name=company_name,
+                        status=publish_status
+                    )
+
+                    if post_id:
+                        post_url = f"{site_url.rstrip('/')}/wp-admin/post.php?post={post_id}&action=edit"
+                        status = "published"
+                        total_published += 1
+                        
+                        # Increment variation counter for this ticker (used for next site)
+                        ticker_publish_count[ticker] = ticker_publish_count.get(ticker, 0) + 1
+                        app.logger.info(f"[VARIATION_TRACKER] {ticker} published {ticker_publish_count[ticker]} time(s) across sites")
+                        
+                        # Save writer rotation state to Firestore (persist last used writer)
+                        app.logger.info(f"[WRITER_ROTATION] Saving state - Last used writer for {profile_id}: {writer_name} (index {state['last_author_index_by_profile'][profile_id]})")
+                        firestore_state_manager.save_state_to_firestore(user_uid, state)
+                        
+                        # Save status to Firestore
+                        status_data = {
+                            'status': status,
+                            'message': f"Earnings report {status}{variation_msg}",
+                            'post_url': post_url,
+                            'generated_at': datetime.now(timezone.utc).isoformat(),
+                            'published_at': datetime.now(timezone.utc).isoformat(),
+                            'writer_username': author.get('wp_username'),
+                            'variation_number': variation_number
+                        }
+                        
+                        save_processed_ticker_status(
+                            user_uid=user_uid,
+                            profile_id=profile_id,
+                            ticker_symbol=ticker,
+                            status_data=status_data
+                        )
+
+                        socketio.emit('automation_update', {
+                            'profile_id': profile_id,
+                            'message': f'[{ticker}] ✓ Earnings report published{variation_msg}',
+                            'level': 'success'
+                        }, room=user_uid)
+
+                        socketio.emit('ticker_status_persisted', {
+                            'profile_id': profile_id,
+                            'ticker': ticker,
+                            'status': status,
+                            'message': f"Earnings report {status}",
+                            'timestamp': datetime.now(timezone.utc).isoformat(),
+                            'post_url': post_url
+                        }, room=user_uid)
+                        
+                        # Create notification for the user
+                        if publish_status == 'future':
+                            notification_title = f"📅 Article Scheduled: {ticker}"
+                            notification_msg = f"Your earnings report for {ticker}{variation_msg} has been scheduled on {profile_name}"
+                        else:
+                            notification_title = f"✅ Article Published: {ticker}"
+                            notification_msg = f"Your earnings report for {ticker}{variation_msg} has been published on {profile_name}"
+                        
+                        create_notification(
+                            user_uid=user_uid,
+                            title=notification_title,
+                            message=notification_msg,
+                            notification_type='success',
+                            post_url=post_url,
+                            ticker=ticker
+                        )
+
+                except Exception as e:
+                    error_msg = str(e)
+                    app.logger.error(f"Error publishing earnings report for {ticker} to {profile_name}: {error_msg}")
+                    socketio.emit('automation_update', {
+                        'profile_id': profile_id,
+                        'message': f'[{ticker}] ✗ Error: {error_msg}',
+                        'level': 'error'
+                    }, room=user_uid)
+            
+            # Completion message for this profile
+            socketio.emit('automation_update', {
+                'profile_id': profile_id,
+                'message': f'✅ Completed processing {len(tickers)} ticker(s) for {profile_name}',
+                'level': 'success'
+            }, room=user_uid)
+        
+        # Save final state to Firestore
+        app.logger.info(f"[WRITER_ROTATION] Final state save - last_author_index_by_profile: {state.get('last_author_index_by_profile', {})}")
+        firestore_state_manager.save_state_to_firestore(user_uid, state)
+        
+        # Final summary message to all profiles
         for profile_data in selected_profiles_data_for_run:
             profile_id = profile_data.get('profile_id')
             socketio.emit('automation_update', {
                 'profile_id': profile_id,
-                'message': f'✅ Earnings automation completed for {ticker}',
+                'message': f'🎉 All done! Published {total_published} article(s) for {len(tickers)} ticker(s)',
                 'level': 'success'
             }, room=user_uid)
 
-        flash(f"Earnings automation completed for {ticker}", "success")
+        # Flash summary message
+        if total_published > 0:
+            flash(f"Successfully published {total_published} earnings article(s) for {len(tickers)} ticker(s)", "success")
+        if failed_tickers:
+            flash(f"Failed to process: {', '.join(failed_tickers)}", "warning")
 
     except Exception as e:
         error_msg = str(e)
-        app.logger.error(f"Error in earnings automation for {ticker}: {error_msg}")
+        app.logger.error(f"Error in earnings automation: {error_msg}")
         for profile_data in selected_profiles_data_for_run:
             profile_id = profile_data.get('profile_id')
             socketio.emit('automation_update', {

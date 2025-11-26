@@ -384,6 +384,9 @@ def fetch_stock_data(
     # For intraday intervals, use stricter cache validation
     cache_valid_hours = 1 if interval in ['1m', '5m', '15m', '30m', '1h'] else 24
     
+    # Minimum data points required for technical analysis
+    MIN_ROWS_FOR_ANALYSIS = 100  # Need at least 100 days for reliable technical indicators
+    
     if cache_exists:
         logger.info(f"Attempting to load cached stock data for {ticker} from: {cache_filename}")
         try:
@@ -397,6 +400,8 @@ def fetch_stock_data(
                  logger.warning(f"Cached file {cache_filename} is empty. Re-downloading.")
             elif data['Date'].isna().any():
                  logger.warning(f"Cached file {cache_filename} contains invalid dates. Re-downloading.")
+            elif len(data) < MIN_ROWS_FOR_ANALYSIS and interval == '1d':
+                 logger.warning(f"Cached data for {ticker} has only {len(data)} rows, need at least {MIN_ROWS_FOR_ANALYSIS} for analysis. Re-downloading.")
             elif not is_data_current_for_today(data, ticker):
                  logger.warning(f"Cached data for {ticker} is not current for today. Re-downloading to get latest data.")
             elif interval in ['1m', '5m', '15m', '30m', '1h']:

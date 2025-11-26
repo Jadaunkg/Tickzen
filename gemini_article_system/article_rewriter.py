@@ -56,7 +56,8 @@ class GeminiArticleRewriter:
         html_report: str,
         ticker: str,
         company_name: str,
-        max_input_length: int = 80000
+        max_input_length: int = 80000,
+        variation_number: int = 0
     ) -> Tuple[str, Dict]:
         """
         Rewrite HTML stock analysis report into SEO-optimized article.
@@ -66,6 +67,7 @@ class GeminiArticleRewriter:
             ticker: Stock ticker symbol (e.g., 'AAPL')
             company_name: Full company name (e.g., 'Apple Inc.')
             max_input_length: Maximum characters to send to Gemini
+            variation_number: Article variation number (0=first, 1=second variation, etc.)
             
         Returns:
             Tuple of (article_html, metadata_dict)
@@ -87,12 +89,28 @@ class GeminiArticleRewriter:
         
         # Generate the rewritten article
         print("\nStep 2: Generating SEO-optimized article with Gemini 2.5 Flash...")
-        prompt = self._build_rewrite_prompt(ticker, company_name, report_text)
+        if variation_number > 0:
+            print(f"   ⚙ VARIATION MODE: Generating different perspective (variation #{variation_number + 1})")
+        prompt = self._build_rewrite_prompt(ticker, company_name, report_text, variation_number)
         
         try:
+            # Adjust temperature for variations to get different perspectives
+            config = self.generation_config.copy() if hasattr(self.generation_config, 'copy') else genai.GenerationConfig(
+                temperature=self.generation_config.temperature,
+                top_p=self.generation_config.top_p,
+                top_k=self.generation_config.top_k,
+                max_output_tokens=self.generation_config.max_output_tokens
+            )
+            
+            # Increase temperature for variations to get more diverse content
+            if variation_number > 0:
+                # Base: 0.7, Variation 1: 0.85, Variation 2: 1.0, etc.
+                config.temperature = min(1.0, 0.7 + (variation_number * 0.15))
+                print(f"   ⚙ Temperature set to {config.temperature} for variation")
+            
             response = self.model.generate_content(
                 prompt,
-                generation_config=self.generation_config
+                generation_config=config
             )
             
             article_html = response.text
@@ -133,14 +151,44 @@ class GeminiArticleRewriter:
         lines = [line.strip() for line in text.split('\n') if line.strip()]
         return '\n'.join(lines)
     
-    def _build_rewrite_prompt(self, ticker: str, company_name: str, report_text: str) -> str:
+    def _build_rewrite_prompt(self, ticker: str, company_name: str, report_text: str, variation_number: int = 0) -> str:
         """
         Build comprehensive prompt for article rewriting.
         Focuses on preserving exact report structure while improving readability.
+        
+        Args:
+            variation_number: If > 0, add instructions to generate a different perspective
         """
+        # Add variation instructions at the start if this is a variation
+        variation_instructions = ""
+        if variation_number > 0:
+            variation_instructions = f"""
+⚠️ VARIATION MODE (CRITICAL - READ FIRST):
+   - This is VARIATION #{variation_number + 1} of this article
+   - You MUST generate a DIFFERENT VERSION than previous attempts
+   - Use DIFFERENT wording, DIFFERENT explanations, DIFFERENT perspectives
+   - However, the 23-section structure MUST remain exactly the same
+   - Focus on different aspects of the data (e.g., if variation 1 focused on risks, focus on opportunities)
+   - Use synonyms and rephrase sentences completely
+   - Change sentence structures and paragraph flow
+   - Present the same data from a fresh angle
+   - This ensures unique content when same ticker publishes to same site multiple times
+   - CRITICAL: Structure stays identical, but presentation and language must differ significantly
+
+"""
+        
         prompt = f"""You are an expert financial journalist. Your task is to REWRITE the following stock analysis report into an SEO-optimized article while PRESERVING THE EXACT STRUCTURE AND SECTIONS from the original report.
 
-CRITICAL INSTRUCTIONS:
+{variation_instructions}CRITICAL INSTRUCTIONS:
+
+⚠️ DATA FRESHNESS REQUIREMENT (CRITICAL - MUST FOLLOW):
+   - You MUST use ONLY the latest information from the last 2-3 days
+   - ALL external data, news, events, and market information MUST be current and recent
+   - This is financial content - NO OUTDATED DATA ALLOWED
+   - Only cite trusted sources: SEC filings, official company announcements, major financial news (Bloomberg, Reuters, WSJ, CNBC, Yahoo Finance, MarketWatch)
+   - If you reference any external information beyond the provided report, it MUST be from the last 2-3 days only
+   - NEVER use old data, historical news from weeks/months ago, or outdated analysis
+   - For stock analysis and earnings reports, focus on CURRENT market conditions and RECENT company developments
 
 ⚠️ COMPLETENESS REQUIREMENT: This is a LONG REPORT. You MUST process and rewrite the ENTIRE report from start to finish. DO NOT stop mid-way. DO NOT truncate. The output must include EVERY section from the original report.
 
@@ -156,7 +204,12 @@ CRITICAL INSTRUCTIONS:
    - Use ONLY proper HTML tags for formatting
    - For bold text: Use <strong>text</strong> NOT **text**
    - For emphasis: Use <em>text</em> NOT *text*
-   - For headings: Use <h2> for main sections, <h3> for subsections, <h4> for sub-subsections
+   - STRICT HEADING HIERARCHY (CRITICAL):
+     * <h2> for ALL main sections (e.g., "Stock Analysis", "Technical Indicators", "Investment Outlook")
+     * <h3> for subsections under h2 (e.g., "Price Trends" under "Technical Indicators")
+     * <h4> for sub-subsections under h3 (e.g., "Monthly Patterns" under "Price Trends")
+     * NEVER skip levels: h2 → h3 → h4 (never h2 → h4)
+     * NEVER use h3 as main section headings - always start with h2
    - For lists: Use <ul><li> or <ol><li> ONLY for non-tabular data
    - For tables: Use proper <table><thead><tbody><tr><th><td> tags with proper structure
    - PREFER TABLES over bullet points when presenting:
@@ -167,6 +220,19 @@ CRITICAL INSTRUCTIONS:
    - NEVER use Markdown syntax (**, *, _, etc.)
    - Add CSS classes for tables: <table class="financial-data-table">
    - Use proper table headers: <th> for column/row headers
+
+   EXTERNAL LINKS REQUIREMENT (CRITICAL):
+   ✅ Include 3-4 high-quality external links throughout the article
+   ✅ Link to reputable financial sources:
+      - SEC Edgar filings: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK={ticker}
+      - Yahoo Finance: https://finance.yahoo.com/quote/{ticker}
+      - MarketWatch: https://www.marketwatch.com/investing/stock/{ticker.lower()}
+      - Company Investor Relations page (if available)
+   ✅ Place links naturally in context where relevant (spread throughout article)
+   ✅ Use descriptive anchor text, not "click here" or bare URLs
+   ✅ Format: <a href="URL" target="_blank" rel="noopener">descriptive text</a>
+   ❌ Don't cluster all links in one section
+   ❌ Don't use affiliate or promotional links
 
 3. WRITING STYLE & PARAGRAPH STRUCTURE (CRITICAL):
    - Write as a human financial analyst sharing insights, NOT as AI or a robot
@@ -231,11 +297,14 @@ CRITICAL INSTRUCTIONS:
 5. SEO OPTIMIZATION:
    - Enhance headings to be descriptive and keyword-rich
    - Include the stock ticker ({ticker}) and company name ({company_name}) naturally
-   - Use relevant keywords: stock analysis, investment, financial performance
-   - Add 3-5 external links to reputable sources:
+   - Use relevant keywords: stock analysis, investment, financial performance, earnings report
+   - MUST include 3-4 external links to reputable sources (CRITICAL):
      * https://finance.yahoo.com/quote/{ticker}
      * https://www.marketwatch.com/investing/stock/{ticker.lower()}
      * https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK={ticker}
+     * Company official investor relations page
+   - Distribute links naturally throughout the article
+   - Use descriptive anchor text for all links
 
 6. CONTENT ELEMENTS & TABLE USAGE:
    
@@ -313,50 +382,33 @@ OUTPUT FORMAT REQUIREMENTS:
 - Begin with the main content - the article title will be added separately by WordPress
 - Use proper HTML tags ONLY (no Markdown)
 - DO NOT include <h1> tags - WordPress will generate the title
-- Start with <h2> for the first main section heading
+- STRICT HEADING HIERARCHY:
+  * Start with <h2> for the first main section heading
+  * Use <h3> for subsections under <h2>
+  * Use <h4> for sub-subsections under <h3>
+  * NEVER skip levels (e.g., h2 → h4)
 - Preserve exact report structure and section order
 - Use <strong> for bold, NEVER use **
 - Use proper <table> tags for all tabular data
-- Include 3-5 external links with <a href> tags
+- Include 3-4 external links with <a href> tags (CRITICAL)
 - Add comprehensive FAQ section at the end with 5-7 questions
-- Include FAQ JSON-LD schema markup (see example below)
+- Structure FAQ using <h2>Frequently Asked Questions</h2> then <h3> for each question
+- DO NOT include hardcoded FAQ JSON-LD schema in the article
 - DO NOT include any disclaimer section about investment advice
 
-FAQ SCHEMA EXAMPLE (add this after FAQ section):
-```html
-<script type="application/ld+json">
-{{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {{
-      "@type": "Question",
-      "name": "Is {ticker} a good buy right now?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "Your answer here with analysis and metrics"
-      }}
-    }},
-    {{
-      "@type": "Question",
-      "name": "What is {company_name}'s price target?",
-      "acceptedAnswer": {{
-        "@type": "Answer",
-        "text": "Your answer here with forecast details"
-      }}
-    }}
-  ]
-}}
-</script>
-```
-
 ⚠️ FINAL CRITICAL REMINDERS:
-1. Copy ALL numbers EXACTLY - do not round, estimate, or modify
-2. SKIP any metrics with N/A, 0, null, or nan - don't mention them at all
-3. NEVER write about missing or unavailable data
-4. Include ONLY metrics that have real, valid numerical values
-5. Process the ENTIRE report - don't stop early
-6. Use <strong> for bold, NEVER **
+1. Use ONLY current information from the last 2-3 days for any external data
+2. Only cite trusted financial sources (Bloomberg, Reuters, WSJ, SEC, Yahoo Finance, MarketWatch)
+3. Include 3-4 external links to reputable sources naturally throughout the article
+4. Follow strict heading hierarchy: h2 (main sections) → h3 (subsections) → h4 (sub-subsections)
+5. Copy ALL numbers EXACTLY - do not round, estimate, or modify
+6. SKIP any metrics with N/A, 0, null, or nan - don't mention them at all
+7. NEVER write about missing or unavailable data
+8. Include ONLY metrics that have real, valid numerical values
+9. Process the ENTIRE report - don't stop early
+10. Use <strong> for bold, NEVER **
+11. Generate comprehensive FAQ section with 5-7 relevant questions
+12. NO hardcoded FAQ schema - schema will be generated separately from the FAQ content
 
 Now rewrite the COMPLETE report with proper HTML formatting:
 """
@@ -881,7 +933,8 @@ def generate_article_from_pipeline(
     company_name: Optional[str] = None,
     timeframe: str = '1mo',
     output_dir: str = "generated_articles",
-    app_root: Optional[str] = None
+    app_root: Optional[str] = None,
+    variation_number: int = 0
 ) -> Tuple[str, Dict]:
     """
     Complete pipeline: Generate stock report → Rewrite with Gemini AI.
@@ -898,6 +951,8 @@ def generate_article_from_pipeline(
         timeframe: Analysis timeframe (default: '1mo')
         output_dir: Directory to save generated articles
         app_root: Application root directory (auto-detected if not provided)
+        variation_number: Article variation number (0=first, 1=second variation, etc.)
+                         Used to generate different versions when same ticker published multiple times
         
     Returns:
         Tuple of (article_filepath, metadata_dict)
@@ -964,12 +1019,15 @@ def generate_article_from_pipeline(
     
     # Rewrite report with Gemini AI
     print(f"\nStep 3: Rewriting report with Gemini AI...")
+    if variation_number > 0:
+        print(f"   ⚙ Generating VARIATION #{variation_number + 1} (different perspective/temperature)")
     rewriter = GeminiArticleRewriter()
     
     article_html, metadata = rewriter.rewrite_report(
         html_report=report_html,
         ticker=ticker,
-        company_name=company_name
+        company_name=company_name,
+        variation_number=variation_number
     )
     
     # Save the article

@@ -213,7 +213,7 @@ def run_pipeline(ticker, ts, app_root, socketio_instance=None, task_room=None):
                         stock_data.loc[today_mask, 'Close'] = latest_close
 
         _emit_progress(socketio_instance, task_room, 10, "Fetching macroeconomic data...", "Data Collection", ticker, event_name_progress)
-        macro_data = fetch_macro_indicators(app_root=app_root)
+        macro_data = fetch_macro_indicators(app_root=app_root, stock_data=stock_data)
         if macro_data is None or macro_data.empty:
             pipeline_logger.warning(f"Macro data fetch failed for {ticker}. Proceeding.")
 

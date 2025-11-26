@@ -50,7 +50,8 @@ class FirestoreStateManager:
             'published_tickers_log_by_profile': list,  # Changed from set to list for Firestore
             'processed_tickers_detailed_log_by_profile': list,
             'last_author_index_by_profile': lambda: -1,
-            'last_processed_ticker_index_by_profile': lambda: -1
+            'last_processed_ticker_index_by_profile': lambda: -1,
+            'ticker_publish_count_by_profile': lambda: {}  # Track variations per ticker per profile
         }
         
         state = {}
@@ -60,6 +61,9 @@ class FirestoreStateManager:
                 state[key][pid] = factory() if callable(factory) else factory
                 
         state['last_run_date'] = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+        
+        # No global tracker needed - we track variations per profile
+        
         return state
     
     def load_state_from_firestore(self, user_uid, profile_ids=None):
@@ -95,6 +99,10 @@ class FirestoreStateManager:
                     for pid, tickers in state_data['published_tickers_log_by_profile'].items():
                         state_data['published_tickers_log_by_profile'][pid] = set(tickers)
                 
+                # Ensure ticker_publish_count_by_profile exists
+                if 'ticker_publish_count_by_profile' not in state_data:
+                    state_data['ticker_publish_count_by_profile'] = {str(pid): {} for pid in profile_ids} if profile_ids else {}
+                
                 logger.info(f"Loaded state from Firestore for user {user_uid}")
                 
                 # Check if we need to reset daily counts
@@ -105,6 +113,9 @@ class FirestoreStateManager:
                         state_data['posts_today_by_profile'][pid_in_state] = 0
                     for pid_in_state in list(state_data.get('processed_tickers_detailed_log_by_profile', {}).keys()):
                         state_data['processed_tickers_detailed_log_by_profile'][pid_in_state] = []
+                    # Reset ticker publish counts for new day (allow fresh variations)
+                    for pid_in_state in list(state_data.get('ticker_publish_count_by_profile', {}).keys()):
+                        state_data['ticker_publish_count_by_profile'][pid_in_state] = {}
                     state_data['last_run_date'] = current_date_str
                     # Save the updated state back to Firestore
                     self.save_state_to_firestore(user_uid, state_data)
