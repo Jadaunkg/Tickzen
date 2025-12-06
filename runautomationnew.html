@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publishing Profile Dashboard - Tickzen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0f1a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            /* increased base font size by 1px */
+            font-size: 15px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            height: 56px;
+            background: #0d1321;
+            border-bottom: 1px solid #1e293b;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 21px;
+            color: #22c55e;
+        }
+
+        .logo svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        .nav-items {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-item {
+            padding: 8px 14px;
+            border-radius: 6px;
+            /* increased font size */
+            font-size: 14px;
+            font-weight: 500;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-item:hover {
+            color: #e2e8f0;
+            background: #1e293b;
+        }
+
+        .nav-item.active {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .nav-item svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .notification-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            background: #1e293b;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .notification-btn:hover {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #e2e8f0;
+            /* increased font size */
+            font-size: 14px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .user-menu:hover {
+            background: #1e293b;
+        }
+
+        /* Layout */
+        .app-layout {
+            display: flex;
+            margin-top: 56px;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: #0d1321;
+            border-right: 1px solid #1e293b;
+            padding: 16px 0;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            /* increased font size */
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 16px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: #94a3b8;
+            text-decoration: none;
+            /* increased font size */
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .sidebar-item:hover {
+            color: #e2e8f0;
+            background: #1e293b;
+        }
+
+        .sidebar-item.active {
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+            border-right: 2px solid #22c55e;
+        }
+
+        .sidebar-item svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 24px;
+            background: #0a0f1a;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .page-title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .page-title {
+            /* increased font size */
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .page-subtitle {
+            /* increased font size */
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .btn {
+            padding: 9px 18px;
+            border-radius: 6px;
+            /* increased font size */
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+        }
+
+        .btn-secondary {
+            background: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-box-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            /* increased font size */
+            font-size: 14px;
+            font-weight: 600;
+            color: #22c55e;
+            margin-bottom: 8px;
+        }
+
+        .info-box-content {
+            /* increased font size */
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .info-box-content strong {
+            color: #e2e8f0;
+        }
+
+        /* Daily Cap Notice */
+        .daily-cap-notice {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .daily-cap-notice svg {
+            width: 18px;
+            height: 18px;
+            color: #22c55e;
+        }
+
+        .daily-cap-notice span {
+            /* increased font size */
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .daily-cap-notice strong {
+            color: #22c55e;
+        }
+
+        /* Profile Cards */
+        .profiles-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .profile-card {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-header {
+            background: #22c55e;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #fff;
+        }
+
+        .profile-icon {
+            width: 20px;
+            height: 20px;
+            color: #fff;
+        }
+
+        .profile-name {
+            /* increased font size */
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            flex: 1;
+        }
+
+        /* removed profile-actions styles since we removed edit/delete buttons */
+
+        .profile-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* increased min-height for taller cards */
+            min-height: 320px;
+        }
+
+        /* Settings Section */
+        .settings-section {
+            /* increased padding for taller section */
+            padding: 20px;
+            border-right: 1px solid #e2e8f0;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            /* increased font size */
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .section-title svg {
+            width: 16px;
+            height: 16px;
+            color: #22c55e;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .setting-label {
+            /* increased font size */
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .setting-value {
+            /* increased font size */
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .setting-value a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .setting-value a:hover {
+            text-decoration: underline;
+        }
+
+        .sections-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            /* increased font size */
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .sections-badge span {
+            background: #f0fdf4;
+            color: #16a34a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .today-log {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid #e2e8f0;
+            /* increased font size */
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .today-log-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        /* Activity Log Section */
+        .activity-section {
+            /* increased padding */
+            padding: 20px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .activity-log {
+            background: #0f172a;
+            border-radius: 6px;
+            padding: 16px;
+            flex: 1;
+            /* increased min-height */
+            min-height: 220px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            /* increased font size */
+            font-size: 12px;
+            color: #64748b;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+        }
+
+        .log-entry.success {
+            color: #22c55e;
+        }
+
+        .log-entry.error {
+            color: #ef4444;
+        }
+
+        .log-entry.info {
+            color: #3b82f6;
+        }
+
+        /* New Ticker Input Section */
+        .ticker-input-section {
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            grid-column: span 2;
+        }
+
+        .ticker-input-title {
+            /* increased font size */
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticker-input-title svg {
+            width: 16px;
+            height: 16px;
+            color: #22c55e;
+        }
+
+        .ticker-input-row {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .ticker-source-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .source-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .source-option input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #22c55e;
+        }
+
+        .source-option label {
+            /* increased font size */
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .file-upload-area {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-upload-label {
+            /* increased font size */
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .file-upload-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #fff;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+        }
+
+        .file-upload-box input[type="file"] {
+            /* increased font size */
+            font-size: 13px;
+        }
+
+        .file-upload-box .file-hint {
+            /* increased font size */
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .manual-entry-area {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .manual-entry-label {
+            /* increased font size */
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .manual-entry-input {
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            /* increased font size */
+            font-size: 14px;
+            color: #1e293b;
+            width: 100%;
+        }
+
+        .manual-entry-input:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
+
+        .manual-entry-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .manual-entry-hint {
+            /* increased font size */
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .posts-for-run {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 140px;
+        }
+
+        .posts-for-run label {
+            /* increased font size */
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .posts-for-run input {
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            /* increased font size */
+            font-size: 14px;
+            color: #1e293b;
+            width: 100%;
+        }
+
+        .posts-for-run input:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
+
+        /* Ticker Table Section */
+        .ticker-section {
+            padding: 16px 20px;
+            background: #fff;
+            border-top: 1px solid #e2e8f0;
+            grid-column: span 2;
+        }
+
+        .ticker-table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .ticker-table-title {
+            /* increased font size */
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticker-count-badge {
+            background: #22c55e;
+            color: #fff;
+            /* increased font size */
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .filter-dropdown {
+            padding: 6px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            /* increased font size */
+            font-size: 13px;
+            color: #475569;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .ticker-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .ticker-table th {
+            background: #f1f5f9;
+            padding: 10px 14px;
+            text-align: left;
+            /* increased font size */
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ticker-table td {
+            padding: 10px 14px;
+            /* increased font size */
+            font-size: 13px;
+            color: #1e293b;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .ticker-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .ticker-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .ticker-symbol {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 4px 10px;
+            border-radius: 10px;
+            /* increased font size */
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-published {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-scheduled {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        /* Add Profile Form */
+        .add-profile-form {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .add-profile-form.active {
+            display: block;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .form-title {
+            /* increased font size */
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-title svg {
+            width: 16px;
+            height: 16px;
+            color: #22c55e;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 3;
+        }
+
+        .form-label {
+            /* increased font size */
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .form-input {
+            padding: 10px 14px;
+            background: #0d1321;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            /* increased font size */
+            font-size: 14px;
+            color: #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
+
+        .form-input::placeholder {
+            color: #64748b;
+        }
+
+        .form-hint {
+            /* increased font size */
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* Writers Section */
+        .writers-section {
+            background: #0d1321;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .writers-title {
+            /* increased font size */
+            font-size: 13px;
+            font-weight: 600;
+            color: #22c55e;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .writer-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 12px;
+            padding: 12px;
+            background: #1e293b;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .writer-item:last-of-type {
+            margin-bottom: 12px;
+        }
+
+        .remove-writer-btn {
+            padding: 8px;
+            background: transparent;
+            border: 1px solid #ef4444;
+            border-radius: 4px;
+            color: #ef4444;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .remove-writer-btn:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .add-writer-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid #22c55e;
+            border-radius: 6px;
+            color: #22c55e;
+            /* increased font size */
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .add-writer-btn:hover {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        /* Sections Checkboxes */
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .section-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            background: #0d1321;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            /* increased font size */
+            font-size: 12px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .section-checkbox:hover {
+            border-color: #22c55e;
+        }
+
+        .section-checkbox input {
+            accent-color: #22c55e;
+        }
+
+        .section-checkbox.checked {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: #22c55e;
+            color: #e2e8f0;
+        }
+
+        .sections-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .sections-actions button {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            color: #94a3b8;
+            /* increased font size */
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sections-actions button:hover {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 16px;
+            border-top: 1px solid #334155;
+        }
+
+        /* Start Automation Button */
+        .start-automation-container {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .start-automation-btn {
+            padding: 14px 48px;
+            background: #22c55e;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            /* increased font size */
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .start-automation-btn:hover {
+            background: #16a34a;
+        }
+
+        .start-automation-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-group.full-width {
+                grid-column: span 2;
+            }
+
+            .sections-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .ticker-input-row {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .profile-body {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-section {
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .ticker-input-section,
+            .ticker-section {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .nav-items {
+                display: none;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .sections-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .writer-item {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4"/>
+                <circle cx="12" cy="12" r="10"/>
+            </svg>
+            Tickzen
+        </div>
+
+        <nav class="nav-items">
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                </svg>
+                Home
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                Stock Analyzer
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2z"/>
+                </svg>
+                Market News
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Profiles
+            </a>
+            <a href="#" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                Run Automation
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+                Tools
+            </a>
+        </nav>
+
+        <div class="header-right">
+            <button class="notification-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+            </button>
+            <div class="user-menu">
+                <span>Vishal</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <!-- App Layout -->
+    <div class="app-layout">
+        <!-- Left Sidebar -->
+        <!-- Removed Settings section, kept only Automation Menu and History -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Automation Menu</div>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#" class="sidebar-item active">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                            </svg>
+                            Stock Analysis
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            Earnings Report
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            Manage Profiles
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Logs & History</div>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#" class="sidebar-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            Run History
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export Logs
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div class="page-title-section">
+                    <h1 class="page-title">Stock Analysis Automation</h1>
+                    <p class="page-subtitle">Configure and launch automated stock analysis tasks for your WordPress profiles.</p>
+                </div>
+                <button class="btn btn-primary" onclick="toggleAddForm()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add New Publishing Profile
+                </button>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <div class="info-box-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    What is a Publishing Profile?
+                </div>
+                <div class="info-box-content">
+                    <strong>User Profile</strong> contains your personal account information and notification preferences.<br>
+                    <strong>Publishing Profiles</strong> are used to configure and automate publishing to your connected websites (e.g., WordPress blogs). Each publishing profile stores the settings, writers, and sections for a specific destination site.<br>
+                    <em>Tip: You can have multiple publishing profiles for different sites or publishing strategies.</em>
+                </div>
+            </div>
+
+            <!-- Daily Cap Notice -->
+            <div class="daily-cap-notice">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <span><strong>Daily Post Cap:</strong> 15 per site. Today's Counts (2025-12-04).</span>
+            </div>
+
+            <!-- Add Profile Form -->
+            <div class="add-profile-form" id="addProfileForm">
+                <div class="form-header">
+                    <div class="form-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add New Publishing Profile
+                    </div>
+                    <button class="btn btn-secondary" onclick="toggleAddForm()">Hide Form</button>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Profile Name</label>
+                        <input type="text" class="form-input" placeholder="e.g., My Awesome Blog">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Site URL</label>
+                        <input type="text" class="form-input" placeholder="https://example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Default Google Sheet Name</label>
+                        <input type="text" class="form-input" placeholder="Sheet1 (Optional)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">WordPress Category ID</label>
+                        <input type="text" class="form-input" placeholder="e.g., 6 (Optional)">
+                        <span class="form-hint">Must be a number</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Min Scheduling Gap (minutes)</label>
+                        <input type="number" class="form-input" value="45">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Max Scheduling Gap (minutes)</label>
+                        <input type="number" class="form-input" value="68">
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">.env Prefix for Feature Image Colors</label>
+                        <input type="text" class="form-input" placeholder="e.g., MYSITE (Optional)">
+                        <span class="form-hint">If 'MYSITE', expects MYSITE_FEATURE_BG_COLOR in .env.</span>
+                    </div>
+                </div>
+
+                <!-- Writers Section -->
+                <div class="writers-section">
+                    <div class="writers-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        WordPress Writers
+                    </div>
+                    <div class="writer-item">
+                        <div class="form-group">
+                            <label class="form-label">WordPress Username</label>
+                            <input type="text" class="form-input" placeholder="WP Username">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">WordPress User ID</label>
+                            <input type="text" class="form-input" placeholder="e.g., 3">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Application Password</label>
+                            <input type="password" class="form-input" placeholder="Enter Application Password">
+                        </div>
+                        <button class="remove-writer-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <button class="add-writer-btn">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Writer
+                    </button>
+                    <span class="form-hint" style="display: block; margin-top: 8px;">At least one writer required. App Password is required for each writer.</span>
+                </div>
+
+                <!-- Report Sections -->
+                <div class="form-group full-width">
+                    <label class="form-label" style="margin-bottom: 12px;">Report Sections to Include</label>
+                    <div class="sections-actions">
+                        <button>Select All</button>
+                        <button>Unselect All</button>
+                    </div>
+                    <div class="sections-grid">
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Introduction</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Metrics Summary</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Detailed Forecast Table</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Company Profile</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Valuation Metrics</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Total Valuation</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Profitability Growth</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Analyst Insights</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Financial Health</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Financial Efficiency</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Historical Performance</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Technical Analysis Summary</label>
+                        <label class="section-checkbox"><input type="checkbox"> Short Selling Info</label>
+                        <label class="section-checkbox"><input type="checkbox"> Stock Price Statistics</label>
+                        <label class="section-checkbox"><input type="checkbox"> Share Statistics</label>
+                        <label class="section-checkbox"><input type="checkbox"> Dividends Shareholder Returns</label>
+                        <label class="section-checkbox"><input type="checkbox"> Peer Comparison</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Conclusion Outlook</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> Risk Factors</label>
+                        <label class="section-checkbox checked"><input type="checkbox" checked> FAQ</label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="toggleAddForm()">Cancel</button>
+                    <button class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Profile Cards -->
+            <div class="profiles-container">
+                <!-- Bernini Capital -->
+                <!-- Removed edit/delete buttons from profile header -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <input type="checkbox" class="profile-checkbox">
+                        <svg class="profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                        <span class="profile-name">Bernini Capital</span>
+                    </div>
+                    <div class="profile-body">
+                        <div class="settings-section">
+                            <div class="section-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="4" y1="21" x2="4" y2="14"/>
+                                    <line x1="4" y1="10" x2="4" y2="3"/>
+                                    <line x1="12" y1="21" x2="12" y2="12"/>
+                                    <line x1="12" y1="8" x2="12" y2="3"/>
+                                    <line x1="20" y1="21" x2="20" y2="16"/>
+                                    <line x1="20" y1="12" x2="20" y2="3"/>
+                                </svg>
+                                Profile Settings
+                            </div>
+                            <div class="settings-grid">
+                                <div class="setting-item">
+                                    <span class="setting-label">Site URL</span>
+                                    <span class="setting-value"><a href="https://berninicapital.com/" target="_blank">berninicapital.com</a></span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Writers</span>
+                                    <span class="setting-value">5</span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Default Sheet</span>
+                                    <span class="setting-value">1</span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Category ID</span>
+                                    <span class="setting-value">5</span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Active Sections</span>
+                                    <span class="sections-badge">Introduction, Metrics Summary... <span>+17 more</span></span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Posts Today</span>
+                                    <span class="setting-value" style="color: #22c55e; font-weight: 600;">0 / 15</span>
+                                </div>
+                            </div>
+                            <div class="today-log">
+                                <div class="today-log-title">Today's Log (2025-12-04):</div>
+                                No activity today.
+                            </div>
+                        </div>
+                        <div class="activity-section">
+                            <div class="section-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                </svg>
+                                Activity Log (Live Run)
+                            </div>
+                            <div class="activity-log">
+                                <div class="log-entry">Awaiting automation start...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Added ticker input section -->
+                    <div class="ticker-input-section">
+                        <div class="ticker-input-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            Ticker Input
+                        </div>
+                        <div class="ticker-input-row">
+                            <div class="ticker-source-options">
+                                <div class="source-option">
+                                    <input type="radio" name="ticker-source-1" id="upload-1" checked>
+                                    <label for="upload-1">Upload/Use Saved File</label>
+                                </div>
+                                <div class="source-option">
+                                    <input type="radio" name="ticker-source-1" id="manual-1">
+                                    <label for="manual-1">Manual Entry</label>
+                                </div>
+                            </div>
+                            <div class="file-upload-area" id="file-area-1">
+                                <div class="file-upload-label">Upload Ticker File (.csv, .xlsx, .xls):</div>
+                                <div class="file-upload-box">
+                                    <input type="file" accept=".csv,.xlsx,.xls">
+                                    <span class="file-hint">No file chosen</span>
+                                </div>
+                            </div>
+                            <div class="manual-entry-area" id="manual-area-1" style="display: none;">
+                                <div class="manual-entry-label">Enter Tickers (comma separated):</div>
+                                <input type="text" class="manual-entry-input" placeholder="e.g., AAPL, MSFT, GOOGL, AMZN">
+                                <div class="manual-entry-hint">Separate multiple tickers with commas</div>
+                            </div>
+                            <div class="posts-for-run">
+                                <label>Posts for this run:</label>
+                                <input type="number" value="1" min="1" max="15">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ticker-section">
+                        <div class="ticker-table-header">
+                            <div class="ticker-table-title">
+                                Processed Tickers
+                                <span class="ticker-count-badge">5</span>
+                            </div>
+                            <select class="filter-dropdown">
+                                <option>All Status</option>
+                                <option>Published</option>
+                                <option>Scheduled</option>
+                            </select>
+                        </div>
+                        <table class="ticker-table">
+                            <thead>
+                                <tr>
+                                    <th>Ticker</th>
+                                    <th>Generated At</th>
+                                    <th>Published At</th>
+                                    <th>Writer</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ticker-symbol">ATMV</td>
+                                    <td>2025-11-28 04:10</td>
+                                    <td>2025-11-28 04:10</td>
+                                    <td>Laura Benton</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="ticker-symbol">AFJK</td>
+                                    <td>2025-11-28 04:10</td>
+                                    <td>2025-11-28 04:10</td>
+                                    <td>Jordan Reeves</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="ticker-symbol">FTW</td>
+                                    <td>2025-11-28 04:09</td>
+                                    <td>2025-11-28 04:09</td>
+                                    <td>Sarah Lindholm</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="ticker-symbol">GOGL</td>
+                                    <td>2025-11-28 04:08</td>
+                                    <td>2025-11-28 04:08</td>
+                                    <td>Samuel Hartley</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="ticker-symbol">NXEN</td>
+                                    <td>2025-11-27 08:51</td>
+                                    <td>2025-11-27 08:51</td>
+                                    <td>Michael Turner</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Money Stockers -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <input type="checkbox" class="profile-checkbox">
+                        <svg class="profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                        <span class="profile-name">Money Stockers</span>
+                    </div>
+                    <div class="profile-body">
+                        <div class="settings-section">
+                            <div class="section-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="4" y1="21" x2="4" y2="14"/>
+                                    <line x1="4" y1="10" x2="4" y2="3"/>
+                                    <line x1="12" y1="21" x2="12" y2="12"/>
+                                    <line x1="12" y1="8" x2="12" y2="3"/>
+                                    <line x1="20" y1="21" x2="20" y2="16"/>
+                                    <line x1="20" y1="12" x2="20" y2="3"/>
+                                </svg>
+                                Profile Settings
+                            </div>
+                            <div class="settings-grid">
+                                <div class="setting-item">
+                                    <span class="setting-label">Site URL</span>
+                                    <span class="setting-value"><a href="https://moneystockers.com/" target="_blank">moneystockers.com</a></span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Writers</span>
+                                    <span class="setting-value">1</span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Default Sheet</span>
+                                    <span class="setting-value">f</span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Category ID</span>
+                                    <span class="setting-value">14</span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Active Sections</span>
+                                    <span class="sections-badge">Introduction, Metrics Summary... <span>+17 more</span></span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Posts Today</span>
+                                    <span class="setting-value" style="color: #22c55e; font-weight: 600;">0 / 15</span>
+                                </div>
+                            </div>
+                            <div class="today-log">
+                                <div class="today-log-title">Today's Log (2025-12-04):</div>
+                                No activity today.
+                            </div>
+                        </div>
+                        <div class="activity-section">
+                            <div class="section-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                </svg>
+                                Activity Log (Live Run)
+                            </div>
+                            <div class="activity-log">
+                                <div class="log-entry">Awaiting automation start...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Added ticker input section -->
+                    <div class="ticker-input-section">
+                        <div class="ticker-input-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            Ticker Input
+                        </div>
+                        <div class="ticker-input-row">
+                            <div class="ticker-source-options">
+                                <div class="source-option">
+                                    <input type="radio" name="ticker-source-2" id="upload-2" checked>
+                                    <label for="upload-2">Upload/Use Saved File</label>
+                                </div>
+                                <div class="source-option">
+                                    <input type="radio" name="ticker-source-2" id="manual-2">
+                                    <label for="manual-2">Manual Entry</label>
+                                </div>
+                            </div>
+                            <div class="file-upload-area" id="file-area-2">
+                                <div class="file-upload-label">Upload Ticker File (.csv, .xlsx, .xls):</div>
+                                <div class="file-upload-box">
+                                    <input type="file" accept=".csv,.xlsx,.xls">
+                                    <span class="file-hint">No file chosen</span>
+                                </div>
+                            </div>
+                            <div class="manual-entry-area" id="manual-area-2" style="display: none;">
+                                <div class="manual-entry-label">Enter Tickers (comma separated):</div>
+                                <input type="text" class="manual-entry-input" placeholder="e.g., AAPL, MSFT, GOOGL, AMZN">
+                                <div class="manual-entry-hint">Separate multiple tickers with commas</div>
+                            </div>
+                            <div class="posts-for-run">
+                                <label>Posts for this run:</label>
+                                <input type="number" value="1" min="1" max="15">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ticker-section">
+                        <div class="ticker-table-header">
+                            <div class="ticker-table-title">
+                                Processed Tickers
+                                <span class="ticker-count-badge">5</span>
+                            </div>
+                            <select class="filter-dropdown">
+                                <option>All Status</option>
+                                <option>Published</option>
+                                <option>Scheduled</option>
+                            </select>
+                        </div>
+                        <table class="ticker-table">
+                            <thead>
+                                <tr>
+                                    <th>Ticker</th>
+                                    <th>Generated At</th>
+                                    <th>Published At</th>
+                                    <th>Writer</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ticker-symbol">HD</td>
+                                    <td>2025-11-11 05:34</td>
+                                    <td>2025-11-11 06:13</td>
+                                    <td>Ava Sterling</td>
+                                    <td><span class="status-badge status-scheduled">Scheduled</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="ticker-symbol">NOW</td>
+                                    <td>2025-11-11 05:22</td>
+                                    <td>2025-11-11 05:26</td>
+                                    <td>Ava Sterling</td>
+                                    <td><span class="status-badge status-scheduled">Scheduled</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="ticker-symbol">RDDT</td>
+                                    <td>2025-11-11 03:22</td>
+                                    <td>2025-11-11 03:26</td>
+                                    <td>Ava Sterling</td>
+                                    <td><span class="status-badge status-scheduled">Scheduled</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="ticker-symbol">DVLT</td>
+                                    <td>2025-11-10 09:57</td>
+                                    <td>2025-11-10 11:33</td>
+                                    <td>Ava Sterling</td>
+                                    <td><span class="status-badge status-scheduled">Scheduled</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="ticker-symbol">ONDS</td>
+                                    <td>2025-11-10 09:43</td>
+                                    <td>2025-11-10 10:25</td>
+                                    <td>Ava Sterling</td>
+                                    <td><span class="status-badge status-scheduled">Scheduled</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Stockdunia -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <input type="checkbox" class="profile-checkbox">
+                        <svg class="profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                        <span class="profile-name">Stockdunia</span>
+                    </div>
+                    <div class="profile-body">
+                        <div class="settings-section">
+                            <div class="section-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="4" y1="21" x2="4" y2="14"/>
+                                    <line x1="4" y1="10" x2="4" y2="3"/>
+                                    <line x1="12" y1="21" x2="12" y2="12"/>
+                                    <line x1="12" y1="8" x2="12" y2="3"/>
+                                    <line x1="20" y1="21" x2="20" y2="16"/>
+                                    <line x1="20" y1="12" x2="20" y2="3"/>
+                                </svg>
+                                Profile Settings
+                            </div>
+                            <div class="settings-grid">
+                                <div class="setting-item">
+                                    <span class="setting-label">Site URL</span>
+                                    <span class="setting-value"><a href="https://stockdunia.in/" target="_blank">stockdunia.in</a></span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Writers</span>
+                                    <span class="setting-value">2</span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Default Sheet</span>
+                                    <span class="setting-value">2</span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Category ID</span>
+                                    <span class="setting-value">8</span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Active Sections</span>
+                                    <span class="sections-badge">Introduction, Metrics Summary... <span>+17 more</span></span>
+                                </div>
+                                <div class="setting-item">
+                                    <span class="setting-label">Posts Today</span>
+                                    <span class="setting-value" style="color: #22c55e; font-weight: 600;">0 / 15</span>
+                                </div>
+                            </div>
+                            <div class="today-log">
+                                <div class="today-log-title">Today's Log (2025-12-04):</div>
+                                No activity today.
+                            </div>
+                        </div>
+                        <div class="activity-section">
+                            <div class="section-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                </svg>
+                                Activity Log (Live Run)
+                            </div>
+                            <div class="activity-log">
+                                <div class="log-entry">Awaiting automation start...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Added ticker input section -->
+                    <div class="ticker-input-section">
+                        <div class="ticker-input-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            Ticker Input
+                        </div>
+                        <div class="ticker-input-row">
+                            <div class="ticker-source-options">
+                                <div class="source-option">
+                                    <input type="radio" name="ticker-source-3" id="upload-3" checked>
+                                    <label for="upload-3">Upload/Use Saved File</label>
+                                </div>
+                                <div class="source-option">
+                                    <input type="radio" name="ticker-source-3" id="manual-3">
+                                    <label for="manual-3">Manual Entry</label>
+                                </div>
+                            </div>
+                            <div class="file-upload-area" id="file-area-3">
+                                <div class="file-upload-label">Upload Ticker File (.csv, .xlsx, .xls):</div>
+                                <div class="file-upload-box">
+                                    <input type="file" accept=".csv,.xlsx,.xls">
+                                    <span class="file-hint">No file chosen</span>
+                                </div>
+                            </div>
+                            <div class="manual-entry-area" id="manual-area-3" style="display: none;">
+                                <div class="manual-entry-label">Enter Tickers (comma separated):</div>
+                                <input type="text" class="manual-entry-input" placeholder="e.g., AAPL, MSFT, GOOGL, AMZN">
+                                <div class="manual-entry-hint">Separate multiple tickers with commas</div>
+                            </div>
+                            <div class="posts-for-run">
+                                <label>Posts for this run:</label>
+                                <input type="number" value="1" min="1" max="15">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ticker-section">
+                        <div class="ticker-table-header">
+                            <div class="ticker-table-title">
+                                Processed Tickers
+                                <span class="ticker-count-badge">3</span>
+                            </div>
+                            <select class="filter-dropdown">
+                                <option>All Status</option>
+                                <option>Published</option>
+                                <option>Scheduled</option>
+                            </select>
+                        </div>
+                        <table class="ticker-table">
+                            <thead>
+                                <tr>
+                                    <th>Ticker</th>
+                                    <th>Generated At</th>
+                                    <th>Published At</th>
+                                    <th>Writer</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ticker-symbol">RELIANCE</td>
+                                    <td>2025-11-20 10:15</td>
+                                    <td>2025-11-20 10:15</td>
+                                    <td>Raj Mehta</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="ticker-symbol">TCS</td>
+                                    <td>2025-11-19 14:30</td>
+                                    <td>2025-11-19 14:30</td>
+                                    <td>Priya Sharma</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="ticker-symbol">INFY</td>
+                                    <td>2025-11-18 09:45</td>
+                                    <td>2025-11-18 09:45</td>
+                                    <td>Raj Mehta</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Automation Button -->
+            <div class="start-automation-container">
+                <button class="start-automation-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Start Automation
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Toggle Add Profile Form
+        function toggleAddForm() {
+            const form = document.getElementById('addProfileForm');
+            form.classList.toggle('active');
+        }
+
+        // Handle radio button changes for ticker source
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const profileNum = this.name.split('-')[2];
+                const fileArea = document.getElementById(`file-area-${profileNum}`);
+                const manualArea = document.getElementById(`manual-area-${profileNum}`);
+                
+                if (this.id.startsWith('upload')) {
+                    if (fileArea) fileArea.style.display = 'flex';
+                    if (manualArea) manualArea.style.display = 'none';
+                } else if (this.id.startsWith('manual')) {
+                    if (fileArea) fileArea.style.display = 'none';
+                    if (manualArea) manualArea.style.display = 'flex';
+                }
+            });
+        });
+
+        // Section checkboxes toggle
+        document.querySelectorAll('.section-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                const input = this.querySelector('input');
+                if (input.checked) {
+                    this.classList.add('checked');
+                } else {
+                    this.classList.remove('checked');
+                }
+            });
+        });
+
+        // Select All / Unselect All
+        document.querySelectorAll('.sections-actions button').forEach((btn, index) => {
+            btn.addEventListener('click', function() {
+                const checkboxes = document.querySelectorAll('.section-checkbox input');
+                const labels = document.querySelectorAll('.section-checkbox');
+                checkboxes.forEach((cb, i) => {
+                    cb.checked = index === 0;
+                    if (index === 0) {
+                        labels[i].classList.add('checked');
+                    } else {
+                        labels[i].classList.remove('checked');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
