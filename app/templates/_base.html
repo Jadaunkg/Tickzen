@@ -585,6 +585,62 @@
             transform: rotate(45deg);
         }
 
+        /* Mobile-specific notification styles */
+        @media (max-width: 768px) {
+            .notification-panel {
+                position: fixed;
+                top: 60px !important;
+                right: 10px !important;
+                left: 10px !important;
+                width: auto !important;
+                max-width: none !important;
+                max-height: calc(100vh - 80px);
+                border-radius: 8px;
+            }
+
+            .notification-panel::before {
+                display: none;
+            }
+
+            .notification-list {
+                max-height: calc(100vh - 140px) !important;
+            }
+
+            .notification-item {
+                padding: 1rem;
+            }
+
+            .notification-content {
+                gap: 0.5rem;
+            }
+
+            .notification-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 0.875rem;
+            }
+
+            .notification-title {
+                font-size: 0.8125rem;
+            }
+
+            .notification-message {
+                font-size: 0.75rem;
+            }
+
+            .notification-time {
+                font-size: 0.6875rem;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 480px) {
+            .notification-panel {
+                right: 5px !important;
+                left: 5px !important;
+            }
+        }
+
         @keyframes slideDown {
             from {
                 opacity: 0;

@@ -1017,24 +1017,29 @@ def trigger_publishing_run(user_uid, profiles_to_process_data_list, articles_to_
                             # Earnings article title
                             article_title = f"{company_name} ({ticker_to_process}) Earnings Report - Comprehensive Analysis"
                         else:
-                            # Stock analysis article title
-                            # Extract first h2 heading to determine content focus
-                            first_h2 = soup.find('h2')
-                            sector = rdata.get('sector', 'Technology')
+                            # Stock analysis article title - generate unique combinations
+                            # Define key topics for variation
+                            key_topics = [
+                                ["Forecast", "Insider Transactions", "Fundamentals"],
+                                ["Technical Analysis", "Forecast", "Recent News"],
+                                ["Forecast", "Peer Comparison", "Trading Strategies"],
+                                ["Technical Analysis", "Investment Guides", "Fundamentals"],
+                                ["Recent News", "Forecast", "Insider Transactions"],
+                                ["Peer Comparison", "Trading Strategies", "Technical Analysis"],
+                                ["Investment Guides", "Forecast", "Fundamentals"],
+                                ["Trading Strategies", "Technical Analysis", "Forecast"],
+                                ["Fundamentals", "Recent News", "Peer Comparison"],
+                                ["Insider Transactions", "Investment Guides", "Forecast"],
+                                ["Forecast", "Fundamentals", "Trading Strategies"],
+                                ["Technical Analysis", "Peer Comparison", "Recent News"]
+                            ]
                             
-                            if first_h2:
-                                h2_text = first_h2.get_text().strip().lower()
-                                # Create descriptive title based on article content
-                                if 'forecast' in h2_text or 'prediction' in h2_text:
-                                    article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Price Forecast, Technicals & Investment Outlook"
-                                elif 'technical' in h2_text:
-                                    article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Technical Indicators, Price Targets & Risk Analysis"
-                                elif 'fundamental' in h2_text:
-                                    article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Fundamentals, Financial Performance & Latest News"
-                                else:
-                                    article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Comprehensive Investment Guide & Market Insights"
-                            else:
-                                article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: Technicals, Price Forecast & Investment Outlook"
+                            # Randomly select a combination of topics
+                            selected_topics = random.choice(key_topics)
+                            topics_str = ", ".join(selected_topics[:2]) + ", & " + selected_topics[2]
+                            
+                            # Generate title with the selected topics
+                            article_title = f"{company_name} ({ticker_to_process}) Stock Analysis: {topics_str}"
                     
                     app_logger.info(f"Article title for {ticker_to_process}: {article_title}")
                     

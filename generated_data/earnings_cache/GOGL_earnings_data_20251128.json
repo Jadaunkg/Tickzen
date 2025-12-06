@@ -1,0 +1,33 @@
+{
+  "ticker": "GOGL",
+  "collection_timestamp": "2025-11-28T09:36:47.994443",
+  "data_sources": {
+    "yfinance": {
+      "success": false,
+      "error": "HTTP Error 404: ",
+      "data": {}
+    },
+    "analyst": {
+      "success": false,
+      "error": "HTTP Error 404: ",
+      "data": {
+        "recommendations": {}
+      }
+    },
+    "valuation": {
+      "success": false,
+      "error": "HTTP Error 404: ",
+      "data": {}
+    },
+    "performance": {
+      "success": false,
+      "error": "HTTP Error 404: ",
+      "data": {}
+    },
+    "segment": {
+      "success": false,
+      "error": "HTTP Error 404: ",
+      "data": {}
+    }
+  }
+}
