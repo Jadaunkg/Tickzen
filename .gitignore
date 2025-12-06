@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+testsprite_tests
+z_next_process
+.github
+
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+Env/
+ENV/
+.venv310
+config/firebase-service-account-key.json
+# Environment variables and secrets
+.env
+.env.*
+config/firebase-service-account-key.json
+
+# VS Code settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Compiled C extensions
+*.so
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+
+# MyPy
+.mypy_cache/
+
+# Other
+*.sqlite3
+*.db
+firebase_service_account_base64.txt

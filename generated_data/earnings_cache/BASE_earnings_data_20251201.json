@@ -1,0 +1,33 @@
+{
+  "ticker": "BASE",
+  "collection_timestamp": "2025-12-01T17:29:00.095924",
+  "data_sources": {
+    "yfinance": {
+      "success": false,
+      "error": "HTTP Error 404: ",
+      "data": {}
+    },
+    "analyst": {
+      "success": false,
+      "error": "HTTP Error 404: ",
+      "data": {
+        "recommendations": {}
+      }
+    },
+    "valuation": {
+      "success": false,
+      "error": "HTTP Error 404: ",
+      "data": {}
+    },
+    "performance": {
+      "success": false,
+      "error": "HTTP Error 404: ",
+      "data": {}
+    },
+    "segment": {
+      "success": false,
+      "error": "HTTP Error 404: ",
+      "data": {}
+    }
+  }
+}

@@ -1,0 +1,256 @@
+{% extends "_base.html" %}
+
+{% block title %}WordPress Automation Portal | Streamline Content Publishing | Tickzen{% endblock %}
+
+{% block head_extra %}
+{# Poppins font is already loaded in _base.html, so this link can be removed if redundant #}
+{# <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"> #}
+<style>
+    /* Homepage specific styles - Consider moving to style.css for better organization */
+    /* body specific styles removed as _base.html should handle global body styling */
+
+    .hero-section {
+        /* THEME: Updated gradient to use primary color */
+        background: linear-gradient(135deg, var(--primary), #0d7a5f); /* Using primary and a darker shade */
+        color: white;
+        padding: 80px 20px;
+        text-align: center;
+        border-bottom-left-radius: 120px; /* Adjusted for a slightly softer curve */
+        border-bottom-right-radius: 0px; /* Can also curve the other side if desired */
+    }
+
+    .hero-section h1 {
+        font-size: 2.8em; /* Slightly adjusted */
+        margin-bottom: 25px; /* Increased spacing */
+        font-weight: 700;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.25); /* Softer shadow */
+    }
+
+    .hero-section p {
+        font-size: 1.3em; /* Adjusted */
+        margin-bottom: 35px; /* Increased spacing */
+        font-weight: 300;
+        max-width: 750px; /* Slightly wider */
+        margin-left: auto;
+        margin-right: auto;
+        opacity: 0.95; /* Slightly more opaque */
+    }
+
+    .cta-buttons { /* Wrapper for buttons for better control if needed */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+        gap: 15px; /* Gap between buttons */
+    }
+
+    .cta-buttons .btn { /* Inherits .btn from _base.html or style.css */
+        font-size: 1.05em; /* Adjusted */
+        padding: 12px 30px;
+        margin: 5px; /* Replaced 0 10px for better wrapping */
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        font-weight: 600;
+        min-width: 180px; /* Ensure buttons have some minimum width */
+    }
+
+    .cta-primary { /* Button with white background, primary text */
+        background-color: #ffffff;
+        color: var(--primary); /* THEME: Use project primary */
+        border: 2px solid #ffffff;
+    }
+    .cta-primary:hover {
+        background-color: transparent;
+        color: #ffffff;
+        border-color: #ffffff; /* Ensure border remains on hover */
+    }
+
+    .cta-secondary { /* Button with transparent background, white text/border */
+        background-color: transparent;
+        color: #ffffff;
+        border: 2px solid #ffffff;
+    }
+    .cta-secondary:hover {
+        background-color: #ffffff;
+        color: var(--primary); /* THEME: Use project primary */
+        border-color: #ffffff;
+    }
+
+    .features-section {
+        padding: 60px 20px; /* Adjusted padding */
+        text-align: center;
+        background-color: #ffffff; 
+    }
+
+    .features-section h2 {
+        font-size: 2.2em; /* Adjusted */
+        margin-bottom: 40px; /* Adjusted */
+        color: var(--dark); /* Use theme dark */
+        font-weight: 600;
+        position: relative;
+        display: inline-block;
+    }
+    .features-section h2::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 3px; /* Slightly thinner */
+        background-color: var(--primary); /* THEME: Use project primary */
+        margin: 10px auto 0;
+        border-radius: 2px;
+    }
+
+    .features-grid {
+        display: grid; /* Using grid for better alignment and responsiveness */
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive columns */
+        gap: 25px; /* Adjusted gap */
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .feature-card {
+        background-color: var(--light); /* Use theme light, or #f9f9f9 if preferred */
+        border-radius: 10px; /* Softer radius */
+        padding: 25px; /* Adjusted padding */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05); /* Softer shadow */
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: left;
+        display: flex; /* Added for icon alignment */
+        flex-direction: column; /* Align items vertically */
+        align-items: center; /* Center icon and text */
+        text-align: center; /* Center text */
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px); /* Slightly more lift */
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    .feature-card .icon {
+        font-size: 2.5em; /* Adjusted */
+        color: var(--primary); /* THEME: Use project primary */
+        margin-bottom: 15px; /* Adjusted */
+        /* display: block; text-align: center; Removed, handled by flex on parent */
+        width: 60px; /* Give icon fixed width/height */
+        height: 60px;
+        line-height: 60px; /* Vertically center icon if it's text-based */
+        background-color: #fff; /* Optional: give icon a bg */
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .feature-card h3 {
+        font-size: 1.4em; /* Adjusted */
+        margin-bottom: 10px; /* Adjusted */
+        color: var(--dark); 
+        font-weight: 600;
+    }
+
+    .feature-card p {
+        font-size: 0.95em; /* Adjusted */
+        color: #555; /* Darker grey */
+        line-height: 1.6;
+    }
+
+    /* Responsive adjustments - widths are handled by grid now */
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 60px 20px; /* Adjust padding */
+            border-bottom-left-radius: 80px; /* Softer curve */
+        }
+        .hero-section h1 {
+            font-size: 2.2em;
+        }
+        .hero-section p {
+            font-size: 1.1em;
+        }
+        .features-section h2 {
+            font-size: 2em;
+        }
+        .feature-card {
+            padding: 20px; /* Adjusted padding */
+        }
+    }
+    @media (max-width: 576px) {
+        .cta-buttons .btn {
+            width: 90%; /* Make buttons wider on small screens */
+            margin: 8px auto; /* Adjust margin for stacked buttons */
+        }
+         .hero-section {
+             border-bottom-left-radius: 60px;
+        }
+        .feature-card .icon {
+            font-size: 2.2em;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+        }
+        .feature-card h3 {
+            font-size: 1.3em;
+        }
+        .feature-card p {
+            font-size: 0.9em;
+        }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="homepage-main"> {# Removed redundant class if _base.html's main-content is sufficient #}
+    <section class="hero-section">
+        {# Removed container div if hero-section padding handles it, or add .container class here #}
+        <h1>Automate Your WordPress Empire</h1>
+        <p>Focus on creating, not on manual posting. Our tool streamlines your WordPress workflow, saving you time and effort.</p>
+        <div class="cta-buttons">
+            {% if not is_user_logged_in %}
+                <a href="{{ url_for('login') }}" class="btn cta-primary">Get Started</a>
+                <a href="{{ url_for('register') }}" class="btn cta-secondary">Sign Up Free</a>
+            {% else %}
+                {# UPDATED: Link to the new dashboard page #}
+                <a href="{{ url_for('dashboard_page') }}" class="btn cta-primary">Go to Dashboard</a>
+                <a href="{{ url_for('user_profile_page') }}" class="btn cta-secondary">My Account</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="container"> {# Added .container for max-width and centering of this section's content #}
+            <h2>Why Choose Our Automation Tool?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="icon"><i class="fas fa-cogs"></i></span>
+                    <h3>Effortless Automation</h3>
+                    <p>Schedule and manage posts across multiple WordPress sites with just a few clicks. Set it and forget it!</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon"><i class="fas fa-tachometer-alt"></i></span>
+                    <h3>Boost Productivity</h3>
+                    <p>Free up valuable time by automating repetitive posting tasks. Focus on strategy and content creation.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon"><i class="fas fa-users-cog"></i></span>
+                    <h3>User-Friendly Interface</h3>
+                    <p>Easily manage your site profiles, authors, and posting schedules through an intuitive dashboard.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon"><i class="fas fa-cloud-upload-alt"></i></span>
+                    <h3>Flexible Content Sourcing</h3>
+                    <p>Utilize tickers from Google Sheets, custom lists, or file uploads to generate diverse content.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon"><i class="far fa-calendar-alt"></i></span>
+                    <h3>Smart Scheduling</h3>
+                    <p>Intelligent post scheduling with customizable gaps to maintain a natural posting rhythm.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon"><i class="fas fa-shield-alt"></i></span>
+                    <h3>Secure & Reliable</h3>
+                    <p>Built with security in mind, ensuring your site credentials and data are handled safely.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

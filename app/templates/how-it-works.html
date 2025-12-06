@@ -1,0 +1,1657 @@
+{% extends "_base.html" %}
+
+{% block title %}How It Works - Tickzen AI Stock Analysis Platform{% endblock %}
+
+{% block head_extra %}
+    <!-- Essential SEO Meta Tags -->
+    <meta name="description" content="Learn how Tickzen's AI-powered stock analysis platform works. From data collection to automated WordPress publishing, discover the complete process behind our financial content automation.">
+    <meta name="keywords" content="AI stock analysis workflow, automated financial content, WordPress automation, stock market analysis process, machine learning finance, automated reporting">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="author" content="Tickzen">
+    <link rel="canonical" href="https://tickzen.app{{ request.path }}">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="How Tickzen Works - AI Stock Analysis Platform">
+    <meta property="og:description" content="Discover the complete workflow behind Tickzen's AI-powered stock analysis and automated financial content publishing system.">
+    <meta property="og:image" content="https://tickzen.app/static/images/tickzen-how-it-works.jpg">
+    <meta property="og:image:alt" content="Tickzen How It Works Process Flow">
+    <meta property="og:url" content="https://tickzen.app{{ request.path }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Tickzen">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How Tickzen Works - AI Stock Analysis Platform">
+    <meta name="twitter:description" content="Explore the step-by-step process of AI-powered stock analysis and automated content publishing.">
+    <meta name="twitter:image" content="https://tickzen.app/static/images/tickzen-how-it-works.jpg">
+    
+    <!-- Structured Data - HowTo -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How Tickzen AI Stock Analysis Works",
+        "description": "Complete process of AI-powered stock analysis, report generation, and automated WordPress publishing",
+        "image": "https://tickzen.app/static/images/tickzen-process-flow.jpg",
+        "totalTime": "PT5M",
+        "estimatedCost": {
+            "@type": "MonetaryAmount",
+            "currency": "USD",
+            "value": "0"
+        },
+        "supply": [
+            {
+                "@type": "HowToSupply",
+                "name": "Stock Ticker Symbol"
+            }
+        ],
+        "tool": [
+            {
+                "@type": "HowToTool",
+                "name": "Tickzen AI Analysis Platform"
+            }
+        ],
+        "step": [
+            {
+                "@type": "HowToStep",
+                "name": "Data Aggregation",
+                "text": "AI collects financial data from multiple sources including Yahoo Finance, FRED, Alpha Vantage, and Finnhub",
+                "image": "https://tickzen.app/static/images/data-aggregation.jpg"
+            },
+            {
+                "@type": "HowToStep", 
+                "name": "AI Analysis",
+                "text": "Machine learning algorithms process data through technical analysis, fundamental analysis, and forecasting models",
+                "image": "https://tickzen.app/static/images/ai-analysis.jpg"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Report Generation", 
+                "text": "System generates comprehensive 17-20 section analysis reports with charts and insights",
+                "image": "https://tickzen.app/static/images/report-generation.jpg"
+            },
+            {
+                "@type": "HowToStep",
+                "name": "WordPress Automation",
+                "text": "Automated publishing to WordPress with SEO optimization and writer rotation",
+                "image": "https://tickzen.app/static/images/wordpress-automation.jpg"
+            }
+        ]
+    }
+    </script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 0 0% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 0 0% 3.9%;
+            --primary: 0 0% 9%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 0 0% 96.1%;
+            --secondary-foreground: 0 0% 9%;
+            --muted: 0 0% 96.1%;
+            --muted-foreground: 0 0% 45.1%;
+            --accent: 0 0% 96.1%;
+            --accent-foreground: 0 0% 9%;
+            --border: 0 0% 89.8%;
+            --input: 0 0% 89.8%;
+            --ring: 0 0% 3.9%;
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-400: #4ade80;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --green-800: #166534;
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --purple-50: #faf5ff;
+            --purple-100: #f3e8ff;
+            --purple-600: #9333ea;
+            --purple-700: #7c3aed;
+            --orange-50: #fff7ed;
+            --orange-100: #ffedd5;
+            --orange-600: #ea580c;
+            --orange-700: #c2410c;
+            --red-700: #b91c1c;
+            --red-800: #991b1b;
+            --amber-700: #b45309;
+            --yellow-700: #a16207;
+            --teal-700: #0f766e;
+            --cyan-700: #0e7490;
+            --indigo-700: #4338ca;
+            --pink-700: #be185d;
+            --gray-700: #374151;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: hsl(var(--foreground));
+            background: hsl(var(--background));
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0 6rem;
+            background: linear-gradient(135deg, #111720 0%, #1e293b 100%);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .hero-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .badge-green {
+            background: var(--green-100);
+            color: var(--green-800);
+        }
+
+        .badge-blue {
+            background: var(--blue-100);
+            color: var(--blue-700);
+        }
+
+        .badge-purple {
+            background: var(--purple-100);
+            color: var(--purple-700);
+        }
+
+        .badge-outline {
+            border: 1px solid var(--green-600);
+            color: var(--green-600);
+            background: transparent;
+        }
+
+        .hero h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .hero h1 .highlight {
+            color: #4ade80;
+        }
+
+        .hero-description {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Feature Tabs */
+        .feature-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(8px);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .feature-tab {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .feature-tab.active {
+            background: var(--green-600);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+        }
+
+        .feature-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 6rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-badge {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-description {
+            font-size: 1.25rem;
+            color: hsl(var(--muted-foreground));
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Feature Content Sections */
+        .feature-content {
+            display: none;
+        }
+
+        .feature-content.active {
+            display: block;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Animated Process Flow */
+        .animated-process {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .process-timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .process-timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--green-400) 0%, var(--blue-600) 100%);
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .process-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .process-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .process-item:nth-child(even) .process-content {
+            text-align: right;
+        }
+
+        .process-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--green-600);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.75rem;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 8px 25px rgba(22, 163, 74, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 8px 25px rgba(22, 163, 74, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 35px rgba(22, 163, 74, 0.6);
+                transform: scale(1.05);
+            }
+            100% {
+                box-shadow: 0 8px 25px rgba(22, 163, 74, 0.3);
+            }
+        }
+
+        .process-content {
+            flex: 1;
+            padding: 0 3rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 0 2rem;
+            padding: 2rem;
+            border-left: 4px solid var(--green-600);
+            transition: all 0.3s ease;
+        }
+
+        .process-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .process-step-number {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--green-600);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            z-index: 3;
+        }
+
+        .process-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: hsl(var(--foreground));
+        }
+
+        .process-description {
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* Data Flow Animation */
+        .data-flow {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--green-50) 0%, var(--blue-50) 100%);
+            border-radius: 1rem;
+            border: 1px solid var(--green-200);
+        }
+
+        .data-node {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.75rem;
+            border: 2px solid var(--green-200);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-node::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(22, 163, 74, 0.1), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .data-arrow {
+            color: var(--green-600);
+            font-size: 1.5rem;
+            animation: bounceX 1.5s infinite;
+        }
+
+        @keyframes bounceX {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        /* Progress Animation */
+        .progress-container {
+            margin: 2rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: hsl(var(--border));
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green-400), var(--green-600));
+            border-radius: 4px;
+            animation: progressFill 3s ease-in-out infinite;
+        }
+
+        @keyframes progressFill {
+            0% { width: 0%; }
+            50% { width: 75%; }
+            100% { width: 100%; }
+        }
+
+        /* Live Stats Animation */
+        .live-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            border: 1px solid hsl(var(--border));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--green-400), var(--blue-600));
+            animation: colorShift 3s infinite;
+        }
+
+        @keyframes colorShift {
+            0% { background: linear-gradient(90deg, var(--green-400), var(--blue-600)); }
+            50% { background: linear-gradient(90deg, var(--blue-600), var(--purple-600)); }
+            100% { background: linear-gradient(90deg, var(--green-400), var(--blue-600)); }
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--green-600);
+            margin-bottom: 0.5rem;
+            counter-reset: num;
+            animation: countUp 2s ease-out;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            font-weight: 500;
+        }
+
+        /* Process Flow */
+        .process-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .process-step {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-bottom: 6rem;
+            padding: 3rem;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid hsl(var(--border));
+            position: relative;
+        }
+
+        .process-step:nth-child(even) {
+            background: linear-gradient(135deg, var(--green-50) 0%, var(--blue-50) 100%);
+        }
+
+        .process-step::before {
+            content: attr(data-step);
+            position: absolute;
+            top: -1rem;
+            left: 3rem;
+            background: var(--green-600);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .step-content {
+            text-align: left;
+        }
+
+        .step-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: hsl(var(--foreground));
+        }
+
+        .step-description {
+            font-size: 1.125rem;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        .capabilities-list {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .capability-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(22, 163, 74, 0.1);
+        }
+
+        .capability-icon {
+            background: var(--green-100);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+        .capability-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .capability-text strong {
+            color: var(--green-700);
+            font-weight: 600;
+        }
+
+        /* Visual Elements */
+        .step-visual {
+            display: flex;
+            justify-content: center;
+        }
+
+        .visual-element {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .data-sources {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .data-source {
+            padding: 1rem;
+            background: hsl(var(--muted));
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .data-source-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--green-600);
+        }
+
+        .data-source-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .data-source-desc {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        /* ML Pipeline Visual */
+        .ml-pipeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .pipeline-stage {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: hsl(var(--muted));
+            border-radius: 0.75rem;
+        }
+
+        .pipeline-icon {
+            background: var(--green-100);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            color: var(--green-600);
+        }
+
+        .pipeline-content h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .pipeline-content p {
+            font-size: 0.8rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        /* Report Sections */
+        .report-sections {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .report-section {
+            padding: 0.75rem;
+            background: hsl(var(--muted));
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-number {
+            background: var(--green-600);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 1.5rem;
+            text-align: center;
+        }
+
+        .section-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* WordPress Automation */
+        .automation-flow {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .automation-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: hsl(var(--muted));
+            border-radius: 0.75rem;
+        }
+
+        .automation-number {
+            background: var(--blue-600);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 0.875rem;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .automation-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Writer Rotation */
+        .writer-rotation {
+            background: var(--purple-50);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .writer-list {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+
+        .writer-avatar {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: var(--purple-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--purple-600);
+            font-size: 0.875rem;
+            position: relative;
+        }
+
+        .writer-avatar.active {
+            background: var(--purple-600);
+            color: white;
+        }
+
+        .writer-avatar.active::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0.5rem;
+            height: 0.5rem;
+            background: var(--green-600);
+            border-radius: 50%;
+        }
+
+        /* Workflow Summary */
+        .workflow-summary {
+            background: linear-gradient(135deg, var(--green-600) 0%, var(--blue-600) 100%);
+            color: white;
+            margin-top: 4rem;
+        }
+
+        .workflow-summary .section-title {
+            color: white;
+        }
+
+        .workflow-summary .section-description {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .workflow-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .workflow-icon {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin: 0 auto 1rem;
+            width: fit-content;
+        }
+
+        .workflow-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .workflow-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--green-600);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--green-700);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--green-600);
+            color: var(--green-600);
+        }
+
+        .btn-outline:hover {
+            background: var(--green-50);
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .process-step {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .process-step:nth-child(even) .step-content {
+                order: 2;
+            }
+
+            .process-step:nth-child(even) .step-visual {
+                order: 1;
+            }
+
+            .data-sources {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .report-sections {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .hero h1 {
+                font-size: 4rem;
+            }
+
+            .section-title {
+                font-size: 3.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .hero {
+                padding: 2rem 0 3rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 3rem 0;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .process-step {
+                padding: 1.5rem;
+                margin-bottom: 3rem;
+            }
+
+            .step-title {
+                font-size: 1.5rem;
+            }
+
+            .data-sources {
+                grid-template-columns: 1fr;
+            }
+
+            .report-sections {
+                grid-template-columns: 1fr;
+            }
+
+            .workflow-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .hero-badges {
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .badge {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.75rem;
+            }
+        }
+
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .text-green { color: var(--green-600); }
+        .bg-gray-50 { background: hsl(var(--muted)); }
+        .bg-white { background: white; }
+        .hidden { display: none; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mt-8 { margin-top: 2rem; }
+        .p-4 { padding: 1rem; }
+        .rounded { border-radius: 0.375rem; }
+        .shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    </style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <!-- Trust Indicators -->
+            <div class="hero-badges">
+                <span class="badge badge-green">
+                    <i class="fas fa-brain"></i>
+                    AI-Powered Engine
+                </span>
+                <span class="badge badge-blue">
+                    <i class="fas fa-chart-line"></i>
+                    Real-Time Analysis
+                </span>
+                <span class="badge badge-purple">
+                    <i class="fab fa-wordpress"></i>
+                    Auto Publishing
+                </span>
+                <span class="badge badge-outline">
+                    <i class="fas fa-cogs"></i>
+                    Fully Automated
+                </span>
+            </div>
+            
+            <h1>
+                How <span class="highlight">Tickzen</span> Transforms Stock Analysis
+            </h1>
+            
+            <p class="hero-description">
+                Discover our two powerful AI-driven solutions: comprehensive stock analysis with automated report generation, and seamless WordPress content automation with intelligent publishing.
+            </p>
+
+            <!-- Feature Selection Tabs -->
+            <div class="feature-tabs">
+                <button class="feature-tab active" onclick="switchFeature('analysis')" id="analysisTab">
+                    <i class="fas fa-chart-line"></i>
+                    <div>AI Stock Analysis</div>
+                </button>
+                <button class="feature-tab" onclick="switchFeature('automation')" id="automationTab">
+                    <i class="fab fa-wordpress"></i>
+                    <div>WordPress Automation</div>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Features Section -->
+<section class="section bg-white">
+    <div class="container">
+        <!-- Feature 1: AI Stock Analysis -->
+        <div class="feature-content active" id="analysisContent">
+            <header class="section-header">
+                <div class="section-badge">
+                    <span class="badge badge-green">
+                        <i class="fas fa-brain"></i>
+                        AI-Powered Analysis
+                    </span>
+                </div>
+                <h2 class="section-title">AI Stock Analysis & Report Generation</h2>
+                <p class="section-description">
+                    Transform any stock ticker into comprehensive research reports using advanced machine learning algorithms and 15+ years of historical data
+                </p>
+            </header>
+
+            <div class="animated-process">
+                <div class="process-timeline">
+                    <!-- Step 1: Data Collection -->
+                    <div class="process-item">
+                        <div class="process-step-number">Step 1</div>
+                        <div class="process-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="process-content">
+                            <h3 class="process-title">Multi-Source Data Aggregation</h3>
+                            <p class="process-description">
+                                Our AI engine simultaneously collects data from Yahoo Finance, FRED, Alpha Vantage, and Finnhub, gathering 15+ years of historical price data, company fundamentals, and real-time market information.
+                            </p>
+                            
+                            <div class="data-flow">
+                                <div class="data-node">
+                                    <i class="fas fa-chart-line" style="color: var(--green-600); margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">Yahoo Finance</div>
+                                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Price & Volume</div>
+                                </div>
+                                <div class="data-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="data-node">
+                                    <i class="fas fa-university" style="color: var(--blue-600); margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">FRED</div>
+                                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Economic Data</div>
+                                </div>
+                                <div class="data-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="data-node">
+                                    <i class="fas fa-brain" style="color: var(--purple-600); margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">AI Engine</div>
+                                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Processing</div>
+                                </div>
+                            </div>
+
+                            <div class="live-stats">
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="15">0</div>
+                                    <div class="stat-label">Years of Data</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="4">0</div>
+                                    <div class="stat-label">Data Sources</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="100">0</div>
+                                    <div class="stat-label">Technical Indicators</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: AI Analysis -->
+                    <div class="process-item">
+                        <div class="process-step-number">Step 2</div>
+                        <div class="process-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="process-content">
+                            <h3 class="process-title">Advanced AI Analysis</h3>
+                            <p class="process-description">
+                                Machine learning models process technical indicators (RSI, MACD, Bollinger Bands), fundamental ratios, and news sentiment to generate comprehensive analysis with confidence intervals.
+                            </p>
+                            
+                            <div class="progress-container">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 500;">Technical Analysis</span>
+                                    <span style="color: var(--green-600); font-weight: 600;">95%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 95%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="progress-container">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 500;">Fundamental Analysis</span>
+                                    <span style="color: var(--blue-600); font-weight: 600;">88%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 88%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="progress-container">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 500;">Sentiment Analysis</span>
+                                    <span style="color: var(--purple-600); font-weight: 600;">92%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 92%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Report Generation -->
+                    <div class="process-item">
+                        <div class="process-step-number">Step 3</div>
+                        <div class="process-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="process-content">
+                            <h3 class="process-title">Comprehensive Report Generation</h3>
+                            <p class="process-description">
+                                AI assembles 17-20 detailed sections including forecasts, technical analysis, risk assessment, and peer comparisons into professional-grade investment research reports.
+                            </p>
+                            
+                            <div class="live-stats">
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="4000">0</div>
+                                    <div class="stat-label">Words per Report</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="17">0</div>
+                                    <div class="stat-label">Analysis Sections</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="12">0</div>
+                                    <div class="stat-label">Charts & Visuals</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="5">0</div>
+                                    <div class="stat-label">Minutes to Generate</div>
+                                </div>
+                            </div>
+
+                            <div style="background: var(--green-50); padding: 1.5rem; border-radius: 1rem; margin-top: 1.5rem; border-left: 4px solid var(--green-600);">
+                                <h4 style="color: var(--green-700); margin-bottom: 0.75rem; font-weight: 600;">
+                                    <i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i>
+                                    Report Includes
+                                </h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-size: 0.875rem;">
+                                    <div>✓ Price Forecasting & Targets</div>
+                                    <div>✓ Technical Indicators Analysis</div>
+                                    <div>✓ Fundamental Metrics</div>
+                                    <div>✓ Risk Assessment</div>
+                                    <div>✓ Peer Comparison</div>
+                                    <div>✓ Analyst Consensus</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 2: WordPress Automation -->
+        <div class="feature-content" id="automationContent">
+            <header class="section-header">
+                <div class="section-badge">
+                    <span class="badge badge-blue">
+                        <i class="fab fa-wordpress"></i>
+                        Content Automation
+                    </span>
+                </div>
+                <h2 class="section-title">WordPress Content Automation</h2>
+                <p class="section-description">
+                    Seamlessly transform stock analysis reports into SEO-optimized blog posts with intelligent writer rotation and automated publishing
+                </p>
+            </header>
+
+            <div class="animated-process">
+                <div class="process-timeline">
+                    <!-- Step 1: Content Optimization -->
+                    <div class="process-item">
+                        <div class="process-step-number">Step 1</div>
+                        <div class="process-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="process-content">
+                            <h3 class="process-title">Content Formatting & SEO Optimization</h3>
+                            <p class="process-description">
+                                AI transforms research reports into SEO-friendly blog posts with proper HTML structure, meta tags, keyword optimization, and engaging headlines designed for maximum search visibility.
+                            </p>
+                            
+                            <div class="data-flow">
+                                <div class="data-node">
+                                    <i class="fas fa-file-alt" style="color: var(--green-600); margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">Raw Report</div>
+                                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">4000+ words</div>
+                                </div>
+                                <div class="data-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="data-node">
+                                    <i class="fas fa-search" style="color: var(--blue-600); margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">SEO Engine</div>
+                                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Optimization</div>
+                                </div>
+                                <div class="data-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="data-node">
+                                    <i class="fas fa-code" style="color: var(--purple-600); margin-bottom: 0.5rem;"></i>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">HTML Format</div>
+                                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Ready to Publish</div>
+                                </div>
+                            </div>
+
+                            <div style="background: var(--blue-50); padding: 1.5rem; border-radius: 1rem; margin-top: 1.5rem; border-left: 4px solid var(--blue-600);">
+                                <h4 style="color: var(--blue-700); margin-bottom: 0.75rem; font-weight: 600;">
+                                    <i class="fas fa-search" style="margin-right: 0.5rem;"></i>
+                                    SEO Features
+                                </h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-size: 0.875rem;">
+                                    <div>✓ Keyword Optimization</div>
+                                    <div>✓ Meta Descriptions</div>
+                                    <div>✓ Schema Markup</div>
+                                    <div>✓ Internal Linking</div>
+                                    <div>✓ Image Alt Tags</div>
+                                    <div>✓ Header Structure</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Writer Rotation -->
+                    <div class="process-item">
+                        <div class="process-step-number">Step 2</div>
+                        <div class="process-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="process-content">
+                            <h3 class="process-title">Intelligent Writer Rotation</h3>
+                            <p class="process-description">
+                                Smart scheduling system automatically rotates through configured authors, maintaining consistent posting frequency while distributing workload evenly across your content team.
+                            </p>
+                            
+                            <div style="background: var(--purple-50); padding: 1.5rem; border-radius: 1rem; margin: 1.5rem 0;">
+                                <h4 style="text-align: center; margin-bottom: 1rem; color: var(--purple-700); font-weight: 600;">Writer Rotation Sequence</h4>
+                                <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+                                    <div style="width: 3rem; height: 3rem; border-radius: 50%; background: var(--purple-600); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; position: relative;">
+                                        W1
+                                        <div style="position: absolute; bottom: -0.5rem; left: 50%; transform: translateX(-50%); width: 0.5rem; height: 0.5rem; background: var(--green-600); border-radius: 50%;"></div>
+                                    </div>
+                                    <div style="width: 3rem; height: 3rem; border-radius: 50%; background: var(--purple-100); color: var(--purple-600); display: flex; align-items: center; justify-content: center; font-weight: 600;">W2</div>
+                                    <div style="width: 3rem; height: 3rem; border-radius: 50%; background: var(--purple-100); color: var(--purple-600); display: flex; align-items: center; justify-content: center; font-weight: 600;">W3</div>
+                                    <div style="width: 3rem; height: 3rem; border-radius: 50%; background: var(--purple-100); color: var(--purple-600); display: flex; align-items: center; justify-content: center; font-weight: 600;">W4</div>
+                                </div>
+                                <p style="text-align: center; font-size: 0.875rem; color: var(--purple-600);">
+                                    Active: Writer 1 → Next: Writer 2 → Writer 3 → Writer 4 → Loop
+                                </p>
+                            </div>
+
+                            <div class="live-stats">
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="24">0</div>
+                                    <div class="stat-label">Hours Schedule</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="5">0</div>
+                                    <div class="stat-label">Writers Supported</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="100">0</div>
+                                    <div class="stat-label">Auto Distribution</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Automated Publishing -->
+                    <div class="process-item">
+                        <div class="process-step-number">Step 3</div>
+                        <div class="process-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <div class="process-content">
+                            <h3 class="process-title">Automated WordPress Publishing</h3>
+                            <p class="process-description">
+                                Seamless integration with WordPress REST API automatically publishes optimized content with proper formatting, categories, tags, and featured images without manual intervention.
+                            </p>
+                            
+                            <div class="progress-container" style="margin: 1.5rem 0;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="font-weight: 500;">Publishing Progress</span>
+                                    <span style="color: var(--green-600); font-weight: 600;" id="publishProgress">0%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="publishBar"></div>
+                                </div>
+                                <div style="margin-top: 0.5rem; font-size: 0.875rem; color: hsl(var(--muted-foreground));" id="publishStatus">
+                                    Preparing content...
+                                </div>
+                            </div>
+
+                            <div style="background: var(--green-50); padding: 1.5rem; border-radius: 1rem; margin-top: 1.5rem; border-left: 4px solid var(--green-600);">
+                                <h4 style="color: var(--green-700); margin-bottom: 0.75rem; font-weight: 600;">
+                                    <i class="fas fa-rocket" style="margin-right: 0.5rem;"></i>
+                                    Publishing Features
+                                </h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-size: 0.875rem;">
+                                    <div>✓ WordPress REST API</div>
+                                    <div>✓ Auto Categorization</div>
+                                    <div>✓ Featured Images</div>
+                                    <div>✓ Custom Excerpts</div>
+                                    <div>✓ Scheduled Publishing</div>
+                                    <div>✓ Multi-Site Support</div>
+                                </div>
+                            </div>
+
+                            <div class="live-stats">
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="3">0</div>
+                                    <div class="stat-label">Minutes to Publish</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="99">0</div>
+                                    <div class="stat-label">Success Rate %</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number" data-target="0">0</div>
+                                    <div class="stat-label">Manual Steps</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div style="text-align: center; margin-top: 4rem; padding: 3rem; background: linear-gradient(135deg, var(--green-50) 0%, var(--blue-50) 100%); border-radius: 2rem;">
+            <h3 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: hsl(var(--foreground));">
+                Ready to Transform Your Financial Content?
+            </h3>
+            <p style="font-size: 1.125rem; color: hsl(var(--muted-foreground)); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Experience both AI-powered stock analysis and automated WordPress publishing in one comprehensive platform.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ url_for('stock_analysis_homepage_route') }}#demo" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket"></i>
+                    Start Free Trial
+                </a>
+                <a href="{{ url_for('info.faq') }}" class="btn btn-outline btn-lg">
+                    <i class="fas fa-question-circle"></i>
+                    View FAQ
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Feature Tab Switching
+    function switchFeature(feature) {
+        // Update tab states
+        document.querySelectorAll('.feature-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.getElementById(feature + 'Tab').classList.add('active');
+        
+        // Update content visibility
+        document.querySelectorAll('.feature-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(feature + 'Content').classList.add('active');
+    }
+
+    // Animated Counter Function
+    function animateCounter(element, target) {
+        let current = 0;
+        const increment = target / 60; // 60 frames for smooth animation
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+        }, 16); // ~60fps
+    }
+
+    // Intersection Observer for scroll-triggered animations
+    const observerOptions = {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Animate stat counters
+                const statNumbers = entry.target.querySelectorAll('.stat-number');
+                statNumbers.forEach(stat => {
+                    const target = parseInt(stat.getAttribute('data-target')) || 0;
+                    animateCounter(stat, target);
+                });
+
+                // Trigger process icon animations
+                const processIcons = entry.target.querySelectorAll('.process-icon');
+                processIcons.forEach((icon, index) => {
+                    setTimeout(() => {
+                        icon.style.animationDelay = index * 0.2 + 's';
+                        icon.classList.add('animated');
+                    }, index * 100);
+                });
+            }
+        });
+    }, observerOptions);
+
+    // Publishing Progress Animation
+    function animatePublishingProgress() {
+        const progressBar = document.getElementById('publishBar');
+        const progressText = document.getElementById('publishProgress');
+        const statusText = document.getElementById('publishStatus');
+        
+        if (!progressBar) return;
+
+        const steps = [
+            { progress: 20, status: 'Optimizing SEO content...', time: 1000 },
+            { progress: 45, status: 'Selecting writer rotation...', time: 1500 },
+            { progress: 70, status: 'Formatting HTML structure...', time: 1200 },
+            { progress: 85, status: 'Connecting to WordPress...', time: 800 },
+            { progress: 100, status: 'Successfully published!', time: 500 }
+        ];
+
+        let currentStep = 0;
+        
+        function runStep() {
+            if (currentStep < steps.length) {
+                const step = steps[currentStep];
+                progressBar.style.width = step.progress + '%';
+                progressText.textContent = step.progress + '%';
+                statusText.textContent = step.status;
+                
+                if (step.progress === 100) {
+                    statusText.style.color = 'var(--green-600)';
+                    statusText.style.fontWeight = '600';
+                }
+                
+                currentStep++;
+                setTimeout(runStep, step.time);
+            } else {
+                // Reset and restart after a delay
+                setTimeout(() => {
+                    currentStep = 0;
+                    progressBar.style.width = '0%';
+                    progressText.textContent = '0%';
+                    statusText.textContent = 'Preparing content...';
+                    statusText.style.color = 'hsl(var(--muted-foreground))';
+                    statusText.style.fontWeight = 'normal';
+                    setTimeout(runStep, 2000);
+                }, 3000);
+            }
+        }
+        
+        // Start the animation when the element is visible
+        const automationContent = document.getElementById('automationContent');
+        if (automationContent) {
+            const automationObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        setTimeout(runStep, 1000);
+                        automationObserver.disconnect();
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            automationObserver.observe(automationContent);
+        }
+    }
+
+    // Data Flow Animation
+    function setupDataFlowAnimations() {
+        const dataNodes = document.querySelectorAll('.data-node');
+        dataNodes.forEach((node, index) => {
+            // Stagger the shimmer effect
+            const shimmerElement = node.querySelector('::before');
+            if (shimmerElement) {
+                shimmerElement.style.animationDelay = index * 0.5 + 's';
+            }
+        });
+    }
+
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Observe all animated process sections
+        document.querySelectorAll('.animated-process').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Setup publishing progress animation
+        animatePublishingProgress();
+
+        // Setup data flow animations
+        setupDataFlowAnimations();
+
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add hover effects to process items
+        document.querySelectorAll('.process-content').forEach(content => {
+            content.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+                this.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.15)';
+            });
+            
+            content.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
+            });
+        });
+
+        // Initialize with AI Analysis tab active
+        switchFeature('analysis');
+    });
+
+    // Add CSS for additional animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .process-icon.animated {
+            animation: pulse 2s infinite, bounceIn 0.6s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .data-node:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(22, 163, 74, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .process-item:hover .process-icon {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(22, 163, 74, 0.4);
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

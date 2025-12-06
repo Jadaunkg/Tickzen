@@ -1,0 +1,133 @@
+{% extends "_base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0">Activity Log</h2>
+                        <div class="member-info">
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-user-clock"></i> Member since {{ member_since|format_datetime }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if activity_log %}
+                        <div class="timeline">
+                            {% for activity in activity_log %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker {% if activity.type == 'automation' %}bg-primary{% else %}bg-success{% endif %}"></div>
+                                    <div class="timeline-content">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h3 class="timeline-title">
+                                                {% if activity.type == 'automation' %}
+                                                    <i class="fas fa-robot"></i> Stock Analysis
+                                                {% else %}
+                                                    <i class="fas fa-user-edit"></i> Profile Update
+                                                {% endif %}
+                                            </h3>
+                                            <small class="text-muted">
+                                                {{ activity.timestamp|format_datetime }}
+                                            </small>
+                                        </div>
+                                        <p class="mb-0">{{ activity.details }}</p>
+                                        {% if activity.type == 'automation' and activity.ticker %}
+                                            <div class="mt-2">
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-chart-line"></i> {{ activity.ticker }}
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                            <p class="lead">No recent activity found.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 50px;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+
+.timeline-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #e9ecef;
+    transition: transform 0.2s ease;
+}
+
+.timeline-content:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.timeline-title {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.timeline-title i {
+    margin-right: 8px;
+}
+
+.member-info {
+    font-size: 0.9rem;
+}
+
+.member-info .badge {
+    padding: 8px 12px;
+    font-weight: normal;
+}
+
+.member-info i {
+    margin-right: 5px;
+}
+</style>
+{% endblock %} 

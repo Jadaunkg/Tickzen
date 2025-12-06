@@ -1,0 +1,104 @@
+{% extends "_base.html" %}
+
+{% block title %} Create Your Tickzen Account | Free AI Stock Analysis & Predictions{% endblock %}
+
+{% block body_class %}register-page{% endblock %}
+
+{% block head_extra %}
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Create your free Tickzen account to access AI-powered stock analysis, price predictions, and professional investment research tools. Join thousands of investors using our platform.">
+    <meta name="keywords" content="register Tickzen, free stock analysis account, AI investment platform signup, stock research registration">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tickzen.app/register">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Register - Create Free Tickzen Account">
+    <meta property="og:description" content="Join Tickzen for free AI-powered stock analysis, price predictions, and professional investment research tools.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tickzen.app/register">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Register - Create Free Tickzen Account">
+    <meta name="twitter:description" content="Join Tickzen for free AI-powered stock analysis and investment research tools.">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Register for Tickzen",
+        "description": "Create a free account to access AI-powered stock analysis tools",
+        "url": "https://tickzen.app/register",
+        "mainEntity": {
+            "@type": "Organization",
+            "name": "Tickzen",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD",
+                "description": "Free AI stock analysis platform"
+            }
+        }
+    }
+    </script>
+{% endblock %}
+
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2><i class="fas fa-user-plus"></i> Create Your Account</h2>
+
+        <div id="auth-error-message" class="flash-message flash-error" style="display:none;"></div>
+        <div id="auth-success-message" class="flash-message flash-success" style="display:none;"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="registerUsername"><i class="fas fa-user"></i> Username (Display Name)</label>
+                <input type="text" id="registerUsername" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="registerEmail"><i class="fas fa-envelope"></i> Email Address</label>
+                <input type="email" id="registerEmail" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword"><i class="fas fa-lock"></i> Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="registerPassword" class="form-control" required minlength="6">
+                    <button type="button" class="password-toggle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <small class="form-text text-muted">Password should be at least 6 characters long.</small>
+            </div>
+             <div class="form-group">
+                <label for="registerPasswordConfirm"><i class="fas fa-lock"></i> Confirm Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="registerPasswordConfirm" class="form-control" required minlength="6">
+                     <button type="button" class="password-toggle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn-auth"><i class="fas fa-spinner fa-spin spinner-rotate" id="registerSpinner" style="display:none; margin-right: 5px;"></i>Register</button>
+        </form>
+
+        <div class="social-login-divider">
+            <span>OR</span>
+        </div>
+        
+        <button id="googleSignUpButton" class="btn-google">
+            <i class="fab fa-google" style="margin-right: 5px;"></i> Sign up with Google
+        </button>
+
+        <p class="auth-links">
+            Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<!-- All event listeners and handlers are managed by firebase-init.js -->
+{% endblock %}
