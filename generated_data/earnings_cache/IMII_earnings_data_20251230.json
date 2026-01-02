@@ -1,0 +1,170 @@
+{
+  "ticker": "IMII",
+  "collection_timestamp": "2025-12-30T21:15:48.516110",
+  "data_sources": {
+    "yfinance": {
+      "success": true,
+      "error": null,
+      "data": {
+        "info": {
+          "quoteType": "NONE",
+          "symbol": "IMII",
+          "language": "en-US",
+          "region": "US",
+          "triggerable": false,
+          "customPriceAlertConfidence": "NONE",
+          "corporateActions": [],
+          "hasPrePostMarketData": false,
+          "financialCurrency": "USD",
+          "tradeable": false,
+          "cryptoTradeable": false,
+          "esgPopulated": false,
+          "trailingPegRatio": null
+        },
+        "income_stmt": {},
+        "quarterly_income_stmt": {},
+        "balance_sheet": {},
+        "quarterly_balance_sheet": {},
+        "cashflow": {},
+        "quarterly_cashflow": {},
+        "earnings": {},
+        "quarterly_earnings": {},
+        "calendar": {},
+        "recommendations": {},
+        "analyst_price_target": {}
+      }
+    },
+    "analyst": {
+      "success": true,
+      "error": null,
+      "data": {
+        "recommendations": {},
+        "recommendation_key": "N/A",
+        "recommendation_mean": "N/A",
+        "number_of_analyst_opinions": "N/A",
+        "target_mean_price": "N/A",
+        "target_median_price": "N/A",
+        "target_high_price": "N/A",
+        "target_low_price": "N/A",
+        "upgrades_downgrades": {}
+      }
+    },
+    "valuation": {
+      "success": true,
+      "error": null,
+      "data": {
+        "market_cap": "N/A",
+        "trailing_pe": "N/A",
+        "forward_pe": "N/A",
+        "peg_ratio": "N/A",
+        "price_to_sales": "N/A",
+        "price_to_book": "N/A",
+        "enterprise_value": "N/A",
+        "ev_to_revenue": "N/A",
+        "ev_to_ebitda": "N/A",
+        "dividend_rate": "N/A",
+        "dividend_yield": "N/A",
+        "payout_ratio": "N/A",
+        "sector": "N/A",
+        "industry": "N/A"
+      }
+    },
+    "performance": {
+      "success": true,
+      "error": null,
+      "data": {
+        "1_month_return": "N/A",
+        "3_month_return": "N/A",
+        "ytd_return": "N/A",
+        "1_year_return": "N/A",
+        "volatility_1y": "N/A",
+        "volume_trend": "N/A",
+        "avg_volume_3m": "N/A",
+        "beta": "N/A"
+      }
+    },
+    "segment": {
+      "success": true,
+      "error": null,
+      "data": {
+        "business_summary": "N/A",
+        "total_revenue": "N/A",
+        "revenue_per_share": "N/A"
+      }
+    }
+  },
+  "enhanced_analytics": {
+    "one_time_items": {
+      "ticker": "IMII",
+      "extraction_timestamp": "2025-12-30T21:16:14.916992",
+      "items_found": {},
+      "total_one_time_impact": 0,
+      "confidence_level": "medium",
+      "data_source": "yfinance_inference"
+    },
+    "adjusted_earnings": {
+      "ticker": "IMII",
+      "calculation_timestamp": "2025-12-30T21:16:14.916992",
+      "adjustments_made": [],
+      "metrics": {
+        "adjusted_net_income": {},
+        "adjusted_eps": {},
+        "normalized_operating_margin": {},
+        "cash_adjusted_loss": {},
+        "non_cash_loss_percentage": {},
+        "quarterly_adjusted_trends": {},
+        "adjusted_margins": {}
+      },
+      "confidence_level": "high",
+      "methodology": "one_time_items_adjustment"
+    },
+    "cash_sustainability": {
+      "ticker": "IMII",
+      "analysis_timestamp": "2025-12-30T21:16:14.918073",
+      "metrics": {
+        "burn_rate": {
+          "quarterly_burn_rate": 0,
+          "annual_burn_rate": 0,
+          "operating_burn_rate": 0,
+          "free_cash_flow_burn": 0,
+          "burn_rate_calculation_method": "operating_cash_flow"
+        },
+        "cash_runway": {
+          "cash_runway_months": "Indefinite (Cash Positive)",
+          "cash_runway_years": "N/A",
+          "runway_end_date": "N/A",
+          "current_cash": 0.0,
+          "runway_scenario": "cash_positive"
+        },
+        "burn_trends": {
+          "trend_direction": "unknown",
+          "trend_strength": "unknown",
+          "quarterly_burn_progression": [],
+          "burn_acceleration": false,
+          "quarterly_variance": 0
+        },
+        "financing_dependency": {
+          "financing_dependency_ratio": 0,
+          "recent_financing_activity": 0,
+          "debt_issuance": 0,
+          "equity_issuance": 0,
+          "dependency_level": "low"
+        },
+        "liquidity_analysis": {
+          "current_ratio": 0,
+          "quick_ratio": 0,
+          "cash_ratio": 0,
+          "working_capital": 0,
+          "liquidity_score": "weak"
+        }
+      },
+      "risk_level": "elevated",
+      "recommendations": [
+        "Current cash position appears sustainable",
+        "Continue monitoring burn rate trends",
+        "Consider optimizing cash deployment for growth"
+      ],
+      "key_insights": []
+    }
+  }
+}

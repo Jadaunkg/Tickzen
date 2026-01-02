@@ -1,0 +1,1142 @@
+{% extends "_base.html" %}
+
+{% block title %}Earnings Report Automation | Tickzen{% endblock %}
+
+{% block head_extra %}
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Automate earnings report generation and publishing to WordPress">
+    <link rel="canonical" href="https://tickzen.app/automation-earnings">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 0 0% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 0 0% 3.9%;
+            --border: 0 0% 89.8%;
+            --muted: 0 0% 96.1%;
+            --muted-foreground: 0 0% 45.1%;
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --green-800: #166534;
+            --blue-50: #eff6ff;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: hsl(var(--foreground));
+            background: hsl(var(--background));
+            font-size: 14px;
+        }
+
+        .automation-layout {
+            display: flex;
+            min-height: calc(100vh - 120px);
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+            gap: 1.5rem;
+        }
+
+        .automation-sidebar {
+            width: 240px;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 0;
+            padding: 0;
+            height: calc(100vh - 100px);
+            position: sticky;
+            top: 80px;
+            box-shadow: 2px 0 8px 0 rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin-left: -1rem;
+        }
+
+        .sidebar-header {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1.5rem 1.25rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, var(--green-700) 0%, var(--green-800) 100%);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-header i {
+            font-size: 1.125rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0.75rem 0;
+            margin: 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid hsl(var(--border));
+            padding: 1rem;
+            background: hsl(var(--muted));
+        }
+
+        .sidebar-footer a {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.75rem;
+            text-decoration: none;
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+            font-weight: 500;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-footer a:hover {
+            background: var(--green-50);
+            border-color: var(--green-600);
+            color: var(--green-700);
+        }
+
+        .sidebar-footer a i {
+            color: var(--green-600);
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.875rem 1.25rem;
+            text-decoration: none;
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover {
+            background: var(--green-50);
+            color: var(--green-700);
+            border-left-color: var(--green-600);
+        }
+
+        .sidebar-menu a.active {
+            background: var(--green-50);
+            color: var(--green-700);
+            border-left-color: var(--green-600);
+            font-weight: 600;
+        }
+
+        .sidebar-menu a i {
+            font-size: 1.125rem;
+            width: 20px;
+            text-align: center;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .sidebar-menu a.active i,
+        .sidebar-menu a:hover i {
+            color: var(--green-600);
+        }
+
+        .automation-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .page-header {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--foreground));
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-header h1 i {
+            color: var(--green-600);
+            font-size: 1.5rem;
+        }
+
+        .page-header .text-muted {
+            margin: 0;
+            font-size: 0.9375rem;
+            color: hsl(var(--muted-foreground));
+            line-height: 1.6;
+        }
+
+        .daily-cap-info {
+            background: var(--blue-50);
+            border: 1px solid var(--blue-600);
+            border-left: 4px solid var(--blue-600);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--blue-700);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .daily-cap-info i {
+            color: var(--blue-600);
+            font-size: 1.125rem;
+        }
+
+        .ticker-input-section {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .ticker-input-section h3 {
+            font-size: 1.0625rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: hsl(var(--foreground));
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+
+        .ticker-input-section h3 i {
+            color: var(--green-600);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .calendar-info {
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .refresh-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-indicator.outdated {
+            color: #dc2626;
+        }
+
+        .refresh-indicator.fresh {
+            color: var(--green-600);
+        }
+
+        .btn-refresh {
+            background: var(--blue-600);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-refresh:hover {
+            background: var(--blue-700);
+        }
+
+        .btn-refresh:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .earnings-calendar-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            background: hsl(var(--muted));
+        }
+
+        .calendar-day-group {
+            margin-bottom: 0;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .calendar-day-group:last-child {
+            border-bottom: none;
+        }
+
+        .calendar-day-header {
+            background: white;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: hsl(var(--foreground));
+            border-bottom: 1px solid hsl(var(--border));
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .calendar-day-header i {
+            color: var(--green-600);
+        }
+
+        .ticker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.5rem;
+            padding: 1rem;
+            background: white;
+        }
+
+        .ticker-item {
+            padding: 0.5rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+        }
+
+        .ticker-item:hover {
+            background: var(--green-50);
+            border-color: var(--green-600);
+            color: var(--green-700);
+        }
+
+        .ticker-item.selected {
+            background: var(--green-600);
+            color: white;
+            border-color: var(--green-600);
+        }
+
+        .manual-ticker-input {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid hsl(var(--border));
+        }
+
+        .manual-ticker-input label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .selected-tickers-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: hsl(var(--muted));
+            border-radius: 8px;
+            min-height: 50px;
+        }
+
+        .selected-ticker-badge {
+            background: var(--green-600);
+            color: white;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .selected-ticker-badge .remove-ticker {
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .selected-ticker-badge .remove-ticker:hover {
+            opacity: 1;
+        }
+
+        .selection-mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: hsl(var(--muted));
+            border-radius: 8px;
+        }
+
+        .selection-mode-toggle button {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: 1px solid hsl(var(--border));
+            background: white;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .selection-mode-toggle button.active {
+            background: var(--green-600);
+            color: white;
+            border-color: var(--green-600);
+        }
+
+        .selection-mode-toggle button:hover:not(.active) {
+            background: var(--green-50);
+            border-color: var(--green-600);
+        }
+
+        .no-earnings-message {
+            padding: 2rem;
+            text-align: center;
+            color: hsl(var(--muted-foreground));
+            font-size: 0.9375rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: hsl(var(--foreground));
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            font-size: 0.9375rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--green-600);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+
+        .form-text {
+            font-size: 0.8125rem;
+            color: hsl(var(--muted-foreground));
+            margin-top: 0.375rem;
+            display: block;
+        }
+
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-run-card {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-run-card:hover {
+            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-run-header {
+            background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+        }
+
+        .profile-run-header input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: white;
+        }
+
+        .profile-run-header label {
+            flex: 1;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+
+        .profile-run-body {
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .profile-run-config h4 {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .profile-run-config h4 i {
+            color: var(--green-600);
+        }
+
+        .profile-run-config p {
+            font-size: 0.875rem;
+            margin-bottom: 0.625rem;
+            color: hsl(var(--foreground));
+        }
+
+        .profile-run-config p a {
+            color: var(--blue-600);
+            text-decoration: none;
+        }
+
+        .profile-run-config p a:hover {
+            text-decoration: underline;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .submit-section {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            text-align: center;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-run-automation {
+            background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
+            color: white;
+            padding: 1rem 3rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-run-automation:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--green-700) 0%, #15803d 100%);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-run-automation:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .log-console-output {
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.8125rem;
+            padding: 1rem;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #1e293b;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.625rem;
+            padding-bottom: 0.625rem;
+            border-bottom: 1px dashed #334155;
+            line-height: 1.6;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry.status-info { color: #60a5fa; }
+        .log-entry.status-success { color: #34d399; }
+        .log-entry.status-warning { color: #fbbf24; }
+        .log-entry.status-error { color: #f87171; }
+
+        @media (max-width: 1200px) {
+            .profiles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .automation-layout {
+                flex-direction: column;
+            }
+            .automation-sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+                margin-left: 0;
+            }
+            .profiles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="automation-layout">
+    <aside class="automation-sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-robot"></i>
+            Automation Menu
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('automation_runner_page') }}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Stock Analysis</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('automation_earnings_runner') }}" class="active">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Earnings Report</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('automation_sports_runner') }}">
+                    <i class="fas fa-football-ball"></i>
+                    <span>Sports Article</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('trends_dashboard') }}">
+                    <i class="fas fa-fire"></i>
+                    <span>Google Trends</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('publishing_history') }}">
+                    <i class="fas fa-history"></i>
+                    <span>Publishing History</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('manage_site_profiles') }}">
+                <i class="fas fa-cog"></i>
+                <span>Manage Profiles</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="automation-content">
+        <div class="page-header">
+            <h1><i class="fas fa-file-invoice-dollar"></i> Earnings Report Automation</h1>
+            <p class="text-muted">Generate comprehensive earnings analysis and publish directly to your WordPress sites with AI-powered insights.</p>
+        </div>
+
+        {% if user_site_profiles and user_site_profiles|length > 0 %}
+            <div class="daily-cap-info">
+                <i class="fas fa-tachometer-alt"></i>
+                Daily Post Cap: <strong>{{ absolute_max_posts_cap if absolute_max_posts_cap is not none else 'N/A' }}</strong> per site.
+                Today's Counts ({{ last_run_date_for_counts if last_run_date_for_counts else 'N/A' }}).
+            </div>
+
+            <!-- Refresh Calendar Form (separate from main form) -->
+            <form action="{{ url_for('refresh_earnings_calendar') }}" method="POST" id="refreshCalendarForm" style="display: none;">
+                <input type="hidden" name="refresh" value="1">
+            </form>
+
+            <form action="{{ url_for('run_earnings_automation') }}" method="POST" id="earningsAutomationForm">
+                
+                <!-- Ticker Input Section -->
+                <div class="ticker-input-section">
+                    <div class="calendar-header">
+                        <h3><i class="fas fa-calendar-alt"></i> Select Stock from Earnings Calendar</h3>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            {% if last_refreshed_date %}
+                            <div class="calendar-info">
+                                <span class="refresh-indicator {{ 'outdated' if calendar_outdated else 'fresh' }}">
+                                    <i class="fas fa-{{ 'exclamation-triangle' if calendar_outdated else 'check-circle' }}"></i>
+                                    Last refreshed: {{ last_refreshed_date }}
+                                    {% if calendar_outdated %}
+                                    <span style="color: #dc2626; font-weight: 600;">(Outdated)</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% endif %}
+                            <button type="button" class="btn-refresh" id="refreshCalendarBtn" onclick="document.getElementById('refreshCalendarForm').submit()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh Calendar
+                            </button>
+                        </div>
+                    </div>
+
+                    {% if earnings_calendar and earnings_calendar|length > 0 %}
+                    <div class="earnings-calendar-list">
+                        {% for date, tickers in earnings_calendar.items() %}
+                        {% if tickers and tickers|length > 0 %}
+                        <div class="calendar-day-group">
+                            <div class="calendar-day-header">
+                                <i class="fas fa-calendar-day"></i>
+                                {{ date }}
+                                <span style="color: hsl(var(--muted-foreground)); font-weight: 400; font-size: 0.875rem;">
+                                    ({{ tickers|length }} companies)
+                                </span>
+                            </div>
+                            <div class="ticker-grid">
+                                {% for ticker_data in tickers %}
+                                <div class="ticker-item" data-ticker="{{ ticker_data.ticker }}" onclick="selectTicker('{{ ticker_data.ticker }}')">
+                                    {{ ticker_data.ticker }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="no-earnings-message">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; color: var(--blue-600); margin-bottom: 0.5rem;"></i>
+                        <p>No earnings calendar data available. Click "Refresh Calendar" to load the latest data.</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="manual-ticker-input">
+                        <div class="selection-mode-toggle">
+                            <button type="button" id="singleModeBtn" class="active" onclick="setSelectionMode('single')">
+                                <i class="fas fa-mouse-pointer"></i> Single Selection
+                            </button>
+                            <button type="button" id="multiModeBtn" onclick="setSelectionMode('multi')">
+                                <i class="fas fa-hand-pointer"></i> Multiple Selection
+                            </button>
+                        </div>
+                        
+                        <label for="ticker">
+                            Selected Ticker(s) <span style="color: #dc2626;">*</span>
+                        </label>
+                        
+                        <div class="selected-tickers-display" id="selectedTickersDisplay">
+                            <small style="color: hsl(var(--muted-foreground)); align-self: center;">No tickers selected. Click tickers above to select.</small>
+                        </div>
+                        
+                        <input 
+                            type="hidden" 
+                            id="ticker" 
+                            name="ticker" 
+                            required
+                        >
+                        <small class="form-text">Single mode: Select one ticker. Multiple mode: Select multiple tickers (comma-separated reports)</small>
+                    </div>
+                </div>
+
+                <!-- Site Profile Selection -->
+                <div class="profiles-grid">
+                {% for profile in user_site_profiles %}
+                <div class="profile-run-card" data-profile-id="{{ profile.profile_id }}">
+                    <div class="profile-run-header">
+                        <input type="checkbox" id="run_profile_{{ profile.profile_id }}" name="run_profile_ids[]" value="{{ profile.profile_id }}">
+                        <label for="run_profile_{{ profile.profile_id }}">
+                            <i class="fas fa-bullseye"></i> {{ profile.profile_name }}
+                        </label>
+                    </div>
+                    <div class="profile-run-body">
+                        <div class="profile-run-config">
+                            <h4><i class="fas fa-sliders-h"></i> Settings</h4>
+                            <p>Site: <a href="{{ profile.site_url }}" target="_blank" rel="noopener noreferrer">{{ profile.site_url }}</a></p>
+                            <p><span class="detail-label">Today:</span> <strong>{{ posts_today_by_profile.get(profile.profile_id, 0) }}</strong> / <span title="Global daily cap per site">{{ absolute_max_posts_cap if absolute_max_posts_cap is not none else 'N/A' }}</span></p>
+                            
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label for="posts_{{ profile.profile_id }}">Posts for this run:</label>
+                                {% set current_posts = posts_today_by_profile.get(profile.profile_id, 0) | int(0) %}
+                                {% set cap = absolute_max_posts_cap | int(-1) %}
+                                {% set max_for_run = (cap - current_posts) if cap != -1 else 100 %}
+                                <input type="number" class="form-control" id="posts_{{ profile.profile_id }}" name="posts_for_profile_{{ profile.profile_id }}" value="1" min="0" max="{{ max_for_run if max_for_run > 0 else 0 }}">
+                            </div>
+
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label for="category_{{ profile.profile_id }}">Category ID (optional):</label>
+                                <input type="text" class="form-control" id="category_{{ profile.profile_id }}" name="category_id_{{ profile.profile_id }}" placeholder="e.g., 5" value="{{ profile.category_id if profile.category_id else '' }}">
+                                <small class="form-text">WordPress category ID where the article will be posted</small>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label for="publish_status_{{ profile.profile_id }}">Publish Status:</label>
+                                <select class="form-control" id="publish_status_{{ profile.profile_id }}" name="publish_status_{{ profile.profile_id }}" onchange="toggleScheduleTime('{{ profile.profile_id }}')">
+                                    <option value="publish" selected>Publish Immediately</option>
+                                    <option value="future">Schedule for Later</option>
+                                    <option value="draft">Save as Draft</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group schedule-time-group" id="schedule_time_group_{{ profile.profile_id }}" style="margin-top: 1rem; display: none;">
+                                <div class="scheduling-info-card" style="background: hsl(var(--muted)); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                        <i class="fas fa-clock" style="color: var(--orange-600);"></i>
+                                        <strong style="color: hsl(var(--foreground));">Scheduling Interval (from profile settings)</strong>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem;">
+                                        <div>
+                                            <small class="form-text" style="color: hsl(var(--muted-foreground)); display: block; margin-bottom: 0.25rem;">Minimum Interval:</small>
+                                            <strong style="color: var(--orange-600); font-size: 1.1rem;">{{ profile.min_scheduling_gap_minutes|default(45) }} minutes</strong>
+                                        </div>
+                                        <div>
+                                            <small class="form-text" style="color: hsl(var(--muted-foreground)); display: block; margin-bottom: 0.25rem;">Maximum Interval:</small>
+                                            <strong style="color: var(--orange-600); font-size: 1.1rem;">{{ profile.max_scheduling_gap_minutes|default(68) }} minutes</strong>
+                                        </div>
+                                    </div>
+                                    <small class="form-text" style="color: hsl(var(--muted-foreground)); margin-top: 0.75rem; display: block;">
+                                        <i class="fas fa-info-circle"></i> 
+                                        <span id="schedule_help_{{ profile.profile_id }}">
+                                            Articles will be scheduled with random intervals between min and max to avoid spam-like posting patterns
+                                        </span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Live Log Console for this profile -->
+                        <div class="log-console-output" id="log_console_{{ profile.profile_id }}" style="display: none;">
+                            <div class="log-entry status-info">Waiting for automation to start...</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+
+                <!-- Submit Button -->
+                <div class="submit-section">
+                    <button type="submit" class="btn-run-automation" id="runAutomationBtn">
+                        <i class="fas fa-rocket"></i>
+                        Run Earnings Automation
+                    </button>
+                    <p style="margin-top: 1rem; font-size: 0.875rem; color: hsl(var(--muted-foreground));">
+                        Select sites above and enter a ticker to generate and publish earnings reports
+                    </p>
+                </div>
+
+            </form>
+
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                No WordPress site profiles configured. Please add site profiles in the settings first.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+// Global state for selection mode
+let selectionMode = 'single';
+let selectedTickers = [];
+
+// Function to set selection mode
+function setSelectionMode(mode) {
+    selectionMode = mode;
+    selectedTickers = [];
+    updateTickerDisplay();
+    
+    // Update button states
+    document.getElementById('singleModeBtn').classList.toggle('active', mode === 'single');
+    document.getElementById('multiModeBtn').classList.toggle('active', mode === 'multi');
+    
+    // Clear all selections
+    document.querySelectorAll('.ticker-item.selected').forEach(item => {
+        item.classList.remove('selected');
+    });
+}
+
+// Function to select a ticker from the calendar
+function selectTicker(ticker) {
+    ticker = ticker.toUpperCase();
+    
+    if (selectionMode === 'single') {
+        // Single selection mode
+        selectedTickers = [ticker];
+        
+        // Remove previous selection
+        document.querySelectorAll('.ticker-item.selected').forEach(item => {
+            item.classList.remove('selected');
+        });
+        
+        // Highlight the selected ticker
+        document.querySelectorAll(`.ticker-item[data-ticker="${ticker}"]`).forEach(item => {
+            item.classList.add('selected');
+        });
+    } else {
+        // Multiple selection mode
+        const index = selectedTickers.indexOf(ticker);
+        
+        if (index > -1) {
+            // Remove if already selected
+            selectedTickers.splice(index, 1);
+            document.querySelectorAll(`.ticker-item[data-ticker="${ticker}"]`).forEach(item => {
+                item.classList.remove('selected');
+            });
+        } else {
+            // Add to selection
+            selectedTickers.push(ticker);
+            document.querySelectorAll(`.ticker-item[data-ticker="${ticker}"]`).forEach(item => {
+                item.classList.add('selected');
+            });
+        }
+    }
+    
+    updateTickerDisplay();
+}
+
+// Function to remove a ticker from selection
+function removeTicker(ticker) {
+    const index = selectedTickers.indexOf(ticker);
+    if (index > -1) {
+        selectedTickers.splice(index, 1);
+        document.querySelectorAll(`.ticker-item[data-ticker="${ticker}"]`).forEach(item => {
+            item.classList.remove('selected');
+        });
+        updateTickerDisplay();
+    }
+}
+
+// Function to update the ticker display
+function updateTickerDisplay() {
+    const tickerInput = document.getElementById('ticker');
+    const displayArea = document.getElementById('selectedTickersDisplay');
+    
+    if (!tickerInput || !displayArea) return;
+    
+    // Update hidden input value
+    tickerInput.value = selectedTickers.join(',');
+    
+    // Update display area
+    if (selectedTickers.length === 0) {
+        displayArea.innerHTML = '<small style="color: hsl(var(--muted-foreground)); align-self: center;">No tickers selected. Click tickers above to select.</small>';
+    } else {
+        displayArea.innerHTML = selectedTickers.map(ticker => 
+            `<span class="selected-ticker-badge">
+                ${ticker}
+                <i class="fas fa-times remove-ticker" onclick="removeTicker('${ticker}')"></i>
+            </span>`
+        ).join('');
+    }
+    
+    // Update schedule help text for all profiles
+    document.querySelectorAll('[id^="publish_status_"]').forEach(select => {
+        const profileId = select.id.replace('publish_status_', '');
+        if (select.value === 'future') {
+            updateScheduleHelpText(profileId);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('earningsAutomationForm');
+    const runBtn = document.getElementById('runAutomationBtn');
+    const tickerInput = document.getElementById('ticker');
+    const refreshBtn = document.getElementById('refreshCalendarBtn');
+
+    // Initialize selection mode
+    setSelectionMode('single');
+
+    // Handle refresh button loading state
+    if (refreshBtn) {
+        refreshBtn.closest('form').addEventListener('submit', function() {
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+        });
+    }
+
+    // Toggle schedule time input based on publish status
+    window.toggleScheduleTime = function(profileId) {
+        const statusSelect = document.getElementById(`publish_status_${profileId}`);
+        const scheduleGroup = document.getElementById(`schedule_time_group_${profileId}`);
+        const scheduleHelp = document.getElementById(`schedule_help_${profileId}`);
+        
+        if (statusSelect.value === 'future') {
+            scheduleGroup.style.display = 'block';
+            
+            // Update help text based on number of selected tickers
+            updateScheduleHelpText(profileId);
+        } else {
+            scheduleGroup.style.display = 'none';
+        }
+    };
+    
+    // Update schedule help text based on ticker count
+    window.updateScheduleHelpText = function(profileId) {
+        const scheduleHelp = document.getElementById(`schedule_help_${profileId}`);
+        
+        if (scheduleHelp) {
+            if (selectedTickers.length > 1) {
+                scheduleHelp.textContent = `${selectedTickers.length} articles will be scheduled with random intervals (min-max range) to avoid spam-like posting patterns`;
+            } else {
+                scheduleHelp.textContent = 'Articles will be scheduled with random intervals between min and max to avoid spam-like posting patterns';
+            }
+        }
+    };
+
+    // Initialize Socket.IO for real-time updates
+    if (typeof io !== 'undefined' && form) {
+        const socket = io();
+        
+        socket.on('connect', () => {
+            console.log('Connected to automation server');
+        });
+
+        // Listen for automation updates
+        socket.on('automation_update', function(data) {
+            const profileId = data.profile_id;
+            const message = data.message;
+            const level = data.level || 'info';
+
+            // Find the log console for this profile (or use global)
+            const logConsole = profileId === 'earnings_global' 
+                ? document.querySelector('.log-console-output')
+                : document.getElementById(`log_console_${profileId}`);
+            
+            if (logConsole) {
+                logConsole.style.display = 'block';
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = document.createElement('div');
+                entry.className = `log-entry status-${level}`;
+                entry.textContent = `[${timestamp}] ${message}`;
+                logConsole.appendChild(entry);
+                logConsole.scrollTop = logConsole.scrollHeight;
+            }
+        });
+
+        // Listen for ticker status updates
+        socket.on('ticker_status_persisted', function(data) {
+            const profileId = data.profile_id;
+            const ticker = data.ticker;
+            const status = data.status;
+            const message = data.message;
+
+            const logConsole = document.getElementById(`log_console_${profileId}`);
+            if (logConsole) {
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = document.createElement('div');
+                entry.className = `log-entry status-${status === 'published' ? 'success' : 'info'}`;
+                entry.textContent = `[${timestamp}] ${ticker}: ${message}`;
+                if (data.post_url) {
+                    entry.innerHTML += ` <a href="${data.post_url}" target="_blank" style="color: inherit; text-decoration: underline;">[View]</a>`;
+                }
+                logConsole.appendChild(entry);
+                logConsole.scrollTop = logConsole.scrollHeight;
+            }
+        });
+    }
+
+    // Form validation
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Make sure the hidden input is updated with latest selections
+            if (tickerInput && selectedTickers.length > 0) {
+                tickerInput.value = selectedTickers.join(',');
+            }
+            
+            const ticker = tickerInput ? tickerInput.value.trim() : '';
+            if (!ticker || selectedTickers.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one stock ticker');
+                return;
+            }
+
+            const checkedProfiles = form.querySelectorAll('input[name="run_profile_ids[]"]:checked');
+            if (checkedProfiles.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one WordPress site to publish to');
+                return;
+            }
+
+            // Disable button during submission
+            if (runBtn) {
+                runBtn.disabled = true;
+                runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running Automation...';
+            }
+
+            // Show all log consoles for selected profiles
+            checkedProfiles.forEach(checkbox => {
+                const profileId = checkbox.value;
+                const logConsole = document.getElementById(`log_console_${profileId}`);
+                if (logConsole) {
+                    logConsole.style.display = 'block';
+                    logConsole.innerHTML = '<div class="log-entry status-info">Initializing...</div>';
+                }
+            });
+            
+            // Log form submission for debugging
+            console.log('Form submitting with ticker(s):', ticker);
+            console.log('Selected profiles:', checkedProfiles.length);
+        });
+    }
+});
+</script>
+{% endblock %}

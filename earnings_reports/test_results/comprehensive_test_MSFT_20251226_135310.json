@@ -1,0 +1,967 @@
+{
+  "ticker": "MSFT",
+  "processing_timestamp": "2025-12-26T13:53:10.874700",
+  "data_quality": {
+    "completeness_score": 100.0,
+    "missing_critical_fields": [],
+    "data_age": "N/A",
+    "source_coverage": {},
+    "field_completeness": {
+      "company_identification": 91.67,
+      "income_statement": 100.0,
+      "balance_sheet": 100.0,
+      "cash_flow": 100.0,
+      "stock_price": 100.0
+    }
+  },
+  "earnings_data": {
+    "company_identification": {
+      "ticker": "MSFT",
+      "company_name": "Microsoft Corporation",
+      "cik": "N/A",
+      "exchange": "NMS",
+      "sector": "Technology",
+      "industry": "Software - Infrastructure",
+      "market_cap": 3627533729792,
+      "description": "Microsoft Corporation develops and supports software, services, devices, and solutions worldwide. The company's Productivity and Business Processes segment offers Microsoft 365 Commercial, Enterprise Mobility + Security, Windows Commercial, Power BI, Exchange, SharePoint, Microsoft Teams, Security and Compliance, and Copilot; Microsoft 365 Commercial products, such as Windows Commercial on-premises and Office licensed services; Microsoft 365 Consumer products and cloud services, such as Microsoft 365 Consumer subscriptions, Office licensed on-premises, and other consumer services; LinkedIn; Dynamics products and cloud services, such as Dynamics 365, cloud-based applications, and on-premises ERP and CRM applications. Its Intelligent Cloud segment provides Server products and cloud services, such as Azure and other cloud services, GitHub, Nuance Healthcare, virtual desktop offerings, and other cloud services; Server products, including SQL and Windows Server, Visual Studio and System Center related Client Access Licenses, and other on-premises offerings; Enterprise and partner services, including Enterprise Support and Nuance professional Services, Industry Solutions, Microsoft Partner Network, and Learning Experience. The company's Personal Computing segment provides Windows and Devices, such as Windows OEM licensing and Devices and Surface and PC accessories; Gaming services and solutions, such as Xbox hardware, content, and services, first- and third-party content Xbox Game Pass, subscriptions, and Cloud Gaming, advertising, and other cloud services; search and news advertising services, such as Bing and Copilot, Microsoft News and Edge, and third-party affiliates. It sells its products through OEMs, distributors, and resellers; and online and retail stores. The company was founded in 1975 and is headquartered in Redmond, Washington.",
+      "website": "https://www.microsoft.com",
+      "headquarters": "Redmond, WA, United States",
+      "ceo_name": "Mr. Satya  Nadella",
+      "employee_count": 228000
+    },
+    "earnings_timeline": {
+      "earnings_date": "2026-01-29",
+      "earnings_time": "After Market Close",
+      "report_time": "After Market Close",
+      "fiscal_quarter": "Q3",
+      "fiscal_year": 2025,
+      "fiscal_year_end": "2025-09-30",
+      "filing_date": "N/A",
+      "period_end_date": "2025-09-30",
+      "filing_type": "N/A",
+      "reporting_type": "N/A",
+      "earnings_call_time": "N/A",
+      "earnings_call_date": "2026-01-29",
+      "conference_call_url": "N/A",
+      "days_until_earnings": 33,
+      "earnings_time_estimated": true,
+      "report_time_estimated": true
+    },
+    "income_statement": {
+      "total_revenue": 77673000000.0,
+      "revenue_growth_yoy": "18.40%",
+      "cost_of_revenue": 24043000000.0,
+      "gross_profit": 53630000000.0,
+      "gross_margin": "69.05%",
+      "operating_expenses": 15669000000.0,
+      "research_and_development": 8146000000.0,
+      "sales_and_marketing": 7523000000.0,
+      "general_and_administrative": 7523000000.0,
+      "operating_income": 37961000000.0,
+      "operating_margin": "48.87%",
+      "ebitda": 48060000000.0,
+      "depreciation_and_amortization": 13061000000.0,
+      "interest_expense": 698000000.0,
+      "tax_provision": 6554000000.0,
+      "stock_based_compensation": 2983000000.0,
+      "net_income": 27747000000.0,
+      "earnings_per_share_basic": 14.05,
+      "earnings_per_share_diluted": 14.05,
+      "weighted_average_shares_basic": 7432377655,
+      "weighted_average_shares_diluted": 7432377655
+    },
+    "balance_sheet": {
+      "total_assets": 636351000000.0,
+      "current_assets": 189066000000.0,
+      "cash_and_equivalents": 28849000000.0,
+      "accounts_receivable": 52894000000.0,
+      "inventory": 1130000000.0,
+      "property_plant_equipment": 255652000000.0,
+      "goodwill": 119497000000.0,
+      "intangible_assets": 21236000000.0,
+      "total_liabilities": 273275000000.0,
+      "current_liabilities": 134996000000.0,
+      "accounts_payable": 32580000000.0,
+      "long_term_debt": 35376000000.0,
+      "total_debt": 120375001088,
+      "stockholders_equity": 363076000000.0,
+      "retained_earnings": 254873000000.0,
+      "working_capital": 54070000000.0
+    },
+    "cash_flow": {
+      "operating_cash_flow": 45057000000.0,
+      "net_cash_investing": -34559000000.0,
+      "net_cash_financing": -11799000000.0,
+      "free_cash_flow": 25663000000.0,
+      "capital_expenditures": -19394000000.0,
+      "dividends_paid": -6169000000.0,
+      "share_repurchases": -5650000000.0
+    },
+    "analyst_estimates": {
+      "estimated_eps": 18.74238,
+      "estimated_eps_high": 730.0,
+      "estimated_eps_low": 483.0,
+      "number_of_analysts": 53,
+      "estimated_revenue": 622.51416,
+      "estimated_revenue_high": "N/A",
+      "estimated_revenue_low": "N/A",
+      "estimate_year_ago": 14.05,
+      "analysts_recommending_buy": 55,
+      "analysts_recommending_hold": 2,
+      "analysts_recommending_sell": 0,
+      "recommendation": "strong_buy"
+    },
+    "actual_vs_estimate": {
+      "eps_actual": 14.05,
+      "estimated_eps_prior": 18.74238,
+      "eps_surprise": "-4.6924",
+      "eps_surprise_percent": "-25.04%",
+      "revenue_actual": 293812011008,
+      "estimated_revenue_prior": "N/A",
+      "revenue_surprise": "N/A",
+      "revenue_surprise_percent": "N/A"
+    },
+    "stock_price": {
+      "current_price": 488.02,
+      "previous_close": 486.85,
+      "open_price": 485.8,
+      "day_high": 489.1625,
+      "day_low": 484.83,
+      "volume": 5855880,
+      "average_volume": 23105653,
+      "52_week_high": 555.45,
+      "52_week_low": 344.79,
+      "price_change_1d": 1.17,
+      "price_change_percent_1d": 0.24
+    },
+    "guidance": {
+      "guidance_eps_low": "N/A",
+      "guidance_eps_high": "N/A",
+      "guidance_revenue_low": "N/A",
+      "guidance_revenue_high": "N/A",
+      "next_year_estimate": 18.74238
+    },
+    "analyst_sentiment": {
+      "number_of_analysts": 53,
+      "buy_ratings": 55,
+      "hold_ratings": 2,
+      "sell_ratings": 0,
+      "target_mean_price": 622.51416,
+      "target_median_price": 630.0,
+      "target_high_price": 730.0,
+      "target_low_price": 483.0,
+      "recommendation": "strong_buy"
+    },
+    "valuation_metrics": {
+      "market_cap": 3627533729792,
+      "trailing_pe": 34.73452,
+      "forward_pe": 26.038315,
+      "peg_ratio": 1.89,
+      "price_to_sales": 12.346445,
+      "price_to_book": 9.992219,
+      "enterprise_value": 3645511827456,
+      "ev_to_revenue": 12.408,
+      "ev_to_ebitda": 21.903,
+      "dividend_yield": 0.75,
+      "sector": "Technology",
+      "industry": "Software - Infrastructure",
+      "peg_ratio_estimated": true
+    },
+    "performance_metrics": {
+      "1_month_return": 2.3124172425247638,
+      "3_month_return": -3.569140342878245,
+      "ytd_return": 17.449475197182053,
+      "1_year_return": 12.213836608620587,
+      "volatility_1y": 24.41682513929068,
+      "volume_trend": 19.659606045569898,
+      "avg_volume_3m": 22883595.3125,
+      "beta": 1.07
+    },
+    "key_focus_areas": [
+      "Azure cloud revenue growth",
+      "Microsoft 365 commercial and consumer adoption",
+      "LinkedIn revenue trends",
+      "Gaming division performance (Xbox, Game Pass)",
+      "AI integration and Copilot adoption",
+      "Operating margin expansion"
+    ],
+    "risk_factors": [
+      "High debt levels relative to equity",
+      "Rapid technological change and innovation pressure",
+      "Cybersecurity threats and data privacy concerns",
+      "Intense competition from established and emerging players",
+      "Macroeconomic uncertainty and recession risk"
+    ],
+    "enhanced_analytics": {
+      "one_time_items": {
+        "ticker": "MSFT",
+        "extraction_timestamp": "2025-12-26T13:36:31.204321",
+        "items_found": {
+          "Total Unusual Items_2025-06-30 00:00:00": {
+            "amount": -438000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items"
+          },
+          "Total Unusual Items Excluding Goodwill_2025-06-30 00:00:00": {
+            "amount": -438000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items Excluding Goodwill"
+          },
+          "Special Income Charges_2025-06-30 00:00:00": {
+            "amount": -943000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "special_charges",
+            "frequency": "annual",
+            "field_name": "Special Income Charges"
+          },
+          "Tax Effect Of Unusual Items_2025-06-30 00:00:00": {
+            "amount": -77088000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Tax Effect Of Unusual Items"
+          },
+          "Other Income Expense_2025-06-30 00:00:00": {
+            "amount": -5163000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2025-06-30 00:00:00": {
+            "amount": -4725000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Total Unusual Items_2024-06-30 00:00:00": {
+            "amount": -549000000.0,
+            "period": "2024-06-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items"
+          },
+          "Total Unusual Items Excluding Goodwill_2024-06-30 00:00:00": {
+            "amount": -549000000.0,
+            "period": "2024-06-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items Excluding Goodwill"
+          },
+          "Special Income Charges_2024-06-30 00:00:00": {
+            "amount": -206000000.0,
+            "period": "2024-06-30 00:00:00",
+            "type": "income",
+            "category": "special_charges",
+            "frequency": "annual",
+            "field_name": "Special Income Charges"
+          },
+          "Tax Effect Of Unusual Items_2024-06-30 00:00:00": {
+            "amount": -99918000.0,
+            "period": "2024-06-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Tax Effect Of Unusual Items"
+          },
+          "Other Income Expense_2024-06-30 00:00:00": {
+            "amount": -1868000000.0,
+            "period": "2024-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2024-06-30 00:00:00": {
+            "amount": -1319000000.0,
+            "period": "2024-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Total Unusual Items_2023-06-30 00:00:00": {
+            "amount": -15000000.0,
+            "period": "2023-06-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items"
+          },
+          "Total Unusual Items Excluding Goodwill_2023-06-30 00:00:00": {
+            "amount": -15000000.0,
+            "period": "2023-06-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items Excluding Goodwill"
+          },
+          "Special Income Charges_2023-06-30 00:00:00": {
+            "amount": -30000000.0,
+            "period": "2023-06-30 00:00:00",
+            "type": "income",
+            "category": "special_charges",
+            "frequency": "annual",
+            "field_name": "Special Income Charges"
+          },
+          "Tax Effect Of Unusual Items_2023-06-30 00:00:00": {
+            "amount": -2850000.0,
+            "period": "2023-06-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Tax Effect Of Unusual Items"
+          },
+          "Other Income Expense_2023-06-30 00:00:00": {
+            "amount": -238000000.0,
+            "period": "2023-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2023-06-30 00:00:00": {
+            "amount": -223000000.0,
+            "period": "2023-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Total Unusual Items_2022-06-30 00:00:00": {
+            "amount": 334000000.0,
+            "period": "2022-06-30 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items"
+          },
+          "Total Unusual Items Excluding Goodwill_2022-06-30 00:00:00": {
+            "amount": 334000000.0,
+            "period": "2022-06-30 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items Excluding Goodwill"
+          },
+          "Special Income Charges_2022-06-30 00:00:00": {
+            "amount": -101000000.0,
+            "period": "2022-06-30 00:00:00",
+            "type": "income",
+            "category": "special_charges",
+            "frequency": "annual",
+            "field_name": "Special Income Charges"
+          },
+          "Tax Effect Of Unusual Items_2022-06-30 00:00:00": {
+            "amount": 43754000.0,
+            "period": "2022-06-30 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Tax Effect Of Unusual Items"
+          },
+          "Other Income Expense_2022-06-30 00:00:00": {
+            "amount": 302000000.0,
+            "period": "2022-06-30 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2022-06-30 00:00:00": {
+            "amount": -32000000.0,
+            "period": "2022-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Total Unusual Items_2025-09-30 00:00:00_Q": {
+            "amount": 985000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "quarterly",
+            "field_name": "Total Unusual Items"
+          },
+          "Total Unusual Items Excluding Goodwill_2025-09-30 00:00:00_Q": {
+            "amount": 985000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "quarterly",
+            "field_name": "Total Unusual Items Excluding Goodwill"
+          },
+          "Special Income Charges_2025-09-30 00:00:00_Q": {
+            "amount": -14000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "special_charges",
+            "frequency": "quarterly",
+            "field_name": "Special Income Charges"
+          },
+          "Tax Effect Of Unusual Items_2025-09-30 00:00:00_Q": {
+            "amount": 187150000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "quarterly",
+            "field_name": "Tax Effect Of Unusual Items"
+          },
+          "Other Income Expense_2025-09-30 00:00:00_Q": {
+            "amount": -3938000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2025-09-30 00:00:00_Q": {
+            "amount": -4923000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Total Unusual Items_2025-06-30 00:00:00_Q": {
+            "amount": 3000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "quarterly",
+            "field_name": "Total Unusual Items"
+          },
+          "Total Unusual Items Excluding Goodwill_2025-06-30 00:00:00_Q": {
+            "amount": 3000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "quarterly",
+            "field_name": "Total Unusual Items Excluding Goodwill"
+          },
+          "Special Income Charges_2025-06-30 00:00:00_Q": {
+            "amount": -45000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "special_charges",
+            "frequency": "quarterly",
+            "field_name": "Special Income Charges"
+          },
+          "Other Income Expense_2025-06-30 00:00:00_Q": {
+            "amount": -1861000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2025-06-30 00:00:00_Q": {
+            "amount": -1864000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "CF_Asset Impairment Charge_2025-06-30 00:00:00": {
+            "amount": 943000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "annual",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Sale Of Investment_2025-06-30 00:00:00": {
+            "amount": 25388000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Business Purchase And Sale_2025-06-30 00:00:00": {
+            "amount": -5978000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "acquisition_disposal",
+            "frequency": "annual",
+            "field_name": "Net Business Purchase And Sale"
+          },
+          "CF_Net Investment Purchase And Sale_2025-06-30 00:00:00": {
+            "amount": -4387000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Asset Impairment Charge_2024-06-30 00:00:00": {
+            "amount": 206000000.0,
+            "period": "2024-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "annual",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Sale Of Investment_2024-06-30 00:00:00": {
+            "amount": 35669000000.0,
+            "period": "2024-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Business Purchase And Sale_2024-06-30 00:00:00": {
+            "amount": -69132000000.0,
+            "period": "2024-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "acquisition_disposal",
+            "frequency": "annual",
+            "field_name": "Net Business Purchase And Sale"
+          },
+          "CF_Net Investment Purchase And Sale_2024-06-30 00:00:00": {
+            "amount": 17937000000.0,
+            "period": "2024-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Asset Impairment Charge_2023-06-30 00:00:00": {
+            "amount": 30000000.0,
+            "period": "2023-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "annual",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Sale Of Investment_2023-06-30 00:00:00": {
+            "amount": 47864000000.0,
+            "period": "2023-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Business Purchase And Sale_2023-06-30 00:00:00": {
+            "amount": -1670000000.0,
+            "period": "2023-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "acquisition_disposal",
+            "frequency": "annual",
+            "field_name": "Net Business Purchase And Sale"
+          },
+          "CF_Net Investment Purchase And Sale_2023-06-30 00:00:00": {
+            "amount": 10213000000.0,
+            "period": "2023-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Asset Impairment Charge_2022-06-30 00:00:00": {
+            "amount": 101000000.0,
+            "period": "2022-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "annual",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Sale Of Investment_2022-06-30 00:00:00": {
+            "amount": 44894000000.0,
+            "period": "2022-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Business Purchase And Sale_2022-06-30 00:00:00": {
+            "amount": -22038000000.0,
+            "period": "2022-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "acquisition_disposal",
+            "frequency": "annual",
+            "field_name": "Net Business Purchase And Sale"
+          },
+          "CF_Net Investment Purchase And Sale_2022-06-30 00:00:00": {
+            "amount": 18438000000.0,
+            "period": "2022-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Asset Impairment Charge_2025-09-30 00:00:00_Q": {
+            "amount": 14000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "quarterly",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Sale Of Investment_2025-09-30 00:00:00_Q": {
+            "amount": 9293000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Business Purchase And Sale_2025-09-30 00:00:00_Q": {
+            "amount": -578000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "acquisition_disposal",
+            "frequency": "quarterly",
+            "field_name": "Net Business Purchase And Sale"
+          },
+          "CF_Net Investment Purchase And Sale_2025-09-30 00:00:00_Q": {
+            "amount": -8378000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Asset Impairment Charge_2025-06-30 00:00:00_Q": {
+            "amount": 45000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "quarterly",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Sale Of Investment_2025-06-30 00:00:00_Q": {
+            "amount": 7239000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Business Purchase And Sale_2025-06-30 00:00:00_Q": {
+            "amount": -1743000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "acquisition_disposal",
+            "frequency": "quarterly",
+            "field_name": "Net Business Purchase And Sale"
+          },
+          "CF_Net Investment Purchase And Sale_2025-06-30 00:00:00_Q": {
+            "amount": -14392000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Net Investment Purchase And Sale"
+          }
+        },
+        "total_one_time_impact": 379423760000.0,
+        "confidence_level": "medium",
+        "data_source": "yfinance_inference"
+      },
+      "adjusted_earnings": {
+        "ticker": "MSFT",
+        "calculation_timestamp": "2025-12-26T13:36:31.208280",
+        "adjustments_made": [
+          "Removed gain Total Unusual Items_2025-06-30 00:00:00: $438,000,000",
+          "Removed gain Total Unusual Items Excluding Goodwill_2025-06-30 00:00:00: $438,000,000",
+          "Removed gain Special Income Charges_2025-06-30 00:00:00: $943,000,000",
+          "Removed gain Tax Effect Of Unusual Items_2025-06-30 00:00:00: $77,088,000",
+          "Removed gain Other Income Expense_2025-06-30 00:00:00: $5,163,000,000",
+          "Removed gain Other Non Operating Income Expenses_2025-06-30 00:00:00: $4,725,000,000",
+          "Added back Total Unusual Items_2025-06-30 00:00:00_Q: $3,000,000",
+          "Added back Total Unusual Items Excluding Goodwill_2025-06-30 00:00:00_Q: $3,000,000",
+          "Removed gain Special Income Charges_2025-06-30 00:00:00_Q: $45,000,000",
+          "Removed gain Other Income Expense_2025-06-30 00:00:00_Q: $1,861,000,000",
+          "Removed gain Other Non Operating Income Expenses_2025-06-30 00:00:00_Q: $1,864,000,000",
+          "Removed gain CF_Asset Impairment Charge_2025-06-30 00:00:00: $943,000,000",
+          "Removed gain CF_Sale Of Investment_2025-06-30 00:00:00: $25,388,000,000",
+          "Removed gain CF_Net Business Purchase And Sale_2025-06-30 00:00:00: $5,978,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2025-06-30 00:00:00: $4,387,000,000",
+          "Removed gain CF_Asset Impairment Charge_2025-06-30 00:00:00_Q: $45,000,000",
+          "Removed gain CF_Sale Of Investment_2025-06-30 00:00:00_Q: $7,239,000,000",
+          "Removed gain CF_Net Business Purchase And Sale_2025-06-30 00:00:00_Q: $1,743,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2025-06-30 00:00:00_Q: $14,392,000,000",
+          "Removed gain Total Unusual Items_2024-06-30 00:00:00: $549,000,000",
+          "Removed gain Total Unusual Items Excluding Goodwill_2024-06-30 00:00:00: $549,000,000",
+          "Removed gain Special Income Charges_2024-06-30 00:00:00: $206,000,000",
+          "Removed gain Tax Effect Of Unusual Items_2024-06-30 00:00:00: $99,918,000",
+          "Removed gain Other Income Expense_2024-06-30 00:00:00: $1,868,000,000",
+          "Removed gain Other Non Operating Income Expenses_2024-06-30 00:00:00: $1,319,000,000",
+          "Removed gain CF_Asset Impairment Charge_2024-06-30 00:00:00: $206,000,000",
+          "Removed gain CF_Sale Of Investment_2024-06-30 00:00:00: $35,669,000,000",
+          "Removed gain CF_Net Business Purchase And Sale_2024-06-30 00:00:00: $69,132,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2024-06-30 00:00:00: $17,937,000,000",
+          "Removed gain Total Unusual Items_2023-06-30 00:00:00: $15,000,000",
+          "Removed gain Total Unusual Items Excluding Goodwill_2023-06-30 00:00:00: $15,000,000",
+          "Removed gain Special Income Charges_2023-06-30 00:00:00: $30,000,000",
+          "Removed gain Tax Effect Of Unusual Items_2023-06-30 00:00:00: $2,850,000",
+          "Removed gain Other Income Expense_2023-06-30 00:00:00: $238,000,000",
+          "Removed gain Other Non Operating Income Expenses_2023-06-30 00:00:00: $223,000,000",
+          "Removed gain CF_Asset Impairment Charge_2023-06-30 00:00:00: $30,000,000",
+          "Removed gain CF_Sale Of Investment_2023-06-30 00:00:00: $47,864,000,000",
+          "Removed gain CF_Net Business Purchase And Sale_2023-06-30 00:00:00: $1,670,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2023-06-30 00:00:00: $10,213,000,000"
+        ],
+        "metrics": {
+          "adjusted_net_income": {
+            "2025-06-30 00:00:00": {
+              "reported_net_income": 101832000000.0,
+              "one_time_adjustments": -75663088000.0,
+              "adjusted_net_income": 26168912000.0,
+              "improvement": -75663088000.0,
+              "improvement_percentage": -74.30187760232539
+            },
+            "2024-06-30 00:00:00": {
+              "reported_net_income": 88136000000.0,
+              "one_time_adjustments": -127534918000.0,
+              "adjusted_net_income": -39398918000.0,
+              "improvement": -127534918000.0,
+              "improvement_percentage": -144.70241218117454
+            },
+            "2023-06-30 00:00:00": {
+              "reported_net_income": 72361000000.0,
+              "one_time_adjustments": -60300850000.0,
+              "adjusted_net_income": 12060150000.0,
+              "improvement": -60300850000.0,
+              "improvement_percentage": -83.33335636599826
+            }
+          },
+          "adjusted_eps": {
+            "2025-06-30 00:00:00": {
+              "adjusted_eps": 3.5209341094764377,
+              "reported_eps": 13.70113370537547,
+              "shares_outstanding": 7432377655.0,
+              "adjustment_impact": -10.180199595899033
+            },
+            "2024-06-30 00:00:00": {
+              "adjusted_eps": -5.3009843994532595,
+              "reported_eps": 11.858385578766718,
+              "shares_outstanding": 7432377655.0,
+              "adjustment_impact": -17.159369978219978
+            },
+            "2023-06-30 00:00:00": {
+              "adjusted_eps": 1.6226503226577498,
+              "reported_eps": 9.735915390591115,
+              "shares_outstanding": 7432377655.0,
+              "adjustment_impact": -8.113265067933366
+            }
+          },
+          "normalized_operating_margin": {
+            "2025-06-30 00:00:00": {
+              "reported_operating_margin": 45.62195624085985,
+              "normalized_operating_margin": 45.97265408697874,
+              "adjustment_amount": 988000000.0,
+              "revenue": 281724000000.0,
+              "reported_operating_income": 128528000000.0,
+              "adjusted_operating_income": 129516000000.0
+            },
+            "2024-06-30 00:00:00": {
+              "reported_operating_margin": 44.64429957327371,
+              "normalized_operating_margin": 44.72833935754441,
+              "adjustment_amount": 206000000.0,
+              "revenue": 245122000000.0,
+              "reported_operating_income": 109433000000.0,
+              "adjusted_operating_income": 109639000000.0
+            },
+            "2023-06-30 00:00:00": {
+              "reported_operating_margin": 41.7728806361041,
+              "normalized_operating_margin": 41.787037255503385,
+              "adjustment_amount": 30000000.0,
+              "revenue": 211915000000.0,
+              "reported_operating_income": 88523000000.0,
+              "adjusted_operating_income": 88553000000.0
+            },
+            "2022-06-30 00:00:00": {
+              "reported_operating_margin": 42.05527815604983,
+              "normalized_operating_margin": 42.10621879255561,
+              "adjustment_amount": 101000000.0,
+              "revenue": 198270000000.0,
+              "reported_operating_income": 83383000000.0,
+              "adjusted_operating_income": 83484000000.0
+            }
+          },
+          "cash_adjusted_loss": {},
+          "non_cash_loss_percentage": {},
+          "quarterly_adjusted_trends": {
+            "2025-09-30 00:00:00": {
+              "reported_net_income": 27747000000.0,
+              "adjusted_net_income": 29904150000.0,
+              "revenue": 77673000000.0,
+              "adjusted_margin": 38.50005793518984,
+              "one_time_adjustments": 2157150000.0
+            },
+            "2025-06-30 00:00:00": {
+              "reported_net_income": 27233000000.0,
+              "adjusted_net_income": 27239000000.0,
+              "revenue": 76441000000.0,
+              "adjusted_margin": 35.63401839327063,
+              "one_time_adjustments": 6000000.0
+            },
+            "2025-03-31 00:00:00": {
+              "reported_net_income": 25824000000.0,
+              "adjusted_net_income": 25824000000.0,
+              "revenue": 70066000000.0,
+              "adjusted_margin": 36.856677989324346,
+              "one_time_adjustments": 0
+            },
+            "2024-12-31 00:00:00": {
+              "reported_net_income": 24108000000.0,
+              "adjusted_net_income": 24108000000.0,
+              "revenue": 69632000000.0,
+              "adjusted_margin": 34.62201286764706,
+              "one_time_adjustments": 0
+            }
+          },
+          "adjusted_margins": {
+            "2025-06-30 00:00:00": {
+              "gross_margin": 68.8237423861652,
+              "reported_operating_margin": 45.62195624085985,
+              "adjusted_operating_margin": 45.62408598486462,
+              "reported_net_margin": 36.146015248967075,
+              "adjusted_net_margin": 36.148144992971844,
+              "one_time_impact_on_margin": 0.0021297440047706264
+            },
+            "2024-06-30 00:00:00": {
+              "gross_margin": 69.76444382797138,
+              "reported_operating_margin": 44.64429957327371,
+              "adjusted_operating_margin": 44.64429957327371,
+              "reported_net_margin": 35.955972944084984,
+              "adjusted_net_margin": 35.955972944084984,
+              "one_time_impact_on_margin": 0.0
+            },
+            "2023-06-30 00:00:00": {
+              "gross_margin": 68.92008588349103,
+              "reported_operating_margin": 41.7728806361041,
+              "adjusted_operating_margin": 41.7728806361041,
+              "reported_net_margin": 34.14623787839464,
+              "adjusted_net_margin": 34.14623787839464,
+              "one_time_impact_on_margin": 0.0
+            },
+            "2022-06-30 00:00:00": {
+              "gross_margin": 68.4016744842891,
+              "reported_operating_margin": 42.05527815604983,
+              "adjusted_operating_margin": 42.56657789882484,
+              "reported_net_margin": 36.68633681343622,
+              "adjusted_net_margin": 37.19763655621123,
+              "one_time_impact_on_margin": 0.5112997427750038
+            }
+          }
+        },
+        "confidence_level": "high",
+        "methodology": "one_time_items_adjustment"
+      },
+      "cash_sustainability": {
+        "ticker": "MSFT",
+        "analysis_timestamp": "2025-12-26T13:36:31.208280",
+        "metrics": {
+          "burn_rate": {
+            "quarterly_burn_rate": 0,
+            "annual_burn_rate": 0,
+            "operating_burn_rate": 0,
+            "free_cash_flow_burn": 0,
+            "burn_rate_calculation_method": "operating_cash_flow"
+          },
+          "cash_runway": {
+            "cash_runway_months": "Indefinite (Cash Positive)",
+            "cash_runway_years": "N/A",
+            "runway_end_date": "N/A",
+            "current_cash": 30242000000.0,
+            "runway_scenario": "cash_positive"
+          },
+          "burn_trends": {
+            "trend_direction": "stable",
+            "trend_strength": "stable",
+            "quarterly_burn_progression": [
+              {
+                "quarter": "2024-06-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": null
+              },
+              {
+                "quarter": "2024-09-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 34180000000.0
+              },
+              {
+                "quarter": "2024-12-31 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 22291000000.0
+              },
+              {
+                "quarter": "2025-03-31 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 37044000000.0
+              },
+              {
+                "quarter": "2025-06-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 42647000000.0
+              },
+              {
+                "quarter": "2025-09-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 45057000000.0
+              }
+            ],
+            "burn_acceleration": false,
+            "quarterly_variance": 0.0
+          },
+          "financing_dependency": {
+            "financing_dependency_ratio": 0,
+            "recent_financing_activity": 0,
+            "debt_issuance": 0,
+            "equity_issuance": 0,
+            "dependency_level": "low"
+          },
+          "liquidity_analysis": {
+            "current_ratio": 1.3534464445042416,
+            "quick_ratio": 1.3468042317551587,
+            "cash_ratio": 0.2141511705306689,
+            "working_capital": 49913000000.0,
+            "liquidity_score": "marginal"
+          }
+        },
+        "risk_level": "elevated",
+        "recommendations": [
+          "Current cash position appears sustainable",
+          "Continue monitoring burn rate trends",
+          "Consider optimizing cash deployment for growth"
+        ],
+        "key_insights": []
+      },
+      "summary_insights": [
+        "Identified $379423.8M in one-time items affecting reported earnings"
+      ],
+      "critical_flags": []
+    },
+    "calculated_ratios": {
+      "gross_margin": 68.76,
+      "operating_margin": 48.87,
+      "profit_margin": 35.71,
+      "return_on_equity": 32.24,
+      "return_on_assets": 14.66,
+      "debt_to_equity": 33.15,
+      "current_ratio": 1.4,
+      "pe_ratio": 34.73,
+      "asset_turnover": 0.12,
+      "interest_coverage": 54.39,
+      "book_value_per_share": 48.85
+    }
+  }
+}

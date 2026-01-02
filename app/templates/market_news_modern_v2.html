@@ -1,0 +1,1370 @@
+{% extends '_base.html' %}
+
+{% block title %}Market News - Tickzen Financial{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/market_news_modern_v2.css') }}?v=20250808_spinner_fix">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+<meta name="description" content="Latest financial market news, analysis, and insights - Real-time updates from global markets">
+<meta name="keywords" content="market news, financial news, stock market, economy, crypto, forex, earnings">
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="news-hero">
+    <div class="hero-overlay">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="title-main">Market News</span>
+                    <span class="title-subtitle">Stay informed with the latest market updates</span>
+                </h1>
+                <p class="hero-description">Exclusive insights, real-time updates, and in-depth analysis from global financial markets.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- News Controls -->
+<section class="news-controls sticky-controls">
+    <div class="container">
+        <div class="controls-wrapper">
+            <div class="search-section">
+                <div class="search-container">
+                    <input type="text" id="newsSearch" placeholder="Search news..." class="search-input">
+                    <i class="fas fa-search search-icon"></i>
+                    <button class="search-clear" id="clearSearch"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            
+            <div class="filters-section">
+                <div class="news-filters" id="newsFilters">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-globe"></i>
+                        <span>All</span>
+                        <span class="filter-count" id="all-count">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="for_you" title="Personalized by your stocks">
+                        <i class="fas fa-user-check"></i>
+                        <span>Your Feed</span>
+                        <span class="filter-count" id="for_you-count">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="market">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Markets</span>
+                        <span class="filter-count" id="market-count">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="economy">
+                        <i class="fas fa-landmark"></i>
+                        <span>Economy</span>
+                        <span class="filter-count" id="economy-count">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="crypto">
+                        <i class="fab fa-bitcoin"></i>
+                        <span>Crypto</span>
+                        <span class="filter-count" id="crypto-count">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="forex">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>Forex</span>
+                        <span class="filter-count" id="forex-count">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="earnings">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Earnings</span>
+                        <span class="filter-count" id="earnings-count">0</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="view-options">
+                <button class="view-btn active" id="gridView">
+                    <i class="fas fa-th-large"></i>
+                </button>
+                <button class="view-btn" id="listView">
+                    <i class="fas fa-list"></i>
+                </button>
+                <button class="refresh-btn" id="refreshNews">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- News Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-wrapper">
+            <div class="stats-card">
+                <div class="stats-icon">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <div class="stats-content">
+                    <h3 class="stats-value" id="total-news-count">--</h3>
+                    <p class="stats-label">News Articles</p>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="stats-icon positive">
+                    <i class="fas fa-arrow-trend-up"></i>
+                </div>
+                <div class="stats-content">
+                    <h3 class="stats-value" id="positive-sentiment">--</h3>
+                    <p class="stats-label">Positive Sentiment</p>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="stats-icon neutral">
+                    <i class="fas fa-equals"></i>
+                </div>
+                <div class="stats-content">
+                    <h3 class="stats-value" id="neutral-sentiment">--</h3>
+                    <p class="stats-label">Neutral Sentiment</p>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="stats-icon negative">
+                    <i class="fas fa-arrow-trend-down"></i>
+                </div>
+                <div class="stats-content">
+                    <h3 class="stats-value" id="negative-sentiment">--</h3>
+                    <p class="stats-label">Negative Sentiment</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured News Section -->
+<section class="featured-news-section">
+    <div class="container">
+        <h2 class="section-title">Featured <span>Stories</span></h2>
+        <div class="featured-news-grid" id="featuredNewsGrid">
+            <!-- Featured news items will be inserted here dynamically -->
+        </div>
+    </div>
+</section>
+
+<!-- Latest News Section -->
+<section class="latest-news-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Latest <span>News</span></h2>
+            <div class="section-controls">
+                <select id="sortOptions" class="sort-select">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="sentiment">By Sentiment</option>
+                    <option value="impact">High Impact</option>
+                    <option value="relevance">Most Relevant</option>
+                </select>
+                <button id="manageWatchlist" class="refresh-btn" title="Add stocks to personalize your news">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Personalize Feed</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Personalization Banner -->
+    <div class="personalize-banner" id="personalizeBanner">
+            <div class="personalize-text">
+        <i class="fas fa-wand-magic-sparkles"></i>
+                <strong>Personalize your market news</strong>
+                <span class="subtext" id="personalizeSubtext">Add your stocks to see more relevant articles.</span>
+            </div>
+            <div class="personalize-actions">
+                <div class="chips" id="watchlistChips"></div>
+                <button id="personalizeCtaBtn" class="cta-btn" title="Add or edit your stocks">
+                    <i class="fas fa-plus"></i>
+                    <span>Personalize</span>
+                </button>
+            </div>
+        </div>
+
+    <div class="news-grid" id="newsGrid">
+            <!-- News cards will be inserted here dynamically -->
+        </div>
+        
+        <div class="news-list hidden" id="newsList">
+            <!-- News list items will be inserted here dynamically -->
+        </div>
+        
+        <div class="pagination-section">
+            <div class="pagination-controls" id="paginationControls">
+                <button id="prevPage" class="pagination-btn" disabled>
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <div class="pagination-info">
+                    Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                </div>
+                <button id="nextPage" class="pagination-btn">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- News Source Section -->
+<section class="news-sources-section">
+    <div class="container">
+        <h2 class="section-title">Trusted <span>Sources</span></h2>
+        <div class="sources-grid" id="sourcesGrid">
+            <!-- Will be populated dynamically -->
+        </div>
+    </div>
+</section>
+
+<!-- News Detail Modal -->
+<div class="news-modal" id="newsModal">
+    <div class="modal-content">
+        <button class="modal-close" id="closeModal">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="modal-header">
+            <div class="modal-category" id="modalCategory">Economy</div>
+            <h3 class="modal-title" id="modalTitle">News Title</h3>
+            <div class="modal-meta">
+                <span class="modal-source" id="modalSource"><i class="fas fa-newspaper"></i> Source</span>
+                <span class="modal-date" id="modalDate"><i class="far fa-calendar"></i> Date</span>
+                <span class="modal-sentiment" id="modalSentiment"><i class="fas fa-chart-line"></i> Sentiment</span>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="modal-image-container" id="modalImageContainer">
+                <img id="modalImage" src="" alt="News image">
+            </div>
+            <p class="modal-summary" id="modalSummary">News summary goes here...</p>
+            <div class="modal-topics" id="modalTopics">
+                <!-- Topics will be inserted here -->
+            </div>
+            <div class="modal-actions">
+                <a href="#" class="modal-btn" id="readMoreBtn" target="_blank">
+                    Read Full Article <i class="fas fa-external-link-alt"></i>
+                </a>
+                <button class="modal-btn share-btn" id="shareBtn">
+                    Share <i class="fas fa-share-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Watchlist Modal -->
+<div class="news-modal" id="watchlistModal">
+    <div class="modal-content" style="max-width:520px">
+        <button class="modal-close" id="closeWatchlistModal"><i class="fas fa-times"></i></button>
+        <div class="modal-header">
+            <div class="modal-category">Your Feed</div>
+            <h3 class="modal-title">Personalize Your Feed</h3>
+            <div class="modal-meta"><span>Add your stocks to tailor the news you see.</span></div>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="watchlistInput">Your Stocks (comma-separated)</label>
+                <input type="text" id="watchlistInput" class="form-control" placeholder="Example: AAPL, MSFT, TSLA">
+                <small class="form-text">Saved to your browser and session. Profile integration can be added later.</small>
+            </div>
+            <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
+                <button id="saveWatchlistBtn" class="modal-btn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-notification" id="toastNotification">
+    <div class="toast-icon">
+        <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="toast-message" id="toastMessage">Message goes here</div>
+    <button class="toast-close" id="closeToast">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="news-loading-spinner">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+        </div>
+        <div class="loading-text">
+            <p>Loading news data...</p>
+        </div>
+    </div>
+</div>
+
+<div class="news-templates" style="display: none;">
+    <!-- Grid card template -->
+    <template id="newsCardTemplate">
+        <div class="news-card" data-id="" data-category="">
+            <div class="news-card-image">
+                <img src="" alt="News image" loading="lazy">
+                <div class="news-card-sentiment">
+                    <span class="sentiment-text"></span>
+                </div>
+            </div>
+            <div class="news-card-content">
+                <div class="news-card-category"></div>
+                <h3 class="news-card-title"></h3>
+                <p class="news-card-summary"></p>
+                <div class="news-card-meta">
+                    <span class="news-card-source"><i class="fas fa-newspaper"></i> <span></span></span>
+                    <span class="news-card-time"><i class="far fa-clock"></i> <span></span></span>
+                </div>
+                <button class="news-card-button">Read More</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- List item template -->
+    <template id="newsListItemTemplate">
+        <div class="news-list-item" data-id="" data-category="">
+            <div class="news-list-meta">
+                <span class="news-list-category"></span>
+                <span class="news-list-time"><i class="far fa-clock"></i> <span></span></span>
+            </div>
+            <h3 class="news-list-title"></h3>
+            <div class="news-list-content">
+                <div class="news-list-summary"></div>
+                <div class="news-list-image">
+                    <img src="" alt="News image" loading="lazy">
+                </div>
+            </div>
+            <div class="news-list-footer">
+                <span class="news-list-source"><i class="fas fa-newspaper"></i> <span></span></span>
+                <span class="news-list-sentiment"></span>
+                <button class="news-list-button">Read More</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Featured news template -->
+    <template id="featuredNewsTemplate">
+        <div class="featured-news-card" data-id="" data-category="">
+            <div class="featured-news-image">
+                <img src="" alt="Featured news image" loading="lazy">
+            </div>
+            <div class="featured-news-content">
+                <div class="featured-news-category"></div>
+                <h3 class="featured-news-title"></h3>
+                <p class="featured-news-summary"></p>
+                <div class="featured-news-meta">
+                    <span class="featured-news-source"><i class="fas fa-newspaper"></i> <span></span></span>
+                    <span class="featured-news-time"><i class="far fa-clock"></i> <span></span></span>
+                    <span class="featured-news-sentiment"></span>
+                </div>
+                <button class="featured-news-button">Read Full Story</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Source item template -->
+    <template id="sourceItemTemplate">
+        <div class="source-item">
+            <div class="source-logo">
+                <span></span>
+            </div>
+            <div class="source-name"></div>
+            <div class="source-count"><span></span> articles</div>
+        </div>
+    </template>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Constants
+    const API_URL = '/api/market-news';
+    const ITEMS_PER_PAGE = 12;
+    const DEFAULT_TICKERS = localStorage.getItem('tz_watchlist') || '';
+    
+    // State variables
+    let currentPage = 1;
+    let currentFilter = 'all';
+    let currentSort = 'newest';
+    let currentView = 'grid';
+    let currentTickers = DEFAULT_TICKERS; // CSV string
+    let allNewsData = [];
+    let filteredNews = [];
+    let totalPages = 1;
+    let featuredNews = [];
+    let sourceStats = {};
+    let sentimentStats = {
+        positive: 0,
+        neutral: 0,
+        negative: 0
+    };
+    
+    // Debug mode - set to true to see console logs
+    const DEBUG = false;
+    
+    function debug(message, data) {
+        if (DEBUG) {
+            console.log(`[NEWS-DEBUG] ${message}`, data);
+        }
+    }
+    
+    // DOM Elements
+    const newsGrid = document.getElementById('newsGrid');
+    const newsList = document.getElementById('newsList');
+    const featuredNewsGrid = document.getElementById('featuredNewsGrid');
+    const sourcesGrid = document.getElementById('sourcesGrid');
+    const paginationControls = document.getElementById('paginationControls');
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const currentPageSpan = document.getElementById('currentPage');
+    const totalPagesSpan = document.getElementById('totalPages');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const refreshBtn = document.getElementById('refreshNews');
+    const gridViewBtn = document.getElementById('gridView');
+    const listViewBtn = document.getElementById('listView');
+    const sortSelect = document.getElementById('sortOptions');
+    const manageWatchlistBtn = document.getElementById('manageWatchlist');
+    const personalizeBanner = document.getElementById('personalizeBanner');
+    const personalizeCtaBtn = document.getElementById('personalizeCtaBtn');
+    const watchlistChips = document.getElementById('watchlistChips');
+    const personalizeSubtext = document.getElementById('personalizeSubtext');
+    const watchlistModal = document.getElementById('watchlistModal');
+    const closeWatchlistModalBtn = document.getElementById('closeWatchlistModal');
+    const watchlistInput = document.getElementById('watchlistInput');
+    const saveWatchlistBtn = document.getElementById('saveWatchlistBtn');
+    const searchInput = document.getElementById('newsSearch');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const toastNotification = document.getElementById('toastNotification');
+    const toastMessage = document.getElementById('toastMessage');
+    const closeToastBtn = document.getElementById('closeToast');
+    const newsModal = document.getElementById('newsModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const totalNewsCount = document.getElementById('total-news-count');
+    const positiveSentimentCount = document.getElementById('positive-sentiment');
+    const neutralSentimentCount = document.getElementById('neutral-sentiment');
+    const negativeSentimentCount = document.getElementById('negative-sentiment');
+    
+    // Templates
+    const newsCardTemplate = document.getElementById('newsCardTemplate');
+    const newsListItemTemplate = document.getElementById('newsListItemTemplate');
+    const featuredNewsTemplate = document.getElementById('featuredNewsTemplate');
+    const sourceItemTemplate = document.getElementById('sourceItemTemplate');
+    
+    // Check if critical elements exist
+    if (!loadingOverlay) {
+        console.warn('Loading overlay not found');
+        return;
+    }
+    
+    // Initialize
+    hydrateWatchlist().then(() => { updatePersonalizeBanner(); fetchNewsData(); });
+    
+    // Event Listeners
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filter = btn.getAttribute('data-filter');
+            setActiveFilter(filter);
+            currentPage = 1;
+            // Make sure we have watchlist before fetching For You
+            if (filter === 'for_you') {
+                hydrateWatchlist().then(() => fetchNewsData());
+            } else {
+                fetchNewsData();
+            }
+        });
+    });
+    
+    refreshBtn.addEventListener('click', () => {
+        showLoadingOverlay();
+        // Reset to page 1 when refreshing
+        currentPage = 1;
+        // Clear cache on the backend by calling refresh-cache endpoint
+        fetch('/api/refresh-cache')
+            .then(response => response.json())
+            .then(() => {
+                // After cache is refreshed, fetch the news data
+                fetchNewsData();
+            })
+            .catch(error => {
+                console.error('Error refreshing cache:', error);
+                // Even if cache refresh fails, try to fetch news
+                fetchNewsData();
+            });
+    });
+    
+    gridViewBtn.addEventListener('click', () => {
+        setViewMode('grid');
+    });
+    
+    listViewBtn.addEventListener('click', () => {
+        setViewMode('list');
+    });
+    
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchNewsData(); // Fetch data for the new page
+            window.scrollTo({
+                top: document.querySelector('.latest-news-section').offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }
+    });
+    
+    nextPageBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            fetchNewsData(); // Fetch data for the new page
+            window.scrollTo({
+                top: document.querySelector('.latest-news-section').offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }
+    });
+    
+    sortSelect.addEventListener('change', () => {
+        currentSort = sortSelect.value;
+        // Refetch so server-side pagination aligns with sort
+        currentPage = 1;
+        fetchNewsData();
+    });
+    
+    searchInput.addEventListener('input', () => {
+        // For now, search is handled client-side on current page
+        // In future, this could be enhanced to search across all pages via API
+        applySearch();
+    });
+    
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        applySearch();
+    });
+    
+    closeToastBtn.addEventListener('click', () => {
+        hideToast();
+    });
+    
+    closeModalBtn.addEventListener('click', () => {
+        hideModal();
+    });
+
+    // Watchlist management
+    manageWatchlistBtn.addEventListener('click', () => {
+        const stored = localStorage.getItem('tz_watchlist') || '';
+        watchlistInput.value = stored;
+        watchlistModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+
+    // Top banner CTA opens the same modal
+    if (personalizeCtaBtn) {
+        personalizeCtaBtn.addEventListener('click', () => {
+            manageWatchlistBtn.click();
+        });
+    }
+
+    closeWatchlistModalBtn.addEventListener('click', () => {
+        watchlistModal.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    saveWatchlistBtn.addEventListener('click', async () => {
+        const val = (watchlistInput.value || '').toUpperCase().replace(/\s+/g, '');
+        currentTickers = val;
+        try { localStorage.setItem('tz_watchlist', val); } catch (e) {}
+        // Persist to session-backed endpoint (best-effort)
+        try {
+            await fetch('/api/watchlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tickers: val ? val.split(',') : [] }) });
+        } catch (e) { console.warn('Watchlist save error', e); }
+        watchlistModal.classList.remove('active');
+        document.body.style.overflow = '';
+        // If in For You, refresh feed
+        if (currentFilter === 'for_you') {
+            currentSort = 'relevance';
+            if (sortSelect) sortSelect.value = 'relevance';
+            currentPage = 1;
+            fetchNewsData();
+        }
+    // Update top banner chips
+    updatePersonalizeBanner();
+    });
+    
+    // Functions
+    function fetchNewsData() {
+        showLoadingOverlay();
+        const params = new URLSearchParams();
+        params.set('filter', currentFilter);
+        params.set('page', currentPage);
+        params.set('sort', currentSort);
+        if (currentFilter === 'for_you' && currentTickers) {
+            params.set('tickers', currentTickers);
+        }
+        
+        fetch(`${API_URL}?${params.toString()}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Store paginated news data for current page
+                filteredNews = data.news || [];
+                
+                // Update pagination info from API response
+                totalPages = data.total_pages || Math.ceil((data.total || 0) / ITEMS_PER_PAGE);
+                if (totalPages === 0) totalPages = 1;
+                debug('API response', {
+                    filter: currentFilter,
+                    page: currentPage,
+                    totalPages: totalPages,
+                    totalItems: data.total,
+                    newsCount: filteredNews.length
+                });
+                
+                // For "all" filter, also update allNewsData and stats
+                if (currentFilter === 'all') {
+                    allNewsData = data.news || [];
+                    
+                    // Update category counts from the API response
+                    if (data.category_counts) {
+                        Object.keys(data.category_counts).forEach(category => {
+                            const countElement = document.getElementById(`${category}-count`);
+                            if (countElement) {
+                                countElement.textContent = data.category_counts[category];
+                            }
+                        });
+                    }
+                    
+                    // Update sentiment counts from the API response
+                    if (data.sentiment_counts) {
+                        totalNewsCount.textContent = data.total_all_news || data.total || filteredNews.length;
+                        positiveSentimentCount.textContent = data.sentiment_counts.positive || 0;
+                        neutralSentimentCount.textContent = data.sentiment_counts.neutral || 0;
+                        negativeSentimentCount.textContent = data.sentiment_counts.negative || 0;
+                    }
+                    
+                    // Update data sources information
+                    if (data.data_sources) {
+                        debug('Data sources available:', data.data_sources);
+                        updateDataSourcesDisplay(data.data_sources);
+                    }
+                    
+                    // Process featured news and sources only for "all" view
+                    processNewsData();
+                } else {
+                    // For filtered views, update the news display and the active filter's count
+                    updateNewsList();
+                    updatePaginationControls();
+                    try {
+                        const countElement = document.getElementById(`${currentFilter}-count`);
+                        if (countElement) {
+                            // Use API total if provided; fallback to rendered items length
+                            const totalForFilter = (typeof data.total === 'number') ? data.total : (filteredNews ? filteredNews.length : 0);
+                            countElement.textContent = totalForFilter;
+                        }
+                    } catch (e) {
+                        // no-op
+                    }
+                }
+                
+                hideLoadingOverlay();
+                
+                if (data.fallback) {
+                    showToast('Using fallback news data. Live data currently unavailable.');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching news:', error);
+                hideLoadingOverlay();
+                showToast('Failed to load news data. Please try again later.');
+            });
+    }
+    
+    function processNewsData() {
+        // Prepare data
+        featuredNews = [];
+        sourceStats = {};
+        
+        // Count sources from all news data
+        allNewsData.forEach(item => {
+            if (!sourceStats[item.source]) {
+                sourceStats[item.source] = 0;
+            }
+            sourceStats[item.source]++;
+        });
+        
+        // Select featured news (top 3 with images)
+        const newsWithImages = allNewsData.filter(item => item.image);
+        featuredNews = newsWithImages.slice(0, 3);
+        
+        // Update all views
+        sortNewsData();
+        updateFeaturedNews();
+        updateSourcesList();
+        updateNewsList();
+        updatePaginationControls();
+    }
+    
+    function sortNewsData() {
+        // Apply local sorting to the current page data
+        switch (currentSort) {
+            case 'newest':
+                filteredNews.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+                break;
+            case 'oldest':
+                filteredNews.sort((a, b) => new Date(a.published_at) - new Date(b.published_at));
+                break;
+            case 'sentiment':
+                const sentimentOrder = { 'positive': 0, 'neutral': 1, 'negative': 2 };
+                filteredNews.sort((a, b) => sentimentOrder[a.sentiment] - sentimentOrder[b.sentiment]);
+                break;
+            case 'impact':
+                filteredNews.sort((a, b) => (b.impact_score || 0) - (a.impact_score || 0));
+                break;
+            case 'relevance':
+                filteredNews.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
+                break;
+        }
+    }
+    
+    function updateFeaturedNews() {
+        featuredNewsGrid.innerHTML = '';
+        
+        if (featuredNews.length === 0) {
+            featuredNewsGrid.innerHTML = '<div class="no-featured-news">No featured news available</div>';
+            return;
+        }
+        
+        featuredNews.forEach(news => {
+            const template = document.importNode(featuredNewsTemplate.content, true);
+            const newsCard = template.querySelector('.featured-news-card');
+            
+            // Set data attributes
+            newsCard.setAttribute('data-id', news.id);
+            newsCard.setAttribute('data-category', news.category);
+            
+            // Set content
+            newsCard.querySelector('.featured-news-category').textContent = capitalizeFirstLetter(news.category);
+            newsCard.querySelector('.featured-news-title').textContent = news.title;
+            newsCard.querySelector('.featured-news-summary').textContent = news.summary;
+            newsCard.querySelector('.featured-news-source span').textContent = news.source;
+            newsCard.querySelector('.featured-news-time span').textContent = formatDate(news.published_at);
+            
+            const sentimentEl = newsCard.querySelector('.featured-news-sentiment');
+            sentimentEl.textContent = capitalizeFirstLetter(news.sentiment);
+            sentimentEl.className = `featured-news-sentiment ${news.sentiment}`;
+            
+            // Set image with fallback
+            const imageEl = newsCard.querySelector('.featured-news-image img');
+            if (news.image) {
+                imageEl.src = news.image;
+                imageEl.alt = news.title;
+            } else {
+                // Use a default image based on category
+                imageEl.src = getCategoryDefaultImage(news.category);
+                imageEl.alt = capitalizeFirstLetter(news.category) + " news";
+            }
+            
+            // Add event listener for the card
+            newsCard.querySelector('.featured-news-button').addEventListener('click', () => {
+                showNewsDetail(news);
+            });
+            
+            featuredNewsGrid.appendChild(template);
+        });
+    }
+    
+    function updatePaginationControls() {
+        // Update pagination info
+        currentPageSpan.textContent = currentPage;
+        totalPagesSpan.textContent = totalPages;
+        prevPageBtn.disabled = currentPage <= 1;
+        nextPageBtn.disabled = currentPage >= totalPages;
+    }
+    
+    function updateNewsList() {
+        // Update pagination controls
+        updatePaginationControls();
+        
+        // Clear containers
+        newsGrid.innerHTML = '';
+        newsList.innerHTML = '';
+        
+        if (filteredNews.length === 0) {
+            const noNewsEl = document.createElement('div');
+            noNewsEl.className = 'no-news-message';
+            noNewsEl.innerHTML = '<i class="fas fa-info-circle"></i> No news articles found matching your criteria.';
+            
+            if (currentView === 'grid') {
+                newsGrid.appendChild(noNewsEl);
+            } else {
+                newsList.appendChild(noNewsEl);
+            }
+            return;
+        }
+        
+        // Use all filteredNews items since they're already paginated by the API
+        filteredNews.forEach(news => {
+            if (currentView === 'grid') {
+                const template = document.importNode(newsCardTemplate.content, true);
+                const newsCard = template.querySelector('.news-card');
+                
+                // Set data attributes
+                newsCard.setAttribute('data-id', news.id);
+                newsCard.setAttribute('data-category', news.category);
+                
+                // Set content
+                newsCard.querySelector('.news-card-category').textContent = capitalizeFirstLetter(news.category);
+                newsCard.querySelector('.news-card-title').textContent = news.title;
+                newsCard.querySelector('.news-card-summary').textContent = truncateText(news.summary, 100);
+                newsCard.querySelector('.news-card-source span').textContent = news.source;
+                newsCard.querySelector('.news-card-time span').textContent = formatDate(news.published_at);
+                
+                // Set sentiment with text
+                const sentimentText = newsCard.querySelector('.sentiment-text');
+                if (news.sentiment === 'positive') {
+                    sentimentText.textContent = 'Positive';
+                    newsCard.querySelector('.news-card-sentiment').classList.add('positive');
+                } else if (news.sentiment === 'negative') {
+                    sentimentText.textContent = 'Negative';
+                    newsCard.querySelector('.news-card-sentiment').classList.add('negative');
+                } else {
+                    sentimentText.textContent = 'Neutral';
+                    newsCard.querySelector('.news-card-sentiment').classList.add('neutral');
+                }
+                
+                // Set image with fallback
+                const imageEl = newsCard.querySelector('.news-card-image img');
+                if (news.image) {
+                    imageEl.src = news.image;
+                    imageEl.alt = news.title;
+                } else {
+                    // Use a default image based on category
+                    imageEl.src = getCategoryDefaultImage(news.category);
+                    imageEl.alt = capitalizeFirstLetter(news.category) + " news";
+                }
+                
+                // Badges for impact/divergence
+                const categoryEl = newsCard.querySelector('.news-card-category');
+                const badges = [];
+                if (news.impact_score && news.impact_score >= 0.5) badges.push('High Impact');
+                if (news.divergence_flag) badges.push('Divergence');
+                if (badges.length) {
+                    categoryEl.innerHTML = `${capitalizeFirstLetter(news.category)} · <span class="badge">${badges.join('</span> <span class="badge">')}</span>`;
+                }
+
+                // Add event listener for the button
+                newsCard.querySelector('.news-card-button').addEventListener('click', () => {
+                    showNewsDetail(news);
+                });
+                
+                newsGrid.appendChild(template);
+            } else {
+                const template = document.importNode(newsListItemTemplate.content, true);
+                const newsItem = template.querySelector('.news-list-item');
+                
+                // Set data attributes
+                newsItem.setAttribute('data-id', news.id);
+                newsItem.setAttribute('data-category', news.category);
+                
+                // Set content
+                newsItem.querySelector('.news-list-category').textContent = capitalizeFirstLetter(news.category);
+                newsItem.querySelector('.news-list-title').textContent = news.title;
+                newsItem.querySelector('.news-list-summary').textContent = news.summary;
+                newsItem.querySelector('.news-list-source span').textContent = news.source;
+                newsItem.querySelector('.news-list-time span').textContent = formatDate(news.published_at);
+                
+                // Set sentiment
+                const sentimentEl = newsItem.querySelector('.news-list-sentiment');
+                sentimentEl.textContent = capitalizeFirstLetter(news.sentiment);
+                sentimentEl.className = `news-list-sentiment ${news.sentiment}`;
+                
+                // Set image with fallback
+                const imageEl = newsItem.querySelector('.news-list-image img');
+                if (news.image) {
+                    imageEl.src = news.image;
+                    imageEl.alt = news.title;
+                } else {
+                    // Use a default image based on category
+                    imageEl.src = getCategoryDefaultImage(news.category);
+                    imageEl.alt = capitalizeFirstLetter(news.category) + " news";
+                }
+                
+                // Add event listener for the button
+                newsItem.querySelector('.news-list-button').addEventListener('click', () => {
+                    showNewsDetail(news);
+                });
+                
+                newsList.appendChild(template);
+            }
+        });
+    }
+    
+    function updateSourcesList() {
+        sourcesGrid.innerHTML = '';
+        
+        const sortedSources = Object.entries(sourceStats)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10);
+        
+        sortedSources.forEach(([source, count]) => {
+            const template = document.importNode(sourceItemTemplate.content, true);
+            const sourceItem = template.querySelector('.source-item');
+            
+            sourceItem.querySelector('.source-logo span').textContent = source.charAt(0).toUpperCase();
+            sourceItem.querySelector('.source-name').textContent = source;
+            sourceItem.querySelector('.source-count span').textContent = count;
+            
+            sourcesGrid.appendChild(template);
+        });
+    }
+    
+    function showNewsDetail(news) {
+        const modalTitle = document.getElementById('modalTitle');
+        const modalSource = document.getElementById('modalSource');
+        const modalDate = document.getElementById('modalDate');
+        const modalSummary = document.getElementById('modalSummary');
+        const modalCategory = document.getElementById('modalCategory');
+        const modalSentiment = document.getElementById('modalSentiment');
+        const modalTopics = document.getElementById('modalTopics');
+        const modalImage = document.getElementById('modalImage');
+        const modalImageContainer = document.getElementById('modalImageContainer');
+        const readMoreBtn = document.getElementById('readMoreBtn');
+        
+        modalTitle.textContent = news.title;
+        modalSource.innerHTML = `<i class="fas fa-newspaper"></i> ${news.source}`;
+        modalDate.innerHTML = `<i class="far fa-calendar"></i> ${formatDate(news.published_at, true)}`;
+        modalSummary.textContent = news.summary;
+        modalCategory.textContent = capitalizeFirstLetter(news.category);
+        modalCategory.className = `modal-category ${news.category}`;
+        
+        // Set sentiment with text only
+        modalSentiment.className = `modal-sentiment ${news.sentiment}`;
+        if (news.sentiment === 'positive') {
+            modalSentiment.textContent = 'Positive';
+        } else if (news.sentiment === 'negative') {
+            modalSentiment.textContent = 'Negative';
+        } else {
+            modalSentiment.textContent = 'Neutral';
+        }
+        
+        // Add topics
+        modalTopics.innerHTML = '';
+        if (news.topics && news.topics.length > 0) {
+            news.topics.forEach(topic => {
+                if (topic) {
+                    const topicTag = document.createElement('span');
+                    topicTag.className = 'topic-tag';
+                    topicTag.textContent = topic;
+                    modalTopics.appendChild(topicTag);
+                }
+            });
+        } else {
+            modalTopics.innerHTML = '<em>No topics available</em>';
+        }
+        
+        // Set image
+        if (news.image) {
+            modalImage.src = news.image;
+            modalImage.alt = news.title;
+            modalImageContainer.style.display = 'block';
+        } else {
+            modalImageContainer.style.display = 'none';
+        }
+        
+        // Set read more link
+        if (news.url && news.url !== '#') {
+            readMoreBtn.href = news.url;
+            readMoreBtn.style.display = 'inline-flex';
+        } else {
+            readMoreBtn.style.display = 'none';
+        }
+        
+        // Show modal
+        newsModal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+    
+    function hideModal() {
+        newsModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    function setActiveFilter(filter) {
+        // Update current filter
+        currentFilter = filter;
+        
+        // Update active button styling
+        filterBtns.forEach(btn => {
+            if (btn.getAttribute('data-filter') === filter) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // For You UX: ensure tickers and relevance sorting
+        if (filter === 'for_you') {
+            // Prefer session; fall back to localStorage
+            try {
+                fetch('/api/watchlist').then(r => r.json()).then(j => {
+                    const sess = (j && Array.isArray(j.tickers)) ? j.tickers.join(',') : '';
+                    const local = localStorage.getItem('tz_watchlist') || '';
+                    currentTickers = sess || local;
+                    if (!currentTickers) {
+                        manageWatchlistBtn.click();
+                    }
+                }).catch(() => {
+                    const local = localStorage.getItem('tz_watchlist') || '';
+                    currentTickers = local;
+                    if (!currentTickers) manageWatchlistBtn.click();
+                });
+            } catch(e) {
+                const local = localStorage.getItem('tz_watchlist') || '';
+                currentTickers = local;
+                if (!currentTickers) manageWatchlistBtn.click();
+            }
+            // default to relevance sort for For You
+            currentSort = 'relevance';
+            if (sortSelect) sortSelect.value = 'relevance';
+        } else {
+            // If coming from For You relevance, restore to newest
+            if (currentSort === 'relevance') {
+                currentSort = 'newest';
+                if (sortSelect) sortSelect.value = 'newest';
+            }
+        }
+    }
+    
+    function setViewMode(mode) {
+        currentView = mode;
+        
+        if (mode === 'grid') {
+            gridViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+            newsGrid.classList.remove('hidden');
+            newsList.classList.add('hidden');
+        } else {
+            gridViewBtn.classList.remove('active');
+            listViewBtn.classList.add('active');
+            newsGrid.classList.add('hidden');
+            newsList.classList.remove('hidden');
+        }
+        
+        updateNewsList();
+    }
+    
+    function applySearch() {
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm.length > 0) {
+            clearSearchBtn.style.display = 'block';
+        } else {
+            clearSearchBtn.style.display = 'none';
+        }
+        
+        // Reset pagination when searching
+        currentPage = 1;
+        
+        // For client-side filtering of the current visible data
+        if (searchTerm) {
+            const filteredResults = filteredNews.filter(item => 
+                item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.source.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (item.topics && item.topics.some(topic => 
+                    topic.toLowerCase().includes(searchTerm.toLowerCase())
+                ))
+            );
+            
+            // Create a temporary copy of the filtered results
+            const originalFiltered = [...filteredNews];
+            filteredNews = filteredResults;
+            
+            updateNewsList();
+            
+            // Restore the original filtered news after display
+            filteredNews = originalFiltered;
+        } else {
+            // If search is cleared, go back to standard display
+            updateNewsList();
+        }
+    }
+    
+    function showLoadingOverlay() {
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('active');
+        }
+    }
+    
+    function hideLoadingOverlay() {
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('active');
+        }
+    }
+    
+    function showToast(message) {
+        toastMessage.textContent = message;
+        toastNotification.classList.add('active');
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            hideToast();
+        }, 5000);
+    }
+    
+    function hideToast() {
+        toastNotification.classList.remove('active');
+    }
+
+    async function hydrateWatchlist() {
+        try {
+            const r = await fetch('/api/watchlist');
+            if (r.ok) {
+                const j = await r.json();
+                const sess = (j && Array.isArray(j.tickers)) ? j.tickers.join(',') : '';
+                const local = localStorage.getItem('tz_watchlist') || '';
+                currentTickers = sess || local;
+                if (!currentTickers) {
+                    // Pre-open modal to prompt user to set
+                    // Do not block; user can cancel, we’ll still fetch general news
+                }
+            }
+        } catch(e) {
+            const local = localStorage.getItem('tz_watchlist') || '';
+            currentTickers = local;
+        }
+    }
+
+    function updatePersonalizeBanner() {
+        if (!watchlistChips || !personalizeSubtext) return;
+        // Clear existing chips
+        watchlistChips.innerHTML = '';
+        const tickers = (currentTickers || '').split(',').map(t => t.trim()).filter(Boolean);
+        if (tickers.length === 0) {
+            personalizeSubtext.textContent = 'Add your stocks to see more relevant articles.';
+            // Show a few suggested chips (non-interactive)
+            ['AAPL','MSFT','TSLA'].forEach(sym => {
+                const chip = document.createElement('span');
+                chip.className = 'chip ghost';
+                chip.textContent = sym;
+                watchlistChips.appendChild(chip);
+            });
+        } else {
+            personalizeSubtext.textContent = 'Your stocks:';
+            tickers.slice(0, 10).forEach(sym => {
+                const chip = document.createElement('span');
+                chip.className = 'chip';
+                chip.textContent = sym;
+                watchlistChips.appendChild(chip);
+            });
+            if (tickers.length > 10) {
+                const more = document.createElement('span');
+                more.className = 'chip more';
+                more.textContent = `+${tickers.length - 10}`;
+                watchlistChips.appendChild(more);
+            }
+        }
+    }
+    
+    // Helper Functions
+    function truncateText(text, maxLength) {
+        if (!text) return '';
+        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    }
+    
+    function formatDate(dateString, detailed = false) {
+        if (!dateString) return 'Unknown date';
+        
+        try {
+            const date = new Date(dateString);
+            
+            if (isNaN(date.getTime())) {
+                // Try to parse alternative format (20230822T123456)
+                if (dateString.match(/^\d{8}T\d{6}$/)) {
+                    const year = dateString.substring(0, 4);
+                    const month = dateString.substring(4, 6);
+                    const day = dateString.substring(6, 8);
+                    const hours = dateString.substring(9, 11);
+                    const minutes = dateString.substring(11, 13);
+                    const newDate = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
+                    
+                    if (!isNaN(newDate.getTime())) {
+                        return formatDateObject(newDate, detailed);
+                    }
+                }
+                return 'Invalid date';
+            }
+            
+            return formatDateObject(date, detailed);
+        } catch (e) {
+            console.error('Error formatting date:', e);
+            return 'Date error';
+        }
+    }
+    
+    function formatDateObject(date, detailed) {
+        const now = new Date();
+        const diffMs = now - date;
+        const diffSec = Math.round(diffMs / 1000);
+        const diffMin = Math.round(diffSec / 60);
+        const diffHour = Math.round(diffMin / 60);
+        const diffDay = Math.round(diffHour / 24);
+        
+        if (detailed) {
+            const options = {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return date.toLocaleDateString('en-US', options);
+        }
+        
+        if (diffSec < 60) {
+            return 'Just now';
+        } else if (diffMin < 60) {
+            return `${diffMin}m ago`;
+        } else if (diffHour < 24) {
+            return `${diffHour}h ago`;
+        } else if (diffDay < 7) {
+            return `${diffDay}d ago`;
+        } else {
+            const options = { month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+    }
+    
+    function capitalizeFirstLetter(string) {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+    
+    function getCategoryDefaultImage(category) {
+        const defaultImages = {
+            market: '/static/images/defaults/market.jpg',
+            economy: '/static/images/defaults/economy.jpg',
+            crypto: '/static/images/defaults/crypto.jpg',
+            forex: '/static/images/defaults/forex.jpg',
+            earnings: '/static/images/defaults/earnings.jpg'
+        };
+        
+        return defaultImages[category] || '/static/images/defaults/news.jpg';
+    }
+    
+    function updateDataSourcesDisplay(dataSources) {
+        // Create or update a data sources indicator
+        let dataSourcesElement = document.getElementById('data-sources-info');
+        
+        if (!dataSourcesElement) {
+            // Create the element if it doesn't exist
+            const statsWrapper = document.querySelector('.stats-wrapper');
+            if (statsWrapper) {
+                dataSourcesElement = document.createElement('div');
+                dataSourcesElement.id = 'data-sources-info';
+                dataSourcesElement.className = 'stats-card data-sources-card';
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'stats-icon';
+                iconDiv.innerHTML = '<i class="fas fa-database"></i>';
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'stats-content';
+                
+                const valueDiv = document.createElement('h3');
+                valueDiv.className = 'stats-value';
+                valueDiv.id = 'data-sources-count';
+                
+                const labelDiv = document.createElement('p');
+                labelDiv.className = 'stats-label';
+                labelDiv.textContent = 'Data Sources';
+                
+                const sourcesList = document.createElement('div');
+                sourcesList.className = 'data-sources-list';
+                sourcesList.id = 'data-sources-list';
+                
+                contentDiv.appendChild(valueDiv);
+                contentDiv.appendChild(labelDiv);
+                contentDiv.appendChild(sourcesList);
+                
+                dataSourcesElement.appendChild(iconDiv);
+                dataSourcesElement.appendChild(contentDiv);
+                
+                statsWrapper.appendChild(dataSourcesElement);
+            }
+        }
+        
+        if (dataSourcesElement) {
+            const countElement = document.getElementById('data-sources-count');
+            const listElement = document.getElementById('data-sources-list');
+            
+            if (countElement) {
+                countElement.textContent = dataSources.length;
+            }
+            
+            if (listElement) {
+                const sourceNames = dataSources.map(source => {
+                    switch(source) {
+                        case 'alpha_vantage': return 'Alpha Vantage';
+                        case 'finnhub': return 'FinnHub';
+                        default: return source.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    }
+                });
+                
+                listElement.innerHTML = `<small>${sourceNames.join(' + ')}</small>`;
+            }
+        }
+        
+        debug('Updated data sources display', dataSources);
+    }
+    
+    // Add event handler for modal close when clicking outside
+    newsModal.addEventListener('click', function(event) {
+        if (event.target === newsModal) {
+            hideModal();
+        }
+    });
+    
+    // Add event handlers for share button
+    document.getElementById('shareBtn').addEventListener('click', function() {
+        const title = document.getElementById('modalTitle').textContent;
+        const url = document.getElementById('readMoreBtn').href;
+        
+        if (navigator.share && url !== '#') {
+            navigator.share({
+                title: title,
+                url: url
+            }).then(() => {
+                console.log('Shared successfully');
+            }).catch(err => {
+                console.error('Share failed:', err);
+                showToast('Sharing failed. You can copy the link manually.');
+            });
+        } else {
+            // Fallback for browsers without Web Share API
+            showToast('Sharing not supported in your browser.');
+        }
+    });
+    
+    // Add sticky behavior for controls
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+        const controls = document.querySelector('.news-controls');
+        const hero = document.querySelector('.news-hero');
+        const heroBottom = hero.getBoundingClientRect().bottom;
+        
+        if (heroBottom <= 0) {
+            controls.classList.add('sticky');
+        } else {
+            controls.classList.remove('sticky');
+        }
+    });
+});
+</script>
+{% endblock scripts_extra %}

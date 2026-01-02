@@ -1,0 +1,19 @@
+[
+  {
+    "profile_id": "profile_1",
+    "profile_name": "Sports Site Profile",
+    "site_url": "https://yoursportssite.com",
+    "author": {
+      "wp_username": "your_wordpress_username",
+      "app_password": "xxxx xxxx xxxx xxxx xxxx xxxx"
+    },
+    "stockforecast_category_id": 1,
+    "internal_linking": {
+      "enabled": true,
+      "same_category_only": true,
+      "max_links_per_article": 5,
+      "cache_expiry_hours": 24
+    }
+  }
+]
+

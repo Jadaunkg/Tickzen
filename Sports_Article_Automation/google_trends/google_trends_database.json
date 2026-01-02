@@ -1,0 +1,248 @@
+{
+  "trends": [
+    {
+      "query": "fernando mendoza",
+      "rank": 1,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.493939",
+      "source": "google_trends_selenium_text",
+      "importance_score": 100
+    },
+    {
+      "query": "boise state vs washington",
+      "rank": 2,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.493939",
+      "source": "google_trends_selenium_text",
+      "importance_score": 85
+    },
+    {
+      "query": "diego pavia",
+      "rank": 3,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.493939",
+      "source": "google_trends_selenium_text",
+      "importance_score": 70
+    },
+    {
+      "query": "wwe",
+      "rank": 4,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.495238",
+      "source": "google_trends_selenium_text",
+      "importance_score": 55
+    },
+    {
+      "query": "kansas vs nc state",
+      "rank": 5,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.495238",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "indiana vs kentucky",
+      "rank": 6,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.495238",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "uconn vs usc",
+      "rank": 7,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.495238",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "red wings vs blackhawks",
+      "rank": 8,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.495238",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "luana santos",
+      "rank": 9,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.495238",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "angel zerpa",
+      "rank": 10,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.496247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "orlando magic",
+      "rank": 11,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.496247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "maryland basketball",
+      "rank": 12,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.496247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "spurs",
+      "rank": 13,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.496247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "paolo banchero",
+      "rank": 14,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.496247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "canadiens vs rangers",
+      "rank": 15,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.496247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "panthers vs stars",
+      "rank": 16,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.496247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "charles barkley",
+      "rank": 17,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.497247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "uc davis football",
+      "rank": 18,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.497247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "josh hart",
+      "rank": 19,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.497247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "steven asplund",
+      "rank": 20,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.497247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "west virginia vs ohio state",
+      "rank": 21,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.497247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "hurricanes vs flyers",
+      "rank": 22,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.497247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "is wemby playing tonight",
+      "rank": 23,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.498247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "pitt volleyball",
+      "rank": 24,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.498247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    },
+    {
+      "query": "sean sharaf",
+      "rank": 25,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2025-12-14T01:47:17.498247",
+      "source": "google_trends_selenium_text",
+      "importance_score": 40
+    }
+  ],
+  "last_updated": "2025-12-14T01:47:17.499247",
+  "metadata": {
+    "total_collections": 0,
+    "total_trends_collected": 25,
+    "categories_tracked": [
+      "sports",
+      "technology",
+      "entertainment",
+      "business",
+      "health"
+    ],
+    "regions_tracked": [
+      "US",
+      "GB",
+      "CA",
+      "AU",
+      "IN"
+    ]
+  }
+}

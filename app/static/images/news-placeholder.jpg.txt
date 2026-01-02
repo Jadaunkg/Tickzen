@@ -1,0 +1,2 @@
+// This is a placeholder. In a real implementation, you would need an actual image file.
+// The file should be placed at d:\tempautomate\app\static\images\news-placeholder.jpg

@@ -1,0 +1,697 @@
+{
+  "ticker": "AAPL",
+  "processing_timestamp": "2025-12-26T13:53:09.241463",
+  "data_quality": {
+    "completeness_score": 100.0,
+    "missing_critical_fields": [],
+    "data_age": "N/A",
+    "source_coverage": {},
+    "field_completeness": {
+      "company_identification": 91.67,
+      "income_statement": 100.0,
+      "balance_sheet": 93.75,
+      "cash_flow": 100.0,
+      "stock_price": 100.0
+    }
+  },
+  "earnings_data": {
+    "company_identification": {
+      "ticker": "AAPL",
+      "company_name": "Apple Inc.",
+      "cik": "N/A",
+      "exchange": "NMS",
+      "sector": "Technology",
+      "industry": "Consumer Electronics",
+      "market_cap": 4063446958080,
+      "description": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide. The company offers iPhone, a line of smartphones; Mac, a line of personal computers; iPad, a line of multi-purpose tablets; and wearables, home, and accessories comprising AirPods, Apple Vision Pro, Apple TV, Apple Watch, Beats products, and HomePod, as well as Apple branded and third-party accessories. It also provides AppleCare support and cloud services; and operates various platforms, including the App Store that allow customers to discover and download applications and digital content, such as books, music, video, games, and podcasts, as well as advertising services include third-party licensing arrangements and its own advertising platforms. In addition, the company offers various subscription-based services, such as Apple Arcade, a game subscription service; Apple Fitness+, a personalized fitness service; Apple Music, which offers users a curated listening experience with on-demand radio stations; Apple News+, a subscription news and magazine service; Apple TV, which offers exclusive original content and live sports; Apple Card, a co-branded credit card; and Apple Pay, a cashless payment service, as well as licenses its intellectual property. The company serves consumers, and small and mid-sized businesses; and the education, enterprise, and government markets. It distributes third-party applications for its products through the App Store. The company also sells its products through its retail and online stores, and direct sales force; and third-party cellular network carriers and resellers. The company was formerly known as Apple Computer, Inc. and changed its name to Apple Inc. in January 2007. Apple Inc. was founded in 1976 and is headquartered in Cupertino, California.",
+      "website": "https://www.apple.com",
+      "headquarters": "Cupertino, CA, United States",
+      "ceo_name": "Mr. Timothy D. Cook",
+      "employee_count": 166000
+    },
+    "earnings_timeline": {
+      "earnings_date": "2026-01-30",
+      "earnings_time": "After Market Close",
+      "report_time": "After Market Close",
+      "fiscal_quarter": "Q3",
+      "fiscal_year": 2025,
+      "fiscal_year_end": "2025-09-27",
+      "filing_date": "N/A",
+      "period_end_date": "2025-09-27",
+      "filing_type": "N/A",
+      "reporting_type": "N/A",
+      "earnings_call_time": "N/A",
+      "earnings_call_date": "2026-01-30",
+      "conference_call_url": "N/A",
+      "days_until_earnings": 34,
+      "earnings_time_estimated": true,
+      "report_time_estimated": true
+    },
+    "income_statement": {
+      "total_revenue": 102466000000.0,
+      "revenue_growth_yoy": "7.90%",
+      "cost_of_revenue": 54125000000.0,
+      "gross_profit": 48341000000.0,
+      "gross_margin": "47.18%",
+      "operating_expenses": 15914000000.0,
+      "research_and_development": 8866000000.0,
+      "sales_and_marketing": 7048000000.0,
+      "general_and_administrative": 7048000000.0,
+      "operating_income": 32427000000.0,
+      "operating_margin": "31.65%",
+      "ebitda": 35554000000.0,
+      "depreciation_and_amortization": 3127000000.0,
+      "interest_expense": 3371310120.96,
+      "tax_provision": 5338000000.0,
+      "stock_based_compensation": 3183000000.0,
+      "net_income": 27466000000.0,
+      "earnings_per_share_basic": 7.45,
+      "earnings_per_share_diluted": 7.45,
+      "weighted_average_shares_basic": 14776353000,
+      "weighted_average_shares_diluted": 14776353000,
+      "interest_expense_estimated": true
+    },
+    "balance_sheet": {
+      "total_assets": 359241000000.0,
+      "current_assets": 147957000000.0,
+      "cash_and_equivalents": 35934000000.0,
+      "accounts_receivable": 39777000000.0,
+      "inventory": 5718000000.0,
+      "property_plant_equipment": 49834000000.0,
+      "goodwill": 0,
+      "intangible_assets": "N/A",
+      "total_liabilities": 285508000000.0,
+      "current_liabilities": 165631000000.0,
+      "accounts_payable": 69860000000.0,
+      "long_term_debt": 78328000000.0,
+      "total_debt": 112377004032,
+      "stockholders_equity": 73733000000.0,
+      "retained_earnings": -14264000000.0,
+      "working_capital": -17674000000.0
+    },
+    "cash_flow": {
+      "operating_cash_flow": 29728000000.0,
+      "net_cash_investing": -2587000000.0,
+      "net_cash_financing": -27476000000.0,
+      "free_cash_flow": 26486000000.0,
+      "capital_expenditures": -3242000000.0,
+      "dividends_paid": -3862000000.0,
+      "share_repurchases": -20132000000.0
+    },
+    "analyst_estimates": {
+      "estimated_eps": 9.15508,
+      "estimated_eps_high": 350.0,
+      "estimated_eps_low": 215.0,
+      "number_of_analysts": 41,
+      "estimated_revenue": 287.70682,
+      "estimated_revenue_high": "N/A",
+      "estimated_revenue_low": "N/A",
+      "estimate_year_ago": 7.45,
+      "analysts_recommending_buy": 29,
+      "analysts_recommending_hold": 15,
+      "analysts_recommending_sell": 4,
+      "recommendation": "buy"
+    },
+    "actual_vs_estimate": {
+      "eps_actual": 7.45,
+      "estimated_eps_prior": 9.15508,
+      "eps_surprise": "-1.7051",
+      "eps_surprise_percent": "-18.62%",
+      "revenue_actual": 416161005568,
+      "estimated_revenue_prior": "N/A",
+      "revenue_surprise": "N/A",
+      "revenue_surprise_percent": "N/A"
+    },
+    "stock_price": {
+      "current_price": 273.81,
+      "previous_close": 272.36,
+      "open_price": 272.34,
+      "day_high": 275.43,
+      "day_low": 272.25,
+      "volume": 17910574,
+      "average_volume": 46490500,
+      "52_week_high": 288.62,
+      "52_week_low": 169.21,
+      "price_change_1d": 1.45,
+      "price_change_percent_1d": 0.53
+    },
+    "guidance": {
+      "guidance_eps_low": "N/A",
+      "guidance_eps_high": "N/A",
+      "guidance_revenue_low": "N/A",
+      "guidance_revenue_high": "N/A",
+      "next_year_estimate": 9.15508
+    },
+    "analyst_sentiment": {
+      "number_of_analysts": 41,
+      "buy_ratings": 29,
+      "hold_ratings": 15,
+      "sell_ratings": 4,
+      "target_mean_price": 287.70682,
+      "target_median_price": 300.0,
+      "target_high_price": 350.0,
+      "target_low_price": 215.0,
+      "recommendation": "buy"
+    },
+    "valuation_metrics": {
+      "market_cap": 4063446958080,
+      "trailing_pe": 36.75302,
+      "forward_pe": 29.907986,
+      "peg_ratio": 4.65,
+      "price_to_sales": 9.764122,
+      "price_to_book": 54.86075,
+      "enterprise_value": 4103593263104,
+      "ev_to_revenue": 9.861,
+      "ev_to_ebitda": 28.35,
+      "dividend_yield": 0.38,
+      "sector": "Technology",
+      "industry": "Consumer Electronics",
+      "peg_ratio_estimated": true
+    },
+    "performance_metrics": {
+      "1_month_return": -1.140919106106127,
+      "3_month_return": 6.698114060186248,
+      "ytd_return": 12.79407012494749,
+      "1_year_return": 6.188095844509733,
+      "volatility_1y": 32.63855372917088,
+      "volume_trend": 20.285807229130484,
+      "avg_volume_3m": 46620146.875,
+      "beta": 1.107
+    },
+    "key_focus_areas": [
+      "iPhone revenue and unit sales trends",
+      "Services revenue growth (App Store, iCloud, Apple Music)",
+      "Mac and iPad performance",
+      "Wearables and Accessories growth",
+      "Greater China revenue trends",
+      "Gross margin outlook and product mix"
+    ],
+    "risk_factors": [
+      "High debt levels relative to equity",
+      "Rapid technological change and innovation pressure",
+      "Cybersecurity threats and data privacy concerns",
+      "Intense competition from established and emerging players",
+      "Macroeconomic uncertainty and recession risk"
+    ],
+    "enhanced_analytics": {
+      "one_time_items": {
+        "ticker": "AAPL",
+        "extraction_timestamp": "2025-12-26T13:36:21.094989",
+        "items_found": {
+          "Other Income Expense_2025-09-30 00:00:00": {
+            "amount": -321000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2025-09-30 00:00:00": {
+            "amount": -321000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Other Income Expense_2024-09-30 00:00:00": {
+            "amount": 269000000.0,
+            "period": "2024-09-30 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2024-09-30 00:00:00": {
+            "amount": 269000000.0,
+            "period": "2024-09-30 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Other Income Expense_2023-09-30 00:00:00": {
+            "amount": -565000000.0,
+            "period": "2023-09-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2023-09-30 00:00:00": {
+            "amount": -565000000.0,
+            "period": "2023-09-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Other Income Expense_2022-09-30 00:00:00": {
+            "amount": -334000000.0,
+            "period": "2022-09-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2022-09-30 00:00:00": {
+            "amount": -334000000.0,
+            "period": "2022-09-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Other Income Expense_2025-09-30 00:00:00_Q": {
+            "amount": 377000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2025-09-30 00:00:00_Q": {
+            "amount": 377000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Other Income Expense_2025-06-30 00:00:00_Q": {
+            "amount": -171000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2025-06-30 00:00:00_Q": {
+            "amount": -171000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "CF_Sale Of Investment_2025-09-30 00:00:00": {
+            "amount": 53797000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Investment Purchase And Sale_2025-09-30 00:00:00": {
+            "amount": 29390000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Sale Of Investment_2024-09-30 00:00:00": {
+            "amount": 62346000000.0,
+            "period": "2024-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Investment Purchase And Sale_2024-09-30 00:00:00": {
+            "amount": 13690000000.0,
+            "period": "2024-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Sale Of Investment_2023-09-30 00:00:00": {
+            "amount": 45514000000.0,
+            "period": "2023-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Investment Purchase And Sale_2023-09-30 00:00:00": {
+            "amount": 16001000000.0,
+            "period": "2023-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Sale Of Investment_2022-09-30 00:00:00": {
+            "amount": 67363000000.0,
+            "period": "2022-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Business Purchase And Sale_2022-09-30 00:00:00": {
+            "amount": -306000000.0,
+            "period": "2022-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "acquisition_disposal",
+            "frequency": "annual",
+            "field_name": "Net Business Purchase And Sale"
+          },
+          "CF_Net Investment Purchase And Sale_2022-09-30 00:00:00": {
+            "amount": -9560000000.0,
+            "period": "2022-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Net Business Purchase And Sale_2021-09-30 00:00:00": {
+            "amount": -33000000.0,
+            "period": "2021-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "acquisition_disposal",
+            "frequency": "annual",
+            "field_name": "Net Business Purchase And Sale"
+          },
+          "CF_Sale Of Investment_2025-09-30 00:00:00_Q": {
+            "amount": 7976000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Investment Purchase And Sale_2025-09-30 00:00:00_Q": {
+            "amount": 1160000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Sale Of Investment_2025-06-30 00:00:00_Q": {
+            "amount": 14024000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Investment Purchase And Sale_2025-06-30 00:00:00_Q": {
+            "amount": 8875000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Net Investment Purchase And Sale"
+          }
+        },
+        "total_one_time_impact": 334109000000.0,
+        "confidence_level": "medium",
+        "data_source": "yfinance_inference"
+      },
+      "adjusted_earnings": {
+        "ticker": "AAPL",
+        "calculation_timestamp": "2025-12-26T13:36:21.094989",
+        "adjustments_made": [
+          "Removed gain Other Income Expense_2025-09-30 00:00:00: $321,000,000",
+          "Removed gain Other Non Operating Income Expenses_2025-09-30 00:00:00: $321,000,000",
+          "Added back Other Income Expense_2025-09-30 00:00:00_Q: $377,000,000",
+          "Added back Other Non Operating Income Expenses_2025-09-30 00:00:00_Q: $377,000,000",
+          "Removed gain CF_Sale Of Investment_2025-09-30 00:00:00: $53,797,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2025-09-30 00:00:00: $29,390,000,000",
+          "Removed gain CF_Sale Of Investment_2025-09-30 00:00:00_Q: $7,976,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2025-09-30 00:00:00_Q: $1,160,000,000",
+          "Added back Other Income Expense_2024-09-30 00:00:00: $269,000,000",
+          "Added back Other Non Operating Income Expenses_2024-09-30 00:00:00: $269,000,000",
+          "Removed gain CF_Sale Of Investment_2024-09-30 00:00:00: $62,346,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2024-09-30 00:00:00: $13,690,000,000",
+          "Removed gain Other Income Expense_2023-09-30 00:00:00: $565,000,000",
+          "Removed gain Other Non Operating Income Expenses_2023-09-30 00:00:00: $565,000,000",
+          "Removed gain CF_Sale Of Investment_2023-09-30 00:00:00: $45,514,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2023-09-30 00:00:00: $16,001,000,000"
+        ],
+        "metrics": {
+          "adjusted_net_income": {
+            "2025-09-30 00:00:00": {
+              "reported_net_income": 112010000000.0,
+              "one_time_adjustments": -92211000000.0,
+              "adjusted_net_income": 19799000000.0,
+              "improvement": -92211000000.0,
+              "improvement_percentage": -82.3238996518168
+            },
+            "2024-09-30 00:00:00": {
+              "reported_net_income": 93736000000.0,
+              "one_time_adjustments": -75498000000.0,
+              "adjusted_net_income": 18238000000.0,
+              "improvement": -75498000000.0,
+              "improvement_percentage": -80.54322778868311
+            },
+            "2023-09-30 00:00:00": {
+              "reported_net_income": 96995000000.0,
+              "one_time_adjustments": -62645000000.0,
+              "adjusted_net_income": 34350000000.0,
+              "improvement": -62645000000.0,
+              "improvement_percentage": -64.58580339192743
+            }
+          },
+          "adjusted_eps": {
+            "2025-09-30 00:00:00": {
+              "adjusted_eps": 1.3399111404552937,
+              "reported_eps": 7.5803549089548685,
+              "shares_outstanding": 14776353000.0,
+              "adjustment_impact": -6.240443768499575
+            },
+            "2024-09-30 00:00:00": {
+              "adjusted_eps": 1.234269376212114,
+              "reported_eps": 6.343649207622477,
+              "shares_outstanding": 14776353000.0,
+              "adjustment_impact": -5.1093798314103624
+            },
+            "2023-09-30 00:00:00": {
+              "adjusted_eps": 2.324660218932236,
+              "reported_eps": 6.5642043067054505,
+              "shares_outstanding": 14776353000.0,
+              "adjustment_impact": -4.239544087773214
+            }
+          },
+          "normalized_operating_margin": {
+            "2025-09-30 00:00:00": {
+              "reported_operating_margin": 31.970799762591884,
+              "normalized_operating_margin": 31.970799762591884,
+              "adjustment_amount": 0,
+              "revenue": 416161000000.0,
+              "reported_operating_income": 133050000000.0,
+              "adjusted_operating_income": 133050000000.0
+            },
+            "2024-09-30 00:00:00": {
+              "reported_operating_margin": 31.510222870075566,
+              "normalized_operating_margin": 31.510222870075566,
+              "adjustment_amount": 0,
+              "revenue": 391035000000.0,
+              "reported_operating_income": 123216000000.0,
+              "adjusted_operating_income": 123216000000.0
+            },
+            "2023-09-30 00:00:00": {
+              "reported_operating_margin": 29.821412265024723,
+              "normalized_operating_margin": 29.821412265024723,
+              "adjustment_amount": 0,
+              "revenue": 383285000000.0,
+              "reported_operating_income": 114301000000.0,
+              "adjusted_operating_income": 114301000000.0
+            },
+            "2022-09-30 00:00:00": {
+              "reported_operating_margin": 30.288744395528592,
+              "normalized_operating_margin": 30.288744395528592,
+              "adjustment_amount": 0,
+              "revenue": 394328000000.0,
+              "reported_operating_income": 119437000000.0,
+              "adjusted_operating_income": 119437000000.0
+            },
+            "2021-09-30 00:00:00": {
+              "reported_operating_margin": null,
+              "normalized_operating_margin": null,
+              "adjustment_amount": 0,
+              "revenue": null,
+              "reported_operating_income": null,
+              "adjusted_operating_income": null
+            }
+          },
+          "cash_adjusted_loss": {},
+          "non_cash_loss_percentage": {},
+          "quarterly_adjusted_trends": {
+            "2025-09-30 00:00:00": {
+              "reported_net_income": 27466000000.0,
+              "adjusted_net_income": 28220000000.0,
+              "revenue": 102466000000.0,
+              "adjusted_margin": 27.54084281615365,
+              "one_time_adjustments": 754000000.0
+            },
+            "2025-06-30 00:00:00": {
+              "reported_net_income": 23434000000.0,
+              "adjusted_net_income": 23434000000.0,
+              "revenue": 94036000000.0,
+              "adjusted_margin": 24.920243311072355,
+              "one_time_adjustments": 0
+            },
+            "2025-03-31 00:00:00": {
+              "reported_net_income": 24780000000.0,
+              "adjusted_net_income": 24780000000.0,
+              "revenue": 95359000000.0,
+              "adjusted_margin": 25.986010759341017,
+              "one_time_adjustments": 0
+            },
+            "2024-12-31 00:00:00": {
+              "reported_net_income": 36330000000.0,
+              "adjusted_net_income": 36330000000.0,
+              "revenue": 124300000000.0,
+              "adjusted_margin": 29.227674979887368,
+              "one_time_adjustments": 0
+            }
+          },
+          "adjusted_margins": {
+            "2025-09-30 00:00:00": {
+              "gross_margin": 46.90516410716045,
+              "reported_operating_margin": 31.970799762591884,
+              "adjusted_operating_margin": 32.15197964249413,
+              "reported_net_margin": 26.91506412181824,
+              "adjusted_net_margin": 27.09624400172049,
+              "one_time_impact_on_margin": 0.18117987990224937
+            },
+            "2024-09-30 00:00:00": {
+              "gross_margin": 46.206349815233935,
+              "reported_operating_margin": 31.510222870075566,
+              "adjusted_operating_margin": 31.64780646233713,
+              "reported_net_margin": 23.971255769943866,
+              "adjusted_net_margin": 24.10883936220543,
+              "one_time_impact_on_margin": 0.13758359226156228
+            },
+            "2023-09-30 00:00:00": {
+              "gross_margin": 44.13112957720756,
+              "reported_operating_margin": 29.821412265024723,
+              "adjusted_operating_margin": 29.821412265024723,
+              "reported_net_margin": 25.30623426432028,
+              "adjusted_net_margin": 25.30623426432028,
+              "one_time_impact_on_margin": 0.0
+            },
+            "2022-09-30 00:00:00": {
+              "gross_margin": 43.30963056136009,
+              "reported_operating_margin": 30.288744395528592,
+              "adjusted_operating_margin": 30.288744395528592,
+              "reported_net_margin": 25.309640705199733,
+              "adjusted_net_margin": 25.309640705199733,
+              "one_time_impact_on_margin": 0.0
+            },
+            "2021-09-30 00:00:00": {
+              "gross_margin": null,
+              "reported_operating_margin": null,
+              "adjusted_operating_margin": null,
+              "reported_net_margin": null,
+              "adjusted_net_margin": null,
+              "one_time_impact_on_margin": null
+            }
+          }
+        },
+        "confidence_level": "high",
+        "methodology": "one_time_items_adjustment"
+      },
+      "cash_sustainability": {
+        "ticker": "AAPL",
+        "analysis_timestamp": "2025-12-26T13:36:21.094989",
+        "metrics": {
+          "burn_rate": {
+            "quarterly_burn_rate": 0,
+            "annual_burn_rate": 0,
+            "operating_burn_rate": 0,
+            "free_cash_flow_burn": 0,
+            "burn_rate_calculation_method": "operating_cash_flow"
+          },
+          "cash_runway": {
+            "cash_runway_months": "Indefinite (Cash Positive)",
+            "cash_runway_years": "N/A",
+            "runway_end_date": "N/A",
+            "current_cash": 35934000000.0,
+            "runway_scenario": "cash_positive"
+          },
+          "burn_trends": {
+            "trend_direction": "stable",
+            "trend_strength": "stable",
+            "quarterly_burn_progression": [
+              {
+                "quarter": "2024-06-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": null
+              },
+              {
+                "quarter": "2024-09-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 26811000000.0
+              },
+              {
+                "quarter": "2024-12-31 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 29935000000.0
+              },
+              {
+                "quarter": "2025-03-31 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 23952000000.0
+              },
+              {
+                "quarter": "2025-06-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 27867000000.0
+              },
+              {
+                "quarter": "2025-09-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 29728000000.0
+              }
+            ],
+            "burn_acceleration": false,
+            "quarterly_variance": 0.0
+          },
+          "financing_dependency": {
+            "financing_dependency_ratio": 0,
+            "recent_financing_activity": 0,
+            "debt_issuance": 0,
+            "equity_issuance": 0,
+            "dependency_level": "low"
+          },
+          "liquidity_analysis": {
+            "current_ratio": 0.8932929222186667,
+            "quick_ratio": 0.858770399261008,
+            "cash_ratio": 0.21695214060169896,
+            "working_capital": -17674000000.0,
+            "liquidity_score": "weak"
+          }
+        },
+        "risk_level": "elevated",
+        "recommendations": [
+          "Current cash position appears sustainable",
+          "Continue monitoring burn rate trends",
+          "Consider optimizing cash deployment for growth"
+        ],
+        "key_insights": []
+      },
+      "summary_insights": [
+        "Identified $334109.0M in one-time items affecting reported earnings"
+      ],
+      "critical_flags": []
+    },
+    "calculated_ratios": {
+      "gross_margin": 46.91,
+      "operating_margin": 31.65,
+      "profit_margin": 26.92,
+      "return_on_equity": 171.42,
+      "return_on_assets": 22.96,
+      "debt_to_equity": 152.41,
+      "current_ratio": 0.89,
+      "pe_ratio": 36.75,
+      "asset_turnover": 0.29,
+      "interest_coverage": 9.62,
+      "book_value_per_share": 4.99
+    }
+  }
+}

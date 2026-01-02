@@ -1,0 +1,302 @@
+/* ===== SKELETON LOADER STYLES ===== */
+/* Reusable skeleton loading animations for async content */
+
+/* Shimmer Animation - smooth gradient sweep */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Pulse Animation - gentle breathing effect */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Wave Animation - sequential reveal */
+@keyframes skeleton-wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  50%, 100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Base skeleton element - Light theme optimized */
+.skeleton {
+  /* Solid white skeleton block for a professional look; shimmer removed */
+  background: #ffffff;
+  border-radius: 6px;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #f2f4f6; /* subtle border to separate from white page background */
+  box-shadow: 0 1px 2px rgba(16,24,40,0.03);
+}
+
+/* Removed shimmer overlay; we'll use a centered spinner instead */
+.skeleton::after {
+  content: none;
+}
+
+/* Skeleton variants */
+.skeleton-text {
+  height: 16px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.skeleton-text-short {
+  width: 60%;
+}
+
+.skeleton-text-medium {
+  width: 80%;
+}
+
+.skeleton-text-long {
+  width: 100%;
+}
+
+.skeleton-heading {
+  height: 32px;
+  width: 40%;
+  margin-bottom: 16px;
+}
+
+.skeleton-card {
+  height: 200px;
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.skeleton-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.skeleton-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.skeleton-button {
+  height: 40px;
+  width: 120px;
+  border-radius: 4px;
+}
+
+.skeleton-image {
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  border-radius: 4px;
+}
+
+/* Report history skeleton */
+.skeleton-report-item {
+  background-color: #f9f9f9;
+  border: 1px solid #e9e9e9;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeleton-report-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-report-ticker {
+  height: 24px;
+  width: 80px;
+  border-radius: 4px;
+}
+
+.skeleton-report-title {
+  height: 16px;
+  width: 200px;
+  border-radius: 4px;
+}
+
+.skeleton-report-date {
+  height: 14px;
+  width: 120px;
+  border-radius: 4px;
+}
+
+.skeleton-report-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.skeleton-report-button {
+  height: 36px;
+  width: 80px;
+  border-radius: 4px;
+}
+
+/* Dashboard stats skeleton */
+.skeleton-stat-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.skeleton-stat-label {
+  height: 14px;
+  width: 60%;
+  margin-bottom: 12px;
+  border-radius: 4px;
+}
+
+.skeleton-stat-value {
+  height: 32px;
+  width: 40%;
+  border-radius: 4px;
+}
+
+/* Grid layouts for skeletons */
+.skeleton-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.skeleton-grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.skeleton-grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Loading container */
+.loading-container {
+  position: relative;
+  min-height: 200px;
+}
+
+.skeleton-loading { position: relative; }
+
+.skeleton-with-spinner .loading-overlay { 
+  background: transparent !important; /* Make it fully transparent to reveal page background */
+  backdrop-filter: none !important; /* Remove blur effect */
+  box-shadow: none !important; /* Remove any overlay shadow */
+  pointer-events: none; /* Allow interactions with page while spinner is showing (optional) */
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  backdrop-filter: blur(2px);
+}
+
+/* Spinner for inline loading */
+.skeleton-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(22,163,74,0.12); /* subtle ring background */
+  border-top: 4px solid var(--news-primary, var(--primary, #16a34a)); /* primary green */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 2px 6px rgba(16,24,40,0.06);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Hide actual content while loading */
+.content-loading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.content-loaded {
+  animation: fadeInContent 0.3s ease-in;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Accessibility */
+.skeleton[aria-hidden="true"] {
+  position: relative;
+}
+
+.skeleton[aria-label]::before {
+  content: attr(aria-label);
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .skeleton-report-title {
+    width: 150px;
+  }
+  
+  .skeleton-report-button {
+    width: 60px;
+  }
+  
+  .skeleton-grid-2,
+  .skeleton-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      #2a2a2a 0%,
+      #3a3a3a 20%,
+      #2a2a2a 40%,
+      #2a2a2a 100%
+    );
+  }
+  
+  .skeleton-report-item {
+    background-color: #1a1a1a;
+    border-color: #3a3a3a;
+  }
+}

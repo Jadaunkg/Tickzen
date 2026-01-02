@@ -1,0 +1,330 @@
+{% extends "_base.html" %}
+
+{% block title %}AI WordPress Content Generator | Tickzen Publishing Tools{% endblock %}
+
+{% block head_extra %}
+    <!-- Private tool page - no indexing -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Private WordPress asset generator tool for Tickzen users to create content for their sites.">
+    <link rel="canonical" href="https://tickzen.app/wp-asset-generator">
+    
+<style>
+    .wp-asset-page-container {
+        max-width: 960px;
+        margin: 2rem auto;
+        padding: 1rem 1.5rem;
+    }
+    .wp-asset-card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 2rem 2.5rem;
+        margin-bottom: 2.5rem;
+    }
+    .wp-asset-card h1 {
+        text-align: center;
+        color: var(--green-600);
+        margin-bottom: 0.75rem;
+        font-size: 2em;
+        font-weight: 600;
+    }
+    .page-subtitle {
+        text-align: center;
+        color: #555;
+        margin-bottom: 2.5rem;
+        font-size: 1.05em;
+        line-height: 1.6;
+    }
+    #wp-ticker-form {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        align-items: stretch;
+    }
+    #wp-ticker-form input[type="text"] {
+        flex-grow: 1;
+        padding: 0.75rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        min-width: 200px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #wp-ticker-form input[type="text"]:focus {
+        border-color: var(--green-600);
+        box-shadow: 0 0 0 3px rgba(22,163,74,0.15);
+        outline: none;
+    }
+    #wp-generate-button {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+    .spinner {
+        width: 1em; height: 1em;
+        border-width: 2px; margin-right: 0.5em;
+        vertical-align: text-bottom;
+    }
+    #wp-loading-indicator {
+        text-align: center;
+        padding: 3rem 1rem;
+        display: none;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        margin-top: 2rem;
+    }
+    .wp-spinner {
+        border: 4px solid rgba(0,0,0,0.1);
+        width: 48px; height: 48px;
+        border-radius: 50%;
+        border-left-color: #2e86de;
+        animation: spin 1s ease infinite;
+        margin: 0 auto 1.5rem;
+    }
+    @keyframes spin { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
+    #wp-results-area { margin-top:2.5rem; display:none }
+    .results-card {
+        background-color:#fff;
+        border:1px solid #e0e0e0;
+        border-radius:8px;
+        padding:2rem;
+        box-shadow:0 5px 15px rgba(0,0,0,0.08);
+    }
+    #wp-error-message {
+        text-align:left;
+        padding:1rem 1.5rem;
+    }
+    #wp-error-message strong { display:block; margin-bottom:0.5rem }
+    #wp-results-content { display:none }
+    #wp-results-content h2 {
+        font-size:1.6em; color:var(--green-600);
+        margin-top:0; margin-bottom:1.5rem;
+        padding-bottom:0.75rem;
+        border-bottom:2px solid var(--green-200);
+    }
+    #wp-results-content h3 {
+        margin:2rem 0 1rem;
+        font-size:1.3em; color:#2d3436;
+        display:flex; justify-content:space-between;
+        align-items:center;
+        border-bottom:1px solid #e0e0e0;
+        padding-bottom:0.5rem;
+    }
+    #copy-html-button {
+        padding:0.5rem 1rem; font-size:0.9rem;
+        font-weight:500;
+        background-color:#2e86de; color:#fff;
+        transition:background-color 0.2s,opacity 0.2s;
+    }
+    #copy-html-button:hover { opacity:0.85 }
+    #copy-html-button .fas { margin-right:6px }
+    #copy-html-button.copied { background-color:#27ae60 }
+    #copy-html-button.failed { background-color:#e74c3c }
+    #report-html-output {
+        width:100%; min-height:450px;
+        font-family:'SFMono-Regular',Menlo,Courier,monospace;
+        font-size:0.9em; border:1px solid #ccc;
+        border-radius:6px; padding:1rem; resize:vertical;
+        white-space:pre; word-wrap:break-word;
+        background-color:#f8f9fa; color:#333; line-height:1.5;
+    }
+    #chart-urls-output ul {
+        list-style:none; padding:0; margin-top:0.75rem;
+    }
+    #chart-urls-output li {
+        margin-bottom:0.75rem;
+        background-color:#f8f9fa; padding:0.75rem 1rem;
+        border:1px solid #e0e0e0; border-radius:6px;
+        word-wrap:break-word; font-size:0.95em;
+    }
+    #chart-urls-output li strong { color:#333; margin-right:8px; text-transform:capitalize }
+    #chart-urls-output li a {
+        color:#2e86de; text-decoration:underline;
+    }
+    #chart-urls-output li a:hover { color:var(--green-600) }
+    @media (max-width:600px) {
+        .wp-asset-card { padding:1.5rem }
+        #wp-ticker-form { flex-direction:column }
+        #wp-generate-button { width:100% }
+        #wp-results-content h3 {
+            flex-direction:column; align-items:flex-start; gap:0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wp-asset-page-container">
+  <div class="wp-asset-card">
+    <h1><i class="fas fa-file-code"></i> WordPress Asset Generator</h1>
+    <p class="page-subtitle">
+      Enter a stock ticker to generate HTML/CSS and static chart URLs for your post.
+    </p>
+    <form id="wp-ticker-form">
+      <input type="text" id="wp-ticker-input" name="ticker"
+        placeholder="Enter Stock Ticker (e.g., AAPL, ^GSPC)" required
+        title="Enter a valid stock ticker symbol.">
+      <button type="submit" id="wp-generate-button" class="btn btn-primary">
+        <span class="spinner" style="display:none;"></span>
+        <i class="fas fa-cogs"></i> Generate Assets
+      </button>
+    </form>
+  </div>
+
+  <div id="wp-loading-indicator">
+    <div class="wp-spinner"></div>
+    <p>Generating assets… this may take a minute.</p>
+  </div>
+
+  <div id="wp-results-area">
+    <div id="wp-error-message" class="alert alert-danger" role="alert" style="display:none;"></div>
+    <div id="wp-results-content" class="results-card">
+      <h2>
+        Generated Assets for
+        <span id="result-ticker-name" style="color:#2e86de"></span>
+      </h2>
+      <div>
+        <h3>
+          <span><i class="fas fa-code"></i> Report HTML &amp; CSS</span>
+          <button id="copy-html-button" class="btn btn-sm">
+            <i class="fas fa-copy"></i> Copy Code
+          </button>
+        </h3>
+        <textarea id="report-html-output" readonly
+          placeholder="Your code appears here…"></textarea>
+      </div>
+      <div id="chart-urls-output">
+        <h3><i class="fas fa-image"></i> Chart Image URLs</h3>
+        <ul id="chart-url-list"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('wp-ticker-form');
+  const input = document.getElementById('wp-ticker-input');
+  const btn = document.getElementById('wp-generate-button');
+  const spinner = btn.querySelector('.spinner');
+  const icon = btn.querySelector('.fa-cogs');
+  const loading = document.getElementById('wp-loading-indicator');
+  const area = document.getElementById('wp-results-area');
+  const errorBox = document.getElementById('wp-error-message');
+  const content = document.getElementById('wp-results-content');
+  const nameSpan = document.getElementById('result-ticker-name');
+  const reportOut = document.getElementById('report-html-output');
+  const urlList = document.getElementById('chart-url-list');
+  const copyBtn = document.getElementById('copy-html-button');
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const ticker = input.value.trim().toUpperCase();
+    const valid = /^[A-Z0-9\^.-]+(\.[A-Z]{1,2})?$/.test(ticker);
+    if (!ticker || !valid) {
+      errorBox.innerHTML = '<strong>Input Error:</strong> Invalid ticker format. Please use standard stock symbols (e.g., AAPL, ADANIPOWER.NS).';
+      errorBox.style.display = 'block';
+      area.style.display = 'block';
+      content.style.display = 'none';
+      loading.style.display = 'none';
+      return;
+    }
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+    icon.style.display = 'none';
+    btn.querySelector('span:not(.spinner)')?.remove();
+    loading.style.display = 'block';
+    area.style.display = 'none';
+    errorBox.style.display = 'none';
+    content.style.display = 'none';
+    reportOut.value = '';
+    urlList.innerHTML = '';
+    copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Code';
+    copyBtn.classList.remove('copied','failed');
+
+    try {
+      const res = await fetch("{{ url_for('generate_wp_assets') }}", {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({ ticker })
+      });
+      const result = await res.json();
+
+      if (res.ok && result.status === 'success') {
+        nameSpan.textContent = result.ticker || ticker;
+        reportOut.value = result.report_html || 'No HTML content received.';
+        let urls = result.chart_urls || result.chartUrls || [];
+        if (Array.isArray(urls) && urls.length) {
+          urls.forEach(u => {
+            let li = document.createElement('li');
+            li.innerHTML = `<a href="${u}" target="_blank" rel="noopener">${u}</a>`;
+            urlList.appendChild(li);
+          });
+        } else if (urls && typeof urls === 'object' && Object.keys(urls).length) {
+          Object.entries(urls).forEach(([type,u]) => {
+            let label = type.replace(/_/g,' ')
+                            .replace(/\b\w/g,l=>l.toUpperCase());
+            let li = document.createElement('li');
+            li.innerHTML = `<strong>${label}:</strong>
+                            <a href="${u}" target="_blank" rel="noopener">${u}</a>`;
+            urlList.appendChild(li);
+          });
+        } else {
+          let li = document.createElement('li');
+          li.textContent = 'No chart images found.';
+          urlList.appendChild(li);
+        }
+        content.style.display = 'block';
+        area.style.display = 'block';
+      } else {
+        let msg = result.message || `Error ${res.status}: ${res.statusText}`;
+        errorBox.innerHTML = `<strong>Error:</strong> ${msg}`;
+        errorBox.style.display = 'block';
+        area.style.display = 'block';
+      }
+    } catch (err) {
+      errorBox.innerHTML = `<strong>Network Error:</strong> ${err.message}`;
+      errorBox.style.display = 'block';
+      area.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      icon.style.display = 'inline-block';
+      btn.innerHTML = '<i class="fas fa-cogs"></i> Generate Assets';
+      loading.style.display = 'none';
+    }
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!reportOut.value) {
+      alert('Nothing to copy!');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(reportOut.value);
+      copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      copyBtn.classList.add('copied');
+      copyBtn.classList.remove('failed');
+    } catch {
+      reportOut.select();
+      reportOut.setSelectionRange(0, reportOut.value.length);
+      if (document.execCommand('copy')) {
+        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied (fallback)!';
+        copyBtn.classList.add('copied');
+      } else {
+        alert('Fallback copy failed. Please copy manually.');
+      }
+      window.getSelection().removeAllRanges();
+    } finally {
+      setTimeout(() => {
+        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Code';
+        copyBtn.classList.remove('copied','failed');
+      }, 2500);
+    }
+  });
+});
+</script>
+{% endblock %}

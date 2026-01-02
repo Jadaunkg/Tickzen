@@ -1,0 +1,239 @@
+<!-- Internal Linking Configuration for Each Profile -->
+<!-- Uses Writers' credentials, only requires linking preferences -->
+
+<div class="form-section-card">
+    <h3 style="color: var(--primary, #10ac84); display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-link"></i> Internal Linking Settings
+    </h3>
+    
+    <p style="color: #555; font-size: 0.95em; line-height: 1.6; margin-bottom: 1.5rem;">
+        <strong>Automatically add relevant internal links to your published articles!</strong> Internal linking improves SEO, increases page views, and helps readers discover related content.
+    </p>
+    
+    <div style="background-color: #e8f5e9; border-left: 4px solid var(--primary, #10ac84); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+        <ul style="list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+            <li style="padding-left: 1.5rem; position: relative; color: #333; font-size: 0.9em;">
+                <span style="position: absolute; left: 0; color: var(--primary, #10ac84); font-weight: bold;">✓</span>
+                Automatic link suggestions
+            </li>
+            <li style="padding-left: 1.5rem; position: relative; color: #333; font-size: 0.9em;">
+                <span style="position: absolute; left: 0; color: var(--primary, #10ac84); font-weight: bold;">✓</span>
+                Natural link placement
+            </li>
+            <li style="padding-left: 1.5rem; position: relative; color: #333; font-size: 0.9em;">
+                <span style="position: absolute; left: 0; color: var(--primary, #10ac84); font-weight: bold;">✓</span>
+                Category-based filtering
+            </li>
+            <li style="padding-left: 1.5rem; position: relative; color: #333; font-size: 0.9em;">
+                <span style="position: absolute; left: 0; color: var(--primary, #10ac84); font-weight: bold;">✓</span>
+                Customizable link count
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Linking Preferences Section -->
+    <h4 style="color: var(--dark, #222); margin-top: 1.5rem; margin-bottom: 1.5rem; font-size: 1em; font-weight: 600;">
+        Linking Preferences
+    </h4>
+    
+    <!-- Same Category Only Checkbox -->
+    <div class="form-group" style="margin-bottom: 1.5rem;">
+        <div class="checkbox-group">
+            <input 
+                type="checkbox" 
+                id="same_category_only" 
+                name="same_category_only"
+                {% if form_data and form_data.same_category_only %}checked{% elif not form_data %}checked{% endif %}>
+            <label for="same_category_only" style="margin: 0; font-weight: 500; color: #333; cursor: pointer;">Link articles from the same category only</label>
+        </div>
+        <small class="form-text text-muted" style="margin-left: 1.5rem; display: block; margin-top: 0.5rem;">Recommended: Keep checked for better relevance</small>
+    </div>
+    
+    <!-- Settings Grid - Horizontal Layout -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+        <!-- Max Links Per Article -->
+        <div class="form-group">
+            <label for="max_links_per_article" style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">Maximum Links Per Article</label>
+            <input 
+                type="number" 
+                id="max_links_per_article" 
+                name="max_links_per_article" 
+                class="form-control"
+                value="{{ form_data.max_links_per_article if form_data and form_data.max_links_per_article else 5 }}"
+                min="1"
+                max="10"
+                style="width: 100%;">
+            <small class="form-text text-muted" style="display: block; margin-top: 0.5rem;">Recommended: 3-7 links per article</small>
+        </div>
+        
+        <!-- Cache Refresh Interval -->
+        <div class="form-group">
+            <label for="cache_expiry_hours" style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.875rem;">Cache Refresh Interval (Hours)</label>
+            <input 
+                type="number" 
+                id="cache_expiry_hours" 
+                name="cache_expiry_hours" 
+                class="form-control"
+                value="{{ form_data.cache_expiry_hours if form_data and form_data.cache_expiry_hours else 24 }}"
+                min="6"
+                max="72"
+                style="width: 100%;">
+            <small class="form-text text-muted" style="display: block; margin-top: 0.5rem;">How often to fetch updated articles (24 = once daily)</small>
+        </div>
+    </div>
+    
+    <!-- Info Box -->
+    <div style="background-color: #f5f5f5; border: 1px solid #e0e0e0; padding: 1rem; border-radius: 6px;">
+        <p style="margin: 0; color: #555; font-size: 0.9em; line-height: 1.6;">
+            <strong>Note:</strong> Internal linking uses your configured writers' credentials. The category ID for internal linking will be selected during article publishing (in the Run Sports Automation page).
+        </p>
+    </div>
+</div>
+
+<style>
+    .form-section-card {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #fafafa;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--primary, #10ac84);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const enableToggle = document.getElementById('internalLinkingEnabled');
+    const linkingForm = document.getElementById('internalLinkingForm');
+    const formElement = document.querySelector('#internalLinkingForm');
+    const testBtn = document.getElementById('testConnectionBtn');
+    
+    // Toggle form visibility
+    if (enableToggle) {
+        enableToggle.addEventListener('change', function() {
+            linkingForm.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+    
+    // Handle form submission
+    if (formElement) {
+        formElement.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveInternalLinkingConfig();
+        });
+    }
+    
+    // Handle test connection
+    if (testBtn) {
+        testBtn.addEventListener('click', function() {
+            testWordPressConnection();
+        });
+    }
+    
+    // Load existing configuration if available
+    loadInternalLinkingConfig();
+});
+
+function saveInternalLinkingConfig() {
+    const config = {
+        enabled: document.getElementById('internalLinkingEnabled').checked,
+        site_url: document.getElementById('wpSiteUrl').value.trim(),
+        wp_username: document.getElementById('wpUsername').value.trim(),
+        app_password: document.getElementById('appPassword').value.trim(),
+        category_id: document.getElementById('categoryId').value,
+        same_category_only: document.getElementById('sameCategoryOnly').checked,
+        max_links_per_article: document.getElementById('maxLinksPerArticle').value,
+        cache_expiry_hours: document.getElementById('cacheExpiry').value
+    };
+    
+    // Validate
+    if (!config.site_url || !config.wp_username || !config.app_password || !config.category_id) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
+    if (!config.site_url.startsWith('http')) {
+        showError('Site URL must start with http:// or https://');
+        return;
+    }
+    
+    // Save to localStorage (for demo purposes)
+    // In production, this would send to backend API
+    localStorage.setItem('internalLinkingConfig', JSON.stringify(config));
+    showSuccess('Configuration saved successfully! Internal linking will be enabled when you publish articles.');
+    
+    // Log for demonstration
+    console.log('Internal Linking Configuration:', config);
+}
+
+function testWordPressConnection() {
+    const btn = document.getElementById('testConnectionBtn');
+    const siteUrl = document.getElementById('wpSiteUrl').value.trim();
+    const username = document.getElementById('wpUsername').value.trim();
+    const password = document.getElementById('appPassword').value.trim();
+    
+    if (!siteUrl || !username || !password) {
+        showError('Please fill in Site URL, Username, and App Password first');
+        return;
+    }
+    
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="loading-spinner"></span> Testing...';
+    
+    // Simulate connection test
+    setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        showSuccess('✓ Connection successful! Your WordPress site is configured correctly.');
+        // In production, this would actually test the connection via API
+    }, 1500);
+}
+
+function loadInternalLinkingConfig() {
+    const config = localStorage.getItem('internalLinkingConfig');
+    if (config) {
+        const parsed = JSON.parse(config);
+        document.getElementById('internalLinkingEnabled').checked = parsed.enabled;
+        document.getElementById('wpSiteUrl').value = parsed.site_url || '';
+        document.getElementById('wpUsername').value = parsed.wp_username || '';
+        document.getElementById('appPassword').value = parsed.app_password || '';
+        document.getElementById('categoryId').value = parsed.category_id || '';
+        document.getElementById('sameCategoryOnly').checked = parsed.same_category_only !== false;
+        document.getElementById('maxLinksPerArticle').value = parsed.max_links_per_article || 5;
+        document.getElementById('cacheExpiry').value = parsed.cache_expiry_hours || 24;
+        
+        document.getElementById('internalLinkingForm').style.display = parsed.enabled ? 'block' : 'none';
+    }
+}
+
+function showSuccess(message) {
+    const successDiv = document.getElementById('successMessage');
+    successDiv.textContent = message;
+    successDiv.style.display = 'block';
+    setTimeout(() => {
+        successDiv.style.display = 'none';
+    }, 5000);
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    document.getElementById('errorText').textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+</script>

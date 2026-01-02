@@ -1,0 +1,1051 @@
+{% extends "_base.html" %}
+
+{% block title %}Dashboard Analytics | Tickzen{% endblock %}
+
+{% block head_extra %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<style>
+:root {
+    --tickzen-green: #16a34a;
+    --tickzen-blue: #2563eb;
+    --tickzen-gray: #f3f4f6;
+    --tickzen-dark: #1e293b;
+    --tickzen-card: #fff;
+    --tickzen-card-dark: #23272f;
+    --tickzen-shadow: 0 2px 8px rgba(30,41,59,0.07);
+    --tickzen-spinner: #16a34a;
+}
+
+body.dark-mode {
+    --tickzen-card: var(--tickzen-card-dark);
+    --tickzen-gray: #23272f;
+}
+
+.dashboard-mini-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.mini-stat-card {
+    background: var(--tickzen-card);
+    box-shadow: var(--tickzen-shadow);
+    border-radius: 10px;
+    padding: 0.7rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 120px;
+    min-height: 60px;
+    justify-content: center;
+    position: relative;
+}
+.mini-stat-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.2rem;
+}
+.mini-stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--tickzen-green);
+    letter-spacing: 0.5px;
+}
+.mini-stat-trend {
+    font-size: 0.7rem;
+    color: #6b7280;
+    margin-top: 0.1rem;
+    display: flex;
+    align-items: center;
+}
+.mini-stat-trend .recent-count {
+    color: #ef4444;
+    font-weight: 600;
+    margin-right: 2px;
+}
+#failed-analyses-card {
+    position: relative;
+    border-left: 3px solid #ef4444;
+}
+
+.dashboard-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+}
+@media (max-width: 900px) {
+    .dashboard-charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-card {
+    background: var(--tickzen-card);
+    border-radius: 12px;
+    box-shadow: var(--tickzen-shadow);
+    padding: 1rem 1.2rem 0.5rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+    min-height: 300px; /* Added minimum height for loader visibility */
+}
+.chart-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--tickzen-dark);
+    margin-bottom: 0.2rem;
+}
+.chart-header i {
+    color: var(--tickzen-green);
+    font-size: 1.1em;
+}
+.chart-controls {
+    margin-left: auto;
+    display: flex;
+    gap: 0.3rem;
+}
+.icon-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    padding: 0.35rem;
+    transition: all 0.2s ease;
+}
+.icon-btn:hover {
+    background: #f1f5f9;
+    color: var(--tickzen-green);
+}
+.icon-btn.active {
+    background: #e9f4ee;
+    color: var(--tickzen-green);
+}
+.chart-description {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+}
+
+.chart-container {
+    flex-grow: 1;
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+}
+
+/* Spinner styling */
+.chart-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 0 0 12px 12px;
+    transition: opacity 0.3s ease-out;
+}
+
+.chart-loader.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(22, 163, 74, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--tickzen-spinner);
+    animation: spin 1s linear infinite;
+}
+
+.loader-text {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.empty-chart-message {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1rem;
+}
+.empty-chart-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.year-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.5rem 0 1rem 0;
+}
+.year-btn {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.year-btn:hover {
+    background: #e2e8f0;
+}
+.year-btn.active {
+    background: #e9f4ee;
+    color: var(--tickzen-green);
+}
+
+.page-header {
+    margin-bottom: 1.5rem;
+    padding: 0 1rem;
+}
+
+.page-header h1 {
+    margin-bottom: 0.5rem;
+}
+
+.page-header .lead {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: #4b5563;
+}
+
+.quick-info {
+    font-size: 0.8rem;
+    color: #64748b;
+    text-align: center;
+    margin: 0 1.5rem 1.5rem 1.5rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <h1>Dashboard Analytics</h1>
+        <p class="lead">Analytics and insights about your stock reports</p>
+    </div>
+
+    <div class="quick-info">
+        If charts appear empty, reports may need to be generated first.
+        <a href="{{ url_for('analyzer_input_page') }}">Generate a stock report</a> to see data.
+    </div>
+
+    <!-- Mini Stats Cards -->
+    <div class="dashboard-mini-stats">
+        <div class="mini-stat-card" id="total-reports-card">
+            <div class="mini-stat-label">Total Reports</div>
+            <div class="mini-stat-value">...</div>
+            <div class="chart-loader">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        <div class="mini-stat-card" id="this-month-card">
+            <div class="mini-stat-label">This Month</div>
+            <div class="mini-stat-value">...</div>
+            <div class="chart-loader">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        <div class="mini-stat-card" id="published-reports-card">
+            <div class="mini-stat-label">Published</div>
+            <div class="mini-stat-value">...</div>
+            <div class="chart-loader">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        <div class="mini-stat-card" id="unique-tickers-card">
+            <div class="mini-stat-label">Unique Tickers</div>
+            <div class="mini-stat-value">...</div>
+            <div class="chart-loader">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        <div class="mini-stat-card" id="failed-analyses-card">
+            <div class="mini-stat-label">Failed Analyses</div>
+            <div class="mini-stat-value">...</div>
+            <div class="chart-loader">
+                <div class="spinner"></div>
+            </div>
+            <div class="mini-stat-trend" style="display: none;">
+                <span class="recent-count"></span> in last 24h
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Charts Grid -->
+    <div class="dashboard-charts-grid">
+        <!-- Reports Over Time Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <i class="fas fa-calendar-day"></i> Reports Over Time
+                <div class="chart-controls">
+                    <button class="icon-btn period-btn active" data-period="week" title="By Week">
+                        <i class="fas fa-calendar-week"></i>
+                    </button>
+                    <button class="icon-btn period-btn" data-period="month" title="By Month">
+                        <i class="fas fa-calendar-alt"></i>
+                    </button>
+                    <button class="icon-btn period-btn" data-period="quarter" title="By Quarter">
+                        <i class="fas fa-chart-bar"></i>
+                    </button>
+                </div>
+            </div>
+            <p class="chart-description">Number of reports generated over time</p>
+            <div class="chart-container">
+                <canvas id="reportsOverTimeChart"></canvas>
+                <div class="chart-loader">
+                    <div class="spinner"></div>
+                    <div class="loader-text">Loading data...</div>
+                </div>
+                <div class="empty-chart-message" style="display: none;">
+                    <i class="fas fa-chart-line empty-chart-icon"></i>
+                    <div>No report data available. Generate reports to see analytics.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Most Analyzed Tickers -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <i class="fas fa-star"></i> Most Analyzed Tickers
+                <div class="chart-controls">
+                    <button class="icon-btn limit-btn active" data-limit="5" title="Top 5">
+                        <i class="fas fa-list-ol"></i> 5
+                    </button>
+                    <button class="icon-btn limit-btn" data-limit="10" title="Top 10">
+                        <i class="fas fa-list-ol"></i> 10
+                    </button>
+                </div>
+            </div>
+            <p class="chart-description">Most frequently analyzed stock tickers</p>
+            <div class="chart-container">
+                <canvas id="mostAnalyzedChart"></canvas>
+                <div class="chart-loader">
+                    <div class="spinner"></div>
+                    <div class="loader-text">Loading data...</div>
+                </div>
+                <div class="empty-chart-message" style="display: none;">
+                    <i class="fas fa-chart-pie empty-chart-icon"></i>
+                    <div>No ticker data available. Generate reports to see analytics.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Publishing Status -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <i class="fas fa-upload"></i> Publishing Status
+            </div>
+            <p class="chart-description">Status of report publishing</p>
+            <div class="chart-container">
+                <canvas id="publishingStatusChart"></canvas>
+                <div class="chart-loader">
+                    <div class="spinner"></div>
+                    <div class="loader-text">Loading data...</div>
+                </div>
+                <div class="empty-chart-message" style="display: none;">
+                    <i class="fas fa-chart-pie empty-chart-icon"></i>
+                    <div>No publishing data available. Generate reports to see analytics.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Heatmap -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <i class="fas fa-th"></i> Activity Heatmap
+            </div>
+            <p class="chart-description">Report generation activity by day</p>
+            <div class="year-selector" id="heatmapYearSelector"></div>
+            <div class="chart-container">
+                <canvas id="activityHeatmapChart"></canvas>
+                <div class="chart-loader">
+                    <div class="spinner"></div>
+                    <div class="loader-text">Loading data...</div>
+                </div>
+                <div class="empty-chart-message" style="display: none;">
+                    <i class="fas fa-calendar empty-chart-icon"></i>
+                    <div>No activity data available. Generate reports to see analytics.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Failed Ticker Analysis -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <i class="fas fa-exclamation-triangle"></i> Failed Analysis Tickers
+                <div class="chart-controls">
+                    <button class="icon-btn failed-limit-btn active" data-limit="5" title="Top 5">
+                        <i class="fas fa-list-ol"></i> 5
+                    </button>
+                    <button class="icon-btn failed-limit-btn" data-limit="10" title="Top 10">
+                        <i class="fas fa-list-ol"></i> 10
+                    </button>
+                </div>
+            </div>
+            <p class="chart-description">Tickers with most analysis failures</p>
+            <div class="chart-container">
+                <canvas id="failedTickersChart"></canvas>
+                <div class="chart-loader">
+                    <div class="spinner"></div>
+                    <div class="loader-text">Loading data...</div>
+                </div>
+                <div class="empty-chart-message" style="display: none;">
+                    <i class="fas fa-chart-pie empty-chart-icon"></i>
+                    <div>No failed ticker data available.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    // Initial page load
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Initialize charts with loaders displayed
+        initializeCharts();
+        
+        // Load mini stats first (as they're visible above the fold)
+        const stats = await fetchDashboardStats();
+        updateMiniStats(stats);
+        
+        // Load all other charts in parallel
+        await Promise.allSettled([
+            loadReportsOverTimeChart('week'),
+            loadMostAnalyzedChart(5),
+            loadPublishingStatusChart(),
+            loadActivityHeatmapChart(),
+            loadFailedTickersChart(5)
+        ]);
+    });
+    
+    // Utility functions
+    async function fetchDashboardStats() {
+        try { 
+            const r = await fetch('/api/dashboard/stats');
+            if (!r.ok) throw new Error(`Server returned ${r.status}: ${r.statusText}`);
+            return await r.json();
+        } catch (error) {
+            console.error('Error fetching dashboard stats:', error);
+            return {
+                total_reports: 0,
+                unique_tickers: 0,
+                published_reports: 0,
+                total_users: 0,
+                has_data: false
+            };
+        }
+    }
+    
+    async function fetchReportsOverTime(period = 'week') {
+        try { 
+            const r = await fetch(`/api/dashboard/reports-over-time?period=${period}`);
+            if (!r.ok) throw new Error(`Server returned ${r.status}: ${r.statusText}`);
+            const data = await r.json();
+            return data;
+        } catch (error) { 
+            console.error('Error fetching reports over time:', error);
+            return { labels: [], data: [], has_data: false }; 
+        }
+    }
+    
+    async function fetchMostAnalyzed(limit = 5) {
+        try { 
+            const r = await fetch(`/api/dashboard/most-analyzed?limit=${limit}`);
+            if (!r.ok) throw new Error(`Server returned ${r.status}: ${r.statusText}`);
+            return await r.json(); 
+        } catch (error) { 
+            console.error('Error fetching most analyzed tickers:', error);
+            return { tickers: [], counts: [], sectors: [], has_data: false }; 
+        }
+    }
+    
+    async function fetchPublishingStatus() {
+        try { const r = await fetch('/api/dashboard/publishing-status'); return await r.json(); } catch { return { labels: ['Published'], data: [0], colors: ['#10b981'], has_data: false }; }
+    }
+    
+    async function fetchActivityHeatmap(year = null) {
+        try { 
+            const url = year ? `/api/dashboard/activity-heatmap?year=${year}` : '/api/dashboard/activity-heatmap';
+            const r = await fetch(url); 
+            return await r.json(); 
+        } catch { 
+            return { heatmap: {}, has_data: false, year: null }; 
+        }
+    }
+    
+    async function fetchFailedAnalyses() {
+        try {
+            const r = await fetch('/api/dashboard/failed-analyses');
+            if (!r.ok) throw new Error(`Server returned ${r.status}: ${r.statusText}`);
+            return await r.json();
+        } catch (error) {
+            console.error('Error fetching failed analyses data:', error);
+            return {
+                has_data: false,
+                top_failed_tickers: [],
+                total_failures: 0,
+                recent_failures: 0
+            };
+        }
+    }
+    
+    // Show/hide loader
+    function showLoader(chartId) {
+        const loaderElement = document.querySelector(`#${chartId}`).closest('.chart-container').querySelector('.chart-loader');
+        loaderElement.classList.remove('hidden');
+    }
+    
+    function hideLoader(chartId) {
+        const chartContainer = document.querySelector(`#${chartId}`).closest('.chart-container');
+        const loaderElement = chartContainer.querySelector('.chart-loader');
+        loaderElement.classList.add('hidden');
+    }
+    
+    function showEmptyState(chartId) {
+        const chartContainer = document.querySelector(`#${chartId}`).closest('.chart-container');
+        const emptyMessage = chartContainer.querySelector('.empty-chart-message');
+        emptyMessage.style.display = 'flex';
+    }
+    
+    function hideEmptyState(chartId) {
+        const chartContainer = document.querySelector(`#${chartId}`).closest('.chart-container');
+        const emptyMessage = chartContainer.querySelector('.empty-chart-message');
+        emptyMessage.style.display = 'none';
+    }
+    
+    function showMiniStatLoader(cardId) {
+        const card = document.getElementById(cardId);
+        const loader = card.querySelector('.chart-loader');
+        loader.classList.remove('hidden');
+    }
+    
+    function hideMiniStatLoader(cardId) {
+        const card = document.getElementById(cardId);
+        const loader = card.querySelector('.chart-loader');
+        loader.classList.add('hidden');
+    }
+    
+    // Initialize Charts
+    function initializeCharts() {
+        // We'll initialize chart instances when data is available
+        // This prevents chart.js errors with empty datasets
+    }
+    
+    // Update Mini Stats
+    async function updateMiniStats(stats) {
+        if (!stats || !stats.has_data) {
+            document.querySelector('#total-reports-card .mini-stat-value').textContent = '0';
+            document.querySelector('#this-month-card .mini-stat-value').textContent = '0';
+            document.querySelector('#published-reports-card .mini-stat-value').textContent = '0';
+            document.querySelector('#unique-tickers-card .mini-stat-value').textContent = '0';
+        } else {
+            document.querySelector('#total-reports-card .mini-stat-value').textContent = stats.total_reports;
+            document.querySelector('#this-month-card .mini-stat-value').textContent = stats.this_month;
+            document.querySelector('#published-reports-card .mini-stat-value').textContent = stats.published_reports;
+            document.querySelector('#unique-tickers-card .mini-stat-value').textContent = stats.unique_tickers;
+        }
+        
+        // Hide regular mini stat loaders
+        hideMiniStatLoader('total-reports-card');
+        hideMiniStatLoader('this-month-card');
+        hideMiniStatLoader('published-reports-card');
+        hideMiniStatLoader('unique-tickers-card');
+        
+        // Update failed analyses mini stat
+        try {
+            const failedData = await fetchFailedAnalyses();
+            if (failedData && failedData.has_data) {
+                document.querySelector('#failed-analyses-card .mini-stat-value').textContent = failedData.total_failures;
+                
+                // Show recent failures count if available
+                if (failedData.recent_failures > 0) {
+                    const trendEl = document.querySelector('#failed-analyses-card .mini-stat-trend');
+                    trendEl.style.display = 'block';
+                    trendEl.querySelector('.recent-count').textContent = failedData.recent_failures;
+                    
+                    // Style the mini stat card to indicate failures
+                    const valueEl = document.querySelector('#failed-analyses-card .mini-stat-value');
+                    valueEl.style.color = '#ef4444';
+                }
+            } else {
+                document.querySelector('#failed-analyses-card .mini-stat-value').textContent = '0';
+            }
+        } catch (e) {
+            console.error('Error updating failed analyses mini stat:', e);
+            document.querySelector('#failed-analyses-card .mini-stat-value').textContent = '0';
+        }
+        
+        hideMiniStatLoader('failed-analyses-card');
+    }
+    
+    // Reports Over Time Chart
+    let reportsOverTimeChart = null;
+    async function loadReportsOverTimeChart(period = 'week') {
+        showLoader('reportsOverTimeChart');
+        hideEmptyState('reportsOverTimeChart');
+        
+        const data = await fetchReportsOverTime(period);
+        
+        hideLoader('reportsOverTimeChart');
+        
+        if (!data || !data.has_data || !data.labels.length) {
+            showEmptyState('reportsOverTimeChart');
+            return;
+        }
+        
+        const ctx = document.getElementById('reportsOverTimeChart').getContext('2d');
+        
+        // Destroy existing chart if it exists
+        if (reportsOverTimeChart) {
+            reportsOverTimeChart.destroy();
+        }
+        
+        reportsOverTimeChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Reports',
+                    data: data.data,
+                    backgroundColor: '#16a34a',
+                    borderColor: '#16a34a',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Most Analyzed Tickers Chart
+    let mostAnalyzedChart = null;
+    async function loadMostAnalyzedChart(limit = 5) {
+        showLoader('mostAnalyzedChart');
+        hideEmptyState('mostAnalyzedChart');
+        
+        const tickersData = await fetchMostAnalyzed(limit);
+        
+        hideLoader('mostAnalyzedChart');
+        
+        if (!tickersData || !tickersData.has_data || !tickersData.tickers.length) {
+            showEmptyState('mostAnalyzedChart');
+            return;
+        }
+        
+        const ctx = document.getElementById('mostAnalyzedChart').getContext('2d');
+        
+        // Destroy existing chart if it exists
+        if (mostAnalyzedChart) {
+            mostAnalyzedChart.destroy();
+        }
+        
+        const sectorColors = {
+            'Technology': '#2563eb',
+            'Consumer': '#8b5cf6',
+            'Finance': '#10b981',
+            'Healthcare': '#ef4444',
+            'Energy': '#f97316',
+            'Other': '#94a3b8'
+        };
+        
+        const colors = tickersData.sectors.map(sector => sectorColors[sector] || sectorColors['Other']);
+        
+        mostAnalyzedChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: tickersData.tickers,
+                datasets: [{
+                    label: 'Reports Generated',
+                    data: tickersData.counts,
+                    backgroundColor: colors,
+                    borderColor: colors.map(c => c),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function(context) {
+                                const index = context.dataIndex;
+                                return `Sector: ${tickersData.sectors[index]}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Publishing Status Chart
+    let publishingStatusChart = null;
+    async function loadPublishingStatusChart() {
+        showLoader('publishingStatusChart');
+        hideEmptyState('publishingStatusChart');
+        
+        const data = await fetchPublishingStatus();
+        
+        hideLoader('publishingStatusChart');
+        
+        if (!data || !data.has_data || !data.labels.length) {
+            showEmptyState('publishingStatusChart');
+            return;
+        }
+        
+        const ctx = document.getElementById('publishingStatusChart').getContext('2d');
+        
+        // Destroy existing chart if it exists
+        if (publishingStatusChart) {
+            publishingStatusChart.destroy();
+        }
+        
+        publishingStatusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.data,
+                    backgroundColor: data.colors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    }
+    
+    // Failed Tickers Chart
+    let failedTickersChart = null;
+    async function loadFailedTickersChart(limit = 5) {
+        showLoader('failedTickersChart');
+        hideEmptyState('failedTickersChart');
+        
+        const failedData = await fetchFailedAnalyses();
+        
+        hideLoader('failedTickersChart');
+        
+        if (!failedData || !failedData.has_data || !failedData.top_failed_tickers.length) {
+            showEmptyState('failedTickersChart');
+            return;
+        }
+        
+        // Prepare data for chart
+        const tickers = failedData.top_failed_tickers.slice(0, limit).map(item => item.ticker);
+        const counts = failedData.top_failed_tickers.slice(0, limit).map(item => item.count);
+        
+        const ctx = document.getElementById('failedTickersChart').getContext('2d');
+        
+        // Destroy existing chart if it exists
+        if (failedTickersChart) {
+            failedTickersChart.destroy();
+        }
+        
+        failedTickersChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: tickers,
+                datasets: [{
+                    label: 'Failed Attempts',
+                    data: counts,
+                    backgroundColor: '#ef4444',
+                    borderColor: '#ef4444',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const count = context.raw || 0;
+                                return count === 1 ? '1 failed attempt' : `${count} failed attempts`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Update mini stats if available
+        if (failedData.total_failures > 0) {
+            // You could add a mini stat card for failed analyses count if needed
+        }
+    }
+
+    // Activity Heatmap Chart
+    let activityHeatmapChart = null;
+    let currentHeatmapYear = null;
+    
+    async function loadActivityHeatmapChart(year = null) {
+        showLoader('activityHeatmapChart');
+        hideEmptyState('activityHeatmapChart');
+        
+        const data = await fetchActivityHeatmap(year);
+        
+        hideLoader('activityHeatmapChart');
+        
+        if (!data || !data.has_data || !data.year || Object.keys(data.heatmap).length === 0) {
+            showEmptyState('activityHeatmapChart');
+            return;
+        }
+        
+        // Update year selector
+        currentHeatmapYear = data.year;
+        updateYearSelector(data.year);
+        
+        const ctx = document.getElementById('activityHeatmapChart').getContext('2d');
+        
+        // Destroy existing chart if it exists
+        if (activityHeatmapChart) {
+            activityHeatmapChart.destroy();
+        }
+        
+        // Process heatmap data for chart.js
+        const chartData = prepareHeatmapData(data.heatmap);
+        
+        activityHeatmapChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Reports',
+                    data: chartData.data,
+                    backgroundColor: ctx => {
+                        const value = ctx.raw || 0;
+                        if (value === 0) return 'rgba(229, 231, 235, 0.8)';
+                        if (value === 1) return 'rgba(16, 185, 129, 0.3)';
+                        if (value === 2) return 'rgba(16, 185, 129, 0.5)';
+                        if (value === 3) return 'rgba(16, 185, 129, 0.7)';
+                        return 'rgba(16, 185, 129, 0.9)';
+                    },
+                    borderColor: 'rgba(16, 185, 129, 0)',
+                    borderWidth: 0,
+                    borderRadius: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                const value = context.raw || 0;
+                                return value === 1 ? '1 report' : `${value} reports`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            precision: 0,
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Helper for heatmap data
+    function prepareHeatmapData(heatmap) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const data = [];
+        const labels = [];
+        
+        const now = new Date();
+        const year = currentHeatmapYear || now.getFullYear();
+        
+        // Create data for all days in year
+        for (let month = 0; month < 12; month++) {
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const count = heatmap[dateStr] || 0;
+                
+                data.push(count);
+                labels.push(`${months[month]} ${day}, ${year}`);
+            }
+        }
+        
+        return { data, labels };
+    }
+    
+    // Update year selector
+    function updateYearSelector(currentYear) {
+        const selectorDiv = document.getElementById('heatmapYearSelector');
+        selectorDiv.innerHTML = '';
+        
+        // Create buttons for current year and 2 previous years
+        for (let i = 0; i < 3; i++) {
+            const year = currentYear - i;
+            const btn = document.createElement('button');
+            btn.className = 'year-btn' + (year === currentYear ? ' active' : '');
+            btn.textContent = year;
+            btn.setAttribute('data-year', year);
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                loadActivityHeatmapChart(year);
+            });
+            selectorDiv.appendChild(btn);
+        }
+    }
+    
+    // Event handlers for chart controls
+    document.addEventListener('DOMContentLoaded', function() {
+        // Period buttons for Reports Over Time
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const period = this.getAttribute('data-period');
+                loadReportsOverTimeChart(period);
+            });
+        });
+        
+        // Limit buttons for Most Analyzed
+        document.querySelectorAll('.limit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.limit-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const limit = parseInt(this.getAttribute('data-limit'), 10);
+                loadMostAnalyzedChart(limit);
+            });
+        });
+        
+        // Limit buttons for Failed Tickers
+        document.querySelectorAll('.failed-limit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.failed-limit-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const limit = parseInt(this.getAttribute('data-limit'), 10);
+                loadFailedTickersChart(limit);
+            });
+        });
+    });
+</script>
+{% endblock %}

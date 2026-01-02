@@ -1,0 +1,958 @@
+{
+  "ticker": "TSLA",
+  "processing_timestamp": "2025-12-26T13:53:10.888309",
+  "data_quality": {
+    "completeness_score": 100.0,
+    "missing_critical_fields": [],
+    "data_age": "N/A",
+    "source_coverage": {},
+    "field_completeness": {
+      "company_identification": 91.67,
+      "income_statement": 100.0,
+      "balance_sheet": 100.0,
+      "cash_flow": 71.43,
+      "stock_price": 100.0
+    }
+  },
+  "earnings_data": {
+    "company_identification": {
+      "ticker": "TSLA",
+      "company_name": "Tesla, Inc.",
+      "cik": "N/A",
+      "exchange": "NMS",
+      "sector": "Consumer Cyclical",
+      "industry": "Auto Manufacturers",
+      "market_cap": 1614352613376,
+      "description": "Tesla, Inc. designs, develops, manufactures, leases, and sells electric vehicles, and energy generation and storage systems in the United States, China, and internationally. The company operates in two segments, Automotive; and Energy Generation and Storage. The Automotive segment offers electric vehicles, as well as sells automotive regulatory credits; and non-warranty after-sales vehicle, used vehicles, body shop and parts, supercharging, retail merchandise, and vehicle insurance services. This segment also provides sedans and sport utility vehicles through direct and used vehicle sales, a network of Tesla Superchargers, and in-app upgrades; purchase financing and leasing services; services for electric vehicles through its company-owned service locations and Tesla mobile service technicians; and vehicle limited warranties and extended service plans. The Energy Generation and Storage segment engages in the design, manufacture, installation, sale, and leasing of solar energy generation and energy storage products, and related services to residential, commercial, and industrial customers and utilities through its website, stores, and galleries, as well as through a network of channel partners. This segment also provides services and repairs to its energy product customers, including under warranty; and various financing options to its residential customers. The company was formerly known as Tesla Motors, Inc. and changed its name to Tesla, Inc. in February 2017. Tesla, Inc. was incorporated in 2003 and is headquartered in Austin, Texas.",
+      "website": "https://www.tesla.com",
+      "headquarters": "Austin, TX, United States",
+      "ceo_name": "Mr. Elon R. Musk",
+      "employee_count": 125665
+    },
+    "earnings_timeline": {
+      "earnings_date": "2026-01-29",
+      "earnings_time": "After Market Close",
+      "report_time": "After Market Close",
+      "fiscal_quarter": "Q3",
+      "fiscal_year": 2025,
+      "fiscal_year_end": "2025-09-30",
+      "filing_date": "N/A",
+      "period_end_date": "2025-09-30",
+      "filing_type": "N/A",
+      "reporting_type": "N/A",
+      "earnings_call_time": "N/A",
+      "earnings_call_date": "2026-01-29",
+      "conference_call_url": "N/A",
+      "days_until_earnings": 33,
+      "earnings_time_estimated": true,
+      "report_time_estimated": true
+    },
+    "income_statement": {
+      "total_revenue": 28095000000.0,
+      "revenue_growth_yoy": "11.60%",
+      "cost_of_revenue": 23041000000.0,
+      "gross_profit": 5054000000.0,
+      "gross_margin": "17.99%",
+      "operating_expenses": 3192000000.0,
+      "research_and_development": 1630000000.0,
+      "sales_and_marketing": 1562000000.0,
+      "general_and_administrative": 1562000000.0,
+      "operating_income": 1862000000.0,
+      "operating_margin": "6.63%",
+      "ebitda": 3660000000.0,
+      "depreciation_and_amortization": 1625000000.0,
+      "interest_expense": 76000000.0,
+      "tax_provision": 570000000.0,
+      "stock_based_compensation": 663000000.0,
+      "net_income": 1373000000.0,
+      "earnings_per_share_basic": 1.46,
+      "earnings_per_share_diluted": 1.46,
+      "weighted_average_shares_basic": 3325819167,
+      "weighted_average_shares_diluted": 3325819167
+    },
+    "balance_sheet": {
+      "total_assets": 133735000000.0,
+      "current_assets": 64653000000.0,
+      "cash_and_equivalents": 18289000000.0,
+      "accounts_receivable": 4703000000.0,
+      "inventory": 12276000000.0,
+      "property_plant_equipment": 54882000000.0,
+      "goodwill": 257000000.0,
+      "intangible_assets": 131000000.0,
+      "total_liabilities": 53019000000.0,
+      "current_liabilities": 31290000000.0,
+      "accounts_payable": 12819000000.0,
+      "long_term_debt": 5609000000.0,
+      "total_debt": 13788000256,
+      "stockholders_equity": 79970000000.0,
+      "retained_earnings": 38163000000.0,
+      "working_capital": 33363000000.0
+    },
+    "cash_flow": {
+      "operating_cash_flow": 6238000000.0,
+      "net_cash_investing": -4355000000.0,
+      "net_cash_financing": 983000000.0,
+      "free_cash_flow": 3990000000.0,
+      "capital_expenditures": -2248000000.0,
+      "dividends_paid": "N/A",
+      "share_repurchases": "N/A"
+    },
+    "analyst_estimates": {
+      "estimated_eps": 2.20834,
+      "estimated_eps_high": 600.0,
+      "estimated_eps_low": 120.0,
+      "number_of_analysts": 40,
+      "estimated_revenue": 399.151,
+      "estimated_revenue_high": "N/A",
+      "estimated_revenue_low": "N/A",
+      "estimate_year_ago": 1.46,
+      "analysts_recommending_buy": 19,
+      "analysts_recommending_hold": 17,
+      "analysts_recommending_sell": 10,
+      "recommendation": "hold"
+    },
+    "actual_vs_estimate": {
+      "eps_actual": 1.46,
+      "estimated_eps_prior": 2.20834,
+      "eps_surprise": "-0.7483",
+      "eps_surprise_percent": "-33.89%",
+      "revenue_actual": 95632998400,
+      "estimated_revenue_prior": "N/A",
+      "revenue_surprise": "N/A",
+      "revenue_surprise_percent": "N/A"
+    },
+    "stock_price": {
+      "current_price": 485.4,
+      "previous_close": 485.56,
+      "open_price": 488.505,
+      "day_high": 490.9,
+      "day_low": 476.8,
+      "volume": 41007937,
+      "average_volume": 84144558,
+      "52_week_high": 498.83,
+      "52_week_low": 214.25,
+      "price_change_1d": -0.16,
+      "price_change_percent_1d": -0.03
+    },
+    "guidance": {
+      "guidance_eps_low": "N/A",
+      "guidance_eps_high": "N/A",
+      "guidance_revenue_low": "N/A",
+      "guidance_revenue_high": "N/A",
+      "next_year_estimate": 2.20834
+    },
+    "analyst_sentiment": {
+      "number_of_analysts": 40,
+      "buy_ratings": 19,
+      "hold_ratings": 17,
+      "sell_ratings": 10,
+      "target_mean_price": 399.151,
+      "target_median_price": 434.5,
+      "target_high_price": 600.0,
+      "target_low_price": 120.0,
+      "recommendation": "hold"
+    },
+    "valuation_metrics": {
+      "market_cap": 1614352613376,
+      "trailing_pe": 332.46573,
+      "forward_pe": 219.80312,
+      "peg_ratio": 28.66,
+      "price_to_sales": 16.880707,
+      "price_to_book": 20.17624,
+      "enterprise_value": 1587239583744,
+      "ev_to_revenue": 16.597,
+      "ev_to_ebitda": 147.403,
+      "dividend_yield": "N/A",
+      "sector": "Consumer Cyclical",
+      "industry": "Auto Manufacturers",
+      "peg_ratio_estimated": true
+    },
+    "performance_metrics": {
+      "1_month_return": 15.736767038744881,
+      "3_month_return": 14.646065590265975,
+      "ytd_return": 27.979328058092186,
+      "1_year_return": 6.885691030642435,
+      "volatility_1y": 63.85092451071992,
+      "volume_trend": -9.023099798845397,
+      "avg_volume_3m": 84614643.75,
+      "beta": 1.878
+    },
+    "key_focus_areas": [
+      "Vehicle deliveries and production capacity",
+      "Average selling price trends",
+      "Energy generation and storage revenue",
+      "Automotive gross margin (ex-credits)",
+      "Full Self-Driving (FSD) adoption",
+      "New product launches and timeline"
+    ],
+    "risk_factors": [
+      "High debt levels relative to equity",
+      "Consumer spending weakness or recession",
+      "Input cost inflation (labor, materials, shipping)",
+      "Supply chain disruptions",
+      "Macroeconomic uncertainty and recession risk"
+    ],
+    "enhanced_analytics": {
+      "one_time_items": {
+        "ticker": "TSLA",
+        "extraction_timestamp": "2025-12-26T13:35:59.548997",
+        "items_found": {
+          "Total Unusual Items_2024-12-31 00:00:00": {
+            "amount": -684000000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items"
+          },
+          "Total Unusual Items Excluding Goodwill_2024-12-31 00:00:00": {
+            "amount": -684000000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items Excluding Goodwill"
+          },
+          "Special Income Charges_2024-12-31 00:00:00": {
+            "amount": -684000000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "income",
+            "category": "special_charges",
+            "frequency": "annual",
+            "field_name": "Special Income Charges"
+          },
+          "Restructuring And Mergern Acquisition_2024-12-31 00:00:00": {
+            "amount": 684000000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "expense",
+            "category": "restructuring",
+            "frequency": "annual",
+            "field_name": "Restructuring And Mergern Acquisition"
+          },
+          "Tax Effect Of Unusual Items_2024-12-31 00:00:00": {
+            "amount": -136800000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Tax Effect Of Unusual Items"
+          },
+          "Other Income Expense_2024-12-31 00:00:00": {
+            "amount": 11000000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2024-12-31 00:00:00": {
+            "amount": 695000000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Other Income Expense_2023-12-31 00:00:00": {
+            "amount": 172000000.0,
+            "period": "2023-12-31 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2023-12-31 00:00:00": {
+            "amount": 172000000.0,
+            "period": "2023-12-31 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Total Unusual Items_2022-12-31 00:00:00": {
+            "amount": -176000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items"
+          },
+          "Total Unusual Items Excluding Goodwill_2022-12-31 00:00:00": {
+            "amount": -176000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items Excluding Goodwill"
+          },
+          "Special Income Charges_2022-12-31 00:00:00": {
+            "amount": -176000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "income",
+            "category": "special_charges",
+            "frequency": "annual",
+            "field_name": "Special Income Charges"
+          },
+          "Restructuring And Mergern Acquisition_2022-12-31 00:00:00": {
+            "amount": 176000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "expense",
+            "category": "restructuring",
+            "frequency": "annual",
+            "field_name": "Restructuring And Mergern Acquisition"
+          },
+          "Tax Effect Of Unusual Items_2022-12-31 00:00:00": {
+            "amount": -14080000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Tax Effect Of Unusual Items"
+          },
+          "Other Income Expense_2022-12-31 00:00:00": {
+            "amount": -219000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2022-12-31 00:00:00": {
+            "amount": -43000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Total Unusual Items_2021-12-31 00:00:00": {
+            "amount": 27000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items"
+          },
+          "Total Unusual Items Excluding Goodwill_2021-12-31 00:00:00": {
+            "amount": 27000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Total Unusual Items Excluding Goodwill"
+          },
+          "Special Income Charges_2021-12-31 00:00:00": {
+            "amount": 27000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "expense",
+            "category": "special_charges",
+            "frequency": "annual",
+            "field_name": "Special Income Charges"
+          },
+          "Restructuring And Mergern Acquisition_2021-12-31 00:00:00": {
+            "amount": -27000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "income",
+            "category": "restructuring",
+            "frequency": "annual",
+            "field_name": "Restructuring And Mergern Acquisition"
+          },
+          "Tax Effect Of Unusual Items_2021-12-31 00:00:00": {
+            "amount": 2970000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "expense",
+            "category": "unusual_items",
+            "frequency": "annual",
+            "field_name": "Tax Effect Of Unusual Items"
+          },
+          "Other Income Expense_2021-12-31 00:00:00": {
+            "amount": 162000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2021-12-31 00:00:00": {
+            "amount": 135000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "annual",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Total Unusual Items_2025-09-30 00:00:00_Q": {
+            "amount": -238000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "quarterly",
+            "field_name": "Total Unusual Items"
+          },
+          "Total Unusual Items Excluding Goodwill_2025-09-30 00:00:00_Q": {
+            "amount": -238000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "quarterly",
+            "field_name": "Total Unusual Items Excluding Goodwill"
+          },
+          "Special Income Charges_2025-09-30 00:00:00_Q": {
+            "amount": -238000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "special_charges",
+            "frequency": "quarterly",
+            "field_name": "Special Income Charges"
+          },
+          "Restructuring And Mergern Acquisition_2025-09-30 00:00:00_Q": {
+            "amount": 238000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "expense",
+            "category": "restructuring",
+            "frequency": "quarterly",
+            "field_name": "Restructuring And Mergern Acquisition"
+          },
+          "Tax Effect Of Unusual Items_2025-09-30 00:00:00_Q": {
+            "amount": -69020000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "unusual_items",
+            "frequency": "quarterly",
+            "field_name": "Tax Effect Of Unusual Items"
+          },
+          "Other Income Expense_2025-09-30 00:00:00_Q": {
+            "amount": -266000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2025-09-30 00:00:00_Q": {
+            "amount": -28000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "income",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "Other Income Expense_2025-06-30 00:00:00_Q": {
+            "amount": 320000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Income Expense"
+          },
+          "Other Non Operating Income Expenses_2025-06-30 00:00:00_Q": {
+            "amount": 320000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "expense",
+            "category": "other_non_operating",
+            "frequency": "quarterly",
+            "field_name": "Other Non Operating Income Expenses"
+          },
+          "CF_Asset Impairment Charge_2024-12-31 00:00:00": {
+            "amount": 335000000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "annual",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Gain Loss On Sale Of PPE_2024-12-31 00:00:00": {
+            "amount": -589000000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "asset_disposal",
+            "frequency": "annual",
+            "field_name": "Gain Loss On Sale Of PPE"
+          },
+          "CF_Sale Of Investment_2024-12-31 00:00:00": {
+            "amount": 28510000000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Investment Purchase And Sale_2024-12-31 00:00:00": {
+            "amount": -7445000000.0,
+            "period": "2024-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Asset Impairment Charge_2023-12-31 00:00:00": {
+            "amount": 463000000.0,
+            "period": "2023-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "annual",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Sale Of Investment_2023-12-31 00:00:00": {
+            "amount": 12491000000.0,
+            "period": "2023-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Business Purchase And Sale_2023-12-31 00:00:00": {
+            "amount": -64000000.0,
+            "period": "2023-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "acquisition_disposal",
+            "frequency": "annual",
+            "field_name": "Net Business Purchase And Sale"
+          },
+          "CF_Net Investment Purchase And Sale_2023-12-31 00:00:00": {
+            "amount": -6621000000.0,
+            "period": "2023-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Asset Impairment Charge_2022-12-31 00:00:00": {
+            "amount": 177000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "annual",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Gain Loss On Sale Of PPE_2022-12-31 00:00:00": {
+            "amount": 140000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "asset_disposal",
+            "frequency": "annual",
+            "field_name": "Gain Loss On Sale Of PPE"
+          },
+          "CF_Sale Of Investment_2022-12-31 00:00:00": {
+            "amount": 22000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Intangibles Purchase And Sale_2022-12-31 00:00:00": {
+            "amount": 927000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "intangible_transactions",
+            "frequency": "annual",
+            "field_name": "Net Intangibles Purchase And Sale"
+          },
+          "CF_Sale Of Intangibles_2022-12-31 00:00:00": {
+            "amount": 936000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "intangible_transactions",
+            "frequency": "annual",
+            "field_name": "Sale Of Intangibles"
+          },
+          "CF_Net Investment Purchase And Sale_2022-12-31 00:00:00": {
+            "amount": -5813000000.0,
+            "period": "2022-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Asset Impairment Charge_2021-12-31 00:00:00": {
+            "amount": 140000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "annual",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Gain Loss On Sale Of PPE_2021-12-31 00:00:00": {
+            "amount": -27000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "asset_disposal",
+            "frequency": "annual",
+            "field_name": "Gain Loss On Sale Of PPE"
+          },
+          "CF_Net Intangibles Purchase And Sale_2021-12-31 00:00:00": {
+            "amount": -1228000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "intangible_transactions",
+            "frequency": "annual",
+            "field_name": "Net Intangibles Purchase And Sale"
+          },
+          "CF_Sale Of Intangibles_2021-12-31 00:00:00": {
+            "amount": 272000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "intangible_transactions",
+            "frequency": "annual",
+            "field_name": "Sale Of Intangibles"
+          },
+          "CF_Net Investment Purchase And Sale_2021-12-31 00:00:00": {
+            "amount": -132000000.0,
+            "period": "2021-12-31 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "annual",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Asset Impairment Charge_2025-09-30 00:00:00_Q": {
+            "amount": 65000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "quarterly",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Sale Of Investment_2025-09-30 00:00:00_Q": {
+            "amount": 9295000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Investment Purchase And Sale_2025-09-30 00:00:00_Q": {
+            "amount": -2107000000.0,
+            "period": "2025-09-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Net Investment Purchase And Sale"
+          },
+          "CF_Asset Impairment Charge_2025-06-30 00:00:00_Q": {
+            "amount": 136000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "impairment",
+            "frequency": "quarterly",
+            "field_name": "Asset Impairment Charge"
+          },
+          "CF_Sale Of Investment_2025-06-30 00:00:00_Q": {
+            "amount": 6935000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Sale Of Investment"
+          },
+          "CF_Net Investment Purchase And Sale_2025-06-30 00:00:00_Q": {
+            "amount": -550000000.0,
+            "period": "2025-06-30 00:00:00",
+            "type": "cash_flow",
+            "category": "investment_activity",
+            "frequency": "quarterly",
+            "field_name": "Net Investment Purchase And Sale"
+          }
+        },
+        "total_one_time_impact": 91981870000.0,
+        "confidence_level": "medium",
+        "data_source": "yfinance_inference"
+      },
+      "adjusted_earnings": {
+        "ticker": "TSLA",
+        "calculation_timestamp": "2025-12-26T13:35:59.548997",
+        "adjustments_made": [
+          "Removed gain Total Unusual Items_2024-12-31 00:00:00: $684,000,000",
+          "Removed gain Total Unusual Items Excluding Goodwill_2024-12-31 00:00:00: $684,000,000",
+          "Removed gain Special Income Charges_2024-12-31 00:00:00: $684,000,000",
+          "Added back Restructuring And Mergern Acquisition_2024-12-31 00:00:00: $684,000,000",
+          "Removed gain Tax Effect Of Unusual Items_2024-12-31 00:00:00: $136,800,000",
+          "Added back Other Income Expense_2024-12-31 00:00:00: $11,000,000",
+          "Added back Other Non Operating Income Expenses_2024-12-31 00:00:00: $695,000,000",
+          "Removed gain CF_Asset Impairment Charge_2024-12-31 00:00:00: $335,000,000",
+          "Removed gain CF_Gain Loss On Sale Of PPE_2024-12-31 00:00:00: $589,000,000",
+          "Removed gain CF_Sale Of Investment_2024-12-31 00:00:00: $28,510,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2024-12-31 00:00:00: $7,445,000,000",
+          "Added back Other Income Expense_2023-12-31 00:00:00: $172,000,000",
+          "Added back Other Non Operating Income Expenses_2023-12-31 00:00:00: $172,000,000",
+          "Removed gain CF_Asset Impairment Charge_2023-12-31 00:00:00: $463,000,000",
+          "Removed gain CF_Sale Of Investment_2023-12-31 00:00:00: $12,491,000,000",
+          "Removed gain CF_Net Business Purchase And Sale_2023-12-31 00:00:00: $64,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2023-12-31 00:00:00: $6,621,000,000",
+          "Removed gain Total Unusual Items_2022-12-31 00:00:00: $176,000,000",
+          "Removed gain Total Unusual Items Excluding Goodwill_2022-12-31 00:00:00: $176,000,000",
+          "Removed gain Special Income Charges_2022-12-31 00:00:00: $176,000,000",
+          "Added back Restructuring And Mergern Acquisition_2022-12-31 00:00:00: $176,000,000",
+          "Removed gain Tax Effect Of Unusual Items_2022-12-31 00:00:00: $14,080,000",
+          "Removed gain Other Income Expense_2022-12-31 00:00:00: $219,000,000",
+          "Removed gain Other Non Operating Income Expenses_2022-12-31 00:00:00: $43,000,000",
+          "Removed gain CF_Asset Impairment Charge_2022-12-31 00:00:00: $177,000,000",
+          "Removed gain CF_Gain Loss On Sale Of PPE_2022-12-31 00:00:00: $140,000,000",
+          "Removed gain CF_Sale Of Investment_2022-12-31 00:00:00: $22,000,000",
+          "Removed gain CF_Net Intangibles Purchase And Sale_2022-12-31 00:00:00: $927,000,000",
+          "Removed gain CF_Sale Of Intangibles_2022-12-31 00:00:00: $936,000,000",
+          "Removed gain CF_Net Investment Purchase And Sale_2022-12-31 00:00:00: $5,813,000,000"
+        ],
+        "metrics": {
+          "adjusted_net_income": {
+            "2024-12-31 00:00:00": {
+              "reported_net_income": 7130000000.0,
+              "one_time_adjustments": -37677800000.0,
+              "adjusted_net_income": -30547800000.0,
+              "improvement": -37677800000.0,
+              "improvement_percentage": -528.4403927068723
+            },
+            "2023-12-31 00:00:00": {
+              "reported_net_income": 14999000000.0,
+              "one_time_adjustments": -19295000000.0,
+              "adjusted_net_income": -4296000000.0,
+              "improvement": -19295000000.0,
+              "improvement_percentage": -128.6419094606307
+            },
+            "2022-12-31 00:00:00": {
+              "reported_net_income": 12583000000.0,
+              "one_time_adjustments": -8643080000.0,
+              "adjusted_net_income": 3939920000.0,
+              "improvement": -8643080000.0,
+              "improvement_percentage": -68.6885480410077
+            }
+          },
+          "adjusted_eps": {
+            "2024-12-31 00:00:00": {
+              "adjusted_eps": -9.185045387646598,
+              "reported_eps": 2.143832734727877,
+              "shares_outstanding": 3325819167.0,
+              "adjustment_impact": -11.328878122374475
+            },
+            "2023-12-31 00:00:00": {
+              "adjusted_eps": -1.2917118412890547,
+              "reported_eps": 4.509866365804127,
+              "shares_outstanding": 3325819167.0,
+              "adjustment_impact": -5.801578207093182
+            },
+            "2022-12-31 00:00:00": {
+              "adjusted_eps": 1.1846464892298818,
+              "reported_eps": 3.783428793980488,
+              "shares_outstanding": 3325819167.0,
+              "adjustment_impact": -2.598782304750606
+            }
+          },
+          "normalized_operating_margin": {
+            "2024-12-31 00:00:00": {
+              "reported_operating_margin": 7.943494728221927,
+              "normalized_operating_margin": 8.986590234414987,
+              "adjustment_amount": 1019000000.0,
+              "revenue": 97690000000.0,
+              "reported_operating_income": 7760000000.0,
+              "adjusted_operating_income": 8779000000.0
+            },
+            "2023-12-31 00:00:00": {
+              "reported_operating_margin": 9.18747997891974,
+              "normalized_operating_margin": 9.665919213003626,
+              "adjustment_amount": 463000000.0,
+              "revenue": 96773000000.0,
+              "reported_operating_income": 8891000000.0,
+              "adjusted_operating_income": 9354000000.0
+            },
+            "2022-12-31 00:00:00": {
+              "reported_operating_margin": 16.979696054602144,
+              "normalized_operating_margin": 17.413026932803024,
+              "adjustment_amount": 353000000.0,
+              "revenue": 81462000000.0,
+              "reported_operating_income": 13832000000.0,
+              "adjusted_operating_income": 14185000000.0
+            },
+            "2021-12-31 00:00:00": {
+              "reported_operating_margin": 12.069189751593184,
+              "normalized_operating_margin": 12.379466027534697,
+              "adjustment_amount": 167000000.0,
+              "revenue": 53823000000.0,
+              "reported_operating_income": 6496000000.0,
+              "adjusted_operating_income": 6663000000.0
+            },
+            "2020-12-31 00:00:00": {
+              "reported_operating_margin": null,
+              "normalized_operating_margin": null,
+              "adjustment_amount": 0,
+              "revenue": null,
+              "reported_operating_income": null,
+              "adjusted_operating_income": null
+            }
+          },
+          "cash_adjusted_loss": {},
+          "non_cash_loss_percentage": {},
+          "quarterly_adjusted_trends": {
+            "2025-09-30 00:00:00": {
+              "reported_net_income": 1373000000.0,
+              "adjusted_net_income": 1611000000.0,
+              "revenue": 28095000000.0,
+              "adjusted_margin": 5.7341163908168715,
+              "one_time_adjustments": 238000000.0
+            },
+            "2025-06-30 00:00:00": {
+              "reported_net_income": 1172000000.0,
+              "adjusted_net_income": 1812000000.0,
+              "revenue": 22496000000.0,
+              "adjusted_margin": 8.054765291607396,
+              "one_time_adjustments": 640000000.0
+            },
+            "2025-03-31 00:00:00": {
+              "reported_net_income": 409000000.0,
+              "adjusted_net_income": 409000000.0,
+              "revenue": 19335000000.0,
+              "adjusted_margin": 2.1153348849237132,
+              "one_time_adjustments": 0
+            },
+            "2024-12-31 00:00:00": {
+              "reported_net_income": 2314000000.0,
+              "adjusted_net_income": 2314000000.0,
+              "revenue": 25707000000.0,
+              "adjusted_margin": 9.001439296689618,
+              "one_time_adjustments": 0
+            }
+          },
+          "adjusted_margins": {
+            "2024-12-31 00:00:00": {
+              "gross_margin": 17.862626676220696,
+              "reported_operating_margin": 7.943494728221927,
+              "adjusted_operating_margin": 9.366362984952401,
+              "reported_net_margin": 7.298597604667827,
+              "adjusted_net_margin": 8.7214658613983,
+              "one_time_impact_on_margin": 1.422868256730474
+            },
+            "2023-12-31 00:00:00": {
+              "gross_margin": 18.248891736331416,
+              "reported_operating_margin": 9.18747997891974,
+              "adjusted_operating_margin": 9.542951029729368,
+              "reported_net_margin": 15.499157822946483,
+              "adjusted_net_margin": 15.854628873756111,
+              "one_time_impact_on_margin": 0.35547105080962665
+            },
+            "2022-12-31 00:00:00": {
+              "gross_margin": 25.598438535759005,
+              "reported_operating_margin": 16.979696054602144,
+              "adjusted_operating_margin": 17.195747710588986,
+              "reported_net_margin": 15.446465836831896,
+              "adjusted_net_margin": 15.662517492818736,
+              "one_time_impact_on_margin": 0.2160516559868405
+            },
+            "2021-12-31 00:00:00": {
+              "gross_margin": 25.279155751258752,
+              "reported_operating_margin": 12.069189751593184,
+              "adjusted_operating_margin": 12.777009828511973,
+              "reported_net_margin": 10.263270349107259,
+              "adjusted_net_margin": 10.971090426026048,
+              "one_time_impact_on_margin": 0.7078200769187893
+            },
+            "2020-12-31 00:00:00": {
+              "gross_margin": null,
+              "reported_operating_margin": null,
+              "adjusted_operating_margin": null,
+              "reported_net_margin": null,
+              "adjusted_net_margin": null,
+              "one_time_impact_on_margin": null
+            }
+          }
+        },
+        "confidence_level": "high",
+        "methodology": "one_time_items_adjustment"
+      },
+      "cash_sustainability": {
+        "ticker": "TSLA",
+        "analysis_timestamp": "2025-12-26T13:35:59.548997",
+        "metrics": {
+          "burn_rate": {
+            "quarterly_burn_rate": 0,
+            "annual_burn_rate": 0,
+            "operating_burn_rate": 0,
+            "free_cash_flow_burn": 0,
+            "burn_rate_calculation_method": "operating_cash_flow"
+          },
+          "cash_runway": {
+            "cash_runway_months": "Indefinite (Cash Positive)",
+            "cash_runway_years": "N/A",
+            "runway_end_date": "N/A",
+            "current_cash": 16139000000.0,
+            "runway_scenario": "cash_positive"
+          },
+          "burn_trends": {
+            "trend_direction": "stable",
+            "trend_strength": "stable",
+            "quarterly_burn_progression": [
+              {
+                "quarter": "2024-03-31 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": null
+              },
+              {
+                "quarter": "2024-09-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 6255000000.0
+              },
+              {
+                "quarter": "2024-12-31 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 4814000000.0
+              },
+              {
+                "quarter": "2025-03-31 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 2156000000.0
+              },
+              {
+                "quarter": "2025-06-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 2540000000.0
+              },
+              {
+                "quarter": "2025-09-30 00:00:00",
+                "burn_amount": 0,
+                "operating_cf": 6238000000.0
+              }
+            ],
+            "burn_acceleration": false,
+            "quarterly_variance": 0.0
+          },
+          "financing_dependency": {
+            "financing_dependency_ratio": 0,
+            "recent_financing_activity": 0,
+            "debt_issuance": 0,
+            "equity_issuance": 0,
+            "dependency_level": "low"
+          },
+          "liquidity_analysis": {
+            "current_ratio": 2.024912390270983,
+            "quick_ratio": 1.6079594739946568,
+            "cash_ratio": 0.559973630338989,
+            "working_capital": 29539000000.0,
+            "liquidity_score": "strong"
+          }
+        },
+        "risk_level": "low",
+        "recommendations": [
+          "Current cash position appears sustainable",
+          "Continue monitoring burn rate trends",
+          "Consider optimizing cash deployment for growth"
+        ],
+        "key_insights": []
+      },
+      "summary_insights": [
+        "Identified $91981.9M in one-time items affecting reported earnings"
+      ],
+      "critical_flags": []
+    },
+    "calculated_ratios": {
+      "gross_margin": 17.01,
+      "operating_margin": 6.63,
+      "profit_margin": 5.31,
+      "return_on_equity": 6.79,
+      "return_on_assets": 2.35,
+      "debt_to_equity": 17.08,
+      "current_ratio": 2.07,
+      "pe_ratio": 332.47,
+      "asset_turnover": 0.21,
+      "interest_coverage": 24.5,
+      "book_value_per_share": 24.05
+    }
+  }
+}

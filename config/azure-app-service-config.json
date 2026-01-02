@@ -1,0 +1,84 @@
+{
+  "name": "tickzen-app-service",
+  "description": "Configuration for Tickzen Flask app on Azure App Service",
+  "version": "1.0.0",
+  "azure": {
+    "app_service": {
+      "runtime": "python:3.10",
+      "startup_command": "gunicorn --config gunicorn.conf.py --worker-class gevent --workers 1 --bind 0.0.0.0:$PORT wsgi:application",
+      "alternative_startup_commands": {
+        "option_1": "bash startup.sh",
+        "option_2": "gunicorn --worker-class gevent --workers 1 --worker-connections 1000 --bind 0.0.0.0:$PORT --timeout 120 --preload-app wsgi:application",
+        "current_problematic": "gunicorn --worker-class eventlet --bind 0.0.0.0:$PORT --workers 2 app.main_portal_app:app"
+      },
+      "environment_variables": {
+        "APP_ENV": "production",
+        "FLASK_DEBUG": "False",
+        "WEBSITES_PORT": "5000",
+        "gunicorn": "true",
+        "PYTHONPATH": "/home/site/wwwroot"
+      },
+      "network": {
+        "outbound_restrictions": {
+          "allowed_hosts": [
+            "www.googleapis.com",
+            "firebase.googleapis.com",
+            "firestore.googleapis.com",
+            "storage.googleapis.com",
+            "securetoken.googleapis.com"
+          ],
+          "timeout_settings": {
+            "connect_timeout": 10,
+            "read_timeout": 30,
+            "socket_timeout": 30
+          }
+        }
+      }
+    }
+  },
+  "firebase": {
+    "required_endpoints": [
+      "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
+      "https://firebase.googleapis.com",
+      "https://firestore.googleapis.com",
+      "https://storage.googleapis.com"
+    ],
+    "network_requirements": {
+      "dns_resolution": "Required for www.googleapis.com",
+      "https_access": "Required for all Firebase services",
+      "timeout_handling": "Configured with retry logic"
+    }
+  },
+  "deployment": {
+    "recommendations": [
+      "Enable Azure App Service outbound network access",
+      "Configure custom DNS if needed",
+      "Set appropriate timeout values",
+      "Use Azure Key Vault for sensitive environment variables",
+      "Enable application insights for monitoring"
+    ],
+    "startup_optimization": {
+      "recommended_command": "gunicorn --config gunicorn.conf.py --worker-class gevent --workers 1 --bind 0.0.0.0:$PORT wsgi:application",
+      "why_gevent_over_eventlet": [
+        "Better Azure App Service compatibility",
+        "More stable WebSocket handling",
+        "Reduced memory footprint",
+        "Better error handling and recovery"
+      ],
+      "why_single_worker": [
+        "SocketIO requires sticky sessions",
+        "Shared state management between Socket connections",
+        "Simplified debugging and logging",
+        "Reduced resource contention"
+      ],
+      "critical_fixes_applied": [
+        "Replaced eventlet with gevent worker class",
+        "Reduced workers from 2 to 1 for SocketIO compatibility",
+        "Fixed module path from app.main_portal_app:app to wsgi:application",
+        "Added proper WSGI entry point",
+        "Added production configuration management",
+        "Implemented proper environment detection"
+      ]
+    }
+  }
+} 

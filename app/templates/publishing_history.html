@@ -1,0 +1,1066 @@
+{% extends "_base.html" %}
+
+{% block title %}Publishing History | Tickzen{% endblock %}
+
+{% block head_extra %}
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="View and manage your publishing history - all published articles with metadata">
+    <link rel="canonical" href="https://tickzen.app/publishing-history">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 0 0% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 0 0% 3.9%;
+            --border: 0 0% 89.8%;
+            --muted: 0 0% 96.1%;
+            --muted-foreground: 0 0% 45.1%;
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --green-800: #166534;
+            --blue-50: #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --orange-50: #fff7ed;
+            --orange-600: #ea580c;
+            --orange-700: #c2410c;
+            --red-50: #fef2f2;
+            --red-600: #dc2626;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: hsl(var(--foreground));
+            background: hsl(var(--background));
+            font-size: 14px;
+        }
+
+        .automation-layout {
+            display: flex;
+            min-height: calc(100vh - 120px);
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+            gap: 1.5rem;
+        }
+
+        .automation-sidebar {
+            width: 240px;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 0;
+            height: calc(100vh - 100px);
+            position: sticky;
+            top: 80px;
+            box-shadow: 2px 0 8px 0 rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1.5rem 1.25rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, var(--green-700) 0%, var(--green-800) 100%);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0.75rem 0;
+            margin: 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 0.875rem 1.25rem;
+            text-decoration: none;
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover {
+            background: var(--green-50);
+            color: var(--green-700);
+            border-left-color: var(--green-600);
+        }
+
+        .sidebar-menu a.active {
+            background: var(--green-50);
+            color: var(--green-700);
+            border-left-color: var(--green-600);
+            font-weight: 600;
+        }
+
+        .automation-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .page-header {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--foreground));
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-header p {
+            color: hsl(var(--muted-foreground));
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .filter-bar {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: hsl(var(--foreground));
+            min-width: 70px;
+        }
+
+        .filter-group input[type="text"],
+        .filter-group select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            min-width: 150px;
+        }
+
+        .filter-group input[type="text"]:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--green-600);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--green-600);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-btn:hover {
+            background: var(--green-700);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
+        }
+
+        .reset-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            color: hsl(var(--foreground));
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reset-btn:hover {
+            background: var(--muted);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.published {
+            background: var(--green-50);
+            color: var(--green-600);
+        }
+
+        .stat-icon.scheduled {
+            background: var(--blue-50);
+            color: var(--blue-600);
+        }
+
+        .stat-icon.draft {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .stat-content h3 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-content .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: hsl(var(--foreground));
+        }
+
+        .history-container {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--muted);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: hsl(var(--foreground));
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid hsl(var(--border));
+            font-size: 0.875rem;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--green-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .article-title {
+            font-weight: 500;
+            color: var(--blue-600);
+            text-decoration: none;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .article-title:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .status-badge.published {
+            background: var(--green-50);
+            color: var(--green-700);
+        }
+
+        .status-badge.scheduled {
+            background: var(--blue-50);
+            color: var(--blue-700);
+        }
+
+        .status-badge.draft {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            background: var(--blue-50);
+            color: var(--blue-700);
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            border-top: 1px solid hsl(var(--border));
+        }
+
+        .pagination button,
+        .pagination a {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid hsl(var(--border));
+            background: white;
+            color: hsl(var(--foreground));
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .pagination button:hover,
+        .pagination a:hover {
+            background: var(--green-50);
+            border-color: var(--green-600);
+        }
+
+        .pagination .active {
+            background: var(--green-600);
+            color: white;
+            border-color: var(--green-600);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--muted);
+            border-top-color: var(--green-600);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .action-menu {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.6rem;
+            background: var(--blue-600);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: var(--blue-700);
+            transform: translateY(-1px);
+        }
+
+        .action-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .action-btn i {
+            font-size: 0.65rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .automation-layout {
+                flex-direction: column;
+            }
+
+            .automation-sidebar {
+                width: 100%;
+                max-height: 150px;
+                position: relative;
+                top: auto;
+            }
+
+            .sidebar-menu {
+                display: flex;
+                flex-wrap: wrap;
+                padding: 0;
+                margin: 0;
+            }
+
+            .sidebar-menu a {
+                flex: 1;
+                min-width: 150px;
+                padding: 0.75rem;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+            }
+
+            .sidebar-menu a:hover,
+            .sidebar-menu a.active {
+                border-left: none;
+                border-bottom-color: var(--green-600);
+                background: var(--green-50);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 1.5rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .filter-group label {
+                min-width: auto;
+            }
+
+            .filter-group input[type="text"],
+            .filter-group select {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .filter-btn,
+            .reset-btn {
+                width: 100%;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .table-wrapper {
+                font-size: 0.75rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .article-title {
+                max-width: 150px;
+            }
+
+            .status-badge {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .automation-layout {
+                padding: 0.5rem;
+                gap: 1rem;
+            }
+
+            .page-header {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.25rem;
+                gap: 0.5rem;
+            }
+
+            .page-header p {
+                font-size: 0.85rem;
+            }
+
+            .filter-bar {
+                padding: 1rem;
+                gap: 0.5rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+
+            .stat-content .stat-value {
+                font-size: 1.5rem;
+            }
+
+            table {
+                font-size: 0.7rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+
+            .article-title {
+                max-width: 100px;
+            }
+        }
+
+        .sidebar-bottom {
+            border-top: 1px solid hsl(var(--border));
+            padding: 1rem;
+        }
+
+        .sidebar-bottom a {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.75rem;
+            text-decoration: none;
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+            font-weight: 500;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .sidebar-bottom a:hover {
+            background: var(--green-50);
+            border-color: var(--green-600);
+        }
+
+        .sidebar-bottom i {
+            color: var(--green-600);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<main class="automation-layout">
+    <!-- Sidebar -->
+    <aside class="automation-sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-robot"></i>
+            Automation Menu
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('automation_runner_page') }}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Stock Analysis</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('automation_earnings_runner') }}">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Earnings Report</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('automation_sports_runner') }}">
+                    <i class="fas fa-football-ball"></i>
+                    <span>Sports Article</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('publishing_history') }}" class="active">
+                    <i class="fas fa-history"></i>
+                    <span>Publishing History</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-bottom">
+            <a href="{{ url_for('manage_site_profiles') }}">
+                <i class="fas fa-cog"></i>
+                <span>Manage Profiles</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="automation-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-history"></i>
+                Publishing History
+            </h1>
+            <p>View all published articles, scheduled posts, and drafts with complete metadata</p>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card">
+                <div class="stat-icon published">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Published</h3>
+                    <div class="stat-value" id="publishedCount">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon scheduled">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Scheduled</h3>
+                    <div class="stat-value" id="scheduledCount">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon draft">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Draft</h3>
+                    <div class="stat-value" id="draftCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label for="searchInput">Search:</label>
+                <input type="text" id="searchInput" placeholder="Article title or author...">
+            </div>
+            <div class="filter-group">
+                <label for="categoryFilter">Type/Category:</label>
+                <select id="categoryFilter">
+                    <option value="">All Types</option>
+                    <optgroup label="Article Type">
+                        <option value="">-- All Article Types --</option>
+                        <option value="stock">Stock Analysis</option>
+                        <option value="earnings">Earnings Report</option>
+                        <option value="sports">Sports Article</option>
+                    </optgroup>
+                    <optgroup label="Sports Categories">
+                        <option value="Football">Football</option>
+                        <option value="Cricket">Cricket</option>
+                        <option value="Basketball">Basketball</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="statusFilter">Status:</label>
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="published">Published</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="draft">Draft</option>
+                </select>
+            </div>
+            <button class="filter-btn" onclick="applyFilters()">
+                <i class="fas fa-filter"></i>
+                Filter
+            </button>
+            <button class="reset-btn" onclick="resetFilters()">
+                <i class="fas fa-undo"></i>
+                Reset
+            </button>
+        </div>
+
+        <!-- History Table -->
+        <div class="history-container">
+            <div id="loadingState" class="loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 1rem;">Loading publishing history...</p>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <p><strong>No articles found</strong></p>
+                <p>Your published articles will appear here</p>
+            </div>
+
+            <div class="table-wrapper" id="tableWrapper" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Article Title & Site</th>
+                            <th style="width: 12%;">Category</th>
+                            <th style="width: 15%;">Author/Writer</th>
+                            <th style="width: 12%;">Status</th>
+                            <th style="width: 15%;">Published Date</th>
+                            <th style="width: 10%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="paginationContainer" style="display: none;">
+                <button onclick="previousPage()">&laquo; Previous</button>
+                <div id="pageNumbers"></div>
+                <button onclick="nextPage()">Next &raquo;</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // State variables
+    let allArticles = [];
+    let filteredArticles = [];
+    let currentPage = 1;
+    const articlesPerPage = 15;
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadPublishingHistory();
+    });
+
+    function loadPublishingHistory() {
+        const loadingState = document.getElementById('loadingState');
+        loadingState.style.display = 'block';
+
+        fetch('/api/publishing-history', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadingState.style.display = 'none';
+            
+            if (data.status === 'success') {
+                allArticles = data.articles || [];
+                filteredArticles = [...allArticles];
+                
+                // Update stats
+                updateStats();
+                
+                // Render initial data
+                currentPage = 1;
+                renderTable();
+            } else {
+                showError('Failed to load publishing history');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading history:', error);
+            loadingState.style.display = 'none';
+            showError('Error loading publishing history. Please try again.');
+        });
+    }
+
+    function updateStats() {
+        const published = allArticles.filter(a => a.status === 'published').length;
+        const scheduled = allArticles.filter(a => a.status === 'scheduled').length;
+        const draft = allArticles.filter(a => a.status === 'draft').length;
+
+        document.getElementById('publishedCount').textContent = published;
+        document.getElementById('scheduledCount').textContent = scheduled;
+        document.getElementById('draftCount').textContent = draft;
+    }
+
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        filteredArticles = allArticles.filter(article => {
+            const matchSearch = article.title.toLowerCase().includes(searchTerm) ||
+                              article.author.toLowerCase().includes(searchTerm) ||
+                              article.site.toLowerCase().includes(searchTerm);
+            
+            // Check both article type and category
+            let matchCategory = true;
+            if (categoryFilter) {
+                // If filter is a known article type (stock, earnings, sports)
+                if (['stock', 'earnings', 'sports'].includes(categoryFilter)) {
+                    matchCategory = article.article_type === categoryFilter;
+                } else {
+                    // Otherwise match category (for sports subcategories like Football, Cricket, etc)
+                    matchCategory = article.category === categoryFilter;
+                }
+            }
+            
+            const matchStatus = !statusFilter || article.status === statusFilter;
+
+            return matchSearch && matchCategory && matchStatus;
+        });
+
+        currentPage = 1;
+        renderTable();
+    }
+
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = '';
+        document.getElementById('statusFilter').value = '';
+        
+        filteredArticles = [...allArticles];
+        currentPage = 1;
+        renderTable();
+    }
+
+    function renderTable() {
+        const tableWrapper = document.getElementById('tableWrapper');
+        const emptyState = document.getElementById('emptyState');
+        const tableBody = document.getElementById('historyTableBody');
+        const paginationContainer = document.getElementById('paginationContainer');
+
+        if (filteredArticles.length === 0) {
+            tableWrapper.style.display = 'none';
+            emptyState.style.display = 'block';
+            paginationContainer.style.display = 'none';
+            return;
+        }
+
+        tableWrapper.style.display = 'block';
+        emptyState.style.display = 'none';
+
+        // Calculate pagination
+        const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+        const startIndex = (currentPage - 1) * articlesPerPage;
+        const endIndex = Math.min(startIndex + articlesPerPage, filteredArticles.length);
+        const pageArticles = filteredArticles.slice(startIndex, endIndex);
+
+        // Clear and populate table
+        tableBody.innerHTML = '';
+        pageArticles.forEach(article => {
+            const row = document.createElement('tr');
+            
+            // Format date
+            const publishDate = new Date(article.published_at || article.timestamp);
+            const dateStr = publishDate.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Status badge
+            const statusIcon = article.status === 'published' ? '✓' : 
+                             article.status === 'scheduled' ? '📅' : '📝';
+            
+            // Create article title and site display
+            const articleLink = article.post_url && article.post_url !== '#' 
+                ? `<a href="${article.post_url}" target="_blank" rel="noopener noreferrer" class="article-title" title="View article as reader">${article.title}</a>`
+                : `<span class="article-title">${article.title}</span>`;
+            
+            const siteDisplay = article.site ? `<small style="display: block; color: hsl(var(--muted-foreground)); font-size: 0.8rem; margin-top: 0.25rem;">${article.site}</small>` : '';
+            
+            row.innerHTML = `
+                <td>
+                    <div style="display: flex; flex-direction: column;">
+                        ${articleLink}
+                        ${siteDisplay}
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <span class="category-badge">${article.category || 'General'}</span>
+                        <small style="font-size: 0.7rem; color: #6b7280; text-transform: capitalize;">${article.article_type ? `(${article.article_type})` : '(article)'}</small>
+                    </div>
+                </td>
+                <td>
+                    <strong>${article.author || 'Unknown'}</strong>
+                </td>
+                <td>
+                    <span class="status-badge ${article.status || 'draft'}">
+                        ${statusIcon} ${article.status ? article.status.charAt(0).toUpperCase() + article.status.slice(1) : 'Draft'}
+                    </span>
+                </td>
+                <td>
+                    <small>${dateStr}</small>
+                </td>
+                <td>
+                    <div class="action-menu">
+                        ${article.post_url && article.post_url !== '#' ? `<a href="${article.post_url}" target="_blank" rel="noopener noreferrer" class="action-btn"><i class="fas fa-external-link-alt"></i> View</a>` : '<button class="action-btn" disabled><i class="fas fa-ban"></i> N/A</button>'}
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Update pagination
+        if (totalPages > 1) {
+            paginationContainer.style.display = 'flex';
+            renderPagination(totalPages);
+        } else {
+            paginationContainer.style.display = 'none';
+        }
+    }
+
+    function renderPagination(totalPages) {
+        const pageNumbers = document.getElementById('pageNumbers');
+        pageNumbers.innerHTML = '';
+
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.className = i === currentPage ? 'active' : '';
+            btn.onclick = () => {
+                currentPage = i;
+                renderTable();
+            };
+            pageNumbers.appendChild(btn);
+        }
+    }
+
+    function previousPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    }
+
+    function nextPage() {
+        const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTable();
+        }
+    }
+
+    function showError(message) {
+        const emptyState = document.getElementById('emptyState');
+        emptyState.querySelector('p:first-of-type').innerHTML = `<strong>${message}</strong>`;
+        emptyState.style.display = 'block';
+        document.getElementById('tableWrapper').style.display = 'none';
+    }
+
+    // Auto-load data on page load
+    window.addEventListener('load', loadPublishingHistory);
+</script>
+{% endblock %}

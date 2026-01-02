@@ -1,0 +1,1772 @@
+{% extends "_base.html" %}
+
+{% block title %}About Us | Tickzen - AI Powered Stock Analysis Platform{% endblock %}
+
+{% block head_extra %}
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Learn about Tickzen - the AI-powered stock analysis platform revolutionizing investment research with cutting-edge technology for data-driven decision making.">
+    <meta name="keywords" content="about Tickzen, stock analysis company, AI investment platform, financial technology, stock prediction AI">
+    <meta property="og:title" content="About Tickzen - AI Stock Analysis Platform">
+    <meta property="og:description" content="Discover how Tickzen combines AI and financial expertise to provide industry-leading stock analysis and investment research tools.">
+    <meta property="og:image" content="https://tickzen.app/static/images/tickzen-team-og.jpg">
+    <meta property="og:url" content="https://tickzen.app/about">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="About Tickzen - AI Stock Analysis Platform">
+    <meta name="twitter:description" content="Discover how Tickzen combines AI and financial expertise to provide industry-leading stock analysis and investment research tools.">
+    <meta name="twitter:image" content="https://tickzen.app/static/images/tickzen-team-og.jpg">
+
+    <style>
+        /* About page specific styles */
+        :root {
+            --primary-color: #10B981; /* Green color */
+            --primary-rgb: 16, 185, 129; /* RGB values for green */
+        }
+        .about-section {
+            padding: 80px 0;
+        }
+        .about-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .about-header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-color, #10B981) 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .about-header p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .mission-vision {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 40px;
+            margin-bottom: 60px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .mission-vision .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+        .mission-vision .col {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 0 15px;
+        }
+        .mission-box {
+            padding: 30px;
+            height: 100%;
+            border-radius: 8px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .mission-box h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+        .mission-box h2 svg {
+            margin-right: 10px;
+        }
+        .mission-box p {
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        .team-section {
+            margin-top: 80px;
+            text-align: center;
+        }
+        .team-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+        }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .team-member {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .team-member-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        .team-member-info {
+            padding: 20px;
+        }
+        .team-member-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+        .team-member-role {
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+        }
+        .team-member-bio {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .social-links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .social-links a {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .social-links a:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .timeline-section {
+            margin: 100px 0;
+            position: relative;
+            padding: 60px 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, var(--section-bg), var(--bg-color));
+        }
+        
+        .timeline-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(var(--primary-rgb), 0) 0%, rgba(var(--primary-rgb), 0.3) 50%, rgba(var(--primary-rgb), 0) 100%);
+        }
+        
+        .timeline-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(var(--primary-rgb), 0) 0%, rgba(var(--primary-rgb), 0.3) 50%, rgba(var(--primary-rgb), 0) 100%);
+        }
+        
+        .timeline-section h2 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 70px;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .timeline-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #16a34a, #15803d);
+        }
+        
+        .timeline-intro {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards;
+            animation-delay: 0.2s;
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background: linear-gradient(to bottom, #16a34a, rgba(22, 163, 74, 0.3));
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(22, 163, 74, 0.4);
+            box-shadow: 0 0 10px rgba(22, 163, 74, 0.3);
+            z-index: 0;
+        }
+        
+        .timeline-item {
+            padding: 15px 50px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.5s ease;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .timeline-item.animate {
+            opacity: 1;
+            transform: translateX(0);
+            animation: none;
+        }
+        
+        .timeline-item:nth-child(1).animate { animation: slideInFromSide 0.5s ease forwards; animation-delay: 0.1s; }
+        .timeline-item:nth-child(2).animate { animation: slideInFromSide 0.5s ease forwards; animation-delay: 0.2s; }
+        .timeline-item:nth-child(3).animate { animation: slideInFromSide 0.5s ease forwards; animation-delay: 0.3s; }
+        .timeline-item:nth-child(4).animate { animation: slideInFromSide 0.5s ease forwards; animation-delay: 0.4s; }
+        .timeline-item:nth-child(5).animate { animation: slideInFromSide 0.5s ease forwards; animation-delay: 0.5s; }
+        .timeline-item:nth-child(6).animate { animation: slideInFromSide 0.5s ease forwards; animation-delay: 0.6s; }
+        .timeline-item:nth-child(7).animate { animation: slideInFromSide 0.5s ease forwards; animation-delay: 0.7s; }
+        .timeline-item:nth-child(8).animate { animation: slideInFromSide 0.5s ease forwards; animation-delay: 0.8s; }
+        
+        @keyframes slideInFromSide {
+            0% {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .right.animate {
+            transform: translateX(0);
+        }
+        
+        .right:nth-child(even).animate { 
+            animation: slideInFromRightSide 0.5s ease forwards; 
+        }
+        
+        @keyframes slideInFromRightSide {
+            0% {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            border: 4px solid var(--card-bg);
+            border-radius: 50%;
+            top: 25px;
+            z-index: 1;
+            box-shadow: 0 0 15px rgba(22, 163, 74, 0.5), 0 0 0 4px rgba(22, 163, 74, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-item:hover::after {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(22, 163, 74, 0.7), 0 0 0 6px rgba(22, 163, 74, 0.3);
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 4px;
+            background: linear-gradient(to right, rgba(22, 163, 74, 0.8), #16a34a);
+            top: 35px;
+            z-index: 1;
+            transition: width 0.6s ease;
+            box-shadow: 0 0 5px rgba(22, 163, 74, 0.4);
+            border-radius: 2px;
+        }
+        
+        .left {
+            left: 0;
+            text-align: center;
+        }
+        
+        .right {
+            left: 50%;
+            transform: translateX(30px);
+        }
+        
+        .right.animate {
+            transform: translateX(0);
+        }
+        
+        .left::after {
+            right: -12px;
+        }
+        
+        .right::after {
+            left: -12px;
+        }
+        
+        .left::before {
+            right: -28px;
+            width: 0;
+        }
+        
+        .left:hover::before {
+            width: 28px;
+        }
+        
+        .right::before {
+            left: -28px;
+            width: 0;
+        }
+        
+        .right:hover::before {
+            width: 28px;
+        }
+        
+        .timeline-content {
+            padding: 30px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, #16a34a, rgba(22, 163, 74, 0.5));
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .left .timeline-content::before {
+            left: auto;
+            right: 0;
+        }
+        
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .timeline-content:hover::before {
+            opacity: 1;
+        }
+        
+        .timeline-icon {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(22, 163, 74, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            top: 20px;
+            z-index: 3;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2), 0 0 0 3px rgba(22, 163, 74, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(22, 163, 74, 0.5);
+            overflow: hidden;
+        }
+        
+        .timeline-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 50%, rgba(22, 163, 74, 0.05) 50%);
+            top: 0;
+            left: 0;
+            opacity: 0.6;
+        }
+        
+        .left .timeline-icon {
+            right: -75px;
+        }
+        
+        .right .timeline-icon {
+            left: -75px;
+        }
+        
+        .timeline-content:hover + .timeline-icon,
+        .timeline-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+            background-color: rgba(22, 163, 74, 0.25);
+            box-shadow: 0 8px 16px rgba(22, 163, 74, 0.4), 0 0 0 4px rgba(22, 163, 74, 0.15);
+            border-color: rgba(22, 163, 74, 0.7);
+        }
+        
+        .timeline-icon svg {
+            color: #16a34a;
+            width: 24px;
+            height: 24px;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+        }
+        
+        .timeline-date {
+            font-weight: 700;
+            color: #fff;
+            margin: 0 auto 15px;
+            display: inline-block;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            box-shadow: 0 3px 10px rgba(22, 163, 74, 0.2);
+            text-align: center;
+        }
+        
+        .timeline-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .timeline-text {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 1.05rem;
+            text-align: center;
+        }
+        
+        .timeline-future {
+            text-align: center;
+            margin-top: 60px;
+            position: relative;
+            padding-top: 50px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        
+        .timeline-future.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .timeline-future::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 50px;
+            background: linear-gradient(to bottom, rgba(22, 163, 74, 0.3), #16a34a);
+            border-radius: 0 0 3px 3px;
+        }
+        
+        .future-content {
+            background: linear-gradient(145deg, var(--card-bg), var(--bg-secondary));
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(var(--primary-rgb), 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .future-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color, #10B981), #059669);
+        }
+        
+        .future-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color, #10B981), #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .future-goals {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .future-goal {
+            background-color: var(--bg-color);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            width: calc(50% - 15px);
+            border: 1px solid rgba(var(--primary-rgb), 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+        
+        .future-goal:nth-child(1) { animation-delay: 0.2s; }
+        .future-goal:nth-child(2) { animation-delay: 0.3s; }
+        .future-goal:nth-child(3) { animation-delay: 0.4s; }
+        .future-goal:nth-child(4) { animation-delay: 0.5s; }
+        
+        .future-goal:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            background-color: rgba(var(--primary-rgb), 0.03);
+        }
+        
+        .future-goal-icon {
+            width: 45px;
+            height: 45px;
+            background-color: rgba(var(--primary-rgb), 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .future-goal:hover .future-goal-icon {
+            background-color: rgba(var(--primary-rgb), 0.2);
+        }
+        
+        .future-goal-icon svg {
+            color: var(--primary-color);
+            width: 20px;
+            height: 20px;
+        }
+        
+        .future-goal-text {
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .values-section {
+            margin: 80px 0;
+            text-align: center;
+        }
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        .core-values-intro {
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+        .core-values-intro p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .value-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 35px 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            height: 100%;
+        }
+        .value-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        .value-card:hover .value-icon {
+            background-color: rgba(var(--primary-rgb), 0.2);
+        }
+        .value-card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0;
+            background: linear-gradient(to bottom, var(--primary-color), rgba(var(--primary-rgb), 0.5));
+            transition: height 0.5s ease;
+        }
+        .value-card:hover:before {
+            height: 100%;
+        }
+        .value-icon {
+            width: 70px;
+            height: 70px;
+            background-color: rgba(var(--primary-rgb), 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            transition: all 0.3s ease;
+        }
+        .value-icon svg {
+            color: var(--primary-color);
+            width: 35px;
+            height: 35px;
+            transition: all 0.3s ease;
+        }
+        .value-card:hover .value-icon svg {
+            transform: scale(1.1);
+        }
+        .value-title {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            color: var(--text-color);
+            font-weight: 600;
+            line-height: 1.3;
+            position: relative;
+            padding-bottom: 14px;
+        }
+        .value-title:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background-color: rgba(var(--primary-rgb), 0.3);
+        }
+        .value-desc {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        .cta-section {
+            background-color: #111720;
+            padding: 80px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin: 80px 0;
+        }
+        .cta-section h2 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .cta-btn {
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        .cta-btn svg {
+            margin-right: 8px;
+        }
+        .cta-btn-primary {
+            background-color: #16a34a;
+            color: white;
+        }
+        .cta-btn-primary:hover {
+            background-color: #15803d;
+            transform: translateY(-3px);
+        }
+        .cta-btn-secondary {
+            background-color: transparent;
+            border: 2px solid #16a34a;
+            color: white;
+        }
+        .cta-btn-secondary:hover {
+            background-color: rgba(22, 163, 74, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        /* Story section styles */
+        .story-section {
+            margin: 60px 0;
+            text-align: center;
+        }
+        .story-subtitle {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards;
+            animation-delay: 0.3s;
+        }
+        .story-content {
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.8;
+            text-align: center;
+        }
+        .story-content p {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards;
+        }
+        .story-content p:nth-child(1) { animation-delay: 0.5s; }
+        .story-content p:nth-child(2) { animation-delay: 0.7s; }
+        .story-content p:nth-child(3) { animation-delay: 0.9s; }
+        .story-content p:nth-child(4) { animation-delay: 1.1s; }
+        .story-content p:nth-child(5) { animation-delay: 1.3s; }
+        
+        /* Breakthrough quote styling */
+        .breakthrough-quote {
+            background-color: rgba(22, 163, 74, 0.08);
+            border-left: 4px solid rgba(22, 163, 74, 0.6);
+            margin: 30px 0;
+            padding: 20px 30px;
+            border-radius: 0 8px 8px 0;
+            position: relative;
+            font-style: italic;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s forwards;
+            animation-delay: 0.8s;
+        }
+        
+        .breakthrough-quote p {
+            font-size: 1.2rem;
+            line-height: 1.7;
+            color: var(--text-color);
+            font-weight: 500;
+            opacity: 1 !important;
+            transform: none !important;
+            animation: none !important;
+            margin-bottom: 0;
+        }
+        
+        .breakthrough-quote::before {
+            content: '"';
+            position: absolute;
+            top: -15px;
+            left: 15px;
+            font-size: 4rem;
+            color: rgba(22, 163, 74, 0.3);
+            font-family: Georgia, serif;
+        }
+        
+        /* What We Solve section */
+        .what-we-solve {
+            margin: 60px 0 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards;
+            animation-delay: 1.4s;
+        }
+        
+        .what-we-solve h3 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: var(--text-color);
+        }
+        
+        .solutions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        .solution-card {
+            flex: 1;
+            min-width: 300px;
+            max-width: calc(50% - 15px);
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .solution-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .solution-card h4 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .solution-card > p {
+            color: var(--text-color);
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 1.05rem;
+        }
+        
+        .solution-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .solution-features li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            color: var(--text-muted);
+        }
+        
+        .solution-features li svg {
+            color: var(--primary-color);
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+            padding: 40px 20px;
+            background: linear-gradient(145deg, rgba(var(--primary-rgb), 0.05) 0%, rgba(var(--primary-rgb), 0.1) 100%);
+            border-radius: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards;
+            animation-delay: 1.5s;
+        }
+        .stat-item {
+            text-align: center;
+            min-width: 180px;
+            padding: 20px 10px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s forwards;
+        }
+        .stat-item:nth-child(1) { animation-delay: 1.6s; }
+        .stat-item:nth-child(2) { animation-delay: 1.7s; }
+        .stat-item:nth-child(3) { animation-delay: 1.8s; }
+        .stat-item:nth-child(4) { animation-delay: 1.9s; }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .mission-vision .col {
+                flex: 0 0 100%;
+                max-width: 100%;
+                margin-bottom: 20px;
+            }
+            .timeline::after {
+                left: 30px;
+            }
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 20px;
+                left: 0;
+                text-align: left;
+            }
+            .timeline-item::after {
+                left: 20px;
+            }
+            .left::after, .right::after {
+                left: 20px;
+            }
+            .right {
+                left: 0;
+            }
+        }
+        @media (max-width: 768px) {
+            .about-header h1 {
+                font-size: 2.5rem;
+            }
+            .mission-box {
+                padding: 20px;
+            }
+            .team-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+            .core-values-intro p {
+                font-size: 1.1rem;
+            }
+            .section-title {
+                font-size: 2.2rem;
+                text-align: center;
+            }
+            .cta-section h2 {
+                font-size: 2rem;
+            }
+            .cta-section p {
+                font-size: 1rem;
+            }
+            .solution-card {
+                max-width: 100%;
+            }
+            .breakthrough-quote {
+                padding: 15px 20px;
+                margin: 25px 0;
+            }
+            .breakthrough-quote p {
+                font-size: 1.1rem;
+            }
+        }
+        @media (max-width: 576px) {
+            .about-section {
+                padding: 40px 0;
+            }
+            .about-header h1 {
+                font-size: 2rem;
+            }
+            .about-header p {
+                font-size: 1rem;
+            }
+            .timeline-content {
+                padding: 15px;
+            }
+            .timeline-title {
+                font-size: 1rem;
+            }
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .value-title {
+                font-size: 1.3rem;
+            }
+            .core-values-intro p {
+                font-size: 1rem;
+            }
+            .solution-card {
+                padding: 20px;
+            }
+            .solution-card h4 {
+                font-size: 1.2rem;
+            }
+            .breakthrough-quote {
+                padding: 15px;
+            }
+            .breakthrough-quote p {
+                font-size: 1rem;
+            }
+            .breakthrough-quote::before {
+                font-size: 3rem;
+                top: -10px;
+                left: 10px;
+            }
+            /* Fix for future-goal on mobile */
+            .future-goal {
+                width: 100%;
+                flex-direction: row;
+                align-items: center;
+            }
+            .future-goal-icon {
+                margin-right: 15px;
+                min-width: 50px;
+            }
+            .future-goal-text {
+                margin: 0;
+                text-align: left;
+            }
+        }
+        
+        /* Founder's Note Section */
+        .founders-note-section {
+            padding: 100px 0;
+            background-color: var(--section-bg);
+            text-align: center;
+        }
+        
+        .founders-note-section .section-title {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .founders-note-section .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(135deg, var(--primary-color, #10B981) 0%, #059669 100%);
+        }
+        
+        .founders-note {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .note-content {
+            text-align: center;
+            width: 100%;
+            position: relative;
+        }
+        
+        .founders-quote {
+            position: relative;
+            font-style: italic;
+            padding: 50px 40px;
+            margin-bottom: 50px;
+            border-left: none;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+        
+        .founders-quote p {
+            font-size: 1.5rem;
+            line-height: 1.7;
+            color: var(--text-color);
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .founders-quote::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 50px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23ddd'%3E%3Cpath d='M464 256h-80v-64c0-35.3 28.7-64 64-64h8c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24h-8c-88.4 0-160 71.6-160 160v240c0 26.5 21.5 48 48 48h128c26.5 0 48-21.5 48-48V304c0-26.5-21.5-48-48-48zm-288 0H96v-64c0-35.3 28.7-64 64-64h8c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24h-8c-88.4 0-160 71.6-160 160v240c0 26.5 21.5 48 48 48h128c26.5 0 48-21.5 48-48V304c0-26.5-21.5-48-48-48z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            opacity: 0.2;
+            z-index: 0;
+        }
+        
+        .founders-quote::after {
+            content: '';
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 50px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23ddd'%3E%3Cpath d='M464 32H336c-26.5 0-48 21.5-48 48v128c0 26.5 21.5 48 48 48h80v64c0 35.3-28.7 64-64 64h-8c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24h8c88.4 0 160-71.6 160-160V80c0-26.5-21.5-48-48-48zm-288 0H48C21.5 32 0 53.5 0 80v128c0 26.5 21.5 48 48 48h80v64c0 35.3-28.7 64-64 64h-8c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24h8c88.4 0 160-71.6 160-160V80c0-26.5-21.5-48-48-48z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            opacity: 0.2;
+            transform: rotate(180deg);
+            z-index: 0;
+        }
+        
+        .note-signature {
+            margin-top: 30px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .founder-name {
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 10px;
+        }
+        
+        .founder-title {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 0;
+        }
+        
+        .founder-signature {
+            position: relative;
+            margin-bottom: 15px;
+            display: block;
+            margin: 0 auto 15px;
+            height: 50px;
+        }
+        
+        .founder-signature img {
+            height: 100%;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .founders-note-section .section-title {
+                font-size: 2.2rem;
+            }
+            
+            .founders-note {
+                padding: 0 20px;
+            }
+            
+            .founders-quote {
+                padding: 40px 25px;
+            }
+            
+            .founders-quote p {
+                font-size: 1.2rem;
+            }
+            
+            .founders-quote::before, 
+            .founders-quote::after {
+                width: 40px;
+                height: 30px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- About Header Section -->
+    <section class="about-section">
+        <div class="about-header">
+            <h1>About Tickzen</h1>
+            <p>Revolutionizing investment research with cutting-edge AI technology and financial expertise to empower investors worldwide.</p>
+        </div>
+
+        <!-- Mission & Vision Section -->
+        <div class="mission-vision">
+            <div class="row">
+                <div class="col">
+                    <div class="mission-box">
+                        <h2>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                            </svg>
+                            Our Mission
+                        </h2>
+                        <p>At Tickzen, our mission is to democratize access to professional-grade financial analysis by leveraging artificial intelligence. We empower investors of all levels to make data-driven decisions through comprehensive, easy-to-understand stock analyses and forecasts.</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="mission-box">
+                        <h2>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            Our Vision
+                        </h2>
+                        <p>We envision a future where every investor, regardless of their background or resources, has access to sophisticated financial insights previously available only to institutions. By bridging this gap, we aim to create a more equitable financial landscape where informed investing is accessible to all.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Story Section -->
+        <div class="story-section">
+            <h2 class="section-title">Our Story</h2>
+            <h3 class="story-subtitle">The spark that ignited a revolution in financial analysis</h3>
+            
+            <div class="story-content">
+                <p>It all started with a simple frustration. As retail investors ourselves, we were tired of sifting through endless financial reports, conflicting analyst opinions, and fragmented data sources just to make one informed investment decision. The tools available to individual investors felt outdated, while institutional-grade analysis remained locked behind expensive paywalls.</p>
+                
+                <p>In late 2024, what began as a weekend coding project to automate our own stock research quickly evolved into something much bigger. We realized we weren't alone in this struggle – millions of investors worldwide were facing the same challenges, spending countless hours trying to piece together comprehensive market insights.</p>
+                
+                <blockquote class="breakthrough-quote">
+                    <p>"Our breakthrough moment came when we successfully trained our first AI model to analyze 15 years of historical data and generate institutional-quality reports in seconds. We knew we had something special – a way to democratize financial analysis and level the playing field for every investor."</p>
+                </blockquote>
+                
+                <p>Today, Tickzen has grown from that weekend experiment into a comprehensive platform trusted by thousands of investors, analysts, and financial content creators worldwide. But our core mission remains unchanged: to make sophisticated financial analysis accessible, understandable, and actionable for everyone.</p>
+                
+                <p>We're not just building software – we're building the future of investment research. Every feature we develop, every algorithm we refine, and every report we generate is driven by our commitment to empowering investors with the insights they need to make confident, data-driven decisions.</p>
+            </div>
+            
+            <div class="what-we-solve">
+                <h3 class="section-title">What We Solve</h3>
+                
+                <div class="solutions-container">
+                    <div class="solution-card">
+                        <h4>Comprehensive Stock Analysis</h4>
+                        <p>Tickzen provides everything in a single, AI-generated report with institutional-grade depth and accuracy.</p>
+                        
+                        <ul class="solution-features">
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                4 Technical indicators (RSI, MACD, Histogram)
+                            </li>
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                15-year price history & charts
+                            </li>
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                AI-powered forecasts with confidence intervals
+                            </li>
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Comprehensive risk scores & assessments
+                            </li>
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Real-time macroeconomic factors
+                            </li>
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Analyst consensus from 15+ institutions
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="solution-card">
+                        <h4>Financial Content Automation</h4>
+                        <p>Generate well-researched financial blog posts in seconds with intelligent automation and SEO optimization.</p>
+                        
+                        <ul class="solution-features">
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Auto-publishes to WordPress via API
+                            </li>
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Built-in SEO with strategic external links
+                            </li>
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Smart writer rotation system
+                            </li>
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Intelligent scheduling prevents spam detection
+                            </li>
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                4,000+ word comprehensive reports
+                            </li>
+                            <li>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                FAQ sections with schema markup
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-item" data-count="10000">
+                    <div class="stat-number"><span class="counter">0</span>+</div>
+                    <div class="stat-label">Reports Generated</div>
+                </div>
+                <div class="stat-item" data-count="2500">
+                    <div class="stat-number"><span class="counter">0</span>+</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-item" data-count="15">
+                    <div class="stat-number"><span class="counter">0</span></div>
+                    <div class="stat-label">Years of Data</div>
+                </div>
+                <div class="stat-item" data-count="99.9">
+                    <div class="stat-number"><span class="counter">0</span>%</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Values Section -->
+        <div class="values-section">
+            <h2 class="section-title">Our Core Values</h2>
+            <div class="core-values-intro">
+                <p>Our principles that guide everything we do at Tickzen – from product development to customer support.</p>
+            </div>
+            
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <line x1="10" y1="9" x2="8" y2="9"></line>
+                        </svg>
+                    </div>
+                    <h3 class="value-title">Clarity over complexity</h3>
+                    <p class="value-desc">We believe complex financial data should be presented in clear, understandable formats that empower better decision-making.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m21.21 15.89-9 3-8.5-6.5 9-3 8.5 6.5Z"></path>
+                            <path d="m12.21 7.9-1.6-1.2-8.5 2.8 8.5 6.5 9-3-4.5-3.5"></path>
+                        </svg>
+                    </div>
+                    <h3 class="value-title">Full automation, no compromise on quality</h3>
+                    <p class="value-desc">Our automation systems maintain institutional-grade quality while saving hours of manual research and content creation.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                    </div>
+                    <h3 class="value-title">Data transparency</h3>
+                    <p class="value-desc">Every analysis includes clear data sources, confidence intervals, and methodology explanations for complete transparency.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                        </svg>
+                    </div>
+                    <h3 class="value-title">AI-powered but human-readable</h3>
+                    <p class="value-desc">We leverage advanced AI while ensuring all outputs remain accessible and actionable for human investors and analysts.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                            <circle cx="12" cy="5" r="2"></circle>
+                            <path d="M12 7v4"></path>
+                            <line x1="8" y1="16" x2="8" y2="16"></line>
+                            <line x1="16" y1="16" x2="16" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h3 class="value-title">Save time, boost accuracy</h3>
+                    <p class="value-desc">Our platform reduces research time from hours to minutes while improving the accuracy and depth of financial analysis.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Founder's Note Section -->
+        <div class="founders-note-section">
+            <h2 class="section-title">Founder's Note</h2>
+            <div class="founders-note">
+                <div class="note-content">
+                    <blockquote class="founders-quote">
+                        <p>"What started as a weekend experiment in late 2024 has grown into a product used by analysts, traders, and finance bloggers worldwide. Tickzen reflects a personal mission — to simplify investing research and give creators their time back. We're not done yet. The roadmap is long, and your feedback is our compass."</p>
+                    </blockquote>
+                    <div class="note-signature">
+                        <span class="founder-signature">
+                            <svg width="120" height="60" viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20,80 C40,20 60,100 80,60 C100,20 120,80 140,40 C160,70 180,30 220,60" stroke="currentColor" fill="none" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M30,90 C70,70 100,110 160,80" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/>
+                                <text x="170" y="95" font-family="cursive" font-size="24" fill="currentColor">Vishal</text>
+                            </svg>
+                        </span>
+                        <p class="founder-name">Vishal Jadaun</p>
+                        <p class="founder-title">Founder & Developer, Tickzen</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div class="timeline-section">
+            <h2 class="section-title">Our Journey</h2>
+            <p class="timeline-intro">From a weekend experiment to a powerful AI-driven stock analysis platform, follow our path of innovation and growth.</p>
+            <div class="timeline">
+                <div class="timeline-item left">
+                    <div class="timeline-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">October 2024</span>
+                        <h3 class="timeline-title">The Beginning</h3>
+                        <p class="timeline-text">Started with stock price prediction models as a weekend experiment, focusing on technical analysis and basic forecasting algorithms.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                    </div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">November - December 2024</span>
+                        <h3 class="timeline-title">Real-Time Integration</h3>
+                        <p class="timeline-text">Added real-time market data feeds and expanded stock research features with comprehensive fundamental analysis capabilities.</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">January 2025</span>
+                        <h3 class="timeline-title">All-in-One Reports</h3>
+                        <p class="timeline-text">Introduced comprehensive stock reports combining technical analysis, fundamental metrics, and AI-powered forecasting in a single document.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                    </div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">March 2025</span>
+                        <h3 class="timeline-title">Content Automation</h3>
+                        <p class="timeline-text">Launched WordPress blog automation with intelligent publishing, SEO optimization, and content management systems.</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 10h-4V4h-4v6H6l6 6 6-6z"></path>
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        </svg>
+                    </div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">May 2025</span>
+                        <h3 class="timeline-title">Smart Publishing</h3>
+                        <p class="timeline-text">Enhanced SEO capabilities, implemented smart writer rotation, and added intelligent scheduling to prevent spam detection.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18"></path>
+                            <path d="m19 9-5 5-4-4-3 3"></path>
+                        </svg>
+                    </div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">August 2025</span>
+                        <h3 class="timeline-title">Advanced Analytics</h3>
+                        <p class="timeline-text">Added 15-year historical charting, market event analysis, and advanced pattern recognition with confidence scoring.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-future">
+                <div class="future-content">
+                    <h3 class="future-title">Next Generation Features</h3>
+                    <p>Our roadmap is packed with exciting innovations to further enhance your investment experience.</p>
+                    
+                    <div class="future-goals">
+                        <div class="future-goal">
+                            <div class="future-goal-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                                </svg>
+                            </div>
+                            <p class="future-goal-text">Real-time feeds with instant market updates and alerts</p>
+                        </div>
+                        <div class="future-goal">
+                            <div class="future-goal-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 2H3v16h5v4l4-4h5l4-4V2zM11 11V7M16 11V7"></path>
+                                </svg>
+                            </div>
+                            <p class="future-goal-text">AI personality content writing with customizable tones</p>
+                        </div>
+                        <div class="future-goal">
+                            <div class="future-goal-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                                </svg>
+                            </div>
+                            <p class="future-goal-text">Predictive stock modeling with multi-factor analysis</p>
+                        </div>
+                        <div class="future-goal">
+                            <div class="future-goal-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 3v18h18"></path>
+                                    <path d="M18.7 8.7a3 3 0 0 0-4.1-4.1L3 16.1V21h4.9L18.7 8.7z"></path>
+                                </svg>
+                            </div>
+                            <p class="future-goal-text">Enhanced historical event correlation analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action Section -->
+        <div class="cta-section">
+            <h2>Experience the Power of AI-Driven Stock Analysis</h2>
+            <p>Join thousands of investors who are making more informed decisions with Tickzen's comprehensive analysis tools.</p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('stock_analysis_homepage_route') }}" class="cta-btn cta-btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"></path>
+                        <path d="m12 5 7 7-7 7"></path>
+                    </svg>
+                    Get Started Free
+                </a>
+                <a href="{{ url_for('analyzer_input_page') }}" class="cta-btn cta-btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+                        <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                    </svg>
+                    Try Demo
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Counter animation function
+    document.addEventListener('DOMContentLoaded', function() {
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statsContainer = entry.target;
+                    const statItems = statsContainer.querySelectorAll('.stat-item');
+                    
+                    statItems.forEach(item => {
+                        const counter = item.querySelector('.counter');
+                        const targetValue = parseFloat(item.dataset.count);
+                        const duration = 2000;
+                        const isDecimal = targetValue % 1 !== 0;
+                        const startTime = performance.now();
+                        
+                        const updateCounter = (currentTime) => {
+                            const elapsedTime = currentTime - startTime;
+                            const progress = Math.min(elapsedTime / duration, 1);
+                            
+                            // Easing function for smoother animation
+                            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                            const currentValue = easeOutQuart * targetValue;
+                            
+                            counter.textContent = isDecimal ? 
+                                currentValue.toFixed(1) : 
+                                Math.floor(currentValue).toLocaleString();
+                            
+                            if (progress < 1) {
+                                requestAnimationFrame(updateCounter);
+                            }
+                        };
+                        
+                        requestAnimationFrame(updateCounter);
+                    });
+                    
+                    observer.unobserve(statsContainer);
+                }
+            });
+        }, observerOptions);
+        
+        const statsContainer = document.querySelector('.stats-container');
+        if (statsContainer) {
+            observer.observe(statsContainer);
+        }
+        
+        // Add intersection observer for all animated elements
+        const animatedElements = document.querySelectorAll('.story-subtitle, .story-content p');
+        animatedElements.forEach(el => {
+            const elementObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const delay = parseFloat(window.getComputedStyle(entry.target).animationDelay);
+                        setTimeout(() => {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, delay * 1000);
+                        elementObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            elementObserver.observe(el);
+        });
+        
+        // Timeline animations
+        const timelineObserverOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.2
+        };
+        
+        // Timeline items animation observer
+        const timelineObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const item = entry.target;
+                    setTimeout(() => {
+                        item.classList.add('animate');
+                    }, item.classList.contains('left') ? 100 : 300);
+                    timelineObserver.unobserve(item);
+                }
+            });
+        }, timelineObserverOptions);
+        
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        timelineItems.forEach((item, index) => {
+            // Add staggered animation delay
+            setTimeout(() => {
+                timelineObserver.observe(item);
+            }, index * 100);
+        });
+        
+        // Future section animation observer
+        const futureObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('animate');
+                    }, 400);
+                    futureObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        const timelineFuture = document.querySelector('.timeline-future');
+        if (timelineFuture) {
+            futureObserver.observe(timelineFuture);
+        }
+    });
+</script>
+{% endblock %}

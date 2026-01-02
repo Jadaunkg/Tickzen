@@ -1,0 +1,1070 @@
+{% extends "_base.html" %}
+
+{% block title %}Free AI Stock Analyzer | Price Predictions & Analysis | Tickzen{% endblock %}
+
+{% block head_extra %}
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Use our free AI stock analyzer to get comprehensive stock analysis, price predictions, and investment insights. Enter any ticker symbol for instant professional financial analysis and forecasts.">
+    <meta name="keywords" content="stock analyzer, free stock analysis, AI stock predictions, stock research tool, investment analysis, ticker analysis, stock forecasting">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tickzen.app/analyzer">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="AI Stock Analyzer - Free Stock Analysis Tool | Tickzen">
+    <meta property="og:description" content="Get comprehensive AI-powered stock analysis for any ticker. Free professional financial reports with price predictions and investment insights.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tickzen.app/analyzer">
+    <meta property="og:image" content="https://tickzen.app/static/images/stock-analyzer-og.jpg">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI Stock Analyzer - Free Stock Analysis Tool">
+    <meta name="twitter:description" content="Get comprehensive AI-powered stock analysis for any ticker. Free professional financial reports with price predictions.">
+    <meta name="twitter:image" content="https://tickzen.app/static/images/stock-analyzer-twitter.jpg">
+    
+    <!-- Structured Data for Tool -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Tickzen Stock Analyzer",
+        "description": "Free AI-powered stock analysis tool providing comprehensive financial reports and price predictions",
+        "url": "https://tickzen.app/analyzer",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "AI Stock Price Predictions",
+            "Technical Analysis with Indicators",
+            "Fundamental Analysis",
+            "Risk Assessment",
+            "Investment Recommendations"
+        ]
+    }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    /* Ensure all your existing CSS for this page is here */
+    .analyzer-page-body {
+        background-color: var(--light, #f5f6fa);
+        font-family: var(--font-main, 'Poppins', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif);
+        color: var(--dark, #2d3436);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    .analyzer-container {
+        width: 100%;
+        max-width: 650px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .analyzer-card {
+        background-color: var(--light, #f5f6fa);
+        border-radius: 12px;
+        padding: 2.5rem;
+        text-align: center;
+    }
+
+    .analyzer-header { margin-bottom: 2rem; }
+    .analyzer-header h1 { font-size: 3.2em; color: var(--dark, #2d3436); font-weight: 700; margin-bottom: 0.5rem; }
+    .analyzer-header h1 i { color: var(--primary, var(--green-600)); margin-left: 0.1em; }
+    .analyzer-header .intro-line { font-size: 1em; color: var(--primary, var(--green-600)); font-weight: 500; margin-bottom: 1rem; line-height: 1.4; }
+    .analyzer-header p { font-size: 1.1em; color: #555; line-height: 1.6; }
+    .form-group { margin-bottom: 1.5rem; text-align: left; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: #333; font-size: 1em; }
+    
+    /* Search Container Styles */
+    .search-container { position: relative; }
+    /* Removed .search-input and .search-input:focus to prevent inner border */
+    .search-icon { 
+        position: absolute; 
+        right: 1.2rem; 
+        top: 50%; 
+        transform: translateY(-50%); 
+        color: #999; 
+        font-size: 1.2rem; 
+        pointer-events: none; 
+    }
+    .search-input:focus + .search-icon { color: var(--primary, var(--green-600)); }
+    
+    /* Typewriter Animation Styles */
+    .typewriter-placeholder {
+        position: absolute;
+        top: 50%;
+        left: 28px;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: #333;
+        font-size: 1.1rem;
+        z-index: 1;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+    
+    .search-input:focus + .search-button + .autocomplete-suggestions + .typewriter-placeholder,
+    .search-input:not(:placeholder-shown) + .search-button + .autocomplete-suggestions + .typewriter-placeholder,
+    .search-input-active + .search-button + .autocomplete-suggestions + .typewriter-placeholder {
+        opacity: 0;
+    }
+    
+    .typewriter-wrapper {
+        display: inline-block;
+    }
+    
+    .typewriter-text {
+        display: inline-block;
+        color: #333;
+    }
+    .btn-analyze { background-color: var(--primary, var(--green-600)); color: white; padding: 0.875rem 1.5rem; font-size: 1.1em; font-weight: 500; border: none; border-radius: 8px; cursor: pointer; display: inline-block; width: auto; min-width: 200px; }
+    .btn-analyze:hover { background-color: var(--green-700); }
+    .btn-analyze:disabled { background-color: #ccc; cursor: not-allowed; }
+    .flash-messages-container { width: 100%; max-width: 650px; margin: 0 auto 1.5rem auto; padding: 0 1rem; position: sticky; top: 10px; z-index: 1050; }
+    .alert { border-radius: 8px; font-size: 1em; border: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+    .alert .btn-close { padding: 0.75rem 1rem; background-color: transparent; border: none; font-size: 1.2rem; opacity: 0.7; }
+    .alert .btn-close:hover { opacity: 1; }
+    .progress-container-wrapper { display: none; width: 100%; max-width: 600px; margin: 2rem auto; padding: 2rem; background-color: #ffffff; border-radius: 12px; border: 1px solid #e0e0e0; text-align: center; }
+    .progress-container-wrapper h2 { font-size: 1.8em; color: var(--dark, #2d3436); margin-bottom: 0.5rem; }
+    .progress-container-wrapper p { font-size: 1em; color: #555; margin-bottom: 1.5rem; }
+    .progress-bar-custom { width: 100%; background-color: #e9ecef; border-radius: 25px; padding: 4px; margin-bottom: 1rem; height: 30px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+    .progress-bar-custom .progress-bar-inner { height: 100%; width: 0%; background-color: var(--success, #27ae60); background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 500; font-size: 0.9em; }
+    .progress-text { font-size: 1.1em; color: var(--dark, #2d3436); font-weight: 500; margin-bottom: 0.5rem; }
+    .time-eta-container { display: flex; justify-content: center; font-size: 0.9em; color: #555; margin-bottom: 1rem; padding: 0 0.5rem; }
+    .time-display { background-color: var(--light, #f5f6fa); padding: 5px 10px; border-radius: 6px; }
+    .progress-message-custom { font-size: 0.95em; color: #444; margin-top: 1rem; min-height: 20px; }
+    #errorMessageArea { display: none; margin-top: 1.5rem; padding: 1rem; color: var(--danger-text, #721c24); background-color: var(--danger-bg, #f8d7da); border: 1px solid var(--danger, #e74c3c); border-radius: 8px; text-align: left; }
+    
+    /* Autocomplete Styles */
+    .autocomplete-suggestions { 
+        position: absolute; 
+        top: 100%; 
+        left: 0; 
+        right: 0; 
+        background: white; 
+        border: 1px solid #ced4da; 
+        border-top: none; 
+        border-radius: 0 0 12px 12px; 
+        z-index: 1000; 
+        max-height: 300px; 
+        overflow-y: auto; 
+        display: none; 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .autocomplete-suggestion { 
+        padding: 0.75rem 1rem; 
+        cursor: pointer; 
+        border-bottom: 1px solid #f8f9fa; 
+    }
+    .autocomplete-suggestion:hover { background-color: #f8f9fa; }
+    .autocomplete-suggestion:last-child { border-bottom: none; }
+    .autocomplete-suggestion.selected { background-color: var(--primary, #16ac84); color: white; }
+    .suggestion-symbol { font-weight: 600; color: inherit; }
+    .suggestion-company { font-size: 0.9em; opacity: 0.8; color: inherit; }
+    .highlight-match { 
+        background-color: rgba(22, 163, 74, 0.1); 
+        padding: 0.1rem 0.2rem; 
+        border-radius: 0.2rem; 
+        font-weight: 500; 
+    }
+    
+    /* Popular Tickers Section */
+    .popular-tickers-section { 
+        margin-top: 2rem; 
+        text-align: center; 
+    }
+    .popular-tickers-section h3 { 
+        font-size: 1.1em; 
+        color: #666; 
+        margin-bottom: 1rem; 
+        font-weight: 500; 
+    }
+    .popular-tickers { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 0.8rem; 
+        justify-content: center; 
+    }
+    .ticker-btn { 
+        padding: 0.6rem 1.2rem; 
+        background-color: #ffffff; 
+        border: 2px solid var(--primary, var(--green-600)); 
+        border-radius: 20px; 
+        color: var(--primary, var(--green-600)); 
+        font-weight: 600; 
+        font-size: 0.9em; 
+        cursor: pointer; 
+        transition: all 0.3s ease; 
+        min-width: 60px; 
+    }
+    .ticker-btn:hover { 
+        background-color: var(--primary, var(--green-600)); 
+        color: white; 
+        transform: translateY(-2px); 
+    }
+    .ticker-btn:active { 
+        transform: translateY(0); 
+    }
+    
+    @media (max-width: 768px) { 
+        .analyzer-card { padding: 2rem; } 
+        .analyzer-header h1 { font-size: 2.2em; } 
+        .analyzer-header .intro-line { font-size: 0.9em; }
+        .analyzer-header p { font-size: 1em; } 
+        .progress-container-wrapper { padding: 1.5rem; } 
+        .popular-tickers { gap: 0.6rem; }
+        .ticker-btn { padding: 0.5rem 1rem; font-size: 0.85em; }
+    }
+    
+    /* Comparison Table Styles */
+    .comparison-section {
+        width: 100%;
+        max-width: 1400px;
+        margin: 3rem auto 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    .comparison-container {
+        background-color: var(--light, #f5f6fa);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .comparison-headline {
+        font-size: 2.2em;
+        color: var(--dark, #2d3436);
+        font-weight: 700;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .table-wrapper {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
+    }
+    
+    .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #ffffff;
+        font-size: 0.9em;
+    }
+    
+    .comparison-table th {
+        background-color: var(--primary, var(--green-600));
+        color: white;
+        padding: 1rem 0.8rem;
+        text-align: center;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .comparison-table th:first-child {
+        text-align: left;
+        min-width: 180px;
+    }
+    
+    .comparison-table td {
+        padding: 0.8rem;
+        border: 1px solid #e0e0e0;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    .comparison-table td:first-child {
+        text-align: left;
+        font-weight: 600;
+        background-color: #f8f9fa;
+        min-width: 180px;
+    }
+    
+    .comparison-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+    
+    .comparison-table tr:hover {
+        background-color: #e9ecef;
+    }
+    
+    .check {
+        color: #28a745;
+        font-weight: 600;
+    }
+    
+    .cross {
+        color: #dc3545;
+        font-weight: 600;
+    }
+    
+    .warning {
+        color: #ffc107;
+        font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+        .comparison-headline {
+            font-size: 1.8em;
+        }
+        
+        .comparison-container {
+            padding: 1rem;
+        }
+        
+        .comparison-section {
+            padding: 0 0.5rem;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        .comparison-table {
+            font-size: 0.75em;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 0.5rem 0.3rem;
+        }
+        
+        .comparison-table th:first-child,
+        .comparison-table td:first-child {
+            min-width: 120px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analyzer-page-body">
+    <div class="flash-messages-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="analyzer-container" id="analyzerFormSection">
+        <div class="analyzer-card">
+            <div class="analyzer-header">
+                <h1>Tickzen <i class="fas fa-search-dollar"></i></h1>
+                <p class="intro-line">Your AI analyst - Generate expert-grade stock reports, With Deep analysis under a minute</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('start_stock_analysis') }}" id="analyzeForm">
+                <input type="hidden" name="client_sid" id="clientSidInput"> {# To send client SID with form if needed #}
+                <div class="form-group">
+                    <label for="tickerInput"></label>
+                    <div class="search-container" style="display: flex; align-items: center; width: 100%; background-color: #fff; border: 2.5px solid var(--primary, #16a34a); border-radius: 999px; padding: 8px 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); position: relative;">
+                        <input type="text" class="search-input" id="tickerInput" name="ticker" placeholder="" required autocomplete="off" style="flex: 1; border: none !important; border-radius: 0 !important; outline: none; font-size: 1.1rem; color: #555; background: transparent; box-shadow: none !important; padding: 0;">
+                        <button type="button" class="search-button" tabindex="-1" style="background-color: var(--primary, #16a34a); border: none; padding: 10px; border-radius: 50%; cursor: default; display: flex; align-items: center; justify-content: center; margin-left: 8px; pointer-events: none;">
+                          <i class="fas fa-search" style="color: #fff; font-size: 18px;"></i>
+                        </button>
+                        <div class="autocomplete-suggestions" id="autocompleteSuggestions"></div>
+                        <div class="typewriter-placeholder" id="typewriterPlaceholder">
+                            <div class="typewriter-wrapper">
+                                <span class="typewriter-text" id="typewriterText"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-analyze" id="analyzeButton">
+                    <i class="fas fa-cogs"></i> Analyze Stock
+                </button>
+            </form>
+            
+            <div class="popular-tickers-section">
+                <h3>Starts with:</h3>
+                <div class="popular-tickers">
+                    <button type="button" class="ticker-btn" data-ticker="AAPL">AAPL</button>
+                    <button type="button" class="ticker-btn" data-ticker="TSLA">TSLA</button>
+                    <button type="button" class="ticker-btn" data-ticker="GOOGL">GOOGL</button>
+                    <button type="button" class="ticker-btn" data-ticker="MSFT">MSFT</button>
+                    <button type="button" class="ticker-btn" data-ticker="AMZN">AMZN</button>
+                    <button type="button" class="ticker-btn" data-ticker="NVDA">NVDA</button>
+                    <button type="button" class="ticker-btn" data-ticker="META">META</button>
+                    <button type="button" class="ticker-btn" data-ticker="NFLX">NFLX</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-container-wrapper" id="progressIndicator">
+        <h2><i class="fas fa-hourglass-half"></i> Generating Your Report...</h2>
+        <p>Please wait while we process your request. This may take a few moments.</p>
+        <div class="progress-bar-custom">
+            <div class="progress-bar-inner" id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+        </div>
+        <p class="progress-text" id="progressText">Initializing...</p>
+        <div class="time-eta-container">
+            <span class="time-display">Elapsed Time: <strong id="elapsedTime">0s</strong></span>
+        </div>
+        <p class="progress-message-custom" id="progressMessage">Fetching data and warming up the AI hamsters...</p>
+        <div id="errorMessageArea" class="alert alert-danger" style="display: none; text-align:left;"></div>
+         <p style="margin-top: 1.5rem; font-size: 0.85em; color: #777;">
+            <i class="fas fa-info-circle"></i> Please do not close or refresh this page. You will be redirected automatically once the report is ready.
+        </p>
+    </div>
+
+    <!-- Comparison Table Section -->
+    <div class="comparison-section">
+        <div class="comparison-container">
+            <h2 class="comparison-headline">Why Tickzen's Analysis?</h2>
+            <div class="table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature / Tool</th>
+                            <th>Tickzen</th>
+                            <th>Seeking Alpha</th>
+                            <th>Gurufocus</th>
+                            <th>Simply Wall St</th>
+                            <th>ChatGPT / AI Tools</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ticker-Based Dynamic Input</td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Yes (live input)</span></td>
+                            <td><span class="cross"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #dc3545; margin-right: 0.5rem;"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>Mostly static</span></td>
+                            <td><span class="cross"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #dc3545; margin-right: 0.5rem;"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>Static</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Partially dynamic</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Prompt-based</span></td>
+                        </tr>
+                        <tr>
+                            <td>Technical Analysis Section</td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Included</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Partial (charts only)</span></td>
+                            <td><span class="cross"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #dc3545; margin-right: 0.5rem;"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>No</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Simplified visuals</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>If prompted</span></td>
+                        </tr>
+                        <tr>
+                            <td>Fundamental Analysis</td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Detailed</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Yes</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Very Detailed</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Yes</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Basic ratios if asked</span></td>
+                        </tr>
+                        <tr>
+                            <td>Macro Indicator Integration</td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Included</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Minimal</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Sector trends only</span></td>
+                            <td><span class="cross"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #dc3545; margin-right: 0.5rem;"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>Not available</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Only if specified</span></td>
+                        </tr>
+                        <tr>
+                            <td>Risk Factors</td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Dedicated Section</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>General</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Yes</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>High-level only</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Not always relevant</span></td>
+                        </tr>
+                        <tr>
+                            <td>10-Year Price History Analysis</td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Integrated</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Charts only</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Charts</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Visual-based</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Requires manual effort</span></td>
+                        </tr>
+                        <tr>
+                            <td>Forecast & Valuation Models</td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Included with explanation</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Yes</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Yes</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Yes</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>No direct prediction</span></td>
+                        </tr>
+                        <tr>
+                            <td>Overall Assessment Summary</td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Clear and comprehensive</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Mixed opinion pieces</span></td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Numerical-based</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Graph summary only</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Prompt dependent</span></td>
+                        </tr>
+                        <tr>
+                            <td>Auto-Generated 2500–3000 Word Report</td>
+                            <td><span class="check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green-600); margin-right: 0.5rem;"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>Yes, ready-to-publish</span></td>
+                            <td><span class="cross"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #dc3545; margin-right: 0.5rem;"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>No</span></td>
+                            <td><span class="cross"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #dc3545; margin-right: 0.5rem;"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>No</span></td>
+                            <td><span class="cross"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #dc3545; margin-right: 0.5rem;"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>No</span></td>
+                            <td><span class="warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffc107; margin-right: 0.5rem;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="m12 17 .01 0"></path></svg>Not consistently detailed</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const analyzeForm = document.getElementById('analyzeForm');
+    const analyzerFormSection = document.getElementById('analyzerFormSection');
+    const progressIndicator = document.getElementById('progressIndicator');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const elapsedTimeDisplay = document.getElementById('elapsedTime');
+    const progressMessage = document.getElementById('progressMessage');
+    const errorMessageArea = document.getElementById('errorMessageArea');
+    const tickerInput = document.getElementById('tickerInput');
+    const analyzeButton = document.getElementById('analyzeButton');
+    const clientSidInput = document.getElementById('clientSidInput');
+    
+    // Enhanced Autocomplete functionality
+    const autocompleteSuggestions = document.getElementById('autocompleteSuggestions');
+    let currentSuggestions = [];
+    let selectedIndex = -1;
+    let searchTimeout = null;
+    
+    // Function to fetch ticker suggestions with enhanced search
+    async function fetchTickerSuggestions(query) {
+        if (!query || query.length < 1) {
+            hideSuggestions();
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/ticker-suggestions?q=${encodeURIComponent(query)}`);
+            const suggestions = await response.json();
+            currentSuggestions = suggestions;
+            displaySuggestions(suggestions, query);
+        } catch (error) {
+            console.error('Error fetching ticker suggestions:', error);
+            hideSuggestions();
+        }
+    }
+    
+    // Function to display suggestions with enhanced styling
+    function displaySuggestions(suggestions, query) {
+        if (!suggestions || suggestions.length === 0) {
+            hideSuggestions();
+            return;
+        }
+        
+        autocompleteSuggestions.innerHTML = '';
+        suggestions.forEach((suggestion, index) => {
+            const div = document.createElement('div');
+            div.className = 'autocomplete-suggestion';
+            div.setAttribute('data-index', index);
+            
+            // Create different styling based on match type
+            let symbolClass = 'suggestion-symbol';
+            let companyClass = 'suggestion-company';
+            
+            if (suggestion.match_type === 'company') {
+                // Highlight company name for company matches
+                const companyMatch = suggestion.company.toLowerCase().includes(query.toLowerCase());
+                if (companyMatch) {
+                    companyClass += ' highlight-match';
+                }
+            }
+            
+            div.innerHTML = `
+                <div class="${symbolClass}">${suggestion.symbol}</div>
+                <div class="${companyClass}">${suggestion.company}</div>
+            `;
+            
+            // Add multiple event handlers for better compatibility
+            div.addEventListener('mousedown', function(e) {
+                e.preventDefault(); // Prevent input blur
+            });
+            
+            div.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Suggestion clicked:', suggestion.symbol);
+                selectSuggestion(suggestion);
+            });
+            
+            // Touch support for mobile devices
+            div.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                selectSuggestion(suggestion);
+            });
+            
+            div.addEventListener('mouseenter', () => {
+                selectedIndex = index;
+                updateSelectedSuggestion();
+            });
+            
+            autocompleteSuggestions.appendChild(div);
+        });
+        
+        autocompleteSuggestions.style.display = 'block';
+        selectedIndex = -1;
+    }
+    
+    // Function to hide suggestions
+    function hideSuggestions() {
+        autocompleteSuggestions.style.display = 'none';
+        selectedIndex = -1;
+    }
+    
+    // Function to select a suggestion
+    function selectSuggestion(suggestion) {
+        console.log('Selecting suggestion:', suggestion.symbol);
+        tickerInput.value = suggestion.symbol.toUpperCase();
+        hideSuggestions();
+        tickerInput.focus();
+        // Mark input as active to hide typewriter
+        tickerInput.classList.add('search-input-active');
+        console.log('Ticker input value set to:', tickerInput.value);
+    }
+    
+    // Function to update selected suggestion
+    function updateSelectedSuggestion() {
+        const suggestions = autocompleteSuggestions.querySelectorAll('.autocomplete-suggestion');
+        suggestions.forEach((suggestion, index) => {
+            if (index === selectedIndex) {
+                suggestion.classList.add('selected');
+            } else {
+                suggestion.classList.remove('selected');
+            }
+        });
+    }
+    
+    // Real-time uppercase conversion function
+    function convertToUppercase() {
+        // Store cursor position before conversion
+        let cursorPosition = tickerInput.selectionStart;
+        let originalValue = tickerInput.value;
+        
+        // Convert to uppercase in real-time as user types
+        let upperValue = originalValue.toUpperCase();
+        
+        // Only update if there's a change to prevent cursor jumping
+        if (originalValue !== upperValue) {
+            tickerInput.value = upperValue;
+            // Restore cursor position after uppercase conversion
+            tickerInput.setSelectionRange(cursorPosition, cursorPosition);
+        }
+    }
+    
+    // Enhanced event listeners for autocomplete with real-time uppercase conversion
+    tickerInput.addEventListener('input', function() {
+        // Convert to uppercase immediately
+        convertToUppercase();
+        
+        let query = this.value.trim();
+        
+        // Clear previous timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        // Debounce the search (300ms delay)
+        searchTimeout = setTimeout(() => {
+            fetchTickerSuggestions(query);
+        }, 300);
+        
+        // Hide typewriter when user types
+        if (query !== '') {
+            tickerInput.classList.add('search-input-active');
+        } else {
+            tickerInput.classList.remove('search-input-active');
+        }
+    });
+    
+    // Handle paste events to ensure uppercase
+    tickerInput.addEventListener('paste', function(e) {
+        // Small delay to allow paste to complete, then convert
+        setTimeout(convertToUppercase, 10);
+    });
+    
+    // Handle blur event for hiding suggestions
+    tickerInput.addEventListener('blur', function() {
+        // Hide suggestions after delay (no need for uppercase conversion as it's done in real-time)
+        setTimeout(hideSuggestions, 150);
+    });
+    
+    tickerInput.addEventListener('keydown', function(e) {
+        if (currentSuggestions.length === 0) return;
+        
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, currentSuggestions.length - 1);
+                updateSelectedSuggestion();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelectedSuggestion();
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (selectedIndex >= 0 && currentSuggestions[selectedIndex]) {
+                    selectSuggestion(currentSuggestions[selectedIndex]);
+                } else {
+                    // Submit form if no suggestion is selected
+                    analyzeForm.dispatchEvent(new Event('submit'));
+                }
+                break;
+            case 'Escape':
+                hideSuggestions();
+                break;
+        }
+    });
+    
+    // Prevent suggestions container from causing input blur
+    autocompleteSuggestions.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+    });
+    
+    autocompleteSuggestions.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!tickerInput.contains(e.target) && !autocompleteSuggestions.contains(e.target)) {
+            hideSuggestions();
+        }
+    });
+
+    let timerInterval;
+    let elapsedTime = 0;
+    
+    if (typeof io === 'undefined') {
+        console.error("Socket.IO client library not loaded. Real-time updates disabled.");
+        if(errorMessageArea) {
+            errorMessageArea.textContent = 'Real-time connection library not available. Progress updates will not be shown.';
+            errorMessageArea.style.display = 'block'; // Show error in dedicated area
+        }
+        // Optionally disable the form if WebSockets are critical
+        // if(analyzeButton) analyzeButton.disabled = true;
+        // if(tickerInput) tickerInput.disabled = true;
+        alert("Error: Real-time features are unavailable. Please check your connection or contact support.");
+        return; // Stop further JS execution if io is not defined
+    }
+
+    const socket = io(); 
+
+    socket.on('connect', function() {
+        console.log('WebSocket Connected. SID: ' + socket.id);
+        if (clientSidInput) {
+            clientSidInput.value = socket.id; // Store SID in hidden input for form submission if needed
+        }
+        // If user is logged in (check a global JS var or data attribute set by Jinja)
+        // Example: const userUID = document.body.dataset.userId; 
+        // if (userUID) {
+        //    socket.emit('join_user_room', { room_id: userUID });
+        // }
+    });
+
+    socket.on('disconnect', function() {
+        console.log('WebSocket Disconnected.');
+    });
+
+    socket.on('connect_error', (error) => {
+        console.error('WebSocket Connection Error:', error);
+        if(errorMessageArea && progressIndicator.style.display === 'block'){ 
+            errorMessageArea.textContent = 'Real-time update connection failed.';
+            errorMessageArea.style.display = 'block';
+        }
+    });
+    
+    socket.on('analysis_progress', function(data) {
+        console.log('Progress update received:', data);
+        if (progressBar) {
+            progressBar.style.width = data.progress + '%';
+            progressBar.textContent = data.progress + '%';
+            progressBar.setAttribute('aria-valuenow', data.progress);
+            if (data.progress >= 100) {
+                 progressBar.style.backgroundColor = 'var(--success, #27ae60)';
+            } else {
+                 progressBar.style.backgroundColor = 'var(--primary, var(--green-600))'; // Or a different progress color
+            }
+        }
+        if (progressText) {
+            progressText.textContent = `Progress: ${data.progress}%`;
+        }
+        if (progressMessage) {
+            progressMessage.textContent = data.message;
+        }
+
+    });
+    
+    socket.on('analysis_complete', function(data) {
+        console.log('Analysis complete message received:', data);
+        if (data.report_url) {
+            if (progressText) progressText.textContent = 'Analysis Complete! Redirecting...';
+            if (progressBar) {
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                progressBar.style.backgroundColor = 'var(--success, #27ae60)';
+            }
+            stopTimer();
+            window.location.href = data.report_url;
+        } 
+    });
+    
+    socket.on('analysis_error', function(data) {
+        console.error('Analysis Error from Server:', data);
+        if (errorMessageArea) {
+            errorMessageArea.textContent = 'Error during analysis: ' + (data.message || 'Unknown error.');
+            errorMessageArea.style.display = 'block';
+        }
+        if (progressBar) progressBar.style.backgroundColor = 'var(--danger, #dc3545)';
+        stopTimer();
+        // Do not automatically re-enable the form here, as the server might still be cleaning up or stuck.
+        // A manual refresh or a "Try Again" button might be better after an error.
+        if (analyzeButton) analyzeButton.disabled = false; // Or keep disabled
+        if (analyzerFormSection) analyzerFormSection.style.display = 'block'; // Show form again
+        if (progressIndicator) progressIndicator.style.display = 'none'; // Hide progress
+    });
+
+    function startTimer() {
+        elapsedTime = 0;
+        updateTimer(); 
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+        elapsedTime++;
+        elapsedTimeDisplay.textContent = `${elapsedTime}s`;
+        // ETA is now primarily driven by server updates via 'analysis_progress'
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+    }
+    
+    function resetProgressState() { // Renamed from resetProgress to avoid conflict if any
+        stopTimer();
+        if (progressBar) {
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            progressBar.setAttribute('aria-valuenow', '0');
+            progressBar.style.backgroundColor = 'var(--primary, var(--green-600))'; // Reset to progress color
+        }
+        if (progressText) progressText.textContent = 'Initializing...';
+        if (elapsedTimeDisplay) elapsedTimeDisplay.textContent = '0s';
+        if (progressMessage) progressMessage.textContent = 'Ready to start.';
+        if (errorMessageArea) {
+            errorMessageArea.style.display = 'none';
+            errorMessageArea.textContent = '';
+        }
+        if (analyzerFormSection) analyzerFormSection.style.display = 'block';
+        if (progressIndicator) progressIndicator.style.display = 'none';
+        
+        if (tickerInput) tickerInput.disabled = false;
+        if (analyzeButton) analyzeButton.disabled = false;
+    }
+
+    
+    if (analyzeForm) {
+        analyzeForm.addEventListener('submit', function (event) {
+            event.preventDefault(); 
+
+            // Ticker is already uppercase due to real-time conversion
+            const ticker = tickerInput.value.trim();
+            
+            if (!ticker) {
+                // Client-side validation (keep simple)
+                alert('Ticker symbol is required.'); // Simple alert
+                return;
+            }
+
+            analyzeButton.disabled = true;
+            analyzerFormSection.style.display = 'none';
+            
+            const flashMessages = document.querySelector('.flash-messages-container');
+            if (flashMessages) flashMessages.innerHTML = ''; 
+
+            errorMessageArea.style.display = 'none'; 
+            errorMessageArea.textContent = '';
+            
+            if (progressBar) { // Reset progress bar before starting
+                progressBar.style.width = '0%';
+                progressBar.textContent = '0%';
+                progressBar.setAttribute('aria-valuenow', '0');
+                progressBar.style.backgroundColor = 'var(--primary, var(--green-600))';
+            }
+            if (progressText) progressText.textContent = 'Initializing...';
+            if (progressMessage) progressMessage.textContent = 'Connecting to analysis service...';
+
+
+            progressIndicator.style.display = 'block';
+            progressIndicator.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            startTimer(); 
+            
+            // Send form data along with client_sid for targeted response if user is not logged in
+            const formData = new FormData(analyzeForm);
+            if (socket && socket.id) { // Make sure socket is connected and has an ID
+                formData.append('client_sid', socket.id);
+            }
+
+            fetch("{{ url_for('start_stock_analysis') }}", {
+                method: 'POST',
+                body: new URLSearchParams(formData) 
+            })
+            .then(response => {
+                // The server will now primarily communicate via WebSockets.
+                // This fetch is just to trigger the backend process.
+                // We might get a JSON response indicating the task has started.
+                if (!response.ok) { 
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || `Server error: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Initial response from /start-analysis:", data);
+                if (data.status === 'processing_initiated') {
+                    // Successfully initiated, waiting for WebSocket updates...
+                    if (progressMessage) progressMessage.textContent = 'Analysis initiated. Waiting for progress...';
+                } else if (data.status === 'error') { // If server returns an immediate error
+                     throw new Error(data.message || "Failed to start analysis.");
+                }
+                // If data.report_url is present (for very fast tasks), client JS for 'analysis_complete' will handle it.
+            })
+            .catch(error => {
+                console.error('Error submitting analysis form or initial server error:', error);
+                if(errorMessageArea) {
+                    errorMessageArea.textContent = 'Error initiating analysis: ' + error.message;
+                    errorMessageArea.style.display = 'block';
+                }
+                stopTimer();
+                analyzeButton.disabled = false; 
+                progressIndicator.style.display = 'none';
+                analyzerFormSection.style.display = 'block';
+            });
+        });
+    }
+
+    window.addEventListener('pageshow', function(event) {
+        // Reset UI if user navigates back to the page and progress was visible
+        if (event.persisted && progressIndicator && progressIndicator.style.display === 'block') {
+            resetProgressState();
+        }
+         // Ensure form elements are enabled if user navigates back
+        if (tickerInput && tickerInput.disabled) tickerInput.disabled = false;
+        if (analyzeButton && analyzeButton.disabled) analyzeButton.disabled = false;
+    });
+
+    // Popular ticker buttons functionality
+    const tickerButtons = document.querySelectorAll('.ticker-btn');
+    tickerButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const ticker = this.getAttribute('data-ticker');
+            tickerInput.value = ticker.toUpperCase();
+            tickerInput.classList.add('search-input-active'); // Hide typewriter
+            tickerInput.focus();
+            hideSuggestions(); // Hide any open autocomplete suggestions
+        });
+    });
+
+    // Typewriter Animation
+    const typewriterText = document.getElementById('typewriterText');
+    const typewriterPlaceholder = document.getElementById('typewriterPlaceholder');
+    const fullText = 'Enter a Stock Ticker to get free analysis';
+    let currentIndex = 0;
+    let isTyping = true;
+    let animationRunning = true;
+    
+    function typewriterAnimation() {
+        if (!animationRunning) return;
+        
+        if (isTyping) {
+            // Typing phase
+            if (currentIndex <= fullText.length) {
+                typewriterText.textContent = fullText.substring(0, currentIndex);
+                currentIndex++;
+                setTimeout(typewriterAnimation, 30); // Faster typing speed (was 80)
+            } else {
+                // Pause before erasing
+                isTyping = false;
+                setTimeout(typewriterAnimation, 1000); // Shorter pause duration (was 2000)
+            }
+        } else {
+            // Instant erasing phase
+            typewriterText.textContent = '';
+            currentIndex = 0;
+            isTyping = true;
+            setTimeout(typewriterAnimation, 300); // Short pause before restarting (was 500)
+        }
+    }
+    
+    // Hide typewriter when user interacts with input
+    if (tickerInput && typewriterPlaceholder) {
+        tickerInput.addEventListener('focus', function() {
+            typewriterPlaceholder.style.opacity = '0';
+            animationRunning = false;
+        });
+        
+        tickerInput.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                typewriterPlaceholder.style.opacity = '1';
+                animationRunning = true;
+                typewriterAnimation();
+            }
+        });
+        
+        tickerInput.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                typewriterPlaceholder.style.opacity = '0';
+                animationRunning = false;
+            } else {
+                typewriterPlaceholder.style.opacity = '1';
+                animationRunning = true;
+                currentIndex = 0;
+                isTyping = true;
+                typewriterAnimation();
+            }
+        });
+    }
+    
+    // Start the typewriter animation
+    if (typewriterText) {
+        typewriterAnimation();
+    }
+
+    
+        
+        // Auto-dismiss non-danger flash messages
+        const allAlerts = document.querySelectorAll('.flash-messages-container .alert');
+        allAlerts.forEach(function(alert) {
+            if (!alert.classList.contains('alert-danger')) {
+                setTimeout(function() {
+                    // Basic dismiss, assuming no Bootstrap JS for alerts by default
+                    alert.style.transition = 'opacity 0.5s ease-out';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
+                }, 7000);
+            }
+        });
+});
+</script>
+{% endblock %}

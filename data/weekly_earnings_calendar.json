@@ -1,0 +1,227 @@
+{
+  "last_refreshed": "2025-12-30T21:11:50.491973",
+  "last_refreshed_date": "2025-12-30",
+  "calendar": {
+    "2025-12-30": [
+      {
+        "ticker": "ELLO",
+        "name": null,
+        "date": "2025-12-30"
+      },
+      {
+        "ticker": "AOREF",
+        "name": null,
+        "date": "2025-12-30"
+      },
+      {
+        "ticker": "EDXC",
+        "name": null,
+        "date": "2025-12-30"
+      },
+      {
+        "ticker": "MMT",
+        "name": null,
+        "date": "2025-12-30"
+      },
+      {
+        "ticker": "IMII",
+        "name": null,
+        "date": "2025-12-30"
+      },
+      {
+        "ticker": "MFM",
+        "name": null,
+        "date": "2025-12-30"
+      }
+    ],
+    "2025-12-31": [
+      {
+        "ticker": "AXG",
+        "name": null,
+        "date": "2025-12-31"
+      },
+      {
+        "ticker": "RGP",
+        "name": null,
+        "date": "2025-12-31"
+      },
+      {
+        "ticker": "NYMXF",
+        "name": null,
+        "date": "2025-12-31"
+      },
+      {
+        "ticker": "LFCR",
+        "name": null,
+        "date": "2025-12-31"
+      },
+      {
+        "ticker": "FDCT",
+        "name": null,
+        "date": "2025-12-31"
+      },
+      {
+        "ticker": "PHLT",
+        "name": null,
+        "date": "2025-12-31"
+      }
+    ],
+    "2026-01-01": [
+      {
+        "ticker": "TTNP",
+        "name": null,
+        "date": "2026-01-01"
+      },
+      {
+        "ticker": "EMKR",
+        "name": null,
+        "date": "2026-01-01"
+      },
+      {
+        "ticker": "GAMI",
+        "name": null,
+        "date": "2026-01-01"
+      },
+      {
+        "ticker": "CTSO",
+        "name": null,
+        "date": "2026-01-01"
+      },
+      {
+        "ticker": "NYMXF",
+        "name": null,
+        "date": "2026-01-01"
+      },
+      {
+        "ticker": "NYMXF",
+        "name": null,
+        "date": "2026-01-01"
+      },
+      {
+        "ticker": "ERC",
+        "name": null,
+        "date": "2026-01-01"
+      },
+      {
+        "ticker": "CPKF",
+        "name": null,
+        "date": "2026-01-01"
+      },
+      {
+        "ticker": "MHI",
+        "name": null,
+        "date": "2026-01-01"
+      },
+      {
+        "ticker": "EAD",
+        "name": null,
+        "date": "2026-01-01"
+      },
+      {
+        "ticker": "TAYD",
+        "name": null,
+        "date": "2026-01-01"
+      }
+    ],
+    "2026-01-02": [],
+    "2026-01-03": [],
+    "2026-01-04": [],
+    "2026-01-05": [
+      {
+        "ticker": "NFTM",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "HOVR",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "SLP",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "OM",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "KRUS",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "VRNA",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "LNN",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "APOG",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "PCYO",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "NEA",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "NZF",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "NAD",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "NVG",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "NMZ",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "RDUS",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "NUV",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "CALM",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "BRW",
+        "name": null,
+        "date": "2026-01-05"
+      },
+      {
+        "ticker": "SRAX",
+        "name": null,
+        "date": "2026-01-05"
+      }
+    ]
+  }
+}

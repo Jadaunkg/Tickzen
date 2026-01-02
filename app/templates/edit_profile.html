@@ -1,0 +1,876 @@
+{% extends "_base.html" %}
+
+{% block title %}Edit Publishing Profile - {{ profile.profile_name }}{% endblock %}
+
+{% block content %}
+<style> /* Profile Form Styling - Landscape Layout */
+.profile-card-form {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+}
+
+.form-header {
+  background: linear-gradient(135deg, var(--green-600), var(--green-700));
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 0;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-header i {
+  font-size: 1.25rem;
+}
+
+#editProfileForm {
+  background: white;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.form-container {
+  padding: 2rem;
+}
+
+/* Landscape Layout - Three Column Grid */
+.form-sections-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  align-items: start;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.middle-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Writers section with scrollable container */
+.writers-section {
+  display: flex;
+  flex-direction: column;
+  max-height: 600px;
+}
+
+.writers-section .form-section {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+#authorsContainerEdit {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.5rem;
+  margin: 0 -0.5rem 1rem 0;
+  border-radius: 0 0 8px 8px;
+}
+
+#authorsContainerEdit::-webkit-scrollbar {
+  width: 6px;
+}
+
+#authorsContainerEdit::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+#authorsContainerEdit::-webkit-scrollbar-thumb {
+  background: var(--green-600);
+  border-radius: 4px;
+}
+
+#authorsContainerEdit::-webkit-scrollbar-thumb:hover {
+  background: var(--green-700);
+}
+
+.form-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+}
+
+.form-section h3 {
+  color: var(--green-600);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--green-100);
+}
+
+.form-section h3 i {
+  font-size: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: #f9fafb;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--green-600);
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.form-group select[multiple] {
+  min-height: 150px;
+  background-color: white;
+}
+
+.form-group select[multiple] option {
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin: 2px 0;
+}
+
+.form-group select[multiple] option:selected {
+  background-color: var(--green-600);
+  color: white;
+}
+
+.form-text {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Author Management Styles */
+.writer-entry {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.writer-entry:hover {
+  border-color: var(--green-600);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.1);
+}
+
+.writer-entry h4 {
+  color: var(--green-600);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.remove-writer-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.remove-writer-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.remove-writer-btn i {
+  font-size: 0.75rem;
+}
+
+#addAuthorBtnEdit {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+#addAuthorBtnEdit:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--green-600), var(--green-700));
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--green-700), var(--green-800));
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(22, 163, 74, 0.4);
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(107, 114, 128, 0.3);
+}
+
+.btn-secondary:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(107, 114, 128, 0.4);
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(239, 68, 68, 0.4);
+}
+
+.btn-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding: 2rem;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Error Display */
+.error-message {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-message i {
+  font-size: 0.75rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .form-sections-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  
+  .writers-section {
+    grid-column: 1 / -1;
+    max-height: 400px;
+  }
+  
+  .profile-card-form {
+    max-width: 1200px;
+    padding: 0 1.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .form-sections-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .writers-section {
+    max-height: none;
+  }
+  
+  #authorsContainerEdit {
+    max-height: 300px;
+    margin-bottom: 1rem;
+  }
+  
+  .profile-card-form {
+    max-width: 800px;
+    padding: 0 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-card-form {
+    margin: 1rem;
+    padding: 0;
+  }
+
+  .form-header {
+    padding: 1rem;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .form-header h2 {
+    font-size: 1.125rem;
+  }
+
+  .profile-info-bar {
+    margin: 1rem 1rem 0 1rem !important;
+    grid-template-columns: 1fr !important;
+    padding: 1rem !important;
+  }
+
+  .form-container {
+    padding: 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .writer-entry {
+    padding: 1rem;
+  }
+
+  .remove-writer-btn {
+    position: static;
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .btn-group {
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+
+  .btn {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-header h2 {
+    font-size: 1.125rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .form-section h3 {
+    font-size: 1rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.25rem;
+  }
+}
+
+/* Loading and Success States */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.form-success {
+  background: var(--green-100);
+  border: 1px solid var(--green-600);
+  color: var(--green-800);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-error {
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Animation for adding/removing authors */
+.writer-entry {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Profile Info Bar Styling */
+.profile-info-bar {
+  margin: 1.25rem 2rem 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+  gap: 0.5rem 2.5rem;
+  background: #f3f4f6;
+  border: 1.5px solid var(--green-600);
+  border-radius: 12px;
+  padding: 1.25rem 2.5rem;
+  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.08);
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-info-bar > div {
+  font-size: 0.97rem;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-info-bar a {
+  color: #0ea5e9;
+  text-decoration: underline;
+}
+
+.profile-info-bar a:hover {
+  color: var(--green-600);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar for select multiple */
+.form-group select[multiple]::-webkit-scrollbar {
+  width: 8px;
+}
+
+.form-group select[multiple]::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.form-group select[multiple]::-webkit-scrollbar-thumb {
+  background: var(--green-600);
+  border-radius: 4px;
+}
+
+.form-group select[multiple]::-webkit-scrollbar-thumb:hover {
+  background: var(--green-700);
+}
+
+.profile-summary-card {
+  max-width: 1200px;
+  width: 100%;
+  margin: 2.5rem auto;
+  padding: 2.5rem 2rem;
+  background: linear-gradient(135deg, #f8fafc 60%, #eceff1 100%);
+  border-radius: 20px;
+  box-shadow: 0 4px 24px 0 rgba(30, 41, 59, 0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.profile-summary-card .form-header {
+  background: transparent;
+  color: #222;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  text-align: center;
+}
+.profile-summary-card .form-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #222;
+  justify-content: center;
+}
+.profile-summary-card .profile-info-bar {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  width: 100%;
+  border-radius: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem 2.5rem;
+}
+.profile-summary-card .profile-info-bar > div {
+  min-width: 220px;
+  margin-bottom: 0.5rem;
+  color: #374151;
+  font-size: 1.05rem;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+@media (max-width: 900px) {
+  .profile-summary-card {
+    max-width: 98vw;
+    margin: 1.5rem auto;
+    padding: 1.5rem 0.5rem;
+  }
+  .profile-summary-card .form-header h2 {
+    font-size: 1.3rem;
+  }
+  .profile-summary-card .profile-info-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .profile-summary-card .profile-info-bar > div {
+    min-width: 0;
+    width: 100%;
+    font-size: 1rem;
+  }
+}
+</style>
+
+<div class="profile-summary-card">
+  <div class="form-header">
+    <h2><i class="fas fa-edit"></i> Edit Publishing Profile: {{ profile.profile_name }}</h2>
+  </div>
+  <div class="profile-info-bar">
+    <div>
+      <i class="fas fa-id-badge" style="color:#6366f1; font-size:1rem;"></i>
+      <span><strong>Profile ID:</strong> <span style="font-family:monospace;">{{ profile.profile_id }}</span></span>
+    </div>
+    <div>
+      <i class="fas fa-users" style="color:var(--green-600); font-size:1rem;"></i>
+      <span><strong>Writers:</strong> {{ profile['authors']|length }}</span>
+    </div>
+    <div>
+      <i class="fas fa-clock" style="color:#f59e42; font-size:1rem;"></i>
+      <span><strong>Last Updated:</strong> {{ profile.last_updated_at|format_datetime('%Y-%m-%d %H:%M') if profile.last_updated_at }}</span>
+    </div>
+    <div>
+      <i class="fas fa-calendar-plus" style="color:#6366f1; font-size:1rem;"></i>
+      <span><strong>Created At:</strong> {{ profile.created_at|format_datetime('%Y-%m-%d %H:%M') if profile.created_at }}</span>
+    </div>
+    <div>
+      <i class="fas fa-globe" style="color:#0ea5e9; font-size:1rem;"></i>
+      <span><strong>Site URL:</strong> <a href="{{ profile.site_url }}" target="_blank">{{ profile.site_url }}</a></span>
+    </div>
+    <div>
+      <i class="fas fa-list-ol" style="color:#f43f5e; font-size:1rem;"></i>
+      <span><strong>Category ID:</strong> {{ profile.stockforecast_category_id }}</span>
+    </div>
+  </div>
+</div>
+
+<section class="profile-card-form">
+    <form id="editProfileForm" action="{{ url_for('edit_site_profile', profile_id_from_firestore=profile.profile_id) }}" method="POST">
+        <div class="form-container">
+            <div class="form-sections-grid">
+                <!-- Left Column: Basic Info + Scheduling -->
+                <div class="left-column">
+                    <!-- Basic Information Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="profile_name">Profile Name:</label>
+                            <input type="text" id="profile_name" name="profile_name" value="{{ profile.profile_name }}" required>
+                            {% if errors and errors.profile_name %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i>{{ errors.profile_name }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="site_url">Site URL:</label>
+                            <input type="url" id="site_url" name="site_url" value="{{ profile.site_url }}" required>
+                            {% if errors and errors.site_url %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i>{{ errors.site_url }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sheet_name">Google Sheet Name:</label>
+                            <input type="text" id="sheet_name" name="sheet_name" value="{{ profile.sheet_name }}" required>
+                            {% if errors and errors.sheet_name %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i>{{ errors.sheet_name }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stockforecast_category_id">WordPress Category ID:</label>
+                            <input type="text" id="stockforecast_category_id" name="stockforecast_category_id" value="{{ profile.stockforecast_category_id }}">
+                            {% if errors and errors.stockforecast_category_id %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i>{{ errors.stockforecast_category_id }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Scheduling Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-clock"></i> Scheduling</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="min_scheduling_gap_minutes">Min Gap (min):</label>
+                                <input type="number" id="min_scheduling_gap_minutes" name="min_scheduling_gap_minutes" value="{{ profile.min_scheduling_gap_minutes }}" min="1" required>
+                                {% if errors and errors.min_scheduling_gap_minutes %}
+                                    <div class="error-message"><i class="fas fa-exclamation-circle"></i>{{ errors.min_scheduling_gap_minutes }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="max_scheduling_gap_minutes">Max Gap (min):</label>
+                                <input type="number" id="max_scheduling_gap_minutes" name="max_scheduling_gap_minutes" value="{{ profile.max_scheduling_gap_minutes }}" min="1" required>
+                                {% if errors and errors.max_scheduling_gap_minutes %}
+                                    <div class="error-message"><i class="fas fa-exclamation-circle"></i>{{ errors.max_scheduling_gap_minutes }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if errors and errors.scheduling_gaps_general %}
+                            <div class="error-message"><i class="fas fa-exclamation-circle"></i>{{ errors.scheduling_gaps_general }}</div>
+                        {% endif %}
+                        
+                        <div class="form-group">
+                            <label for="env_prefix_for_feature_image_colors">.env Prefix:</label>
+                            <input type="text" id="env_prefix_for_feature_image_colors" name="env_prefix_for_feature_image_colors" value="{{ profile.env_prefix_for_feature_image_colors }}">
+                            <small class="form-text">e.g., MYSITE for MYSITE_FEATURE_BG_COLOR</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Column: WordPress Writers -->
+                <div class="middle-column">
+                    <div class="form-section writers-section">
+                        <h3><i class="fas fa-users"></i> WordPress Writers</h3>
+                        
+                        <div id="authorsContainerEdit">
+                          {% if profile['authors'] and profile['authors']|length > 0 %}
+                            {% for author in profile['authors'] %}
+                              <div class="writer-entry" style="background:#f9fbfc; border:1px solid #e0e7ef; border-radius:10px; margin-bottom:1.5rem; padding:1.5rem 2rem; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                                <h4 style="color:var(--green-600); font-weight:600; margin-bottom:1rem;">Writer {{ loop.index }}</h4>
+                                <div style="margin-bottom:1rem;">
+                                  <label style="font-weight:500;">Username:</label>
+                                  <input type="text" name="author_wp_username_{{ loop.index0 }}" value="{{ author.wp_username }}" class="form-control" style="width:100%; max-width:100%; display:block; margin-top:0.25rem;" required />
+                                </div>
+                                <div style="margin-bottom:1rem;">
+                                  <label style="font-weight:500;">User ID:</label>
+                                  <input type="text" name="author_wp_user_id_{{ loop.index0 }}" value="{{ author.wp_user_id }}" class="form-control" style="width:100%; max-width:100%; display:block; margin-top:0.25rem;" required />
+                                </div>
+                                <div style="margin-bottom:1rem;">
+                                  <label style="font-weight:500;">App Password:</label>
+                                  <input type="text" name="author_app_password_{{ loop.index0 }}" value="{{ author.app_password }}" class="form-control" style="width:100%; max-width:100%; display:block; margin-top:0.25rem;" required />
+                                </div>
+                              </div>
+                            {% endfor %}
+                          {% endif %}
+                        </div>
+                        
+                        <button type="button" id="addAuthorBtnEdit" class="btn-secondary">
+                            <i class="fas fa-user-plus"></i> Add Writer
+                        </button>
+                        
+                        {% if errors and errors.authors_general %}
+                            <div class="error-message"><i class="fas fa-exclamation-circle"></i>{{ errors.authors_general }}</div>
+                        {% endif %}
+                        
+                        <p class="form-text">At least one writer required. Leave password blank to keep existing.</p>
+                    </div>
+                </div>
+
+                <!-- Right Column: Internal Linking + Report Sections -->
+                <div class="right-column">
+                    <!-- Internal Linking Settings -->
+                    {% include "components/internal_linking_form.html" %}
+
+                    <!-- Report Sections Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-cogs"></i> Report Sections</h3>
+                        
+                        <div class="form-group">
+                            <select name="report_sections_to_include[]" id="report_sections_to_include_edit" multiple size="8" required>
+                                {% for section_key in all_report_sections %}
+                                    <option value="{{ section_key }}" {% if section_key in profile.report_sections_to_include %}selected{% endif %}>
+                                        {{ section_key.replace("_", " ").title() }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <small class="form-text">(Hold Ctrl/Cmd to select multiple)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            <a href="{{ url_for('manage_site_profiles') }}" class="btn btn-secondary">
+                <i class="fas fa-times-circle"></i> Cancel
+            </a>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Only handle adding/removing new author forms, do not clear or re-render existing authors
+    const authorsContainer = document.getElementById('authorsContainerEdit');
+    const addBtn = document.getElementById('addAuthorBtnEdit');
+    function renumberWriters() {
+        const entries = authorsContainer.querySelectorAll('.writer-entry');
+        entries.forEach((entry, idx) => {
+            const heading = entry.querySelector('h4');
+            if (heading) {
+                const btn = heading.querySelector('.remove-writer-btn');
+                heading.textContent = `Writer ${idx + 1} `;
+                if (btn) heading.appendChild(btn);
+            }
+        });
+    }
+    function addWriterFields() {
+        const idx = authorsContainer.querySelectorAll('.writer-entry').length;
+        const div = document.createElement('div');
+        div.className = 'writer-entry';
+        div.innerHTML = `
+            <h4>Writer ${idx + 1} <button type="button" class="remove-writer-btn" title="Remove this writer"><i class="fas fa-trash-alt"></i> Remove</button></h4>
+            <input type="hidden" name="author_id_${idx}" value="new_${Date.now()}_${idx}">
+            <div class="form-group">
+                <label for="edit_author_wp_username_${idx}">WordPress Username:</label>
+                <input type="text" id="edit_author_wp_username_${idx}" name="author_wp_username_${idx}" class="form-control" required placeholder="WP Username">
+            </div>
+            <div class="form-group">
+                <label for="edit_author_wp_user_id_${idx}">WordPress User ID:</label>
+                <input type="text" id="edit_author_wp_user_id_${idx}" name="author_wp_user_id_${idx}" class="form-control" required placeholder="e.g., 3 (See guidelines)">
+            </div>
+            <div class="form-group">
+                <label for="edit_author_app_password_${idx}">WordPress Application Password:</label>
+                <input type="password" id="edit_author_app_password_${idx}" name="author_app_password_${idx}" class="form-control" required placeholder="Enter Application Password">
+                <small class="form-text">Leave blank to keep existing password, or enter new to update.</small>
+            </div>
+        `;
+        authorsContainer.appendChild(div);
+        attachRemoveHandler(div);
+        renumberWriters();
+    }
+    function attachRemoveHandler(entry) {
+        const btn = entry.querySelector('.remove-writer-btn');
+        if (btn) {
+            btn.addEventListener('click', function() {
+                entry.remove();
+                renumberWriters();
+            });
+        }
+    }
+    // Attach remove handler to all existing entries
+    authorsContainer.querySelectorAll('.writer-entry').forEach(attachRemoveHandler);
+    addBtn.addEventListener('click', addWriterFields);
+});
+</script>
+{% endblock %}
