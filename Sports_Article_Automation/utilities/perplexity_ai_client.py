@@ -32,7 +32,7 @@ except ImportError:
             INCLUDE_FINANCIAL_ANALYSIS = True
             @classmethod
             def get_perplexity_config(cls): 
-                return {"max_tokens": 4000, "temperature": 0.2, "search_recency_filter": "day"}
+                return {"max_tokens": 4000, "temperature": 0.2, "search_recency_filter": "week"}
             @classmethod
             def get_enhanced_sources(cls, category=None): 
                 return ["ESPN", "BBC Sport", "The Athletic", "Reuters", "Associated Press", "Twitter/X verified", "YouTube official", "Reddit sports", "official team sites", "player social media"]
@@ -277,7 +277,7 @@ Only include verified information from trusted sources. Do not include assumptio
                 "stream": False,
                 "return_images": True,  # Include relevant images/videos
                 "return_related_questions": True,  # Get follow-up angles
-                "search_recency_filter": "day",  # Focus on most recent (24h)
+                "search_recency_filter": "week",  # Focus on last 7 days
                 "citations": True,
                 "search_domain_filter": ["espn.com", "bbc.com", "theguardian.com", "nba.com", "fifa.com", "twitter.com", "youtube.com"]  # Prioritize top sources
             }

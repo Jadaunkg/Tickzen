@@ -18,7 +18,7 @@ class EnhancedConfig:
     # Enhanced Research Collection Settings
     ENABLE_ENHANCED_RESEARCH = True  # Use comprehensive single-request approach
     MAX_FOLLOWUP_QUERIES = 0  # DISABLED: Use only 1 request due to Perplexity rate limits (2 req/min)
-    RESEARCH_RECENCY_FILTER = "day"  # Options: "hour", "day", "week", "month"
+    RESEARCH_RECENCY_FILTER = "week"  # Options: "hour", "day", "week", "month" - Set to week (7 days)
     INCLUDE_SOCIAL_MEDIA_RESEARCH = True  # Include Twitter, Reddit, YouTube in research
     INCLUDE_FINANCIAL_ANALYSIS = True  # Include business/economic impact analysis
     

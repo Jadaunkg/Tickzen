@@ -21,6 +21,8 @@ import os
 from Sports_Article_Automation.utilities.article_scorer import ArticleImportanceScorer
 from datetime import datetime, timedelta
 from dateutil import parser
+import pytz
+from dateutil.tz import UTC
 
 # Setup logging with UTF-8 encoding
 import sys
@@ -53,6 +55,11 @@ class RSSNewsCollector:
     def __init__(self, csv_file_path: str, output_file: str = "sports_news_database.json"):
         self.csv_file_path = csv_file_path
         self.output_file = output_file
+        
+        # Initialize timezone objects for Indian timezone conversion
+        self.utc = pytz.UTC
+        self.ist = pytz.timezone('Asia/Kolkata')  # Indian Standard Time
+        
         self.session = self.create_session()
         self.news_database = self.load_existing_database()
         self.scorer = ArticleImportanceScorer()
@@ -107,6 +114,61 @@ class RSSNewsCollector:
         })
         
         return session
+    
+    def convert_to_ist(self, date_str: str) -> datetime:
+        """
+        Convert date string from any timezone to Indian Standard Time (IST)
+        
+        Args:
+            date_str: Date string in various formats
+            
+        Returns:
+            datetime: IST datetime object or None if parsing fails
+        """
+        if not date_str:
+            return None
+            
+        try:
+            # Handle common RSS date format (RFC 2822 with GMT)
+            if 'GMT' in date_str and ',' in date_str:
+                parsed_date = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S GMT')
+                parsed_date = self.utc.localize(parsed_date)
+            else:
+                # Use dateutil parser for flexible parsing
+                parsed_date = parser.parse(date_str)
+                
+                # If timezone-naive, assume UTC
+                if parsed_date.tzinfo is None:
+                    parsed_date = self.utc.localize(parsed_date)
+            
+            # Convert to IST
+            ist_date = parsed_date.astimezone(self.ist)
+            return ist_date
+            
+        except Exception as e:
+            logging.debug(f"Failed to parse date '{date_str}': {e}")
+            return None
+    
+    def is_within_24_hours(self, article_date: datetime) -> bool:
+        """
+        Check if article date is within last 24 hours (IST-based)
+        
+        Args:
+            article_date: IST datetime object
+            
+        Returns:
+            bool: True if within 24 hours, False otherwise
+        """
+        if not article_date:
+            return False
+            
+        current_ist = datetime.now(self.ist)
+        cutoff_time = current_ist - timedelta(hours=24)
+        return article_date >= cutoff_time
+    
+    def get_current_ist(self) -> datetime:
+        """Get current time in IST"""
+        return datetime.now(self.ist)
 
     def load_rss_sources(self) -> List[Dict]:
         """Load RSS sources from CSV file"""
@@ -184,12 +246,17 @@ class RSSNewsCollector:
                     # Extract article data
                     article_data = self.extract_article_metadata(entry, source)
                     
+                    # Apply 24-hour filtering - skip articles older than 24 hours (IST-based)
+                    published_date_ist = self.convert_to_ist(article_data.get('published_date'))
+                    if not self.is_within_24_hours(published_date_ist):
+                        continue  # Skip articles older than 24 hours
+                    
                     # Check if article already exists
                     article_id = self.generate_article_id(article_data['title'], article_data['link'])
                     
                     if article_id not in existing_ids:
                         article_data['id'] = article_id
-                        article_data['collected_date'] = datetime.now().isoformat()
+                        article_data['collected_date'] = self.get_current_ist().isoformat()
                         self.news_database['articles'].append(article_data)
                         new_articles += 1
                 
@@ -231,6 +298,9 @@ class RSSNewsCollector:
         elif hasattr(entry, 'updated'):
             published_date = entry.updated
         
+        # Convert to Indian Standard Time
+        published_date_ist = self.convert_to_ist(published_date) if published_date else None
+        
         # Extract categories/tags
         categories = []
         if hasattr(entry, 'tags'):
@@ -248,6 +318,7 @@ class RSSNewsCollector:
             'link': getattr(entry, 'link', ''),
             'summary': clean_text(getattr(entry, 'summary', ''))[:500],  # Limit summary length
             'published_date': published_date,
+            'published_date_ist': published_date_ist.isoformat() if published_date_ist else None,
             'author': author,
             'categories': categories,
             'source_name': source['name'],
@@ -351,7 +422,7 @@ class RSSNewsCollector:
             from dateutil.tz import UTC
             
             # Use UTC for timezone-aware comparison
-            current_time = datetime.now(UTC)
+            current_time = self.get_current_ist()
             recent_articles = []
             removed_count = 0
             unparseable_count = 0

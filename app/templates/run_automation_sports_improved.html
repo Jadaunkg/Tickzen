@@ -2673,10 +2673,16 @@
             addLogEntry(`⭐ Filter: Minimum score: ${activeFilters.score}`, 'info');
         }
         
-        // Time ranges - Sort by date
+        // Time ranges
         if (activeFilters.time.length > 0) {
             const timeRange = activeFilters.time[0];
-            if (timeRange === 'latest') {
+            if (timeRange === 'last_6h') {
+                params.append('max_age_hours', 6);
+                addLogEntry(`🕐 Filter: Last 6 hours only`, 'info');
+            } else if (timeRange === 'last_24h') {
+                params.append('max_age_hours', 24);
+                addLogEntry(`🕐 Filter: Last 24 hours only`, 'info');
+            } else if (timeRange === 'latest') {
                 params.append('sort_by_date', 'newest');
                 addLogEntry(`🕐 Filter: Showing Latest Articles First`, 'info');
             } else if (timeRange === 'older') {

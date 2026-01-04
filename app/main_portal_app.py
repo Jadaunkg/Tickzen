@@ -5509,8 +5509,9 @@ def run_sports_automation():
             'level': 'success'
         }, room=user_uid)
 
-        if total_published > 0:
-            flash(f"Successfully published {total_published} sports article(s)", "success")
+        # Flash messages removed - using only floating notifications via SocketIO
+        # if total_published > 0:
+        #     flash(f"Successfully published {total_published} sports article(s)", "success")
         if failed_articles:
             flash(f"Failed to process: {', '.join(failed_articles[:3])}", "warning")
 
@@ -5997,9 +5998,10 @@ def api_sports_get_articles():
     max_age_hours = request.args.get('max_age_hours', type=int)
     source_authority = request.args.getlist('source_authority[]')
     min_score = request.args.get('min_score', type=float)
+    sort_by_date = request.args.get('sort_by_date')  # newest or oldest
     limit = request.args.get('limit', type=int)
     
-    app.logger.info(f"Sports articles API called - category: {category}, preset: {preset}, tiers: {importance_tiers}, max_age: {max_age_hours}, sources: {source_authority}, min_score: {min_score}, limit: {limit}")
+    app.logger.info(f"Sports articles API called - category: {category}, preset: {preset}, tiers: {importance_tiers}, max_age: {max_age_hours}, sources: {source_authority}, min_score: {min_score}, sort_by_date: {sort_by_date}, limit: {limit}")
     
     try:
         import sys
@@ -6032,7 +6034,7 @@ def api_sports_get_articles():
             articles = article_filter.filter_articles(articles, filter_criteria)
             app.logger.info(f"Applied preset filter '{preset}': {len(articles)} articles remaining")
         
-        elif any([importance_tiers, max_age_hours, source_authority, min_score]):
+        elif any([importance_tiers, max_age_hours, source_authority, min_score, sort_by_date]):
             # Build custom filter criteria
             filter_criteria = {}
             
@@ -6057,7 +6059,14 @@ def api_sports_get_articles():
                 filter_criteria['limit'] = limit
             
             filter_criteria['require_complete'] = False  # Don't filter out incomplete articles
-            filter_criteria['sort_by'] = 'hybrid_rank'
+            
+            # Handle sort_by_date parameter
+            if sort_by_date == 'newest':
+                filter_criteria['sort_by'] = 'published_date_desc'
+            elif sort_by_date == 'oldest':
+                filter_criteria['sort_by'] = 'published_date_asc'
+            else:
+                filter_criteria['sort_by'] = 'hybrid_rank'
             
             app.logger.info(f"Using custom filter criteria: {filter_criteria}")
             articles = article_filter.filter_articles(articles, filter_criteria)
