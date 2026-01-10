@@ -1,4 +1,75 @@
-# main_portal_app.py
+#!/usr/bin/env python3
+"""
+TickZen Main Portal Application
+===============================
+
+This is the core Flask-SocketIO web application for TickZen, providing:
+- AI-powered stock analysis and forecasting
+- Real-time WebSocket communication for progress updates
+- WordPress content automation and publishing
+- Firebase-backed user authentication and data persistence
+- Interactive dashboards for financial analytics
+
+Architecture Overview:
+---------------------
+- **Framework**: Flask with SocketIO for real-time communication
+- **Database**: Firebase Firestore for NoSQL data storage
+- **Storage**: Firebase Storage for file uploads and reports
+- **Authentication**: Firebase Auth with server-side token verification
+- **Deployment**: Azure App Service with production optimizations
+- **Real-time**: WebSocket rooms for user-specific progress updates
+
+Key Features:
+------------
+1. **Stock Analysis Pipeline**:
+   - Prophet time-series forecasting
+   - Technical indicator analysis
+   - Fundamental analysis with peer comparison
+   - Risk assessment and portfolio metrics
+
+2. **WordPress Automation**:
+   - Multi-site publishing with daily limits
+   - Author rotation and content scheduling
+   - SEO-optimized content generation
+   - Asset management and image processing
+
+3. **Real-time Communication**:
+   - Progress tracking for long-running operations
+   - Error notification system
+   - Multi-user support with room-based messaging
+
+4. **Sports Content System**:
+   - Google Trends integration
+   - Automated sports article generation
+   - Multi-category content publishing
+
+Socket Events:
+-------------
+- analysis_progress: Stock analysis pipeline updates
+- automation_update: WordPress publishing progress
+- ticker_status_persisted: Ticker processing completion
+- analysis_error: Error notifications
+- wp_asset_error: WordPress asset upload errors
+
+Environment Variables:
+---------------------
+- FIREBASE_PROJECT_ID: Firebase project identifier
+- GOOGLE_APPLICATION_CREDENTIALS: Path to service account key
+- FLASK_SECRET_KEY: Session encryption key
+- Various API keys for financial data sources
+
+Usage:
+------
+    # Development
+    python main_portal_app.py
+    
+    # Production (via WSGI)
+    gunicorn --config gunicorn.conf.py wsgi:app
+
+Author: TickZen Development Team
+Version: 2.0
+Last Updated: January 2026
+"""
 
 import sys
 import os
@@ -4801,6 +4872,52 @@ def automation_sports_runner():
         # Load ALL articles - pagination handled by frontend
         sports_articles = articles
         
+        # Convert timestamps to IST for display
+        def convert_articles_to_ist_display(articles_list):
+            """Convert article timestamps to IST for frontend display"""
+            from dateutil.tz import gettz
+            ist_tz = gettz('Asia/Kolkata')
+            
+            for article in articles_list:
+                # Get the best available parsed date
+                parsed_date = (article.get('published_date_ist_parsed') or 
+                              article.get('published_date_parsed') or 
+                              article.get('collected_date_parsed'))
+                
+                if parsed_date:
+                    # Convert to IST for display
+                    ist_date = parsed_date.astimezone(ist_tz)
+                    article['display_date_ist'] = ist_date.strftime('%Y-%m-%d %H:%M:%S IST')
+                    article['display_date_iso'] = ist_date.isoformat()
+                else:
+                    # Fallback: try to parse and convert string dates
+                    date_str = (article.get('published_date_ist') or 
+                               article.get('published_date') or 
+                               article.get('collected_date'))
+                    if date_str:
+                        try:
+                            from dateutil import parser as date_parser
+                            parsed = date_parser.parse(date_str)
+                            if parsed.tzinfo is None:
+                                # Assume UTC if no timezone
+                                from dateutil.tz import UTC
+                                parsed = parsed.replace(tzinfo=UTC)
+                            ist_date = parsed.astimezone(ist_tz)
+                            article['display_date_ist'] = ist_date.strftime('%Y-%m-%d %H:%M:%S IST')
+                            article['display_date_iso'] = ist_date.isoformat()
+                        except Exception as e:
+                            # Fallback to original string
+                            article['display_date_ist'] = str(date_str)[:25] + ' (Original)'
+                            article['display_date_iso'] = str(date_str)
+                    else:
+                        article['display_date_ist'] = 'No date available'
+                        article['display_date_iso'] = ''
+            
+            return articles_list
+        
+        # Apply IST conversion
+        sports_articles = convert_articles_to_ist_display(sports_articles)
+        
         app.logger.info(f"Loaded {len(sports_articles)} sports articles for user {user_uid}")
         
         # Optional: Sync to Firebase for backup/caching
@@ -5754,59 +5871,97 @@ def api_sports_collect_rss():
         
         socketio.emit('sports_automation_update', {
             'stage': 'rss_collection',
-            'message': f'🔍 Collecting from {total_sources} RSS sources...',
+            'message': f'🔍 Starting ASYNC collection from {total_sources} RSS sources...',
             'level': 'info',
             'progress': 10,
             'timestamp': datetime.now(timezone.utc).isoformat()
         }, room=user_uid)
         
-        # Collect RSS articles with real-time progress for each source
-        collection_results = {}
-        total_new_articles = 0
-        successful_sources = 0
-        last_article = None
+        # Use ASYNC collection for much faster processing
+        start_time = time.time()
         
-        for idx, source in enumerate(sources, 1):
-            # Calculate progress (10% to 70%)
-            progress = 10 + int((idx / total_sources) * 60)
+        try:
+            # Call the async method that processes all feeds in parallel
+            collection_results_data = collector.collect_all_news()
             
-            # Emit progress for this source
+            end_time = time.time()
+            collection_time = end_time - start_time
+            
+            # Extract results from the async method
+            collection_results = collection_results_data.get('collection_results', {})
+            total_new_articles = collection_results_data.get('total_new_articles', 0)
+            successful_sources = len([r for r in collection_results.values() if r.get('status') == 'success'])
+            
+            # Get the last article if any were added
+            last_article = collector.news_database['articles'][-1] if collector.news_database['articles'] else None
+            
+            # Emit async completion update
             socketio.emit('sports_automation_update', {
                 'stage': 'rss_collection',
-                'message': f'📥 [{idx}/{total_sources}] Collecting from {source["name"]}...',
-                'level': 'info',
-                'progress': progress,
+                'message': f'⚡ ASYNC collection completed in {collection_time:.2f}s! {successful_sources}/{total_sources} sources successful, {total_new_articles} new articles',
+                'level': 'success',
+                'progress': 70,
                 'timestamp': datetime.now(timezone.utc).isoformat()
             }, room=user_uid)
             
-            # Collect from this source
-            result = collector.collect_news_from_feed(source)
-            collection_results[source['name']] = result
-            total_new_articles += result['new_articles_added']
+        except Exception as e:
+            app.logger.error(f"Error in async RSS collection: {e}")
+            # Fallback to sequential if async fails
+            socketio.emit('sports_automation_update', {
+                'stage': 'rss_collection',
+                'message': f'⚠️ Async failed, falling back to sequential collection...',
+                'level': 'warning',
+                'progress': 15,
+                'timestamp': datetime.now(timezone.utc).isoformat()
+            }, room=user_uid)
             
-            # Track last article if any were added
-            if result['new_articles_added'] > 0:
-                # Get the last added article
-                last_article = collector.news_database['articles'][-1] if collector.news_database['articles'] else None
+            # Sequential fallback (original code)
+            collection_results = {}
+            total_new_articles = 0
+            successful_sources = 0
+            last_article = None
             
-            # Emit result for this source
-            if result['status'] == 'success':
-                successful_sources += 1
+            for idx, source in enumerate(sources, 1):
+                # Calculate progress (15% to 70%)
+                progress = 15 + int((idx / total_sources) * 55)
+                
+                # Emit progress for this source
                 socketio.emit('sports_automation_update', {
                     'stage': 'rss_collection',
-                    'message': f'✅ [{idx}/{total_sources}] {source["name"]}: {result["articles_found"]} found, {result["new_articles_added"]} new',
-                    'level': 'success',
+                    'message': f'📥 [{idx}/{total_sources}] Collecting from {source["name"]}...',
+                    'level': 'info',
                     'progress': progress,
                     'timestamp': datetime.now(timezone.utc).isoformat()
                 }, room=user_uid)
-            else:
-                socketio.emit('sports_automation_update', {
-                    'stage': 'rss_collection',
-                    'message': f'❌ [{idx}/{total_sources}] {source["name"]}: Failed - {result.get("error", "Unknown error")}',
-                    'level': 'error',
-                    'progress': progress,
-                    'timestamp': datetime.now(timezone.utc).isoformat()
-                }, room=user_uid)
+                
+                # Collect from this source
+                result = collector.collect_news_from_feed(source)
+                collection_results[source['name']] = result
+                total_new_articles += result['new_articles_added']
+                
+                # Track last article if any were added
+                if result['new_articles_added'] > 0:
+                    # Get the last added article
+                    last_article = collector.news_database['articles'][-1] if collector.news_database['articles'] else None
+                
+                # Emit result for this source
+                if result['status'] == 'success':
+                    successful_sources += 1
+                    socketio.emit('sports_automation_update', {
+                        'stage': 'rss_collection',
+                        'message': f'✅ [{idx}/{total_sources}] {source["name"]}: {result["articles_found"]} found, {result["new_articles_added"]} new',
+                        'level': 'success',
+                        'progress': progress,
+                        'timestamp': datetime.now(timezone.utc).isoformat()
+                    }, room=user_uid)
+                else:
+                    socketio.emit('sports_automation_update', {
+                        'stage': 'rss_collection',
+                        'message': f'❌ [{idx}/{total_sources}] {source["name"]}: Failed - {result.get("error", "Unknown error")}',
+                        'level': 'error',
+                        'progress': progress,
+                        'timestamp': datetime.now(timezone.utc).isoformat()
+                    }, room=user_uid)
         
         # Update metadata
         collector.news_database['metadata']['last_updated'] = datetime.now().isoformat()
@@ -6062,7 +6217,7 @@ def api_sports_get_articles():
             
             # Handle sort_by_date parameter
             if sort_by_date == 'newest':
-                filter_criteria['sort_by'] = 'published_date_desc'
+                filter_criteria['sort_by'] = 'published_date'  # Already sorts desc by default
             elif sort_by_date == 'oldest':
                 filter_criteria['sort_by'] = 'published_date_asc'
             else:
@@ -6073,11 +6228,97 @@ def api_sports_get_articles():
             app.logger.info(f"Applied custom filter: {len(articles)} articles remaining")
         
         else:
-            # Default: sort by published date (newest first)
-            articles.sort(key=lambda x: x.get('published_date', ''), reverse=True)
-            if limit:
-                articles = articles[:limit]
-            app.logger.info(f"No filters applied, returning {len(articles)} articles sorted by date")
+            # No custom filters applied, but still need to apply category filter if specific category selected
+            if category and category != 'all':
+                filter_criteria = {
+                    'categories': [category],
+                    'sort_by': 'published_date'  # Sort by newest first
+                }
+                app.logger.info(f"Applying category-only filter: {filter_criteria}")
+                articles = article_filter.filter_articles(articles, filter_criteria)
+                app.logger.info(f"Applied category filter for '{category}': {len(articles)} articles remaining")
+            else:
+                # Default: sort by published date (newest first) with robust date parsing
+                def safe_date_key(article):
+                    from dateutil.tz import UTC
+                    
+                    # Try parsed dates first
+                    parsed_date = (article.get('published_date_ist_parsed') or 
+                                  article.get('published_date_parsed') or 
+                                  article.get('collected_date_parsed'))
+                    if parsed_date:
+                        # Ensure timezone-aware
+                        if parsed_date.tzinfo is None:
+                            parsed_date = parsed_date.replace(tzinfo=UTC)
+                        return parsed_date
+                    
+                    # Try parsing string dates
+                    date_str = (article.get('published_date_ist') or 
+                               article.get('published_date') or 
+                               article.get('collected_date') or '')
+                    if date_str:
+                        try:
+                            from dateutil import parser as date_parser
+                            parsed = date_parser.parse(date_str)
+                            if parsed.tzinfo is None:
+                                parsed = parsed.replace(tzinfo=UTC)
+                            return parsed
+                        except:
+                            pass
+                    
+                    # Fallback to epoch (oldest possible)
+                    return datetime.min.replace(tzinfo=UTC)
+                
+                articles.sort(key=safe_date_key, reverse=True)
+                if limit:
+                    articles = articles[:limit]
+                app.logger.info(f"No filters applied, returning {len(articles)} articles sorted by date")
+        
+        # Convert timestamps to IST for display
+        def convert_to_ist_display(articles_list):
+            """Convert article timestamps to IST for frontend display"""
+            from dateutil.tz import gettz
+            ist_tz = gettz('Asia/Kolkata')
+            
+            for article in articles_list:
+                # Get the best available parsed date
+                parsed_date = (article.get('published_date_ist_parsed') or 
+                              article.get('published_date_parsed') or 
+                              article.get('collected_date_parsed'))
+                
+                if parsed_date:
+                    # Convert to IST for display
+                    ist_date = parsed_date.astimezone(ist_tz)
+                    article['display_date_ist'] = ist_date.strftime('%Y-%m-%d %H:%M:%S IST')
+                    article['display_date_iso'] = ist_date.isoformat()
+                else:
+                    # Fallback: try to parse and convert string dates
+                    date_str = (article.get('published_date_ist') or 
+                               article.get('published_date') or 
+                               article.get('collected_date'))
+                    if date_str:
+                        try:
+                            from dateutil import parser as date_parser
+                            parsed = date_parser.parse(date_str)
+                            if parsed.tzinfo is None:
+                                # Assume UTC if no timezone
+                                from dateutil.tz import UTC
+                                parsed = parsed.replace(tzinfo=UTC)
+                            ist_date = parsed.astimezone(ist_tz)
+                            article['display_date_ist'] = ist_date.strftime('%Y-%m-%d %H:%M:%S IST')
+                            article['display_date_iso'] = ist_date.isoformat()
+                        except Exception as e:
+                            # Fallback to original string
+                            article['display_date_ist'] = str(date_str)[:25] + ' (Original)'
+                            article['display_date_iso'] = str(date_str)
+                    else:
+                        article['display_date_ist'] = 'No date available'
+                        article['display_date_iso'] = ''
+            
+            return articles_list
+        
+        # Apply IST conversion for display
+        articles = convert_to_ist_display(articles)
         
         # Get filter summary
         summary = article_filter.get_filter_summary(articles) if articles else {}

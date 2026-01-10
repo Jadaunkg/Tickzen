@@ -438,3 +438,1307 @@
 2026-01-03 20:58:20 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
 2026-01-03 21:10:02 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
 2026-01-03 21:11:53 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 14:05:11 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 14:05:21 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 14:12:41 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 14:17:25 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 14:17:32 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 14:23:22 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 14:30:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 14:53:42 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ishaan singh (ID: 9)
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'First Time in 138 Years: Australia Drops Spinner for SCG Test' (61 chars)
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5663 chars
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-04 14:55:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-04 14:55:33 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 383 articles with 1602 keywords
+2026-01-04 14:55:33 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: First Time in 138 Years: Australia Drops Spinner for SCG Test
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: First Time in 138 Years: Australia Drops Spinner for SCG Test
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'first time in 138 years australia drops spinner for scg test' (60 chars)
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'first-time-in-138-years-australia-drops-spinner-for-scg-test' (60 chars)
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'first-time-in-138-years-australia-drops-spinner-for-scg-test' (60 chars)
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'First Time in 138 Years: Australia Drops Spinner f...' → 'first-time-in-138-years-australia-drops-spinner-for-scg-test' (60/75 chars) ✅
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'First Time in 138 Years: Australia Drops Spinner for SCG Test' (61 chars)
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'first-time-in-138-years-australia-drops-spinner-for-scg-test' (60 chars)
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ishaan singh (ID: 9)
+2026-01-04 14:55:34 - AutoPublisherLogger - INFO - Post 'First Time in 138 Years: Australia Drops Spinner for SCG Test' draft on https://sportspediazone.com/. ID: 3823, Link: https://sportspediazone.com/?p=3823
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Priyanjan Paul (ID: 19)
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Crawley Keeps England Opener Spot for NZ Tour After Vaughan's Backing' (69 chars)
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3933 chars
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Crawley Keeps England Opener Spot for NZ Tour After Vaughan's Backing
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Crawley Keeps England Opener Spot for NZ Tour After Vaughan's Backing
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'crawley keeps england opener spot for nz tour after vaughans backing' (68 chars)
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'crawley-keeps-england-opener-spot-for-nz-tour-after-vaughans-backing' (68 chars)
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'crawley-keeps-england-opener-spot-for-nz-tour-after-vaughans-backing' (68 chars)
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Crawley Keeps England Opener Spot for NZ Tour Afte...' → 'crawley-keeps-england-opener-spot-for-nz-tour-after-vaughans-backing' (68/75 chars) ✅
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Crawley Keeps England Opener Spot for NZ Tour After Vaughan's Backing' (69 chars)
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'crawley-keeps-england-opener-spot-for-nz-tour-after-vaughans-backing' (68 chars)
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-04 14:56:01 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Priyanjan Paul (ID: 19)
+2026-01-04 14:56:02 - AutoPublisherLogger - INFO - Post 'Crawley Keeps England Opener Spot for NZ Tour After Vaughan's Backing' draft on https://sportspediazone.com/. ID: 3824, Link: https://sportspediazone.com/?p=3824
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Sagnik Banerjee (ID: 20)
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'T20 World Cup Squad Buzz: Is Taskin In, Jaker Out for Bangladesh?' (65 chars)
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4592 chars
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: T20 World Cup Squad Buzz: Is Taskin In, Jaker Out for Bangladesh?
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: T20 World Cup Squad Buzz: Is Taskin In, Jaker Out for Bangladesh?
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 't20 world cup squad buzz is taskin in jaker out for bangladesh' (62 chars)
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 't20-world-cup-squad-buzz-is-taskin-in-jaker-out-for-bangladesh' (62 chars)
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 't20-world-cup-squad-buzz-is-taskin-in-jaker-out-for-bangladesh' (62 chars)
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'T20 World Cup Squad Buzz: Is Taskin In, Jaker Out ...' → 't20-world-cup-squad-buzz-is-taskin-in-jaker-out-for-bangladesh' (62/75 chars) ✅
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'T20 World Cup Squad Buzz: Is Taskin In, Jaker Out for Bangladesh?' (65 chars)
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 't20-world-cup-squad-buzz-is-taskin-in-jaker-out-for-bangladesh' (62 chars)
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-04 14:56:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Sagnik Banerjee (ID: 20)
+2026-01-04 14:56:27 - AutoPublisherLogger - INFO - Post 'T20 World Cup Squad Buzz: Is Taskin In, Jaker Out for Bangladesh?' draft on https://sportspediazone.com/. ID: 3825, Link: https://sportspediazone.com/?p=3825
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Soureesh Datta (ID: 10)
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Brook Blasts England to Lead, But Reckless Tag Remains' (54 chars)
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4544 chars
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Brook Blasts England to Lead, But Reckless Tag Remains
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Brook Blasts England to Lead, But Reckless Tag Remains
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'brook blasts england to lead but reckless tag remains' (53 chars)
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'brook-blasts-england-to-lead-but-reckless-tag-remains' (53 chars)
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'brook-blasts-england-to-lead-but-reckless-tag-remains' (53 chars)
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Brook Blasts England to Lead, But Reckless Tag Rem...' → 'brook-blasts-england-to-lead-but-reckless-tag-remains' (53/75 chars) ✅
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Brook Blasts England to Lead, But Reckless Tag Remains' (54 chars)
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'brook-blasts-england-to-lead-but-reckless-tag-remains' (53 chars)
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Soureesh Datta (ID: 10)
+2026-01-04 14:57:00 - AutoPublisherLogger - INFO - Post 'Brook Blasts England to Lead, But Reckless Tag Remains' draft on https://sportspediazone.com/. ID: 3827, Link: https://sportspediazone.com/?p=3827
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Tanya Singh (ID: 8)
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'IPL Broadcast Bangladesh: Rumors Fly, But No Suspension Confirmed' (65 chars)
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4617 chars
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: IPL Broadcast Bangladesh: Rumors Fly, But No Suspension Confirmed
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: IPL Broadcast Bangladesh: Rumors Fly, But No Suspension Confirmed
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'ipl broadcast bangladesh rumors fly but no suspension confirmed' (63 chars)
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'ipl-broadcast-bangladesh-rumors-fly-but-no-suspension-confirmed' (63 chars)
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'ipl-broadcast-bangladesh-rumors-fly-but-no-suspension-confirmed' (63 chars)
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'IPL Broadcast Bangladesh: Rumors Fly, But No Suspe...' → 'ipl-broadcast-bangladesh-rumors-fly-but-no-suspension-confirmed' (63/75 chars) ✅
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'IPL Broadcast Bangladesh: Rumors Fly, But No Suspension Confirmed' (65 chars)
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'ipl-broadcast-bangladesh-rumors-fly-but-no-suspension-confirmed' (63 chars)
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Tanya Singh (ID: 8)
+2026-01-04 14:57:51 - AutoPublisherLogger - INFO - Post 'IPL Broadcast Bangladesh: Rumors Fly, But No Suspension Confirmed' draft on https://sportspediazone.com/. ID: 3828, Link: https://sportspediazone.com/?p=3828
+2026-01-04 14:57:55 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Annsly Raena (ID: 5)
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Bangladesh Announce T20 World Cup Squad, Venue Shift Looms' (58 chars)
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 6418 chars
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-04 16:34:59 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 384 articles with 1604 keywords
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Bangladesh Announce T20 World Cup Squad, Venue Shift Looms
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Bangladesh Announce T20 World Cup Squad, Venue Shift Looms
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'bangladesh announce t20 world cup squad venue shift looms' (57 chars)
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'bangladesh-announce-t20-world-cup-squad-venue-shift-looms' (57 chars)
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'bangladesh-announce-t20-world-cup-squad-venue-shift-looms' (57 chars)
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Bangladesh Announce T20 World Cup Squad, Venue Shi...' → 'bangladesh-announce-t20-world-cup-squad-venue-shift-looms' (57/75 chars) ✅
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Bangladesh Announce T20 World Cup Squad, Venue Shift Looms' (58 chars)
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'bangladesh-announce-t20-world-cup-squad-venue-shift-looms' (57 chars)
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-04 16:35:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Annsly Raena (ID: 5)
+2026-01-04 16:35:08 - AutoPublisherLogger - INFO - Post 'Bangladesh Announce T20 World Cup Squad, Venue Shift Looms' draft on https://sportspediazone.com/. ID: 3840, Link: https://sportspediazone.com/?p=3840
+2026-01-04 16:35:14 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Bangladesh IPL Ban Looms Over Cricket Drama' (43 chars)
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5753 chars
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Bangladesh IPL Ban Looms Over Cricket Drama
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Bangladesh IPL Ban Looms Over Cricket Drama
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'bangladesh ipl ban looms over cricket drama' (43 chars)
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'bangladesh-ipl-ban-looms-over-cricket-drama' (43 chars)
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'bangladesh-ipl-ban-looms-over-cricket-drama' (43 chars)
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Bangladesh IPL Ban Looms Over Cricket Drama...' → 'bangladesh-ipl-ban-looms-over-cricket-drama' (43/75 chars) ✅
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Bangladesh IPL Ban Looms Over Cricket Drama' (43 chars)
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'bangladesh-ipl-ban-looms-over-cricket-drama' (43 chars)
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-01-04 16:38:09 - AutoPublisherLogger - INFO - Post 'Bangladesh IPL Ban Looms Over Cricket Drama' draft on https://sportspediazone.com/. ID: 3843, Link: https://sportspediazone.com/?p=3843
+2026-01-04 16:38:14 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 16:46:21 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 16:47:50 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 16:48:03 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Govind Singh (ID: 14)
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Melbourne Renegades Face Uphill Battle as Losses Mount in BBL 2025-26' (69 chars)
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4666 chars
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-04 16:49:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 386 articles with 1611 keywords
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Melbourne Renegades Face Uphill Battle as Losses Mount in BBL 2025-26
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 1 internal links
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Melbourne Renegades Face Uphill Battle as Losses Mount in BBL 2025-26
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'melbourne renegades face uphill battle as losses mount in bbl 202526' (68 chars)
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'melbourne-renegades-face-uphill-battle-as-losses-mount-in-bbl-202526' (68 chars)
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'melbourne-renegades-face-uphill-battle-as-losses-mount-in-bbl-202526' (68 chars)
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Melbourne Renegades Face Uphill Battle as Losses M...' → 'melbourne-renegades-face-uphill-battle-as-losses-mount-in-bbl-202526' (68/75 chars) ✅
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Melbourne Renegades Face Uphill Battle as Losses Mount in BBL 2025-26' (69 chars)
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'melbourne-renegades-face-uphill-battle-as-losses-mount-in-bbl-202526' (68 chars)
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Govind Singh (ID: 14)
+2026-01-04 16:49:12 - AutoPublisherLogger - INFO - Post 'Melbourne Renegades Face Uphill Battle as Losses Mount in BBL 2025-26' draft on https://sportspediazone.com/. ID: 3849, Link: https://sportspediazone.com/?p=3849
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ishaan singh (ID: 9)
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Ashwin Questions ODI Future, Impact on Young Stars' (50 chars)
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 6380 chars
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Ashwin Questions ODI Future, Impact on Young Stars
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Ashwin Questions ODI Future, Impact on Young Stars
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'ashwin questions odi future impact on young stars' (49 chars)
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'ashwin-questions-odi-future-impact-on-young-stars' (49 chars)
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'ashwin-questions-odi-future-impact-on-young-stars' (49 chars)
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Ashwin Questions ODI Future, Impact on Young Stars...' → 'ashwin-questions-odi-future-impact-on-young-stars' (49/75 chars) ✅
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Ashwin Questions ODI Future, Impact on Young Stars' (50 chars)
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'ashwin-questions-odi-future-impact-on-young-stars' (49 chars)
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-04 16:49:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ishaan singh (ID: 9)
+2026-01-04 16:49:47 - AutoPublisherLogger - INFO - Post 'Ashwin Questions ODI Future, Impact on Young Stars' draft on https://sportspediazone.com/. ID: 3850, Link: https://sportspediazone.com/?p=3850
+2026-01-04 16:49:51 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 16:55:16 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 16:55:42 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Priyanjan Paul (ID: 19)
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Team News: Man Utd's Eight Absences Fuel Leeds Derby Hopes' (58 chars)
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5910 chars
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Team News: Man Utd's Eight Absences Fuel Leeds Derby Hopes
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Team News: Man Utd's Eight Absences Fuel Leeds Derby Hopes
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'team news man utds eight absences fuel leeds derby hopes' (56 chars)
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'team-news-man-utds-eight-absences-fuel-leeds-derby-hopes' (56 chars)
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'team-news-man-utds-eight-absences-fuel-leeds-derby-hopes' (56 chars)
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Team News: Man Utd's Eight Absences Fuel Leeds Der...' → 'team-news-man-utds-eight-absences-fuel-leeds-derby-hopes' (56/75 chars) ✅
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Team News: Man Utd's Eight Absences Fuel Leeds Derby Hopes' (58 chars)
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'team-news-man-utds-eight-absences-fuel-leeds-derby-hopes' (56 chars)
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Priyanjan Paul (ID: 19)
+2026-01-04 16:57:12 - AutoPublisherLogger - INFO - Post 'Team News: Man Utd's Eight Absences Fuel Leeds Derby Hopes' draft on https://sportspediazone.com/. ID: 3857, Link: https://sportspediazone.com/?p=3857
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Sagnik Banerjee (ID: 20)
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'García Shines Amidst Jeers as Barcelona Claim Derby Victory' (59 chars)
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4970 chars
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: García Shines Amidst Jeers as Barcelona Claim Derby Victory
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: García Shines Amidst Jeers as Barcelona Claim Derby Victory
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'garcía shines amidst jeers as barcelona claim derby victory' (59 chars)
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'garcía-shines-amidst-jeers-as-barcelona-claim-derby-victory' (59 chars)
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'garcía-shines-amidst-jeers-as-barcelona-claim-derby-victory' (59 chars)
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'García Shines Amidst Jeers as Barcelona Claim Derb...' → 'garcía-shines-amidst-jeers-as-barcelona-claim-derby-victory' (59/75 chars) ✅
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'García Shines Amidst Jeers as Barcelona Claim Derby Victory' (59 chars)
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'garcía-shines-amidst-jeers-as-barcelona-claim-derby-victory' (59 chars)
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Sagnik Banerjee (ID: 20)
+2026-01-04 16:58:00 - AutoPublisherLogger - INFO - Post 'García Shines Amidst Jeers as Barcelona Claim Derby Victory' draft on https://sportspediazone.com/. ID: 3858, Link: https://sportspediazone.com/?p=3858
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Soureesh Datta (ID: 10)
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Man City Hosts Chelsea in Crucial Premier League Showdown' (57 chars)
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4950 chars
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Man City Hosts Chelsea in Crucial Premier League Showdown
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Man City Hosts Chelsea in Crucial Premier League Showdown
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'man city hosts chelsea in crucial premier league showdown' (57 chars)
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'man-city-hosts-chelsea-in-crucial-premier-league-showdown' (57 chars)
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'man-city-hosts-chelsea-in-crucial-premier-league-showdown' (57 chars)
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Man City Hosts Chelsea in Crucial Premier League S...' → 'man-city-hosts-chelsea-in-crucial-premier-league-showdown' (57/75 chars) ✅
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Man City Hosts Chelsea in Crucial Premier League Showdown' (57 chars)
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'man-city-hosts-chelsea-in-crucial-premier-league-showdown' (57 chars)
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Soureesh Datta (ID: 10)
+2026-01-04 16:58:30 - AutoPublisherLogger - INFO - Post 'Man City Hosts Chelsea in Crucial Premier League Showdown' draft on https://sportspediazone.com/. ID: 3859, Link: https://sportspediazone.com/?p=3859
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Tanya Singh (ID: 8)
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Pantoja Cleared: Sparring After UFC 323 Foot Break, Targeting March 2026' (72 chars)
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4650 chars
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 16:59:18 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Pantoja Cleared: Sparring After UFC 323 Foot Break, Targeting March 2026
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Pantoja Cleared: Sparring After UFC 323 Foot Break, Targeting March 2026
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'pantoja cleared sparring after ufc 323 foot break targeting march 2026' (70 chars)
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'pantoja-cleared-sparring-after-ufc-323-foot-break-targeting-march-2026' (70 chars)
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'pantoja-cleared-sparring-after-ufc-323-foot-break-targeting-march-2026' (70 chars)
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Pantoja Cleared: Sparring After UFC 323 Foot Break...' → 'pantoja-cleared-sparring-after-ufc-323-foot-break-targeting-march-2026' (70/75 chars) ✅
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Pantoja Cleared: Sparring After UFC 323 Foot Break, Targeting March 2026' (72 chars)
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'pantoja-cleared-sparring-after-ufc-323-foot-break-targeting-march-2026' (70 chars)
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Tanya Singh (ID: 8)
+2026-01-04 16:59:19 - AutoPublisherLogger - INFO - Post 'Pantoja Cleared: Sparring After UFC 323 Foot Break, Targeting March 2026' draft on https://sportspediazone.com/. ID: 3860, Link: https://sportspediazone.com/?p=3860
+2026-01-04 16:59:25 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 17:28:31 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Annsly Raena (ID: 5)
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Declan Rice Masterclass Propels Arsenal Top Arteta Calls Him World Class' (72 chars)
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5354 chars
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Declan Rice Masterclass Propels Arsenal Top Arteta Calls Him World Class
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Declan Rice Masterclass Propels Arsenal Top Arteta Calls Him World Class
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'declan rice masterclass propels arsenal top arteta calls him world class' (72 chars)
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'declan-rice-masterclass-propels-arsenal-top-arteta-calls-him-world-class' (72 chars)
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'declan-rice-masterclass-propels-arsenal-top-arteta-calls-him-world-class' (72 chars)
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Declan Rice Masterclass Propels Arsenal Top Arteta...' → 'declan-rice-masterclass-propels-arsenal-top-arteta-calls-him-world-class' (72/75 chars) ✅
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Declan Rice Masterclass Propels Arsenal Top Arteta Calls Him World Class' (72 chars)
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'declan-rice-masterclass-propels-arsenal-top-arteta-calls-him-world-class' (72 chars)
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Annsly Raena (ID: 5)
+2026-01-04 17:30:50 - AutoPublisherLogger - INFO - Post 'Declan Rice Masterclass Propels Arsenal Top Arteta Calls Him World Class' draft on https://sportspediazone.com/. ID: 3873, Link: https://sportspediazone.com/?p=3873
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Amorim Stonewalls Man Utd Transfer Questions Amid Squad Crisis' (62 chars)
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5064 chars
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Amorim Stonewalls Man Utd Transfer Questions Amid Squad Crisis
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Amorim Stonewalls Man Utd Transfer Questions Amid Squad Crisis
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'amorim stonewalls man utd transfer questions amid squad crisis' (62 chars)
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'amorim-stonewalls-man-utd-transfer-questions-amid-squad-crisis' (62 chars)
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'amorim-stonewalls-man-utd-transfer-questions-amid-squad-crisis' (62 chars)
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Amorim Stonewalls Man Utd Transfer Questions Amid ...' → 'amorim-stonewalls-man-utd-transfer-questions-amid-squad-crisis' (62/75 chars) ✅
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Amorim Stonewalls Man Utd Transfer Questions Amid Squad Crisis' (62 chars)
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'amorim-stonewalls-man-utd-transfer-questions-amid-squad-crisis' (62 chars)
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-01-04 17:31:34 - AutoPublisherLogger - INFO - Post 'Amorim Stonewalls Man Utd Transfer Questions Amid Squad Crisis' draft on https://sportspediazone.com/. ID: 3874, Link: https://sportspediazone.com/?p=3874
+2026-01-04 17:31:40 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-05 19:23:10 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-05 19:23:21 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-05 19:23:49 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Govind Singh (ID: 14)
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Kris Srikkanth Slams Nitish Reddy’s India Call-Up For New Zealand ODI Series' (76 chars)
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5383 chars
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-05 20:11:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 393 articles with 1623 keywords
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Kris Srikkanth Slams Nitish Reddy’s India Call-Up For New Zealand ODI Series
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Kris Srikkanth Slams Nitish Reddy’s India Call-Up For New Zealand ODI Series
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'kris srikkanth slams nitish reddys india callup for new zealand odi series' (74 chars)
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'kris-srikkanth-slams-nitish-reddys-india-callup-for-new-zealand-odi-series' (74 chars)
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'kris-srikkanth-slams-nitish-reddys-india-callup-for-new-zealand-odi-series' (74 chars)
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Kris Srikkanth Slams Nitish Reddy’s India Call-Up ...' → 'kris-srikkanth-slams-nitish-reddys-india-callup-for-new-zealand-odi-series' (74/75 chars) ✅
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Kris Srikkanth Slams Nitish Reddy’s India Call-Up For New Zealand ODI Series' (76 chars)
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'kris-srikkanth-slams-nitish-reddys-india-callup-for-new-zealand-odi-series' (74 chars)
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-05 20:11:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Govind Singh (ID: 14)
+2026-01-05 20:11:35 - AutoPublisherLogger - INFO - Post 'Kris Srikkanth Slams Nitish Reddy’s India Call-Up For New Zealand ODI Series' draft on https://sportspediazone.com/. ID: 3887, Link: https://sportspediazone.com/?p=3887
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ishaan singh (ID: 9)
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Shreyas Iyer Returns as Mumbai Captain After Spleen Injury' (58 chars)
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5830 chars
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-05 20:12:27 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Shreyas Iyer Returns as Mumbai Captain After Spleen Injury
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Shreyas Iyer Returns as Mumbai Captain After Spleen Injury
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'shreyas iyer returns as mumbai captain after spleen injury' (58 chars)
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'shreyas-iyer-returns-as-mumbai-captain-after-spleen-injury' (58 chars)
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'shreyas-iyer-returns-as-mumbai-captain-after-spleen-injury' (58 chars)
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Shreyas Iyer Returns as Mumbai Captain After Splee...' → 'shreyas-iyer-returns-as-mumbai-captain-after-spleen-injury' (58/75 chars) ✅
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Shreyas Iyer Returns as Mumbai Captain After Spleen Injury' (58 chars)
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'shreyas-iyer-returns-as-mumbai-captain-after-spleen-injury' (58 chars)
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-05 20:12:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ishaan singh (ID: 9)
+2026-01-05 20:12:36 - AutoPublisherLogger - INFO - Post 'Shreyas Iyer Returns as Mumbai Captain After Spleen Injury' draft on https://sportspediazone.com/. ID: 3888, Link: https://sportspediazone.com/?p=3888
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Priyanjan Paul (ID: 19)
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Root 160 for England but Head Blasts Back for Australia' (55 chars)
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5529 chars
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Root 160 for England but Head Blasts Back for Australia
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Root 160 for England but Head Blasts Back for Australia
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'root 160 for england but head blasts back for australia' (55 chars)
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'root-160-for-england-but-head-blasts-back-for-australia' (55 chars)
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'root-160-for-england-but-head-blasts-back-for-australia' (55 chars)
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Root 160 for England but Head Blasts Back for Aust...' → 'root-160-for-england-but-head-blasts-back-for-australia' (55/75 chars) ✅
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Root 160 for England but Head Blasts Back for Australia' (55 chars)
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'root-160-for-england-but-head-blasts-back-for-australia' (55 chars)
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-05 20:13:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Priyanjan Paul (ID: 19)
+2026-01-05 20:13:25 - AutoPublisherLogger - INFO - Post 'Root 160 for England but Head Blasts Back for Australia' draft on https://sportspediazone.com/. ID: 3889, Link: https://sportspediazone.com/?p=3889
+2026-01-05 20:13:30 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-05 20:47:02 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-05 20:47:09 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Sagnik Banerjee (ID: 20)
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Dayot Upamecano Contract: Bayern Confidence Meets High Demands' (62 chars)
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4581 chars
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-05 21:19:27 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 396 articles with 1628 keywords
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Dayot Upamecano Contract: Bayern Confidence Meets High Demands
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Dayot Upamecano Contract: Bayern Confidence Meets High Demands
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'dayot upamecano contract bayern confidence meets high demands' (61 chars)
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'dayot-upamecano-contract-bayern-confidence-meets-high-demands' (61 chars)
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'dayot-upamecano-contract-bayern-confidence-meets-high-demands' (61 chars)
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Dayot Upamecano Contract: Bayern Confidence Meets ...' → 'dayot-upamecano-contract-bayern-confidence-meets-high-demands' (61/75 chars) ✅
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Dayot Upamecano Contract: Bayern Confidence Meets High Demands' (62 chars)
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'dayot-upamecano-contract-bayern-confidence-meets-high-demands' (61 chars)
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Sagnik Banerjee (ID: 20)
+2026-01-05 21:19:33 - AutoPublisherLogger - INFO - Post 'Dayot Upamecano Contract: Bayern Confidence Meets High Demands' draft on https://sportspediazone.com/. ID: 3901, Link: https://sportspediazone.com/?p=3901
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Soureesh Datta (ID: 10)
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Newcastle Contacts Police Over Vile Racist Abuse Targeting Willock' (66 chars)
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4365 chars
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Newcastle Contacts Police Over Vile Racist Abuse Targeting Willock
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Newcastle Contacts Police Over Vile Racist Abuse Targeting Willock
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'newcastle contacts police over vile racist abuse targeting willock' (66 chars)
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'newcastle-contacts-police-over-vile-racist-abuse-targeting-willock' (66 chars)
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'newcastle-contacts-police-over-vile-racist-abuse-targeting-willock' (66 chars)
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Newcastle Contacts Police Over Vile Racist Abuse T...' → 'newcastle-contacts-police-over-vile-racist-abuse-targeting-willock' (66/75 chars) ✅
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Newcastle Contacts Police Over Vile Racist Abuse Targeting Willock' (66 chars)
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'newcastle-contacts-police-over-vile-racist-abuse-targeting-willock' (66 chars)
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-05 21:20:26 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Soureesh Datta (ID: 10)
+2026-01-05 21:20:28 - AutoPublisherLogger - INFO - Post 'Newcastle Contacts Police Over Vile Racist Abuse Targeting Willock' draft on https://sportspediazone.com/. ID: 3902, Link: https://sportspediazone.com/?p=3902
+2026-01-05 21:42:27 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-05 21:42:35 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-05 21:45:57 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Tanya Singh (ID: 8)
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'KKR Forced to Release Rahman, Bangladesh Bans IPL Broadcast' (59 chars)
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4707 chars
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-05 21:47:47 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 397 articles with 1633 keywords
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: KKR Forced to Release Rahman, Bangladesh Bans IPL Broadcast
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: KKR Forced to Release Rahman, Bangladesh Bans IPL Broadcast
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'kkr forced to release rahman bangladesh bans ipl broadcast' (58 chars)
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'kkr-forced-to-release-rahman-bangladesh-bans-ipl-broadcast' (58 chars)
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'kkr-forced-to-release-rahman-bangladesh-bans-ipl-broadcast' (58 chars)
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'KKR Forced to Release Rahman, Bangladesh Bans IPL ...' → 'kkr-forced-to-release-rahman-bangladesh-bans-ipl-broadcast' (58/75 chars) ✅
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'KKR Forced to Release Rahman, Bangladesh Bans IPL Broadcast' (59 chars)
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'kkr-forced-to-release-rahman-bangladesh-bans-ipl-broadcast' (58 chars)
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Tanya Singh (ID: 8)
+2026-01-05 21:47:53 - AutoPublisherLogger - INFO - Post 'KKR Forced to Release Rahman, Bangladesh Bans IPL Broadcast' draft on https://sportspediazone.com/. ID: 3909, Link: https://sportspediazone.com/?p=3909
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Annsly Raena (ID: 5)
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Stokes Dismisses Labuschagne After Heated Ashes Confrontation' (61 chars)
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4460 chars
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Stokes Dismisses Labuschagne After Heated Ashes Confrontation
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Stokes Dismisses Labuschagne After Heated Ashes Confrontation
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'stokes dismisses labuschagne after heated ashes confrontation' (61 chars)
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'stokes-dismisses-labuschagne-after-heated-ashes-confrontation' (61 chars)
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'stokes-dismisses-labuschagne-after-heated-ashes-confrontation' (61 chars)
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Stokes Dismisses Labuschagne After Heated Ashes Co...' → 'stokes-dismisses-labuschagne-after-heated-ashes-confrontation' (61/75 chars) ✅
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Stokes Dismisses Labuschagne After Heated Ashes Confrontation' (61 chars)
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'stokes-dismisses-labuschagne-after-heated-ashes-confrontation' (61 chars)
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Annsly Raena (ID: 5)
+2026-01-05 21:48:58 - AutoPublisherLogger - INFO - Post 'Stokes Dismisses Labuschagne After Heated Ashes Confrontation' draft on https://sportspediazone.com/. ID: 3910, Link: https://sportspediazone.com/?p=3910
+2026-01-05 21:49:02 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 17:56:35 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 17:56:45 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 17:57:13 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Leicester Eyes Villa's Mayling, Spurs' Neville for Defensive Boost' (66 chars)
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3888 chars
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-06 17:59:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-06 17:59:33 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 399 articles with 1636 keywords
+2026-01-06 17:59:33 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Leicester Eyes Villa's Mayling, Spurs' Neville for Defensive Boost
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Leicester Eyes Villa's Mayling, Spurs' Neville for Defensive Boost
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'leicester eyes villas mayling spurs neville for defensive boost' (63 chars)
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'leicester-eyes-villas-mayling-spurs-neville-for-defensive-boost' (63 chars)
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'leicester-eyes-villas-mayling-spurs-neville-for-defensive-boost' (63 chars)
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Leicester Eyes Villa's Mayling, Spurs' Neville for...' → 'leicester-eyes-villas-mayling-spurs-neville-for-defensive-boost' (63/75 chars) ✅
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Leicester Eyes Villa's Mayling, Spurs' Neville for Defensive Boost' (66 chars)
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'leicester-eyes-villas-mayling-spurs-neville-for-defensive-boost' (63 chars)
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-01-06 17:59:34 - AutoPublisherLogger - INFO - Post 'Leicester Eyes Villa's Mayling, Spurs' Neville for Defensive Boost' draft on https://sportspediazone.com/. ID: 3917, Link: https://sportspediazone.com/?p=3917
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Govind Singh (ID: 14)
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Andrews Praises Janelt, Squad Depth After Brentford's Rise' (58 chars)
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5752 chars
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Andrews Praises Janelt, Squad Depth After Brentford's Rise
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Andrews Praises Janelt, Squad Depth After Brentford's Rise
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'andrews praises janelt squad depth after brentfords rise' (56 chars)
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'andrews-praises-janelt-squad-depth-after-brentfords-rise' (56 chars)
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'andrews-praises-janelt-squad-depth-after-brentfords-rise' (56 chars)
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Andrews Praises Janelt, Squad Depth After Brentfor...' → 'andrews-praises-janelt-squad-depth-after-brentfords-rise' (56/75 chars) ✅
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Andrews Praises Janelt, Squad Depth After Brentford's Rise' (58 chars)
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'andrews-praises-janelt-squad-depth-after-brentfords-rise' (56 chars)
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Govind Singh (ID: 14)
+2026-01-06 18:00:31 - AutoPublisherLogger - INFO - Post 'Andrews Praises Janelt, Squad Depth After Brentford's Rise' draft on https://sportspediazone.com/. ID: 3918, Link: https://sportspediazone.com/?p=3918
+2026-01-06 18:00:37 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ishaan singh (ID: 9)
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Liam Rosenior Takes Chelsea Helm on Long-Term Deal Until 2032' (61 chars)
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4600 chars
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-06 18:28:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 401 articles with 1647 keywords
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Liam Rosenior Takes Chelsea Helm on Long-Term Deal Until 2032
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Liam Rosenior Takes Chelsea Helm on Long-Term Deal Until 2032
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'liam rosenior takes chelsea helm on longterm deal until 2032' (60 chars)
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'liam-rosenior-takes-chelsea-helm-on-longterm-deal-until-2032' (60 chars)
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'liam-rosenior-takes-chelsea-helm-on-longterm-deal-until-2032' (60 chars)
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Liam Rosenior Takes Chelsea Helm on Long-Term Deal...' → 'liam-rosenior-takes-chelsea-helm-on-longterm-deal-until-2032' (60/75 chars) ✅
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Liam Rosenior Takes Chelsea Helm on Long-Term Deal Until 2032' (61 chars)
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'liam-rosenior-takes-chelsea-helm-on-longterm-deal-until-2032' (60 chars)
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ishaan singh (ID: 9)
+2026-01-06 18:28:31 - AutoPublisherLogger - INFO - Post 'Liam Rosenior Takes Chelsea Helm on Long-Term Deal Until 2032' draft on https://sportspediazone.com/. ID: 3927, Link: https://sportspediazone.com/?p=3927
+2026-01-06 18:28:37 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 19:26:04 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 19:31:05 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Priyanjan Paul (ID: 19)
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Bairstow Blasts Record 34 Run Over in Sunrisers Eastern Cape Win' (64 chars)
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3433 chars
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-06 19:33:06 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 402 articles with 1649 keywords
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Bairstow Blasts Record 34 Run Over in Sunrisers Eastern Cape Win
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Bairstow Blasts Record 34 Run Over in Sunrisers Eastern Cape Win
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'bairstow blasts record 34 run over in sunrisers eastern cape win' (64 chars)
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'bairstow-blasts-record-34-run-over-in-sunrisers-eastern-cape-win' (64 chars)
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'bairstow-blasts-record-34-run-over-in-sunrisers-eastern-cape-win' (64 chars)
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Bairstow Blasts Record 34 Run Over in Sunrisers Ea...' → 'bairstow-blasts-record-34-run-over-in-sunrisers-eastern-cape-win' (64/75 chars) ✅
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Bairstow Blasts Record 34 Run Over in Sunrisers Eastern Cape Win' (64 chars)
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'bairstow-blasts-record-34-run-over-in-sunrisers-eastern-cape-win' (64 chars)
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-06 19:33:14 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Priyanjan Paul (ID: 19)
+2026-01-06 19:33:15 - AutoPublisherLogger - INFO - Post 'Bairstow Blasts Record 34 Run Over in Sunrisers Eastern Cape Win' draft on https://sportspediazone.com/. ID: 3933, Link: https://sportspediazone.com/?p=3933
+2026-01-06 19:33:19 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 20:04:56 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Sagnik Banerjee (ID: 20)
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Bangladesh Demands T20 World Cup Move from India, ICC to Decide' (63 chars)
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5630 chars
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Bangladesh Demands T20 World Cup Move from India, ICC to Decide
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Bangladesh Demands T20 World Cup Move from India, ICC to Decide
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'bangladesh demands t20 world cup move from india icc to decide' (62 chars)
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'bangladesh-demands-t20-world-cup-move-from-india-icc-to-decide' (62 chars)
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'bangladesh-demands-t20-world-cup-move-from-india-icc-to-decide' (62 chars)
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Bangladesh Demands T20 World Cup Move from India, ...' → 'bangladesh-demands-t20-world-cup-move-from-india-icc-to-decide' (62/75 chars) ✅
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Bangladesh Demands T20 World Cup Move from India, ICC to Decide' (63 chars)
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'bangladesh-demands-t20-world-cup-move-from-india-icc-to-decide' (62 chars)
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-06 20:06:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Sagnik Banerjee (ID: 20)
+2026-01-06 20:06:29 - AutoPublisherLogger - INFO - Post 'Bangladesh Demands T20 World Cup Move from India, ICC to Decide' draft on https://sportspediazone.com/. ID: 3941, Link: https://sportspediazone.com/?p=3941
+2026-01-06 20:06:34 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 20:18:14 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Soureesh Datta (ID: 10)
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Solskjaer Open to Shock Man Utd Interim Return After Amorim Sacking' (67 chars)
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4108 chars
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-06 20:20:40 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 404 articles with 1659 keywords
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Solskjaer Open to Shock Man Utd Interim Return After Amorim Sacking
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Solskjaer Open to Shock Man Utd Interim Return After Amorim Sacking
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'solskjaer open to shock man utd interim return after amorim sacking' (67 chars)
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'solskjaer-open-to-shock-man-utd-interim-return-after-amorim-sacking' (67 chars)
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'solskjaer-open-to-shock-man-utd-interim-return-after-amorim-sacking' (67 chars)
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Solskjaer Open to Shock Man Utd Interim Return Aft...' → 'solskjaer-open-to-shock-man-utd-interim-return-after-amorim-sacking' (67/75 chars) ✅
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Solskjaer Open to Shock Man Utd Interim Return After Amorim Sacking' (67 chars)
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'solskjaer-open-to-shock-man-utd-interim-return-after-amorim-sacking' (67 chars)
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Soureesh Datta (ID: 10)
+2026-01-06 20:20:48 - AutoPublisherLogger - INFO - Post 'Solskjaer Open to Shock Man Utd Interim Return After Amorim Sacking' draft on https://sportspediazone.com/. ID: 3945, Link: https://sportspediazone.com/?p=3945
+2026-01-06 20:20:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Tanya Singh (ID: 8)
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Solskjaer Open to Shock Man Utd Caretaker Return' (48 chars)
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3261 chars
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-06 20:26:41 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 404 articles with 1659 keywords
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Solskjaer Open to Shock Man Utd Caretaker Return
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Solskjaer Open to Shock Man Utd Caretaker Return
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'solskjaer open to shock man utd caretaker return' (48 chars)
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'solskjaer-open-to-shock-man-utd-caretaker-return' (48 chars)
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'solskjaer-open-to-shock-man-utd-caretaker-return' (48 chars)
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Solskjaer Open to Shock Man Utd Caretaker Return...' → 'solskjaer-open-to-shock-man-utd-caretaker-return' (48/75 chars) ✅
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Solskjaer Open to Shock Man Utd Caretaker Return' (48 chars)
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'solskjaer-open-to-shock-man-utd-caretaker-return' (48 chars)
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Tanya Singh (ID: 8)
+2026-01-06 20:26:47 - AutoPublisherLogger - INFO - Post 'Solskjaer Open to Shock Man Utd Caretaker Return' draft on https://sportspediazone.com/. ID: 3947, Link: https://sportspediazone.com/?p=3947
+2026-01-06 20:26:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Annsly Raena (ID: 5)
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Solskjær Open to Man Utd Interim Return After Amorim Sacking' (60 chars)
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3619 chars
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-06 20:32:37 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 404 articles with 1659 keywords
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Solskjær Open to Man Utd Interim Return After Amorim Sacking
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Solskjær Open to Man Utd Interim Return After Amorim Sacking
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'solskjær open to man utd interim return after amorim sacking' (60 chars)
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'solskjær-open-to-man-utd-interim-return-after-amorim-sacking' (60 chars)
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'solskjær-open-to-man-utd-interim-return-after-amorim-sacking' (60 chars)
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Solskjær Open to Man Utd Interim Return After Amor...' → 'solskjær-open-to-man-utd-interim-return-after-amorim-sacking' (60/75 chars) ✅
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Solskjær Open to Man Utd Interim Return After Amorim Sacking' (60 chars)
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'solskjær-open-to-man-utd-interim-return-after-amorim-sacking' (60 chars)
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-06 20:32:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Annsly Raena (ID: 5)
+2026-01-06 20:32:44 - AutoPublisherLogger - INFO - Post 'Solskjær Open to Man Utd Interim Return After Amorim Sacking' draft on https://sportspediazone.com/. ID: 3950, Link: https://sportspediazone.com/?p=3950
+2026-01-06 20:32:48 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Ole Gunnar Solskjær Ready for Shock Man Utd Interim Return' (58 chars)
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4748 chars
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-06 20:38:17 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 404 articles with 1659 keywords
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Ole Gunnar Solskjær Ready for Shock Man Utd Interim Return
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Ole Gunnar Solskjær Ready for Shock Man Utd Interim Return
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'ole gunnar solskjær ready for shock man utd interim return' (58 chars)
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'ole-gunnar-solskjær-ready-for-shock-man-utd-interim-return' (58 chars)
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'ole-gunnar-solskjær-ready-for-shock-man-utd-interim-return' (58 chars)
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Ole Gunnar Solskjær Ready for Shock Man Utd Interi...' → 'ole-gunnar-solskjær-ready-for-shock-man-utd-interim-return' (58/75 chars) ✅
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Ole Gunnar Solskjær Ready for Shock Man Utd Interim Return' (58 chars)
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'ole-gunnar-solskjær-ready-for-shock-man-utd-interim-return' (58 chars)
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-06 20:38:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-01-06 20:38:24 - AutoPublisherLogger - INFO - Post 'Ole Gunnar Solskjær Ready for Shock Man Utd Interim Return' draft on https://sportspediazone.com/. ID: 3953, Link: https://sportspediazone.com/?p=3953
+2026-01-06 20:38:28 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Govind Singh (ID: 14)
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Ole Gunnar Solskjaer Open to Shock Man Utd Caretaker Return' (59 chars)
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4550 chars
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-06 20:41:08 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 404 articles with 1659 keywords
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Ole Gunnar Solskjaer Open to Shock Man Utd Caretaker Return
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Ole Gunnar Solskjaer Open to Shock Man Utd Caretaker Return
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'ole gunnar solskjaer open to shock man utd caretaker return' (59 chars)
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'ole-gunnar-solskjaer-open-to-shock-man-utd-caretaker-return' (59 chars)
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'ole-gunnar-solskjaer-open-to-shock-man-utd-caretaker-return' (59 chars)
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Ole Gunnar Solskjaer Open to Shock Man Utd Caretak...' → 'ole-gunnar-solskjaer-open-to-shock-man-utd-caretaker-return' (59/75 chars) ✅
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Ole Gunnar Solskjaer Open to Shock Man Utd Caretaker Return' (59 chars)
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'ole-gunnar-solskjaer-open-to-shock-man-utd-caretaker-return' (59 chars)
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Govind Singh (ID: 14)
+2026-01-06 20:41:17 - AutoPublisherLogger - INFO - Post 'Ole Gunnar Solskjaer Open to Shock Man Utd Caretaker Return' draft on https://sportspediazone.com/. ID: 3956, Link: https://sportspediazone.com/?p=3956
+2026-01-06 20:41:21 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ishaan singh (ID: 9)
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Solskjaer Open to Shock Man Utd Caretaker Return After Amorim Sacking' (69 chars)
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3766 chars
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-06 20:46:27 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 404 articles with 1659 keywords
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Solskjaer Open to Shock Man Utd Caretaker Return After Amorim Sacking
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Solskjaer Open to Shock Man Utd Caretaker Return After Amorim Sacking
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'solskjaer open to shock man utd caretaker return after amorim sacking' (69 chars)
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'solskjaer-open-to-shock-man-utd-caretaker-return-after-amorim-sacking' (69 chars)
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'solskjaer-open-to-shock-man-utd-caretaker-return-after-amorim-sacking' (69 chars)
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Solskjaer Open to Shock Man Utd Caretaker Return A...' → 'solskjaer-open-to-shock-man-utd-caretaker-return-after-amorim-sacking' (69/75 chars) ✅
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Solskjaer Open to Shock Man Utd Caretaker Return After Amorim Sacking' (69 chars)
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'solskjaer-open-to-shock-man-utd-caretaker-return-after-amorim-sacking' (69 chars)
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-06 20:46:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ishaan singh (ID: 9)
+2026-01-06 20:46:33 - AutoPublisherLogger - INFO - Post 'Solskjaer Open to Shock Man Utd Caretaker Return After Amorim Sacking' draft on https://sportspediazone.com/. ID: 3959, Link: https://sportspediazone.com/?p=3959
+2026-01-06 20:46:37 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-07 22:12:58 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-07 22:13:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-07 22:13:45 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Priyanjan Paul (ID: 19)
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Gunners Eye Statement Win Over Liverpool Amid Title Charge' (58 chars)
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3484 chars
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-07 22:19:22 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 405 articles with 1663 keywords
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Gunners Eye Statement Win Over Liverpool Amid Title Charge
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Gunners Eye Statement Win Over Liverpool Amid Title Charge
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'gunners eye statement win over liverpool amid title charge' (58 chars)
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'gunners-eye-statement-win-over-liverpool-amid-title-charge' (58 chars)
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'gunners-eye-statement-win-over-liverpool-amid-title-charge' (58 chars)
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Gunners Eye Statement Win Over Liverpool Amid Titl...' → 'gunners-eye-statement-win-over-liverpool-amid-title-charge' (58/75 chars) ✅
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Gunners Eye Statement Win Over Liverpool Amid Title Charge' (58 chars)
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'gunners-eye-statement-win-over-liverpool-amid-title-charge' (58 chars)
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-07 22:19:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Priyanjan Paul (ID: 19)
+2026-01-07 22:19:30 - AutoPublisherLogger - INFO - Post 'Gunners Eye Statement Win Over Liverpool Amid Title Charge' draft on https://sportspediazone.com/. ID: 3966, Link: https://sportspediazone.com/?p=3966
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Sagnik Banerjee (ID: 20)
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'FIFA Unleashes AI Avatars for 2026 World Cup Offside Calls' (58 chars)
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4851 chars
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: FIFA Unleashes AI Avatars for 2026 World Cup Offside Calls
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: FIFA Unleashes AI Avatars for 2026 World Cup Offside Calls
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'fifa unleashes ai avatars for 2026 world cup offside calls' (58 chars)
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'fifa-unleashes-ai-avatars-for-2026-world-cup-offside-calls' (58 chars)
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'fifa-unleashes-ai-avatars-for-2026-world-cup-offside-calls' (58 chars)
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'FIFA Unleashes AI Avatars for 2026 World Cup Offsi...' → 'fifa-unleashes-ai-avatars-for-2026-world-cup-offside-calls' (58/75 chars) ✅
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'FIFA Unleashes AI Avatars for 2026 World Cup Offside Calls' (58 chars)
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'fifa-unleashes-ai-avatars-for-2026-world-cup-offside-calls' (58 chars)
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-07 22:20:19 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Sagnik Banerjee (ID: 20)
+2026-01-07 22:20:20 - AutoPublisherLogger - INFO - Post 'FIFA Unleashes AI Avatars for 2026 World Cup Offside Calls' draft on https://sportspediazone.com/. ID: 3967, Link: https://sportspediazone.com/?p=3967
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Soureesh Datta (ID: 10)
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Wolves Strand Larsen Chase Heats Up Amid Relegation Fears' (57 chars)
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3667 chars
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Wolves Strand Larsen Chase Heats Up Amid Relegation Fears
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Wolves Strand Larsen Chase Heats Up Amid Relegation Fears
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'wolves strand larsen chase heats up amid relegation fears' (57 chars)
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'wolves-strand-larsen-chase-heats-up-amid-relegation-fears' (57 chars)
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'wolves-strand-larsen-chase-heats-up-amid-relegation-fears' (57 chars)
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Wolves Strand Larsen Chase Heats Up Amid Relegatio...' → 'wolves-strand-larsen-chase-heats-up-amid-relegation-fears' (57/75 chars) ✅
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Wolves Strand Larsen Chase Heats Up Amid Relegation Fears' (57 chars)
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'wolves-strand-larsen-chase-heats-up-amid-relegation-fears' (57 chars)
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-07 22:21:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Soureesh Datta (ID: 10)
+2026-01-07 22:21:32 - AutoPublisherLogger - INFO - Post 'Wolves Strand Larsen Chase Heats Up Amid Relegation Fears' draft on https://sportspediazone.com/. ID: 3969, Link: https://sportspediazone.com/?p=3969
+2026-01-07 22:21:36 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-07 22:30:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Tanya Singh (ID: 8)
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Phoenix Retains Ellyse Perry for Fifth Hundred Season' (53 chars)
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3484 chars
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Phoenix Retains Ellyse Perry for Fifth Hundred Season
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Phoenix Retains Ellyse Perry for Fifth Hundred Season
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'phoenix retains ellyse perry for fifth hundred season' (53 chars)
+2026-01-07 22:33:02 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'phoenix-retains-ellyse-perry-for-fifth-hundred-season' (53 chars)
+2026-01-07 22:33:03 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'phoenix-retains-ellyse-perry-for-fifth-hundred-season' (53 chars)
+2026-01-07 22:33:03 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Phoenix Retains Ellyse Perry for Fifth Hundred Sea...' → 'phoenix-retains-ellyse-perry-for-fifth-hundred-season' (53/75 chars) ✅
+2026-01-07 22:33:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-07 22:33:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Phoenix Retains Ellyse Perry for Fifth Hundred Season' (53 chars)
+2026-01-07 22:33:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'phoenix-retains-ellyse-perry-for-fifth-hundred-season' (53 chars)
+2026-01-07 22:33:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-07 22:33:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-07 22:33:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Tanya Singh (ID: 8)
+2026-01-07 22:33:03 - AutoPublisherLogger - INFO - Post 'Phoenix Retains Ellyse Perry for Fifth Hundred Season' draft on https://sportspediazone.com/. ID: 3975, Link: https://sportspediazone.com/?p=3975
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Annsly Raena (ID: 5)
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Harmanpreet Demands Winning Mindset for WPL 2026 Title Push' (59 chars)
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5174 chars
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Harmanpreet Demands Winning Mindset for WPL 2026 Title Push
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Harmanpreet Demands Winning Mindset for WPL 2026 Title Push
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'harmanpreet demands winning mindset for wpl 2026 title push' (59 chars)
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'harmanpreet-demands-winning-mindset-for-wpl-2026-title-push' (59 chars)
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'harmanpreet-demands-winning-mindset-for-wpl-2026-title-push' (59 chars)
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Harmanpreet Demands Winning Mindset for WPL 2026 T...' → 'harmanpreet-demands-winning-mindset-for-wpl-2026-title-push' (59/75 chars) ✅
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Harmanpreet Demands Winning Mindset for WPL 2026 Title Push' (59 chars)
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'harmanpreet-demands-winning-mindset-for-wpl-2026-title-push' (59 chars)
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-07 22:33:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Annsly Raena (ID: 5)
+2026-01-07 22:33:43 - AutoPublisherLogger - INFO - Post 'Harmanpreet Demands Winning Mindset for WPL 2026 Title Push' draft on https://sportspediazone.com/. ID: 3976, Link: https://sportspediazone.com/?p=3976
+2026-01-07 22:33:48 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Stokes Groin Injury Adds to England’s Ashes Misery' (50 chars)
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4835 chars
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Stokes Groin Injury Adds to England’s Ashes Misery
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Stokes Groin Injury Adds to England’s Ashes Misery
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'stokes groin injury adds to englands ashes misery' (49 chars)
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'stokes-groin-injury-adds-to-englands-ashes-misery' (49 chars)
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'stokes-groin-injury-adds-to-englands-ashes-misery' (49 chars)
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Stokes Groin Injury Adds to England’s Ashes Misery...' → 'stokes-groin-injury-adds-to-englands-ashes-misery' (49/75 chars) ✅
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Stokes Groin Injury Adds to England’s Ashes Misery' (50 chars)
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'stokes-groin-injury-adds-to-englands-ashes-misery' (49 chars)
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-01-07 22:46:57 - AutoPublisherLogger - INFO - Post 'Stokes Groin Injury Adds to England’s Ashes Misery' draft on https://sportspediazone.com/. ID: 3984, Link: https://sportspediazone.com/?p=3984
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Govind Singh (ID: 14)
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Shreyanka Patil Ready for WPL 2026 Return After Bumrah's Injury Advice' (70 chars)
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4336 chars
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-07 22:47:44 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Shreyanka Patil Ready for WPL 2026 Return After Bumrah's Injury Advice
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Shreyanka Patil Ready for WPL 2026 Return After Bumrah's Injury Advice
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'shreyanka patil ready for wpl 2026 return after bumrahs injury advice' (69 chars)
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'shreyanka-patil-ready-for-wpl-2026-return-after-bumrahs-injury-advice' (69 chars)
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'shreyanka-patil-ready-for-wpl-2026-return-after-bumrahs-injury-advice' (69 chars)
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Shreyanka Patil Ready for WPL 2026 Return After Bu...' → 'shreyanka-patil-ready-for-wpl-2026-return-after-bumrahs-injury-advice' (69/75 chars) ✅
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Shreyanka Patil Ready for WPL 2026 Return After Bumrah's Injury Advice' (70 chars)
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'shreyanka-patil-ready-for-wpl-2026-return-after-bumrahs-injury-advice' (69 chars)
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Govind Singh (ID: 14)
+2026-01-07 22:47:45 - AutoPublisherLogger - INFO - Post 'Shreyanka Patil Ready for WPL 2026 Return After Bumrah's Injury Advice' draft on https://sportspediazone.com/. ID: 3985, Link: https://sportspediazone.com/?p=3985
+2026-01-07 22:47:49 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-10 10:18:32 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-10 10:23:44 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-10 10:24:12 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2

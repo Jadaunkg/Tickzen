@@ -279,7 +279,7 @@ class ArticleFilter:
                 - keyword_match_mode: 'any' (OR) or 'all' (AND) for keyword matching
                 - keywords_exclude: List of keywords to exclude
                 - limit: Maximum number of articles to return
-                - sort_by: Field to sort by (importance_score, published_date, hybrid_rank)
+                - sort_by: Field to sort by (importance_score, published_date, published_date_asc, hybrid_rank)
                 - require_complete: Only articles with all required fields
         
         Returns:
@@ -359,19 +359,52 @@ class ArticleFilter:
         return filtered
     
     def _filter_by_category(self, articles: List[Dict], categories: Optional[List[str]]) -> List[Dict]:
-        """Filter by category - ONLY cricket, football, basketball allowed"""
-        if not categories:
-            # Default: all allowed categories
-            categories = list(self.ALLOWED_CATEGORIES)
+        """Filter by category - ONLY cricket, football, basketball allowed
         
-        # Ensure only allowed categories
-        categories = [cat.lower() for cat in categories if cat.lower() in self.ALLOWED_CATEGORIES]
+        Args:
+            categories: List of specific categories to filter for.
+                       If None or empty, returns empty list (no articles)
+                       If contains invalid categories, those are ignored
         
-        if not categories:
-            self.logger.warning("No valid categories specified, using all allowed categories")
-            categories = list(self.ALLOWED_CATEGORIES)
+        Returns:
+            Filtered articles matching the specified categories only
+        """
+        if categories is None:
+            # No categories specified - return empty list (user must explicitly choose)
+            self.logger.info("No categories specified in filter - returning no articles")
+            return []
         
-        return [a for a in articles if a.get('category', '').lower() in categories]
+        if not categories:  # Empty list
+            self.logger.info("Empty categories list provided - returning no articles")
+            return []
+        
+        # Ensure only allowed categories, preserve original case for logging
+        original_categories = categories.copy()
+        valid_categories = [cat.lower() for cat in categories if cat.lower() in self.ALLOWED_CATEGORIES]
+        invalid_categories = [cat for cat in original_categories if cat.lower() not in self.ALLOWED_CATEGORIES]
+        
+        if invalid_categories:
+            self.logger.warning(f"Invalid categories ignored: {invalid_categories}")
+        
+        if not valid_categories:
+            self.logger.warning("No valid categories after filtering - returning no articles")
+            return []
+        
+        self.logger.info(f"Filtering for categories: {valid_categories}")
+        
+        # Filter articles
+        filtered_articles = [a for a in articles if a.get('category', '').lower() in valid_categories]
+        
+        # Log category breakdown
+        category_counts = {}
+        for article in filtered_articles:
+            cat = article.get('category', 'unknown')
+            category_counts[cat] = category_counts.get(cat, 0) + 1
+        
+        if category_counts:
+            self.logger.info(f"Category distribution: {category_counts}")
+        
+        return filtered_articles
     
     def _filter_by_recency(self, articles: List[Dict], max_age_hours: int) -> List[Dict]:
         """Filter articles by maximum age with configurable strict mode
@@ -825,26 +858,64 @@ class ArticleFilter:
     
     def _sort_articles(self, articles: List[Dict], sort_by: str) -> List[Dict]:
         """Sort articles by specified field with proper datetime handling"""
+        from dateutil.tz import UTC
+        
         if sort_by == 'importance_score':
             return sorted(articles, key=lambda x: x.get('importance_score', 0), reverse=True)
-        elif sort_by == 'published_date':
-            # Use parsed datetime for proper sorting, prefer IST
+        elif sort_by == 'published_date' or sort_by == 'published_date_desc':
+            # Use parsed datetime for proper sorting, prefer IST (newest first)
             def date_key(article):
                 parsed_date = (article.get('published_date_ist_parsed') or 
                               article.get('published_date_parsed') or 
                               article.get('collected_date_parsed'))
                 if parsed_date:
+                    # Ensure timezone-aware for consistent comparison
+                    if parsed_date.tzinfo is None:
+                        parsed_date = parsed_date.replace(tzinfo=UTC)
                     return parsed_date
+                    
                 # Fallback to string date if somehow not parsed
                 date_str = (article.get('published_date_ist') or 
                            article.get('published_date') or 
                            article.get('collected_date') or '')
                 try:
-                    return parser.parse(date_str) if date_str else datetime.min
+                    if date_str:
+                        parsed = parser.parse(date_str)
+                        if parsed.tzinfo is None:
+                            parsed = parsed.replace(tzinfo=UTC)
+                        return parsed
+                    return datetime.min.replace(tzinfo=UTC)
                 except:
-                    return datetime.min
+                    return datetime.min.replace(tzinfo=UTC)
             
             return sorted(articles, key=date_key, reverse=True)
+        elif sort_by == 'published_date_asc':
+            # Same logic but oldest first
+            def date_key(article):
+                parsed_date = (article.get('published_date_ist_parsed') or 
+                              article.get('published_date_parsed') or 
+                              article.get('collected_date_parsed'))
+                if parsed_date:
+                    # Ensure timezone-aware for consistent comparison
+                    if parsed_date.tzinfo is None:
+                        parsed_date = parsed_date.replace(tzinfo=UTC)
+                    return parsed_date
+                    
+                # Fallback to string date if somehow not parsed
+                date_str = (article.get('published_date_ist') or 
+                           article.get('published_date') or 
+                           article.get('collected_date') or '')
+                try:
+                    if date_str:
+                        parsed = parser.parse(date_str)
+                        if parsed.tzinfo is None:
+                            parsed = parsed.replace(tzinfo=UTC)
+                        return parsed
+                    return datetime.min.replace(tzinfo=UTC)
+                except:
+                    return datetime.min.replace(tzinfo=UTC)
+            
+            return sorted(articles, key=date_key, reverse=False)  # Oldest first
         elif sort_by == 'hybrid_rank':
             # Hybrid: time bracket first (0=newest), then by importance within bracket
             return sorted(articles, 

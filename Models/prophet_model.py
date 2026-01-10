@@ -1,3 +1,122 @@
+#!/usr/bin/env python3
+"""
+Prophet Time-Series Forecasting Model
+====================================
+
+Advanced time-series forecasting system using Facebook Prophet for stock
+price prediction with seasonal decomposition, trend analysis, and uncertainty
+quantification. Optimized for financial markets with holiday effects and
+volatility modeling.
+
+Core Capabilities:
+-----------------
+1. **Time-Series Forecasting**: Prophet-based stock price predictions
+2. **Seasonal Decomposition**: Weekly, monthly, yearly pattern analysis
+3. **Trend Analysis**: Long-term trend identification and projection
+4. **Uncertainty Quantification**: Confidence intervals and prediction bounds
+5. **Holiday Effects**: Market holiday impact modeling
+6. **Volatility Modeling**: Advanced volatility forecasting
+
+Prophet Model Features:
+----------------------
+- **Additive/Multiplicative Seasonality**: Flexible seasonal modeling
+- **Trend Changepoints**: Automatic trend change detection
+- **Holiday Modeling**: Custom market holiday definitions
+- **Outlier Handling**: Robust outlier detection and treatment
+- **Missing Data**: Automatic handling of missing values
+- **Uncertainty Intervals**: Bayesian uncertainty quantification
+
+Financial Market Optimizations:
+------------------------------
+- **Market Hours**: Trading hour awareness for intraday patterns
+- **Market Holidays**: NYSE, NASDAQ holiday calendar integration
+- **Volatility Clustering**: GARCH-like volatility modeling
+- **Regime Detection**: Bull/bear market regime identification
+- **Economic Events**: Macro event impact modeling
+
+Model Performance Features:
+--------------------------
+- **Cross-Validation**: Time-series cross-validation for performance assessment
+- **Backtesting**: Historical prediction accuracy testing
+- **Model Diagnostics**: Residual analysis and goodness-of-fit metrics
+- **Hyperparameter Tuning**: Automated parameter optimization
+
+WSL Integration:
+---------------
+Supports Windows Subsystem for Linux for enhanced performance:
+- Faster Prophet training on WSL Ubuntu environment
+- Memory optimization for large datasets
+- Parallel processing capabilities
+- Environment variable: USE_WSL_PROPHET=true
+
+Usage Patterns:
+--------------
+```python
+# Basic forecasting
+model = ProphetModel()
+model.fit(historical_data)
+forecast = model.predict(periods=30)
+
+# Advanced configuration
+model = ProphetModel(
+    changepoint_prior_scale=0.1,
+    seasonality_prior_scale=10.0,
+    holidays_prior_scale=10.0,
+    add_country_holidays='US'
+)
+
+# With custom seasonalities
+model.add_seasonality(
+    name='monthly',
+    period=30.5,
+    fourier_order=5
+)
+```
+
+Output Format:
+-------------
+Forecast DataFrame includes:
+- ds: Date/timestamp
+- yhat: Point forecast
+- yhat_lower: Lower confidence bound
+- yhat_upper: Upper confidence bound
+- trend: Underlying trend component
+- seasonal: Seasonal component
+- holidays: Holiday effect component
+
+Performance Metrics:
+-------------------
+- MAE: Mean Absolute Error
+- MAPE: Mean Absolute Percentage Error
+- RMSE: Root Mean Square Error
+- Coverage: Prediction interval coverage
+- Directional Accuracy: Trend direction prediction accuracy
+
+Error Handling:
+--------------
+- Data validation and preprocessing
+- Model convergence monitoring
+- Memory usage optimization
+- Graceful degradation for insufficient data
+
+Integration Points:
+------------------
+- Called by automation_scripts/pipeline.py for analysis workflow
+- Used by reporting_tools/report_generator.py for chart creation
+- Integrated with real-time progress tracking via SocketIO
+
+Configuration:
+-------------
+Environment Variables:
+- USE_WSL_PROPHET: Enable WSL bridge for performance
+- PROPHET_CACHE_DIR: Cache directory for model artifacts
+- PROPHET_PARALLEL: Enable parallel processing
+
+Author: TickZen Development Team
+Version: 2.3
+Last Updated: January 2026
+"""
+
 import platform
 import logging
 import os

@@ -1,3 +1,163 @@
+#!/usr/bin/env python3
+"""
+Firebase Admin SDK Setup and Management
+======================================
+
+This module provides comprehensive Firebase integration for TickZen,
+handling initialization, health monitoring, and service management
+across Firestore, Firebase Storage, and Authentication.
+
+Services Managed:
+----------------
+1. **Firebase Authentication**: Server-side token verification
+2. **Firestore Database**: NoSQL document storage
+3. **Firebase Storage**: File and asset storage
+4. **Realtime Database**: Real-time data synchronization (optional)
+
+Key Features:
+------------
+- **Health Monitoring**: Continuous service health tracking
+- **Error Recovery**: Automatic retry mechanisms
+- **Azure Compatibility**: Optimized for Azure App Service
+- **Multi-Environment**: Development and production configurations
+- **Comprehensive Logging**: Detailed operation tracking
+
+Core Functions:
+--------------
+- initialize_firebase_admin(): Main initialization with error handling
+- get_firestore_client(): Firestore database client
+- get_storage_bucket(): Firebase Storage bucket access
+- verify_firebase_token(): JWT token verification
+- is_firebase_healthy(): Health status check
+- get_firebase_health_status(): Detailed health diagnostics
+
+Initialization Flow:
+-------------------
+1. **Environment Detection**: Development vs. Production
+2. **Credential Loading**: Service account key or environment auth
+3. **Service Initialization**: Firestore, Storage, Auth setup
+4. **Health Verification**: Connection testing and validation
+5. **Error Tracking**: Comprehensive error logging and recovery
+
+Health Monitoring:
+-----------------
+The module tracks:
+- Connection status to each Firebase service
+- Recent operation errors and timestamps
+- Service availability and response times
+- Network configuration for Azure deployment
+
+Error Categories:
+----------------
+- INITIALIZATION: Setup and configuration errors
+- AUTHENTICATION: Token verification failures
+- FIRESTORE: Database operation errors
+- STORAGE: File upload/download errors
+- NETWORK: Connectivity and timeout issues
+
+Azure App Service Optimizations:
+-------------------------------
+- Network timeout configurations
+- Connection pooling for Firebase services
+- Environment variable management
+- Cold start optimization
+- Memory usage optimization
+
+Authentication Flow:
+-------------------
+1. Client sends Firebase ID token
+2. Server verifies token using Firebase Admin SDK
+3. Extract user information (UID, email, display name)
+4. Store user session data in Flask session
+5. Provide access to user-specific Firestore data
+
+Firestore Document Structure:
+----------------------------
+```
+users/{user_uid}/
+├── profile/
+│   ├── email: string
+│   ├── displayName: string
+│   └── createdAt: timestamp
+├── userSiteProfiles/{profile_id}/
+│   ├── websiteUrl: string
+│   ├── credentials: encrypted
+│   └── settings: object
+└── analytics/{date}/
+    ├── sessionsCount: number
+    └── actionsPerformed: array
+```
+
+Storage Organization:
+--------------------
+```
+user-uploads/{user_uid}/
+├── ticker-lists/{filename}
+├── reports/{ticker}/{date}/
+└── assets/images/{timestamp}/
+
+public-assets/
+├── chart-templates/
+├── default-images/
+└── wp-assets/{profile_id}/
+```
+
+Configuration:
+-------------
+Environment Variables:
+- GOOGLE_APPLICATION_CREDENTIALS: Path to service account key
+- FIREBASE_PROJECT_ID: Firebase project identifier
+- FIREBASE_STORAGE_BUCKET: Storage bucket name
+- FIREBASE_DATABASE_URL: Realtime database URL (optional)
+
+Development vs. Production:
+--------------------------
+**Development**: Uses service account key file
+**Production**: Uses Application Default Credentials (ADC)
+
+Security Considerations:
+-----------------------
+- Service account key protection
+- Token expiration handling
+- User data isolation
+- Secure credential storage
+- Rate limiting for API calls
+
+Usage Examples:
+--------------
+```python
+# Initialize Firebase
+initialize_firebase_admin()
+
+# Get Firestore client
+db = get_firestore_client()
+if db:
+    doc_ref = db.collection('users').document(user_uid)
+
+# Verify authentication token
+token_data = verify_firebase_token(id_token)
+if token_data:
+    user_uid = token_data['uid']
+
+# Check service health
+if is_firebase_healthy():
+    # Proceed with Firebase operations
+else:
+    # Handle service unavailability
+```
+
+Troubleshooting:
+---------------
+- Health status provides diagnostic information
+- Error logs include context and timestamps
+- Automatic retry mechanisms for transient failures
+- Fallback modes for service degradation
+
+Author: TickZen Development Team
+Version: 2.8
+Last Updated: January 2026
+"""
+
 import firebase_admin
 from firebase_admin import credentials, auth, firestore, db as realtime_db
 from firebase_admin import storage # <-- Import Firebase Storage

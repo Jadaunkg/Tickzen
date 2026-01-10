@@ -40,6 +40,18 @@ except ImportError:
 # Load environment variables from .env file
 load_dotenv()
 
+# Import content freshness validation
+try:
+    from .content_freshness_validator import ContentFreshnessValidator, track_article_usage
+    FRESHNESS_VALIDATOR_AVAILABLE = True
+except ImportError:
+    try:
+        from content_freshness_validator import ContentFreshnessValidator, track_article_usage
+        FRESHNESS_VALIDATOR_AVAILABLE = True
+    except ImportError:
+        print("⚠️ Content Freshness Validator not found for Perplexity client")
+        FRESHNESS_VALIDATOR_AVAILABLE = False
+
 # Ensure console can handle UTF-8 output to avoid encoding errors on Windows terminals
 try:
     if hasattr(sys.stdout, "reconfigure"):
@@ -93,6 +105,14 @@ class PerplexityResearchCollector:
         self.model = "sonar"  # Latest Perplexity model with real-time internet access and up-to-date sources
         self.timeout = 90  # Increased timeout for comprehensive research
         
+        # Content freshness validator
+        if FRESHNESS_VALIDATOR_AVAILABLE:
+            self.freshness_validator = ContentFreshnessValidator()
+            logging.info("✅ Perplexity - Content Freshness Validation enabled")
+        else:
+            self.freshness_validator = None
+            logging.warning("⚠️ Perplexity - Content Freshness Validation disabled")
+        
     def collect_enhanced_research_for_headline(self, headline: str, 
                                               source: Optional[str] = None,
                                               category: Optional[str] = None) -> Dict:
@@ -120,6 +140,40 @@ class PerplexityResearchCollector:
             # Make SINGLE API call with all research requirements
             research_result = self._call_perplexity_api(comprehensive_query)
             
+            # Add freshness validation to citations
+            if self.freshness_validator and research_result.get('status') == 'success':
+                citations = research_result.get('citations', [])
+                articles = self._convert_citations_to_articles(citations)
+                
+                if articles:
+                    validation_results = self.freshness_validator.validate_article_collection(
+                        articles, "perplexity_research"
+                    )
+                    
+                    # Filter for only fresh citations
+                    fresh_articles, outdated_articles = self.freshness_validator.filter_fresh_articles(articles)
+                    
+                    # Update citations to only include fresh sources
+                    fresh_citations = []
+                    fresh_sources = []
+                    
+                    for article in fresh_articles:
+                        # Find corresponding citation
+                        for citation in citations:
+                            if isinstance(citation, dict) and citation.get('url') == article.get('url'):
+                                fresh_citations.append(citation)
+                                fresh_sources.append(article.get('url'))
+                                break
+                    
+                    # Update research result with only fresh citations
+                    research_result['citations'] = fresh_citations
+                    research_result['sources'] = fresh_sources
+                    
+                    logging.info(f"🕐 Perplexity freshness validation:")
+                    logging.info(f"   ✅ Fresh citations: {len(fresh_citations)}")
+                    logging.info(f"   🚫 Outdated excluded: {len(outdated_articles)}")
+                    logging.info(f"   📊 Quality score: {validation_results['validation_summary']['quality_score']:.1f}%")
+            
             # Structure the enhanced research data
             research_data = {
                 'headline': headline,
@@ -136,6 +190,16 @@ class PerplexityResearchCollector:
                 'total_research_calls': 1,  # Only 1 request used
                 'status': research_result.get('status', 'unknown')
             }
+            
+            # Add freshness metadata if validation was performed
+            if self.freshness_validator and 'validation_results' in locals():
+                research_data['content_freshness'] = {
+                    'validation_results': validation_results['validation_summary'],
+                    'fresh_citations_used': len(fresh_citations) if 'fresh_citations' in locals() else 0,
+                    'outdated_citations_excluded': len(outdated_articles) if 'outdated_articles' in locals() else 0,
+                    'freshness_validated': True,
+                    'perplexity_7day_filter': True
+                }
             
             if research_result.get('status') == 'success':
                 logging.info(f"✅ Enhanced single-request research complete!")
@@ -200,6 +264,25 @@ class PerplexityResearchCollector:
                 'status': research_result.get('status', 'unknown')
             }
             
+            # Add freshness validation for Perplexity sources
+            if self.freshness_validator and research_result.get('status') == 'success':
+                # Convert Perplexity citations to article format for validation
+                perplexity_articles = self._convert_citations_to_articles(research_result.get('citations', []))
+                
+                if perplexity_articles:
+                    validation_results = self.freshness_validator.validate_article_collection(
+                        perplexity_articles, "perplexity_research"
+                    )
+                    
+                    research_data['content_freshness'] = {
+                        'validation_results': validation_results['validation_summary'],
+                        'sources_validated': len(perplexity_articles),
+                        'freshness_validated': True,
+                        'perplexity_7day_filter': True  # Perplexity already filters last 7 days
+                    }
+                    
+                    logging.info(f"   🕐 Freshness validation: {validation_results['validation_summary']['quality_score']:.1f}% fresh")
+            
             if research_result.get('status') == 'success':
                 logging.info(f"✅ Research collection complete!")
                 logging.info(f"   📚 Sources collected: {len(research_data['compiled_sources'])}")
@@ -223,15 +306,118 @@ Focus on latest, verified information from trusted sources."""
     
     def _build_ultra_comprehensive_query(self, headline: str, category: Optional[str] = None) -> str:
         """
-        Simple and focused query to find latest relevant information from trusted sources
+        Build simple, generic query that works for any headline
         """
-        query = f"""Find the latest maximum possible relevant information available about this headline from trusted internet sources:
+        # Simple, generic query that works for any headline
+        query = f"""Find all relevant and complete information about this headline from trusted sources:
 
 "{headline}"
 
-Only include verified information from trusted sources. Do not include assumptions, speculation, or unconfirmed reports."""
+Please provide comprehensive details including:
+- Latest updates and developments
+- Official statements and announcements  
+- Key facts and background information
+- Quotes from involved parties
+- Timeline of events
+- Current status
+
+Requirements:
+- Use only trusted and reliable news sources
+- Focus on the most recent and up-to-date information (not outdated content)
+- Provide detailed coverage in 600-1000 words
+- Include specific facts, numbers, dates, and direct quotes where available
+- Avoid speculation - only report confirmed information
+
+Please give me a comprehensive overview of this story with all the important details."""
         
         return query
+        
+    def _extract_story_focus(self, headline: str) -> Dict[str, str]:
+        """
+        Extract the core story elements to keep search focused
+        """
+        headline_lower = headline.lower()
+        words = headline.split()
+        
+        # Identify main subject (usually first entity mentioned)
+        main_subject = ""
+        key_action = ""
+        story_focus = headline
+        
+        # Detect story type and extract focus
+        if any(term in headline_lower for term in ['transfer', 'signing', 'sign', 'deal', 'move']):
+            # Transfer story
+            key_action = "the transfer/signing deal"
+            # Find player/team names
+            entities = self._extract_key_entities_simple(headline)
+            if entities['persons']:
+                main_subject = f"{entities['persons'][0]}'s potential move"
+            elif entities['teams']:
+                main_subject = f"{entities['teams'][0]}'s transfer activity"
+            story_focus = f"this specific transfer deal involving {entities['persons'][0] if entities['persons'] else entities['teams'][0] if entities['teams'] else 'the parties'}"
+            
+        elif any(term in headline_lower for term in ['injury', 'injured', 'hurt', 'fitness']):
+            # Injury story
+            key_action = "the injury situation"
+            entities = self._extract_key_entities_simple(headline)
+            if entities['persons']:
+                main_subject = f"{entities['persons'][0]}'s injury"
+                story_focus = f"this specific injury to {entities['persons'][0]}"
+            
+        elif any(term in headline_lower for term in ['goal', 'scored', 'match', 'game', 'win', 'lose', 'draw']):
+            # Match/performance story
+            key_action = "the match/performance details"
+            entities = self._extract_key_entities_simple(headline)
+            if entities['teams']:
+                main_subject = f"{entities['teams'][0]}'s match"
+                story_focus = f"this specific match involving {entities['teams'][0]}"
+                
+        elif any(term in headline_lower for term in ['manager', 'coach', 'appointment', 'sacked', 'fired']):
+            # Management story
+            key_action = "the management change"
+            entities = self._extract_key_entities_simple(headline)
+            if entities['persons']:
+                main_subject = f"{entities['persons'][0]}'s managerial situation"
+                story_focus = f"this specific management change involving {entities['persons'][0]}"
+                
+        else:
+            # General story - extract first key entity
+            entities = self._extract_key_entities_simple(headline)
+            if entities['persons']:
+                main_subject = f"{entities['persons'][0]}"
+            elif entities['teams']:
+                main_subject = f"{entities['teams'][0]}"
+            else:
+                main_subject = " ".join(words[:3])  # First 3 words
+            key_action = "the reported situation"
+            story_focus = "this specific story"
+            
+        return {
+            'main_subject': main_subject,
+            'key_action': key_action, 
+            'story_focus': story_focus
+        }
+        
+    def _extract_key_entities_simple(self, headline: str) -> Dict[str, List[str]]:
+        """
+        Simple entity extraction for story focus
+        """
+        words = headline.split()
+        persons = []
+        teams = []
+        
+        # Simple pattern: Two consecutive capitalized words
+        for i in range(len(words) - 1):
+            if (words[i][0].isupper() and words[i+1][0].isupper() and 
+                len(words[i]) > 2 and len(words[i+1]) > 2):
+                candidate = f"{words[i]} {words[i+1]}"
+                # Simple heuristic: if contains common team words, it's a team
+                if any(team_word in candidate.lower() for team_word in ['united', 'city', 'fc', 'real', 'barcelona']):
+                    teams.append(candidate)
+                else:
+                    persons.append(candidate)
+                    
+        return {'persons': persons, 'teams': teams}
     
 
     
@@ -260,26 +446,32 @@ Only include verified information from trusted sources. Do not include assumptio
             }
             
             payload = {
-                "model": self.model,
+                "model": "sonar",  # Use latest Sonar model
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are a factual information researcher. Find the latest relevant information from trusted internet sources only. Include exact quotes with proper attribution when available. Do not include assumptions, speculation, or unverified information. Only report what can be confirmed from reliable sources."
+                        "content": "You are a comprehensive news researcher. Find the most recent and relevant information from trusted sources about any given topic or headline. Provide detailed, factual coverage in 600-1000 words including official statements, key facts, timeline, and direct quotes. Focus on accuracy and completeness. Only report confirmed information from reliable sources."
                     },
                     {
                         "role": "user",
                         "content": query
                     }
                 ],
-                "max_tokens": 4000,  # Increased for comprehensive research
-                "temperature": 0.2,  # Lower for more focused, factual research
-                "top_p": 0.85,
+                "max_tokens": 4000,
+                "temperature": 0.1,  # Very low for factual accuracy
+                "top_p": 0.9,
                 "stream": False,
-                "return_images": True,  # Include relevant images/videos
-                "return_related_questions": True,  # Get follow-up angles
-                "search_recency_filter": "week",  # Focus on last 7 days
+                "return_images": False,  # Focus on text content
+                "return_related_questions": True,
+                "search_recency_filter": "day",  # Last 24 hours for very recent news
                 "citations": True,
-                "search_domain_filter": ["espn.com", "bbc.com", "theguardian.com", "nba.com", "fifa.com", "twitter.com", "youtube.com"]  # Prioritize top sources
+                "search_domain_filter": [
+                    "espn.com", "espn.in", "espncricinfo.com", "cricbuzz.com", 
+                    "icc-cricket.com", "bbc.com", "cnn.com", "reuters.com",
+                    "ap.org", "theguardian.com", "indianexpress.com", "timesofindia.indiatimes.com",
+                    "hindustantimes.com", "ndtv.com", "firstpost.com", "aljazeera.com",
+                    "skynews.com", "foxnews.com", "nbcnews.com", "abcnews.go.com"
+                ]  # Mix of sports and general trusted news sources
             }
             
             response = requests.post(
@@ -366,6 +558,26 @@ Only include verified information from trusted sources. Do not include assumptio
             logging.warning(f"Error extracting sources: {e}")
         
         return sources
+    
+    def _convert_citations_to_articles(self, citations: List) -> List[Dict]:
+        """Convert Perplexity citations to article format for freshness validation"""
+        articles = []
+        try:
+            for citation in citations:
+                if isinstance(citation, dict):
+                    article = {
+                        'url': citation.get('url', ''),
+                        'title': citation.get('title', ''),
+                        'content': citation.get('text', ''),
+                        'published_date': citation.get('date', ''),
+                        'source': 'perplexity_research'
+                    }
+                    if article['url']:  # Only include articles with URLs
+                        articles.append(article)
+        except Exception as e:
+            logging.warning(f"Error converting citations to articles: {e}")
+        
+        return articles
     
     def _get_placeholder_research(self, headline: str, error: str) -> Dict:
         """

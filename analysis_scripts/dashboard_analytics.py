@@ -1,6 +1,68 @@
+#!/usr/bin/env python3
 """
 Dashboard Analytics Module
-Handles data processing and API endpoints for dashboard charts
+=========================
+
+Provides comprehensive analytics and data visualization for the TickZen
+dashboard. Handles data processing, aggregation, and API endpoints for
+interactive charts and metrics display.
+
+Core Functionality:
+------------------
+1. **Report Analysis**: Parse and analyze generated stock reports
+2. **Performance Metrics**: Calculate portfolio and individual stock performance
+3. **Trend Analysis**: Identify patterns and trends in stock data
+4. **Data Aggregation**: Combine data from multiple sources and timeframes
+5. **Chart Data Generation**: Prepare data for frontend visualization
+
+Supported Analytics:
+-------------------
+- Portfolio performance tracking
+- Stock price movement analysis
+- Volume and trading pattern analysis
+- Sector and industry comparisons
+- Historical performance metrics
+- Risk-adjusted returns calculation
+
+Data Sources:
+------------
+- Generated stock reports (app/static/stock_reports/)
+- Real-time market data via APIs
+- Historical price data from yfinance
+- Cached analysis results
+
+API Endpoints:
+-------------
+- /api/dashboard/portfolio: Portfolio overview metrics
+- /api/dashboard/performance: Performance analytics
+- /api/dashboard/trends: Trend analysis data
+- /api/dashboard/sectors: Sector comparison data
+
+Data Processing Pipeline:
+------------------------
+1. **Report Scanning**: Locate and parse available reports
+2. **Data Extraction**: Extract key metrics and timestamps
+3. **Aggregation**: Combine data across time periods
+4. **Calculation**: Compute derived metrics and ratios
+5. **Formatting**: Prepare data for chart libraries
+
+Caching Strategy:
+----------------
+- In-memory caching for frequently accessed data
+- File-based caching for expensive calculations
+- Automatic cache invalidation based on data freshness
+
+Usage Example:
+-------------
+```python
+analytics = DashboardAnalytics()
+portfolio_data = analytics.get_portfolio_overview()
+performance_data = analytics.calculate_performance_metrics(tickers)
+```
+
+Author: TickZen Development Team
+Version: 1.5
+Last Updated: January 2026
 """
 
 import os

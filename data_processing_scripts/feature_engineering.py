@@ -1,4 +1,168 @@
-# feature_engineering.py (MODIFIED)
+#!/usr/bin/env python3
+"""
+Financial Feature Engineering Pipeline
+=====================================
+
+Advanced feature engineering system for financial time-series data, creating
+machine learning-ready features from raw market data. Implements technical
+indicators, statistical features, and derived metrics for enhanced analysis.
+
+Core Feature Categories:
+-----------------------
+1. **Technical Indicators**:
+   - Moving Averages: SMA, EMA, WMA with multiple periods
+   - Momentum Indicators: RSI, MACD, Stochastic, Williams %R
+   - Volatility Measures: Bollinger Bands, ATR, Standard Deviation
+   - Volume Indicators: OBV, Volume Rate of Change, VWAP
+
+2. **Price-Based Features**:
+   - Price Returns: Simple and log returns
+   - Price Ratios: High/Low, Close/Open relationships
+   - Gap Analysis: Opening gaps and their significance
+   - Price Momentum: Multi-period momentum calculations
+
+3. **Statistical Features**:
+   - Rolling Statistics: Mean, median, standard deviation
+   - Percentiles: Quantile-based features
+   - Z-Scores: Standardized price and volume metrics
+   - Autocorrelation: Time-series correlation features
+
+4. **Time-Based Features**:
+   - Calendar Features: Day of week, month, quarter
+   - Market Seasonality: Holiday effects, earnings seasons
+   - Time Since Events: Days since highs/lows, earnings
+   - Cyclical Patterns: Monthly and quarterly cycles
+
+Feature Engineering Pipeline:
+----------------------------
+1. **Data Validation**: Ensure required columns and data quality
+2. **Base Calculations**: Fundamental price and volume metrics
+3. **Technical Indicators**: Apply TA-lib and custom indicators
+4. **Derived Features**: Create composite and ratio features
+5. **Statistical Features**: Add rolling and statistical measures
+6. **Time Features**: Incorporate temporal and calendar features
+7. **Feature Selection**: Optional feature filtering and selection
+8. **Normalization**: Scale features for ML compatibility
+
+Advanced Technical Indicators:
+-----------------------------
+```python
+Implemented Indicators:
+├── Trend Indicators
+│   ├── Simple Moving Average (SMA)
+│   ├── Exponential Moving Average (EMA)
+│   ├── MACD (Moving Average Convergence Divergence)
+│   └── Average Directional Index (ADX)
+├── Momentum Indicators
+│   ├── Relative Strength Index (RSI)
+│   ├── Stochastic Oscillator
+│   └── Williams %R
+├── Volatility Indicators
+│   ├── Bollinger Bands
+│   ├── Average True Range (ATR)
+│   └── Keltner Channels
+└── Volume Indicators
+    ├── On-Balance Volume (OBV)
+    ├── Volume-Price Trend (VPT)
+    └── Chaikin Money Flow
+```
+
+Feature Quality Control:
+-----------------------
+- **Missing Data Handling**: Intelligent handling of NaN values
+- **Outlier Treatment**: Statistical outlier detection and treatment
+- **Feature Validation**: Ensure feature mathematical validity
+- **Collinearity Detection**: Identify and handle correlated features
+- **Feature Importance**: Rank features by predictive power
+
+Customizable Parameters:
+-----------------------
+- **Indicator Periods**: Configurable lookback periods for all indicators
+- **Smoothing Parameters**: Alpha values for exponential smoothing
+- **Threshold Settings**: Overbought/oversold levels
+- **Rolling Windows**: Statistical calculation windows
+- **Feature Selection**: Enable/disable specific feature categories
+
+Performance Optimizations:
+-------------------------
+- **Vectorized Operations**: NumPy/Pandas optimized calculations
+- **Incremental Updates**: Efficient feature updates for new data
+- **Memory Management**: Optimal memory usage for large datasets
+- **Parallel Processing**: Multi-threading for independent calculations
+- **Caching**: Feature calculation result caching
+
+Usage Examples:
+--------------
+```python
+# Basic feature engineering
+enhanced_data = add_technical_indicators(raw_data)
+
+# Custom indicator configuration
+features = create_features(
+    data=raw_data,
+    indicators=['RSI', 'MACD', 'BB'],
+    rsi_period=14,
+    macd_fast=12,
+    macd_slow=26,
+    bb_period=20
+)
+
+# Advanced feature engineering
+ml_ready_data = comprehensive_feature_engineering(
+    data=raw_data,
+    include_technical=True,
+    include_statistical=True,
+    include_time_features=True,
+    normalization='minmax'
+)
+```
+
+Feature Output Structure:
+------------------------
+Enhanced DataFrame with original OHLCV data plus:
+```python
+Additional Columns:
+├── Technical Indicators
+│   ├── RSI_14, RSI_21
+│   ├── MACD_line, MACD_signal, MACD_histogram
+│   ├── BB_upper, BB_middle, BB_lower
+│   └── SMA_20, EMA_50, EMA_200
+├── Statistical Features
+│   ├── Returns_1d, Returns_5d, Returns_20d
+│   ├── Volatility_20d, Volatility_60d
+│   └── Volume_MA_20, Volume_ratio
+└── Time Features
+    ├── DayOfWeek, Month, Quarter
+    ├── IsEarningsWeek, IsHoliday
+    └── DaysSinceHigh, DaysSinceLow
+```
+
+Integration Points:
+------------------
+- Used by data_preprocessing.py for complete data preparation
+- Feeds into Models/prophet_model.py for enhanced forecasting
+- Provides features for analysis_scripts/technical_analysis.py
+- Supports machine learning model training and prediction
+
+Error Handling:
+--------------
+- **Data Validation**: Comprehensive input data validation
+- **Calculation Errors**: Robust handling of mathematical exceptions
+- **Missing Dependencies**: Graceful handling of missing TA libraries
+- **Memory Limitations**: Automatic data chunking for large datasets
+
+Configuration:
+-------------
+Customizable settings:
+- **Default Parameters**: Standard indicator parameters
+- **Feature Sets**: Predefined feature combinations
+- **Performance Settings**: Memory and CPU usage optimization
+- **Output Options**: Feature selection and formatting preferences
+
+Author: TickZen Development Team
+Version: 2.0
+Last Updated: January 2026
+"""
 
 import pandas as pd
 from ta.trend import MACD

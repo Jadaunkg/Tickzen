@@ -1,4 +1,149 @@
-# sentiment_analysis.py - Advanced Sentiment Analysis Module
+#!/usr/bin/env python3
+"""
+Market Sentiment Analysis Engine
+===============================
+
+Advanced sentiment analysis system that aggregates and analyzes market sentiment
+from multiple sources including news, social media, analyst reports, and market
+data to provide comprehensive sentiment scoring for investment decisions.
+
+Core Sentiment Sources:
+----------------------
+1. **News Sentiment**:
+   - Financial news articles and headlines
+   - Press releases and earnings announcements
+   - Regulatory filings and SEC submissions
+   - Industry and sector news analysis
+
+2. **Social Media Sentiment**:
+   - Twitter/X mentions and discussions
+   - Reddit financial community posts
+   - StockTwits and trading platform sentiment
+   - YouTube and podcast transcript analysis
+
+3. **Analyst Sentiment**:
+   - Analyst reports and recommendations
+   - Earnings estimate revisions
+   - Price target changes and justifications
+   - Institutional investor sentiment
+
+4. **Market-Based Sentiment**:
+   - Options flow and put/call ratios
+   - Insider trading activity
+   - Short interest and borrowing costs
+   - Volume and price action sentiment
+
+Sentiment Analysis Techniques:
+-----------------------------
+- **Natural Language Processing (NLP)**:
+  - TextBlob polarity and subjectivity analysis
+  - VADER sentiment analysis for social media
+  - Custom financial lexicon-based scoring
+  - Named entity recognition for company mentions
+
+- **Machine Learning Models**:
+  - Pre-trained transformer models for financial text
+  - Custom sentiment classification models
+  - Ensemble methods for improved accuracy
+  - Time-series sentiment trend analysis
+
+Sentiment Scoring Framework:
+---------------------------
+- **Weighted Composite Score**: Multi-source sentiment aggregation
+- **Time Decay**: Recent sentiment weighted more heavily
+- **Source Reliability**: Historical accuracy-based weighting
+- **Volume Adjustment**: Sentiment scaled by mention volume
+- **Market Context**: Sector and market condition adjustments
+
+Sentiment Indicators:
+--------------------
+1. **Overall Sentiment Score**: -1.0 (very negative) to +1.0 (very positive)
+2. **Sentiment Trend**: Direction and momentum of sentiment change
+3. **Sentiment Volatility**: Consistency and stability of sentiment
+4. **Source Consensus**: Agreement level across different sources
+5. **Sentiment Strength**: Confidence level in sentiment assessment
+
+Advanced Analytics:
+------------------
+- **Sentiment Momentum**: Rate of sentiment change analysis
+- **Contrarian Indicators**: Extreme sentiment reversal signals
+- **Sentiment Correlation**: Relationship with price movements
+- **Event Impact**: Sentiment changes around specific events
+- **Sector Comparison**: Relative sentiment vs peers and sector
+
+Real-Time Monitoring:
+--------------------
+- **Live Sentiment Tracking**: Continuous sentiment updates
+- **Alert System**: Significant sentiment change notifications
+- **Trend Detection**: Early identification of sentiment shifts
+- **Anomaly Detection**: Unusual sentiment pattern identification
+
+Sentiment-Price Relationship:
+----------------------------
+- **Lead-Lag Analysis**: Sentiment as price predictor or follower
+- **Correlation Studies**: Statistical relationship quantification
+- **Reversal Patterns**: Sentiment extremes and price reversals
+- **Confirmation Signals**: Sentiment confirming price trends
+
+Data Processing Pipeline:
+------------------------
+1. **Data Collection**: Gather text data from multiple sources
+2. **Text Preprocessing**: Clean and normalize text data
+3. **Sentiment Extraction**: Apply NLP models for sentiment scoring
+4. **Aggregation**: Combine scores with appropriate weighting
+5. **Trend Analysis**: Calculate sentiment momentum and changes
+6. **Signal Generation**: Create actionable sentiment signals
+
+Usage Examples:
+--------------
+```python
+# Initialize sentiment analyzer
+analyzer = SentimentAnalyzer()
+
+# Analyze overall sentiment for a ticker
+sentiment_data = analyzer.analyze_sentiment('AAPL')
+
+# Get detailed sentiment breakdown
+detailed_sentiment = analyzer.get_sentiment_breakdown(
+    ticker='AAPL',
+    timeframe='7d',
+    sources=['news', 'social', 'analyst']
+)
+
+# Track sentiment trends
+trend_analysis = analyzer.analyze_sentiment_trends(
+    ticker='AAPL',
+    period='30d'
+)
+```
+
+Integration Points:
+------------------
+- Used by fundamental_analysis.py for comprehensive company analysis
+- Integrated with dashboard_analytics.py for sentiment visualization
+- Provides signals for automation_scripts/pipeline.py
+- Supports real-time sentiment updates via SocketIO
+
+Performance Metrics:
+-------------------
+- **Prediction Accuracy**: Sentiment's ability to predict price moves
+- **Signal Quality**: Precision and recall of sentiment signals
+- **Processing Speed**: Real-time sentiment analysis performance
+- **Coverage**: Breadth of sentiment data sources
+
+Configuration:
+-------------
+Customizable parameters:
+- **Source Weights**: Relative importance of different sentiment sources
+- **Time Windows**: Analysis periods for different applications
+- **Sensitivity**: Threshold settings for signal generation
+- **Update Frequency**: Real-time vs batch processing modes
+
+Author: TickZen Development Team
+Version: 2.1
+Last Updated: January 2026
+"""
+
 import pandas as pd
 import numpy as np
 from textblob import TextBlob

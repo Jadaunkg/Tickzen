@@ -1,4 +1,127 @@
-# pipeline.py
+#!/usr/bin/env python3
+"""
+Stock Analysis Pipeline Module
+=============================
+
+This module orchestrates the complete stock analysis pipeline, from data
+collection to report generation. It handles time-series forecasting using
+Prophet, technical analysis, and comprehensive report creation.
+
+Pipeline Stages:
+---------------
+1. **Data Collection** (5-25% progress):
+   - Historical stock data via yfinance
+   - Real-time market data
+   - Macroeconomic indicators from FRED
+   - Earnings and fundamental data
+
+2. **Data Preprocessing** (25-35% progress):
+   - Data cleaning and validation
+   - Missing value handling
+   - Outlier detection and treatment
+   - Feature engineering
+
+3. **Model Training** (35-60% progress):
+   - Prophet time-series forecasting
+   - Technical indicator calculations
+   - Volatility modeling
+   - Trend analysis
+
+4. **Report Generation** (60-100% progress):
+   - Comprehensive analysis reports
+   - WordPress-ready content
+   - Chart and visualization creation
+   - Asset optimization for web
+
+Key Functions:
+-------------
+- run_pipeline(): Main pipeline orchestrator
+- preprocess_data(): Data cleaning and preparation
+- train_model(): Prophet model training
+- generate_report(): Report creation and formatting
+- cleanup_old_processed_data(): Maintenance and cleanup
+
+Data Flow:
+---------
+```
+Ticker Input → Data Collection → Preprocessing → Model Training → Report Generation
+     ↓              ↓               ↓              ↓               ↓
+  Validation    Cache Storage   Feature Eng.   Forecasting    Web Assets
+     ↓              ↓               ↓              ↓               ↓
+ Error Check    Progress Update  Progress Update Progress Update  Final Output
+```
+
+Progress Tracking:
+-----------------
+Real-time progress updates via SocketIO:
+- Stage identification (Data Collection, Model Training, etc.)
+- Percentage completion (0-100%)
+- Current operation description
+- Error notifications for failures
+
+Caching Strategy:
+----------------
+- Processed data cached in generated_data/data_cache/
+- Cache invalidation based on data freshness (24 hours)
+- Ticker-specific cache files with timestamp validation
+- Automatic cleanup of stale cache files (7+ days old)
+
+Error Handling:
+--------------
+- Comprehensive exception handling at each stage
+- User-friendly error messages via SocketIO
+- Detailed logging for debugging
+- Graceful degradation for missing data
+
+Configuration:
+-------------
+Supported tickers defined in config/config.py
+Environment variables for API keys:
+- ALPHA_VANTAGE_API_KEY: Alpha Vantage API access
+- FRED_API_KEY: Federal Reserve Economic Data
+- FINNHUB_API_KEY: Financial market data
+
+Output Formats:
+--------------
+1. **PDF Reports**: Comprehensive analysis documents
+2. **WordPress Assets**: Web-optimized images and content
+3. **JSON Data**: Structured analysis results
+4. **CSV Exports**: Raw and processed data
+
+Usage Example:
+-------------
+```python
+from automation_scripts.pipeline import run_pipeline
+
+result = run_pipeline(
+    ticker='AAPL',
+    timestamp='2026-01-05',
+    app_root='/path/to/app',
+    socketio_instance=socketio,
+    task_room='user123'
+)
+```
+
+Performance Considerations:
+--------------------------
+- Lazy loading of ML libraries (Prophet, scikit-learn)
+- Efficient data structures for large datasets
+- Memory management for long-running processes
+- Parallel processing where applicable
+
+Data Sources:
+------------
+- Yahoo Finance (yfinance): Primary stock data
+- Alpha Vantage: Alternative data source
+- FRED: Economic indicators
+- Finnhub: Real-time market data
+- Custom data preprocessing pipelines
+
+Author: TickZen Development Team
+Version: 3.0
+Last Updated: January 2026
+"""
+
 import os
 import time
 import traceback

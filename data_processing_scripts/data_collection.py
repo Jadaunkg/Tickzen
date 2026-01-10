@@ -1,4 +1,153 @@
-# data_collection.py
+#!/usr/bin/env python3
+"""
+Financial Data Collection Module
+===============================
+
+Centralized financial data aggregation system that collects, validates,
+and standardizes market data from multiple authoritative sources. Handles
+real-time and historical data with comprehensive error handling and caching.
+
+Supported Data Sources:
+----------------------
+1. **Yahoo Finance (yfinance)**:
+   - Historical stock prices (OHLCV)
+   - Company fundamentals and financials
+   - Dividend and stock split history
+   - Real-time price quotes
+   - Market cap and trading volume
+
+2. **Alpha Vantage API**:
+   - Intraday stock data (1min, 5min, 15min, 30min, 60min)
+   - Daily, weekly, monthly adjusted prices
+   - Technical indicators
+   - Sector performance data
+   - Global market data
+
+3. **FRED (Federal Reserve Economic Data)**:
+   - Economic indicators (GDP, inflation, unemployment)
+   - Interest rates (Fed funds rate, Treasury yields)
+   - Money supply and banking data
+   - International economic data
+
+4. **Finnhub API**:
+   - Real-time stock quotes and trades
+   - Company earnings and estimates
+   - News sentiment and social sentiment
+   - Insider trading data
+
+Core Functions:
+--------------
+- `fetch_stock_data()`: Multi-source stock data collection
+- `fetch_real_time_data()`: Current market data retrieval
+- `fetch_historical_data()`: Historical price and volume data
+- `fetch_company_fundamentals()`: Financial statement data
+- `fetch_economic_indicators()`: Macro economic data
+
+Data Validation Features:
+------------------------
+- **Price Validation**: Outlier detection using statistical methods
+- **Volume Validation**: Unusual volume spike detection
+- **Data Completeness**: Missing data identification and handling
+- **Cross-Source Verification**: Multi-source data consistency checks
+- **Time-Series Continuity**: Gap detection in historical data
+
+Caching Strategy:
+----------------
+- **Intraday Cache**: 1-minute TTL for real-time data
+- **Daily Cache**: 24-hour TTL for end-of-day data
+- **Historical Cache**: 7-day TTL for historical data
+- **Fundamental Cache**: 30-day TTL for company fundamentals
+- **Economic Cache**: Variable TTL based on release schedule
+
+Error Handling:
+--------------
+- **API Failures**: Automatic fallback to alternative sources
+- **Rate Limiting**: Exponential backoff with jitter
+- **Network Issues**: Connection timeout and retry mechanisms
+- **Data Quality**: Invalid data filtering and correction
+- **Quota Management**: API usage monitoring and optimization
+
+Data Standardization:
+--------------------
+- **Timezone Handling**: UTC normalization with market timezone awareness
+- **Price Adjustment**: Stock splits and dividend adjustments
+- **Currency Conversion**: Multi-currency support with exchange rates
+- **Data Format**: Consistent pandas DataFrame output format
+- **Column Naming**: Standardized column names across sources
+
+Performance Optimizations:
+-------------------------
+- **Parallel Requests**: Concurrent API calls for multiple symbols
+- **Batch Processing**: Bulk data requests where supported
+- **Connection Pooling**: Persistent HTTP connections
+- **Memory Management**: Efficient data structure usage
+- **Lazy Loading**: On-demand data retrieval
+
+Data Quality Metrics:
+--------------------
+- **Completeness Score**: Percentage of expected data points
+- **Freshness Score**: Data recency relative to market hours
+- **Accuracy Score**: Cross-source validation results
+- **Coverage Score**: Symbol and timeframe availability
+
+Usage Examples:
+--------------
+```python
+# Basic stock data collection
+data = fetch_stock_data('AAPL', period='1y')
+
+# Real-time data with validation
+real_time = fetch_real_time_data(['AAPL', 'GOOGL', 'MSFT'])
+
+# Historical data with custom date range
+historical = fetch_historical_data(
+    symbol='AAPL',
+    start_date='2023-01-01',
+    end_date='2024-01-01',
+    interval='1d'
+)
+
+# Company fundamentals
+fundamentals = fetch_company_fundamentals('AAPL')
+```
+
+API Integration Details:
+-----------------------
+- **Rate Limiting**: Respects all API provider limits
+- **Authentication**: API key management and rotation
+- **Error Codes**: Comprehensive HTTP status code handling
+- **Response Parsing**: Robust JSON/CSV parsing with validation
+- **Quota Tracking**: Real-time API usage monitoring
+
+Output Data Structure:
+---------------------
+Standardized DataFrame format:
+- Date: DatetimeIndex with timezone awareness
+- Open/High/Low/Close: Price data with adjustments
+- Volume: Trading volume
+- Adj Close: Dividend and split adjusted closing price
+- Metadata: Source, collection timestamp, quality metrics
+
+Integration Points:
+------------------
+- Used by automation_scripts/pipeline.py for analysis workflow
+- Integrated with earnings_reports/data_collector.py
+- Provides data for analysis_scripts/ modules
+- Supports real-time dashboard updates
+
+Configuration:
+-------------
+Environment Variables:
+- ALPHA_VANTAGE_API_KEY: Alpha Vantage access key
+- FINNHUB_API_KEY: Finnhub access token
+- FRED_API_KEY: FRED API access key
+- DATA_CACHE_TTL: Default cache time-to-live
+- MAX_CONCURRENT_REQUESTS: Parallel request limit
+
+Author: TickZen Development Team
+Version: 2.7
+Last Updated: January 2026
+"""
 
 import time
 import logging

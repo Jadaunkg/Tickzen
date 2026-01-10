@@ -1,16 +1,141 @@
+#!/usr/bin/env python3
 """
 Earnings Article Publisher Integration
+====================================
 
-This module integrates earnings articles (both pre and post earnings) with the 
-auto_publisher system, enabling smart writer rotation and record keeping for 
-daily article publishing.
+Advanced earnings-focused content publishing system that integrates earnings
+analysis with the WordPress automation platform. Provides specialized content
+generation, smart writer rotation, and comprehensive publishing management
+for earnings-related articles.
 
-Features:
-- Unified writer rotation with stock analysis articles
-- Article type detection (pre-earnings vs post-earnings)
-- Daily publishing limits tracking
-- Publishing history and record keeping
-- Integration with WordPress publishing workflow
+Core Publishing Features:
+------------------------
+1. **Earnings Article Types**:
+   - Pre-earnings analysis and previews
+   - Post-earnings results and analysis
+   - Earnings surprise analysis
+   - Forward guidance impact assessment
+   - Quarterly trend analysis
+
+2. **Content Generation**:
+   - Automated earnings article creation
+   - Data-driven narrative generation
+   - Financial metrics interpretation
+   - Analyst estimate comparison
+   - Historical performance context
+
+3. **Publishing Automation**:
+   - WordPress integration with auto_publisher
+   - Smart writer rotation and attribution
+   - Daily publishing limits management
+   - SEO optimization for earnings content
+   - Social media snippet generation
+
+Writer Management System:
+------------------------
+- **Unified Rotation**: Integrated with main auto_publisher writer rotation
+- **Expertise Matching**: Match writers to earnings complexity
+- **Load Balancing**: Distribute earnings articles evenly across writers
+- **Performance Tracking**: Monitor writer-specific engagement metrics
+- **Quality Assurance**: Maintain consistent writing quality standards
+
+Content Personalization:
+-----------------------
+- **Article Type Detection**: Automatic classification of earnings content
+- **Complexity Assessment**: Adjust content depth based on company size
+- **Audience Targeting**: Tailor content for different reader segments
+- **Tone Adaptation**: Professional vs accessible writing styles
+- **Length Optimization**: Optimal article length for engagement
+
+Publishing Workflow:
+-------------------
+1. **Earnings Data Collection**: Gather comprehensive earnings information
+2. **Content Generation**: Create article based on earnings analysis
+3. **Writer Assignment**: Select appropriate writer using rotation system
+4. **Content Review**: Quality assurance and fact-checking
+5. **SEO Optimization**: Keywords, meta descriptions, and structure
+6. **WordPress Publishing**: Automated posting with proper attribution
+7. **Performance Tracking**: Monitor engagement and success metrics
+
+Integration Features:
+--------------------
+- **Auto-Publisher Sync**: Seamless integration with existing publishing system
+- **State Management**: Consistent state tracking with main publisher
+- **Daily Limits**: Respect overall daily publishing quotas
+- **Error Handling**: Robust error recovery and retry mechanisms
+- **Progress Tracking**: Real-time publishing progress via SocketIO
+
+Content Quality Features:
+------------------------
+- **Data Validation**: Verify earnings data accuracy before publishing
+- **Fact Checking**: Cross-reference multiple data sources
+- **Plagiarism Prevention**: Ensure unique content generation
+- **Readability Optimization**: Maintain appropriate reading level
+- **Brand Consistency**: Align with overall content strategy
+
+Publishing Analytics:
+--------------------
+- **Performance Metrics**: Track article engagement and success
+- **Writer Analytics**: Individual writer performance assessment
+- **Content Optimization**: Identify high-performing article patterns
+- **Audience Insights**: Understand reader preferences and behavior
+- **ROI Tracking**: Measure publishing effectiveness and value
+
+Usage Examples:
+--------------
+```python
+# Initialize earnings publisher
+publisher = EarningsPublisher()
+
+# Publish pre-earnings analysis
+result = publisher.publish_pre_earnings_article(
+    ticker='AAPL',
+    earnings_date='2026-01-25',
+    profile_id='financial_blog_1'
+)
+
+# Publish post-earnings analysis
+result = publisher.publish_post_earnings_article(
+    ticker='AAPL',
+    earnings_data=earnings_results,
+    profile_id='financial_blog_1'
+)
+
+# Bulk earnings publishing
+results = publisher.publish_earnings_batch(
+    tickers=['AAPL', 'GOOGL', 'MSFT'],
+    article_type='post_earnings',
+    profiles=['blog_1', 'blog_2']
+)
+```
+
+Integration Points:
+------------------
+- Uses earnings_reports/data_collector.py for comprehensive data
+- Integrates with automation_scripts/auto_publisher.py for publishing
+- Leverages reporting_tools/report_generator.py for visualizations
+- Connects to main_portal_app.py for real-time updates
+
+Error Handling:
+--------------
+- **Data Availability**: Handle missing or delayed earnings data
+- **Publishing Failures**: Retry mechanisms for WordPress API issues
+- **Content Generation**: Fallback content for incomplete data
+- **Rate Limiting**: Respect API limits and quotas
+- **Network Issues**: Robust handling of connectivity problems
+
+Configuration:
+-------------
+Customizable settings:
+- **Publishing Schedule**: Pre and post-earnings timing
+- **Content Templates**: Article structure and format options
+- **Writer Preferences**: Writer specialization and availability
+- **Quality Thresholds**: Minimum content quality requirements
+- **Performance Targets**: Engagement and success metrics
+
+Author: TickZen Development Team
+Version: 2.0
+Last Updated: January 2026
 """
 
 import os

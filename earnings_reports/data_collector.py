@@ -1,12 +1,110 @@
+#!/usr/bin/env python3
 """
 Earnings Data Collector Module
+=============================
 
-Collects comprehensive earnings data from multiple sources:
-- yfinance: Company fundamentals, financial statements, stock prices
-- Alpha Vantage: SEC filing data, detailed financials
-- Finnhub: Earnings calendar, estimates, surprises
+Comprehensive earnings data collection system that aggregates financial
+information from multiple authoritative sources. Handles API management,
+data validation, caching, and error recovery for reliable data acquisition.
 
-This module handles API calls, caching, rate limiting, and error handling.
+Data Sources:
+------------
+1. **yfinance**: 
+   - Company fundamentals and financial statements
+   - Historical stock prices and volume
+   - Dividend and split history
+   - Basic earnings data
+
+2. **Alpha Vantage**:
+   - SEC filing data and detailed financials
+   - Quarterly and annual earnings reports
+   - Revenue and profit margin analysis
+   - Advanced financial ratios
+
+3. **Finnhub**:
+   - Real-time earnings calendar
+   - Analyst estimates and surprises
+   - Earnings call transcripts
+   - Market consensus data
+
+Core Features:
+-------------
+- **Multi-Source Aggregation**: Combines data from multiple APIs
+- **Rate Limiting**: Respects API limits and quotas
+- **Data Validation**: Ensures data quality and consistency
+- **Caching System**: Reduces API calls and improves performance
+- **Error Handling**: Robust error recovery and fallback mechanisms
+- **Real-time Updates**: Fresh data for current earnings season
+
+Data Collection Workflow:
+------------------------
+1. **Company Identification**: Validate ticker and company information
+2. **Historical Data**: Collect past earnings and financial statements
+3. **Current Data**: Fetch latest earnings and estimates
+4. **Calendar Data**: Get upcoming earnings dates
+5. **Analyst Data**: Collect consensus estimates and revisions
+6. **Validation**: Cross-verify data across sources
+7. **Caching**: Store processed data for future use
+
+API Management:
+--------------
+- Automatic retry with exponential backoff
+- Rate limiting compliance across all sources
+- API key rotation for high-volume usage
+- Error categorization and appropriate responses
+- Quota monitoring and usage optimization
+
+Data Quality Assurance:
+----------------------
+- Cross-source data validation
+- Outlier detection and filtering
+- Missing data handling strategies
+- Data freshness verification
+- Consistency checks across time periods
+
+Caching Strategy:
+----------------
+- **Time-based Expiration**: Different TTL for different data types
+- **Event-based Invalidation**: Clear cache on earnings releases
+- **Layered Caching**: Memory, disk, and database caching
+- **Selective Updates**: Update only changed data points
+
+Error Handling:
+--------------
+- Network timeout management
+- API error code interpretation
+- Graceful degradation for missing sources
+- Comprehensive logging for troubleshooting
+- User-friendly error messages
+
+Usage Example:
+-------------
+```python
+collector = EarningsDataCollector()
+data = collector.collect_comprehensive_data('AAPL')
+earnings_calendar = collector.get_earnings_calendar()
+estimates = collector.get_analyst_estimates('AAPL')
+```
+
+Configuration:
+-------------
+Environment Variables:
+- ALPHA_VANTAGE_API_KEY: Alpha Vantage access key
+- FINNHUB_API_KEY: Finnhub access token
+- EARNINGS_CACHE_TTL: Cache time-to-live in seconds
+
+Data Output Format:
+------------------
+Standardized JSON structure with:
+- Company metadata and identifiers
+- Historical earnings and financial data
+- Current estimates and analyst coverage
+- Earnings calendar and key dates
+- Data quality indicators and timestamps
+
+Author: TickZen Development Team
+Version: 2.2
+Last Updated: January 2026
 """
 
 import json

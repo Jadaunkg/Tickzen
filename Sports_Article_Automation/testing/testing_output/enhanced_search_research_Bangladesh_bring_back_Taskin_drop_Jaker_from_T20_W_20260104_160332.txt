@@ -1,0 +1,131 @@
+================================================================================
+ENHANCED SEARCH API RESEARCH WITH FULL CONTENT
+================================================================================
+
+RESEARCH INFORMATION:
+--------------------------------------------------
+Headline: Bangladesh bring back Taskin, drop Jaker from T20 World Cup squad
+Collection Method: enhanced_search_api_with_content_fetching
+Timestamp: 2026-01-04T16:03:32.506748
+Status: success
+
+RESEARCH STATISTICS:
+--------------------------------------------------
+Sources Processed: 3
+Total Words Collected: 1910
+Citations: 3
+
+CONTENT SUMMARY:
+================================================================================
+COMPREHENSIVE RESEARCH SUMMARY
+Headline: Bangladesh bring back Taskin, drop Jaker from T20 World Cup squad
+Total Sources Processed: 3
+Total Words Collected: 1910
+
+SOURCES PROCESSED:
+1. Bangladesh bring back Taskin, drop Jaker from T20 World Cup  (africa.espn.com) - 313 words [CONFIRMED, RECENT, TRUSTED]
+2. Root and Brook shine before afternoon gloom ends play early (hutthawks.com) - 801 words [RECENT]
+3. 'Keep calm and keep a clear mind' - Gleeson the hero in SA20 (www.espn.com.sg) - 796 words [RECENT]
+
+SOURCE RELIABILITY ANALYSIS:
+ • Confirmed/Official: 1
+ • Rumor/Unconfirmed: 0
+ • Recent (last 7 days): 3
+ • Trusted domains: 1
+ • Average credibility score: 4.3/10
+ • Highest credibility source: 5.0/10
+
+RESEARCH CONTENT ANALYSIS:
+Key Terms Found:
+ • Gleeson
+ • Brook
+ • Hasan
+ • Root
+ • Super
+ • Jones
+ • Hossain
+ • England
+ • Over
+ • Buttler
+
+FULL RESEARCH CONTENT:
+================================================================================
+
+==================================================SOURCE: Bangladesh bring back Taskin, drop Jaker from T20 World Cup squad [CONFIRMED] [RECENT] [TRUSTED]
+URL: https://africa.espn.com/cricket/story/_/id/47498684/t20-world-cup-bangladesh-bring-back-taskin-ahmed-drop-jaker-ali
+CONTENT: Open Extended Reactions
+
+Bangladesh have left out Jaker Ali from their 15-member squad for the men's T20 World Cup 2026, while Litton Das stays on as captain and Taskin Ahmed returns to the side after missing the recent Ireland series.
+
+Jaker has been dropped from the side for the first time since March 2024, having appeared in all 45 T20Is that Bangladesh have played during this period. However, he had been out of form and has even lost his place in Bangladesh's sides for the other formats, while also facing extensive criticism for his predominantly leg-side batting style, which has seen diminishing returns.
+
+In-form batters - Litton, Tanzid Hasan and Saif Hassan - will make up the top three. Towhid Hridoy, Shamim Hossain and Nurul Hasan slot into the middle order. While Parvez Hossain Emon could also be used at No. 4 after impressing in the role during the ongoing Bangladesh Premier League (BPL).
+
+Bangladesh's 15-member squad for the T20 World Cup this year ESPNcricinfo Ltd
+
+Bangladesh's major strength is their bowling. The returning Taskin has Mustafizur Rahman, Tanzim Hasan, Shoriful Islam and Mohammad Saifuddin for company in an impressive pace department.
+
+Rishad Hossain, meanwhile, will lead a spin attack that has left-arm spinner Nasum Ahmed and offspinner Mahedi Hasan, with the latter specialising in powerplay bowling.
+
+Bangladesh are scheduled to play their first three matches in Kolkata and the last one in Mumbai. However, the BCB is expected to write to the ICC with a request to shift their fixtures to Sri Lanka after Kolkata Knight Riders (KKR) released Mustafizur from their IPL 2026 squad following instructions from the BCCI.
+
+Bangladesh squad for the men's T20 World Cup
+
+Litton Das (capt), Saif Hassan, Tanzid Hasan, Parvez Hossain Emon, Towhid Hridoy, Shamim Hossain, Nurul Hasan (wk), Mahedi Hasan, Rishad Hossain, Nasum Ahmed, Mustafizur Rahman, Tanzim Hasan Sakib, Taskin Ahmed, Mohammad Saifuddin, Shoriful Islam
+
+SOURCE: Root and Brook shine before afternoon gloom ends play early [NEUTRAL] [RECENT] [STANDARD]
+URL: https://hutthawks.com/2026/01/04/root-and-brook-shine-before-afternoon-gloom-ends-play-early/
+CONTENT: **Sydney Showers, Shaky Starts, and a Sunset Stunner: Root & Brook Ride the Storm!**
+
+Well, folks, here we are: the Ashes finale at the iconic SCG! And for a hot minute there, it felt like we were heading for *another* truncated Test, ready to punctuate a series that’s left a few of us feeling a bit, well, hollow. Remember those two-day wonders in Perth and Melbourne? Yeah, me too. But thankfully, England, Joe Root, and Harry Brook had other ideas, ensuring Day 1 in Sydney was anything but short on drama, even if the overs were!
+
+Let’s dive in. The morning started sunny and humid – a pleasant surprise given the grim weather forecast later – and Captain Ben Stokes, after yet another toss win, decided to have a bat. Now, this was a *curious* call, especially considering his usual penchant for bowling first, which, let’s be honest, catalysed that fantastic MCG victory. His mood probably soured quickly as England’s top order found themselves battling some spicy seam movement on a green-tinged surface, collapsing to a wobbly 57 for 3 by mid-session. Uh oh, here we go again?
+
+Before the wobble, though, opener Ben Duckett was absolutely *feasting* on Mitchell Starc’s usually fearsome but, on this occasion, unusually ragged bowling. Duckett, seemingly carrying all the momentum from his invaluable MCG cameo, whacked Starc for five boundaries in less than four overs, rocketing to 27 off just 23 balls! He and Zak Crawley looked like they were building something special – a partnership that has historically struggled to reach the eighth over this series, but here we were!
+
+But alas, Starc finally found his rhythm, and Duckett, bless him, just couldn’t help himself, prodding tamely to a flying Alex Carey. Jacob Bethell, fresh from his calm Ashes debut, then tried to weather the storm but found himself caught between a rock and a hard place. Crawley, after another “teaser” of an innings, fell lbw to a full delivery from Michael Neser. Then Bethell nicked off to a relentless Scott Boland, who’d cleverly moved over the wicket. England, 57/3. Cricket Australia bigwigs were probably biting their nails!
+
+But fear not, for the cavalry arrived! Enter Joe Root and Harry Brook. These two weren’t just batting; they were on a mission. The pitch, which had offered lively seam movement early on, started to ease up, and the duo settled in beautifully. They stitched together an unbroken 154-run stand – the *second-highest partnership of the series* for either side – ensuring England reached stumps in a much healthier position at 211 for 3.
+
+Root, who’s had his struggles Down Under this series despite that brilliant ton in Brisbane, looked back to his trademark self, scoring heavily behind square on the off side after almost nicking off first ball! Brook, usually a whirlwind of aggression, was uncharacteristically restrained, keeping his madcap instincts in check for the most part. He still found a way to counter-attack, especially when Cameron Green, who endured a tough day finishing with 0 for 57 from eight overs, resorted to short-ball tactics. Brook even top-edged Starc on 45 before regrouping and whacking Beau Webster for a boundary to bring up a well-deserved 63-ball half-century, closely followed by Root’s own classy 65-ball fifty.
+
+On the Australian side, the spotlight might just be shining on their selectors after a rather bold decision: stepping onto the SCG field without a specialist spinner for the first time since *1888*! With Beau Webster replacing Jhye Richardson, off-spinner Todd Murphy was left out. While the SCG has changed its spin-friendly traditions lately, Captain Steven Smith probably wished he had Murphy’s variety when Root and Brook were cruising. The frontline quicks each picked up a wicket, but variety was definitely lacking as the afternoon wore on.
+
+Just as the clouds started to roll in and thick, ominous weather began to gather, play was halted due to bad light. While it cleared up briefly, the decision was made to call stumps after just 45 overs due to the earlier rain and lightning.
+
+So, England finishes Day 1 at 211 for 3, with Harry Brook unbeaten on 78 and Joe Root on 72. This measured batting, combined with Sydney’s annual sketchy weather, surely means this match will last considerably longer than its two-day predecessors! A massive sigh of relief for SCG curator Adam Lewis, who bravely left just 5mm of grass on the pitch. Phew!
+
+England’s hopes for a second consecutive consolation victory are shining brightly, and with Matthew Potts making his series debut (replacing the injured Gus Atkinson) and no Shoaib Bashir in the side, it’s all eyes on Day 2. Can Root and Brook continue their fantastic work? Will the Aussie bowlers find inspiration? And will the Sydney weather let us finish a whole day’s play? Bring it on!
+
+SOURCE: 'Keep calm and keep a clear mind' - Gleeson the hero in SA20's first Super Over finish [NEUTRAL] [RECENT] [STANDARD]
+URL: https://www.espn.com.sg/cricket/story/_/id/47479682/sa20-richard-gleeson-super-star-joburg-super-kings-beat-durban-super-giants
+CONTENT: Open Extended Reactions
+
+In a high-scoring match at a high-scoring ground at a high altitude, nobody wanted the ball more than Richard Gleeson, who stepped up to deliver the first Super Over in SA20 history for Joburg Super Kings (JSK) against Durban's Super Giants (DSG) on Thursday. With scores tied at 205 after 40 overs, the new year's day crowd at the Wanderers enjoyed an unexpected treat as Gleeson conceded only five runs in the Super Over and JSK then surged to victory and to the top of the points table.
+
+"You don't want easy wins each game. They are great but it's moments like these where you are under pressure and you have to fall back on your skills, which gives you great confidence as a bowler," Gleeson said afterwards. "That's the big bit: trying to execute under pressure. You can practice as much as you want but when you get wet conditions, with the dew and you're under pressure with the crowd, it is difficult. I've got a few techniques that we use with the psychologist and I've done it quite a bit in the past. I just call on that experience to try and keep calm and keep a clear mind."
+
+It was, in fact, the first time Gleeson has bowled a Super Over but he does have plenty of experience and success at the death. In 2022, he delivered the last over for Lancashire against Yorkshire in a Blast game that was tied because he dismissed Harry Brook off the final ball. Overall, since 2022, of bowlers who have delivered more than 400 balls in T20 cricket, Gleeson is the fifth best at the death (overs 17 to 20) in terms of economy rate (8.60) with 47 wickets at 13.82. Bear in mind that Jasprit Bumrah leads this list (6.65) and you have to understand how impressive Gleeson's numbers are.
+
+At the Wanderers, Gleeson took 3 for 41 in DSG's chase in the regular game, which included bouncing Jos Buttler out for 15, removing Aiden Markram with DSG needing 38 runs off 21 balls, and bowling David Wiese with a yorker in the penultimate over. He was then tasked with the Super Over and could have had a wicket first ball when Evan Jones hit him to long-on but Matthew de Villiers put the chance down. That could easily have put Gleeson off and though he had fleeting thoughts that the dropped catch could cost JSK, he quickly put those aside. "[I thought], you've just dropped the match," Gleeson joked. "But I backed myself. I knew I was executing and the next ball was the most important."
+
+As he delivered his second ball, Gleeson saw Buttler backing away and banged it in short and wide, away from where Buttler could connect with it well. He followed up with a yorker which Buttler could only squeeze away for one. Jones kept trying to swing big and inside-edged the next ball for one before Gleeson went short again to Buttler. He finished off with a yorker as DSG totalled just five and things had worked out exactly as Gleeson hoped they would.
+
+"The plans going into the Super Over were really simple: to try and execute the yorkers, try and get them to hit to the longer part of the boundary but not be too predictable," he said. "I knew I had the short ball I could go to, pace off, so I just wanted to try and keep them guessing and have the batter thinking about two deliveries instead of just one."
+
+Richard Gleeson claimed key wickets at the death ECB via Getty Images
+
+That Jones, who had earlier brought DSG back into the match with personal highest SA20 score of 43 off just 17 balls, could not get Gleeson away was testament to the bowler's skills.
+
+Jones' strategy during his match-tying innings was simple: "It's about standing still and make sure if the bowler misses, I cash in."
+
+The trouble was that Gleeson didn't miss. "He bowled a great over," Jones said, amid emotions that were running high "everywhere".
+
+Though disappointed with the result, Jones called the match "just great for cricket" and was not too down about DSG's prospects especially as they came back from being dismissed for 86 by this same JSK side two days prior.
+
+DSG are third on the table with one win from four games and remain confident of their chances in this competition. "We take this game as a good thing. We came quite close," Jones said. "With the experience in our team, and a young fast bowler [Kwena Maphaka], we tick a lot of boxes. We'll keep our heads down, play good cricket, and I am pretty sure the results will take care of themselves."
+
+
+================================================================================
+END OF ENHANCED RESEARCH RESULTS
+================================================================================

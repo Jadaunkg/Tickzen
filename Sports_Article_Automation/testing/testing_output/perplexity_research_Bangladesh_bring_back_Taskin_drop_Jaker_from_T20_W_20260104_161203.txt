@@ -1,0 +1,83 @@
+================================================================================
+PERPLEXITY AI RESEARCH COLLECTION RESULTS
+================================================================================
+
+Headline: Bangladesh bring back Taskin, drop Jaker from T20 World Cup squad
+Test Date: 2026-01-04 16:12:03
+Collection Method: unknown
+Status: success
+
+--------------------------------------------------
+SOURCE URLS
+--------------------------------------------------
+
+1. https://africa.espn.com/cricket/story/_/id/47499392/wpl-2026-beth-mooney-ashleigh-gardner-sophie-devine-key-gujarat-giants-chances
+2. https://africa.espn.com/cricket/story/_/id/47499091/wpl-2026-well-rounded-mumbai-indians-favourites-clinch-another-crown
+3. https://africa.espn.com/cricket/story/_/id/47499075/adam-gilchrist-says-doctors-move-damien-martyn-icu-unbelievable-turn-events
+4. https://africa.espn.com/cricket/story/_/id/47498765/player-safety-vs-entertainment-debate-scg-michael-vaughan-harry-brook-jason-gillespie-dan-vettori-their-say
+
+--------------------------------------------------
+SOURCE CITATIONS
+--------------------------------------------------
+
+1. https://africa.espn.com/cricket/story/_/id/47499392/wpl-2026-beth-mooney-ashleigh-gardner-sophie-devine-key-gujarat-giants-chances
+2. https://africa.espn.com/cricket/story/_/id/47499091/wpl-2026-well-rounded-mumbai-indians-favourites-clinch-another-crown
+3. https://africa.espn.com/cricket/story/_/id/47499075/adam-gilchrist-says-doctors-move-damien-martyn-icu-unbelievable-turn-events
+4. https://africa.espn.com/cricket/story/_/id/47498765/player-safety-vs-entertainment-debate-scg-michael-vaughan-harry-brook-jason-gillespie-dan-vettori-their-say
+
+--------------------------------------------------
+RAW JSON DATA (FOR DEBUGGING)
+--------------------------------------------------
+
+{
+  "headline": "Bangladesh bring back Taskin, drop Jaker from T20 World Cup squad",
+  "source": "Bangladesh Cricket",
+  "category": "cricket",
+  "collection_timestamp": "2026-01-04T16:12:03.189544",
+  "research_sections": {
+    "comprehensive": {
+      "status": "success",
+      "content": "I cannot provide specific details about the \"Bangladesh bring back Taskin, drop Jaker from T20 World Cup squad\" story based on these search results. While this headline appears multiple times in the search results provided, the actual article content with details about the squad changes, official statements, quotes from involved parties, and timeline information is not included in the search results.\n\nThe search results only show the headline repeated across different ESPN cricket pages, but do not contain the substantive reporting needed to answer your query about:\n- Specific details of the squad changes\n- Official confirmations or statements\n- Direct quotes from Bangladesh cricket officials or players\n- Timeline and current status of this decision\n\nTo obtain the detailed information you're seeking about this specific story, you would need to access the full articles from these ESPN links or search for additional sources covering Bangladesh's T20 World Cup squad announcement.",
+      "citations": [
+        "https://africa.espn.com/cricket/story/_/id/47499392/wpl-2026-beth-mooney-ashleigh-gardner-sophie-devine-key-gujarat-giants-chances",
+        "https://africa.espn.com/cricket/story/_/id/47499091/wpl-2026-well-rounded-mumbai-indians-favourites-clinch-another-crown",
+        "https://africa.espn.com/cricket/story/_/id/47499075/adam-gilchrist-says-doctors-move-damien-martyn-icu-unbelievable-turn-events",
+        "https://africa.espn.com/cricket/story/_/id/47498765/player-safety-vs-entertainment-debate-scg-michael-vaughan-harry-brook-jason-gillespie-dan-vettori-their-say"
+      ],
+      "sources": [
+        "https://africa.espn.com/cricket/story/_/id/47499392/wpl-2026-beth-mooney-ashleigh-gardner-sophie-devine-key-gujarat-giants-chances",
+        "https://africa.espn.com/cricket/story/_/id/47499091/wpl-2026-well-rounded-mumbai-indians-favourites-clinch-another-crown",
+        "https://africa.espn.com/cricket/story/_/id/47499075/adam-gilchrist-says-doctors-move-damien-martyn-icu-unbelievable-turn-events",
+        "https://africa.espn.com/cricket/story/_/id/47498765/player-safety-vs-entertainment-debate-scg-michael-vaughan-harry-brook-jason-gillespie-dan-vettori-their-say"
+      ],
+      "tokens_used": {
+        "prompt_tokens": 194,
+        "completion_tokens": 176,
+        "total_tokens": 370,
+        "search_context_size": "low",
+        "cost": {
+          "input_tokens_cost": 0.0,
+          "output_tokens_cost": 0.0,
+          "request_cost": 0.005,
+          "total_cost": 0.005
+        }
+      }
+    }
+  },
+  "compiled_sources": [
+    "https://africa.espn.com/cricket/story/_/id/47499392/wpl-2026-beth-mooney-ashleigh-gardner-sophie-devine-key-gujarat-giants-chances",
+    "https://africa.espn.com/cricket/story/_/id/47499091/wpl-2026-well-rounded-mumbai-indians-favourites-clinch-another-crown",
+    "https://africa.espn.com/cricket/story/_/id/47499075/adam-gilchrist-says-doctors-move-damien-martyn-icu-unbelievable-turn-events",
+    "https://africa.espn.com/cricket/story/_/id/47498765/player-safety-vs-entertainment-debate-scg-michael-vaughan-harry-brook-jason-gillespie-dan-vettori-their-say"
+  ],
+  "compiled_citations": [
+    "https://africa.espn.com/cricket/story/_/id/47499392/wpl-2026-beth-mooney-ashleigh-gardner-sophie-devine-key-gujarat-giants-chances",
+    "https://africa.espn.com/cricket/story/_/id/47499091/wpl-2026-well-rounded-mumbai-indians-favourites-clinch-another-crown",
+    "https://africa.espn.com/cricket/story/_/id/47499075/adam-gilchrist-says-doctors-move-damien-martyn-icu-unbelievable-turn-events",
+    "https://africa.espn.com/cricket/story/_/id/47498765/player-safety-vs-entertainment-debate-scg-michael-vaughan-harry-brook-jason-gillespie-dan-vettori-their-say"
+  ],
+  "enhanced_research": true,
+  "single_request_optimized": true,
+  "total_research_calls": 1,
+  "status": "success"
+}

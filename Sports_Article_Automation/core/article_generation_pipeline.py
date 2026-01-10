@@ -1,12 +1,144 @@
+#!/usr/bin/env python3
 """
-Article Generation Pipeline with Research-to-Article Workflow
-Complete pipeline: RSS Data → Headline Selection → Perplexity Research → Gemini Article Generation
+Sports Article Generation Pipeline
+=================================
 
-Two-stage article creation:
-1. Perplexity AI: Collects research and latest information from internet
-2. Gemini AI: Generates SEO-optimized, human-written articles from research
+Advanced two-stage AI content creation system for sports journalism.
+Combines research capabilities with human-quality writing to produce
+SEO-optimized, engaging sports articles at scale.
 
-Integrated with publishing state management for status tracking and history.
+Two-Stage AI Architecture:
+-------------------------
+1. **Research Phase** (Perplexity AI):
+   - Real-time internet research
+   - Latest sports news and statistics
+   - Player performance data
+   - Historical context and trends
+   - Multiple source verification
+
+2. **Writing Phase** (Gemini AI):
+   - Human-quality article generation
+   - SEO optimization and keyword integration
+   - Multiple writing styles and tones
+   - Fact-based narrative construction
+   - Social media snippet generation
+
+Content Pipeline Workflow:
+-------------------------
+1. **RSS Data Collection**: Monitor sports news feeds
+2. **Headline Analysis**: Select trending and engaging topics
+3. **Research Orchestration**: Perplexity AI gathers comprehensive data
+4. **Content Generation**: Gemini AI creates polished articles
+5. **SEO Optimization**: Keyword integration and meta optimization
+6. **Quality Assurance**: Automated content validation
+7. **Publishing Preparation**: WordPress-ready formatting
+
+Supported Sports Categories:
+---------------------------
+- NFL (National Football League)
+- NBA (National Basketball Association)
+- MLB (Major League Baseball)
+- NHL (National Hockey League)
+- College Sports (NCAA)
+- International Sports (Soccer, Tennis, etc.)
+- Olympic Sports and Events
+- Esports and Gaming
+
+Content Types Generated:
+-----------------------
+- **Game Recaps**: Post-game analysis and highlights
+- **Player Profiles**: Biographical and performance articles
+- **Trade Analysis**: Transfer and trade impact analysis
+- **Season Previews**: Pre-season analysis and predictions
+- **Statistical Deep Dives**: Advanced analytics articles
+- **Breaking News**: Real-time news article generation
+- **Opinion Pieces**: Editorial and analysis content
+
+Research Data Sources:
+---------------------
+- Official league APIs and statistics
+- Sports news websites and RSS feeds
+- Social media sentiment analysis
+- Player and team performance databases
+- Historical records and archives
+- Real-time game data and scores
+
+SEO and Content Optimization:
+----------------------------
+- Keyword density optimization
+- Meta description generation
+- Internal linking suggestions
+- Featured snippet optimization
+- Social media integration
+- Image alt-text generation
+
+State Management Integration:
+----------------------------
+- Publishing history tracking
+- Content deduplication
+- Performance analytics
+- Author attribution management
+- Category-specific publishing limits
+
+Quality Control Features:
+------------------------
+- Fact-checking against reliable sources
+- Plagiarism detection and prevention
+- Content freshness validation
+- Readability score optimization
+- Brand voice consistency
+
+WordPress Integration:
+---------------------
+- Automated post creation
+- Category and tag assignment
+- Featured image optimization
+- Social media auto-posting
+- SEO plugin compatibility
+
+Usage Example:
+-------------
+```python
+pipeline = ArticleGenerationPipeline()
+
+# Generate article from RSS headline
+article = pipeline.generate_from_headline(
+    headline="Lakers Trade Rumors Heat Up",
+    category="NBA",
+    target_keywords=["Lakers trade", "NBA rumors"]
+)
+
+# Publish to WordPress
+result = pipeline.publish_article(article, profile_id="sports_site_1")
+```
+
+Configuration:
+-------------
+Environment Variables:
+- PERPLEXITY_API_KEY: Research AI access key
+- GEMINI_API_KEY: Content generation AI key
+- SPORTS_RSS_FEEDS: JSON list of monitored feeds
+- CONTENT_QUALITY_THRESHOLD: Minimum quality score
+
+Performance Metrics:
+-------------------
+- Article generation time (target: <5 minutes)
+- Research comprehensiveness score
+- SEO optimization rating
+- Content uniqueness percentage
+- Publishing success rate
+
+Error Handling:
+--------------
+- AI service fallback mechanisms
+- Content validation and retry logic
+- Research depth adjustment
+- Quality threshold enforcement
+- Comprehensive error logging
+
+Author: TickZen Development Team
+Version: 3.1
+Last Updated: January 2026
 """
 
 import json

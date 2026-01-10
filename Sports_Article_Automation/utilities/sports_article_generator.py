@@ -1,7 +1,174 @@
+#!/usr/bin/env python3
 """
-Sports Article Generator using Gemini AI
-Generates SEO-optimized sports articles from research collected by Perplexity AI
-Specifically designed for sports content (football, cricket, basketball, etc.)
+Sports Article Generator with Gemini AI
+=======================================
+
+Advanced sports content generation system using Gemini AI to create SEO-optimized,
+engaging sports articles from research data collected by Perplexity AI. Specializes
+in generating human-quality sports journalism across multiple sports categories.
+
+Core Content Generation:
+-----------------------
+1. **Multi-Sport Coverage**:
+   - NFL (National Football League)
+   - NBA (National Basketball Association)
+   - MLB (Major League Baseball)
+   - NHL (National Hockey League)
+   - Soccer/Football (International)
+   - Cricket (International and domestic leagues)
+   - Tennis, Golf, and Olympic sports
+   - College sports (NCAA)
+   - Esports and gaming competitions
+
+2. **Article Types**:
+   - **Game Recaps**: Detailed post-game analysis with highlights
+   - **Preview Articles**: Pre-game analysis and predictions
+   - **Player Profiles**: In-depth biographical and performance articles
+   - **Trade Analysis**: Transfer and trade impact assessments
+   - **Season Previews**: Comprehensive season outlook articles
+   - **Breaking News**: Real-time sports news and developments
+   - **Statistical Analysis**: Data-driven sports insights
+   - **Opinion Pieces**: Editorial content and expert analysis
+
+Gemini AI Integration:
+---------------------
+- **Advanced Language Model**: Latest Gemini AI for natural language generation
+- **Context-Aware Writing**: Understanding of sports terminology and context
+- **Tone Adaptation**: Professional journalism to casual fan-friendly content
+- **Fact Integration**: Seamless incorporation of statistics and data
+- **SEO Optimization**: Built-in keyword integration and search optimization
+
+Content Quality Features:
+------------------------
+- **Research Integration**: Transforms Perplexity AI research into polished articles
+- **Fact Verification**: Cross-references multiple data sources
+- **Readability Optimization**: Appropriate reading level for target audience
+- **Engagement Optimization**: Hook creation and retention techniques
+- **Brand Voice Consistency**: Maintains consistent editorial voice
+
+SEO and Web Optimization:
+------------------------
+- **Keyword Integration**: Natural keyword placement and density optimization
+- **Meta Description Generation**: SEO-optimized meta descriptions
+- **Header Structure**: Proper H1-H6 hierarchy for SEO
+- **Internal Linking**: Suggestions for internal content linking
+- **Featured Snippet Optimization**: Content structured for featured snippets
+- **Social Media Optimization**: Social sharing-optimized content
+
+Content Personalization:
+-----------------------
+- **Audience Targeting**: Content adapted for different reader segments
+- **Regional Adaptation**: Local team and player focus
+- **Trending Topics**: Integration of current sports trends
+- **Historical Context**: Relevant historical comparisons and references
+- **Statistical Depth**: Adjustable statistical complexity
+
+Content Structure:
+-----------------
+```
+Article Structure:
+├── Compelling Headline
+├── Engaging Introduction
+├── Key Points Summary
+├── Detailed Analysis Sections
+│   ├── Game/Event Details
+│   ├── Player Performances
+│   ├── Statistical Analysis
+│   └── Impact Assessment
+├── Future Implications
+├── Expert Quotes Integration
+└── Call-to-Action Conclusion
+```
+
+Data Sources Integration:
+------------------------
+- **Perplexity AI Research**: Primary research and fact-gathering source
+- **Official League APIs**: Real-time statistics and official data
+- **Sports News APIs**: Breaking news and updates
+- **Social Media Sentiment**: Fan reactions and trending discussions
+- **Historical Databases**: Historical context and comparisons
+
+Content Validation:
+------------------
+- **Fact Checking**: Multi-source verification of statistics and claims
+- **Plagiarism Detection**: Originality verification and uniqueness scoring
+- **Readability Analysis**: Flesch-Kincaid and other readability metrics
+- **SEO Scoring**: Content optimization score and improvement suggestions
+- **Engagement Prediction**: Expected engagement based on content analysis
+
+Usage Examples:
+--------------
+```python
+# Initialize sports article generator
+generator = SportsArticleGenerator()
+
+# Generate NFL game recap
+article = generator.generate_article(
+    research_data=perplexity_research,
+    article_type='game_recap',
+    sport='NFL',
+    teams=['Cowboys', 'Giants'],
+    target_keywords=['NFL highlights', 'Cowboys vs Giants']
+)
+
+# Generate player profile
+profile_article = generator.generate_player_profile(
+    player_name='Patrick Mahomes',
+    research_data=player_research,
+    focus_areas=['career_stats', 'recent_performance', 'future_outlook']
+)
+
+# Generate trade analysis
+trade_article = generator.generate_trade_analysis(
+    trade_data=trade_research,
+    teams_involved=['Lakers', 'Nets'],
+    players=['Player A', 'Player B'],
+    impact_analysis=True
+)
+```
+
+Output Formats:
+--------------
+- **WordPress-Ready HTML**: Clean HTML with proper formatting
+- **Markdown**: Structured markdown for various CMS platforms
+- **Plain Text**: Raw text content for further processing
+- **JSON**: Structured data format with metadata
+- **Social Media Snippets**: Platform-optimized short-form content
+
+Performance Features:
+--------------------
+- **Fast Generation**: Optimized prompts for quick article generation
+- **Batch Processing**: Generate multiple articles in sequence
+- **Template System**: Reusable article templates and structures
+- **Caching**: Generated content caching for similar topics
+- **Error Recovery**: Robust handling of generation failures
+
+Integration Points:
+------------------
+- Called by Sports_Article_Automation/core/article_generation_pipeline.py
+- Integrates with Sports_Article_Automation/publishers/ for WordPress publishing
+- Uses research data from Perplexity AI integration
+- Connects to main content automation workflow
+
+Configuration:
+-------------
+Environment Variables:
+- GEMINI_API_KEY: Google Gemini AI API access key
+- SPORTS_CONTENT_STYLE: Default writing style preference
+- SEO_OPTIMIZATION_LEVEL: SEO optimization intensity (1-10)
+- ARTICLE_LENGTH_TARGET: Target word count for articles
+
+Quality Assurance:
+-----------------
+- **Content Scoring**: Automatic quality assessment
+- **Bias Detection**: Identification of potential bias in content
+- **Tone Consistency**: Maintains appropriate journalistic tone
+- **Factual Accuracy**: Statistical and factual verification
+- **Legal Compliance**: Sports reporting legal and ethical guidelines
+
+Author: TickZen Development Team
+Version: 2.4
+Last Updated: January 2026
 """
 
 import os
@@ -435,17 +602,30 @@ All signs are now pointing to Semenyo leaving Bournemouth in January and moving 
 
 Bournemouth are due to finish off 2025 with Premier League games against Brentford and Chelsea before the transfer window opens on January 1.  The games could potentially be Semenyo's last in a Bournemouth shirt if he does indeed make a quick decision on his future.}}
 
-WRITE LIKE A REAL HUMAN SPORTS JOURNALIST (NOT AI):
-- Keep sentences SHORT and simple - max 15-20 words per sentence
-- Use simple, normal words that people actually say (avoid "stellar", "coveted", "bolster", "remarkable", "extraordinary", "monumental", "unprecedented")
+WRITE LIKE A REAL HUMAN SPORTS EXPERIENCED JOURNALIST (NOT AI):
+
+CRITICAL - STRICTLY PROHIBITED FILLER WORDS (NEVER USE THESE):
+❌ BANNED: "pretty", "you know", "really", "quite", "actually", "basically", "literally", "definitely", "certainly", "obviously", "clearly", "surely", "undoubtedly", "essentially", "virtually", "totally", "absolutely", "completely", "entirely", "wholly", "thoroughly", "genuinely", "truly", "indeed", "in fact", "of course", "needless to say", "it goes without saying", "suffice it to say", "as a matter of fact", "to be honest", "honestly", "frankly", "truthfully"
+
+❌ BANNED ADJECTIVES: "stellar", "coveted", "bolster", "remarkable", "extraordinary", "monumental", "unprecedented", "exemplary", "exceptional", "formidable" , "magnificent", "outstanding", "phenomenal", "spectacular", "tremendous", "unparalleled", "unrivaled", "unmatched", "unbeatable", "unbelievable", "incredible", "astounding", "breathtaking", "mind-blowing", "jaw-dropping"
+
+❌ BANNED VAGUE PHRASES: "seems like", "appears to be", "looks like", "kind of", "sort of", "more or less", "in a way", "somewhat", "rather", "fairly", "reasonably", "relatively"
+
+UNIQUE ANGLE & VALUE REQUIREMENT(Strictly follow these rules):
+- Use a unque angle or perspective on the story
 - Make sentences direct and to the point - no long explanations
 - Cut out unnecessary words - be concise
+- keep short paragraphs - max 3-4 sentences each
+- don't use too much filler phrases words keep it in simple sentence
+- try to add human value, analysis and opinions in simple sentences not too much hyped and robotic toned
 - One idea per sentence - don't combine multiple thoughts
 - Make sentences a bit messy and imperfect - humans don't write perfectly
 - Add small grammar mistakes that real people make
 - Start sentences with "And" and "But" sometimes like people talk
 - Don't explain everything - assume readers know the sport
 - Make paragraph breaks feel random, not perfectly organized  
+- try to link quotes with the actual source properly
+- no repeated phrases or sentences in whole article cover each point only once
 - Use contractions like people talk (he's, won't, they're, can't, doesn't)
 - Repeat yourself sometimes - humans do this naturally
 - Use really simple words instead of fancy ones
@@ -466,6 +646,13 @@ WRITE LIKE A REAL HUMAN SPORTS JOURNALIST (NOT AI):
 - Break up long thoughts into multiple short sentences
 
 WORDPRESS-READY FORMATTING RULES:
+- Use <p> tags for ALL paragraphs
+- Use <h2> tags for main sections (3-4 sections)
+- Use <h3> tags for subsections if needed
+- Use <strong> tags for bold text (never **text**)
+- Use <blockquote> tags for quotes
+- Use <table> tags with proper structure if data tables needed
+- Use <ul>/<ol> and <li> tags for lists if needed
 
 HEADLINE CREATION PROCESS:
 After you write the complete article, create an ATTRACTIVE headline that will grab readers' attention. Your headline should:
@@ -490,17 +677,8 @@ HEADLINE EXAMPLES FOR INSPIRATION:
 - "Chelsea Confirm New Signing Hours Before Transfer Deadline"
 - "Ronaldo Drops Retirement Bombshell in Emotional Interview"
 
-HTML STRUCTURE (WordPress Ready):
-- Use <p> tags for ALL paragraphs
-- Use <h2> tags for main sections (3-4 sections)
-- Use <h3> tags for subsections if needed
-- Use <strong> tags for bold text (never **text**)
-- Use <blockquote> tags for quotes
-- Use <table> tags with proper structure if data tables needed
-- Use <ul>/<ol> and <li> tags for lists if needed
-
 EXTERNAL LINKING (MANDATORY):
-- Embed 3-4 source links naturally in sentences
+- Embed 2-3 source links naturally in sentences
 - Format: <a href="URL" target="_blank" rel="noopener noreferrer">Source Name</a>
 - Examples: "<a href="URL" target="_blank" rel="noopener noreferrer">ESPN reported</a> the signing"
 - "According to <a href="URL" target="_blank" rel="noopener noreferrer">BBC Sport</a>..."
@@ -538,7 +716,26 @@ DO WRITE LIKE THIS:
 - Write with natural authority on the subject
 - Let the story tell itself without over-commentary
 - Use industry knowledge to add depth
-- Write for readers who follow the sport seriously"""
+- Write for readers who follow the sport seriously
+
+FINAL CHECKLIST BEFORE SUBMITTING:
+1. NO filler words from banned list appear anywhere
+2. Paragraph lengths VARY - not all the same (2, then 4, then 3, then 2 pattern)
+3. Sentence lengths VARY dramatically - some 5 words, some 18 words
+4. Unique angle is clear in opening paragraph
+5. Every sentence adds new information or insight
+6. Sources are attributed naturally - not overly formal
+7. NO formal transitions like "In a surprising turn", "marks another chapter"
+8. Tone varies between sections - not uniformly neutral
+9. Some sentences are choppy, others flow - uneven rhythm
+10. Article feels like it was written by a human in a hurry, not AI being careful
+11. No repetition of phrases or ideas
+12. HTML formatting is WordPress-ready
+13. Headline delivers on its promise in content
+14. No overly polished or perfect parallel structures
+15. Mix of factual reporting and quick analytical asides
+
+Write 500-700 words. Sound like a human sports journalist writing on deadline - fast, knowledgeable, direct, slightly rough around the edges. NOT polished AI copy."""
         
         return prompt
     

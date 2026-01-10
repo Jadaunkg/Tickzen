@@ -1,3 +1,156 @@
+#!/usr/bin/env python3
+"""
+Data Preprocessing and Quality Management
+========================================
+
+Comprehensive data preprocessing pipeline for financial time-series data.
+Handles data cleaning, validation, transformation, and feature engineering
+to ensure high-quality inputs for analysis and machine learning models.
+
+Core Preprocessing Functions:
+----------------------------
+1. **Data Fetching and Validation**:
+   - Maximum historical data retrieval via yfinance
+   - Data completeness and quality validation
+   - Missing data detection and handling
+   - Outlier identification and treatment
+
+2. **Data Cleaning Operations**:
+   - Remove invalid or corrupt data points
+   - Handle stock splits and dividend adjustments
+   - Timezone normalization and consistency
+   - Volume and price anomaly correction
+
+3. **Feature Engineering Integration**:
+   - Technical indicator calculation
+   - Derived metrics and ratios
+   - Time-based feature extraction
+   - Market regime indicators
+
+4. **Data Standardization**:
+   - Consistent column naming conventions
+   - Unified date indexing across datasets
+   - Price and volume normalization
+   - Currency conversion when applicable
+
+Data Quality Assurance:
+----------------------
+- **Completeness Checks**: Verify expected data points exist
+- **Accuracy Validation**: Cross-reference with multiple sources
+- **Consistency Testing**: Ensure logical data relationships
+- **Freshness Verification**: Check data recency and relevance
+- **Range Validation**: Verify values within expected ranges
+
+Missing Data Handling:
+---------------------
+- **Forward Fill**: Use previous valid values for gaps
+- **Interpolation**: Linear/polynomial interpolation for small gaps
+- **Market Hours**: Skip non-trading periods appropriately
+- **Holiday Handling**: Account for market holidays and closures
+- **Weekend Gaps**: Handle weekend and holiday data gaps
+
+Outlier Detection and Treatment:
+-------------------------------
+- **Statistical Methods**: Z-score and IQR-based detection
+- **Price Spike Detection**: Identify unusual price movements
+- **Volume Anomalies**: Detect abnormal trading volumes
+- **Treatment Options**: Remove, cap, or transform outliers
+- **Context Preservation**: Maintain significant market events
+
+Data Transformation Pipeline:
+----------------------------
+1. **Raw Data Ingestion**: Fetch from yfinance with error handling
+2. **Initial Validation**: Check data format and basic quality
+3. **Cleaning Operations**: Remove/correct invalid data points
+4. **Feature Addition**: Add technical indicators and derived metrics
+5. **Final Validation**: Comprehensive quality checks
+6. **Output Formatting**: Standardized DataFrame structure
+
+Technical Indicator Integration:
+-------------------------------
+Seamless integration with feature engineering:
+- **Price-based Indicators**: Moving averages, price ratios
+- **Volume-based Indicators**: Volume trends and patterns
+- **Volatility Measures**: Price volatility and ranges
+- **Momentum Indicators**: Rate of change calculations
+
+Performance Optimizations:
+-------------------------
+- **Vectorized Operations**: NumPy/Pandas optimized calculations
+- **Memory Efficiency**: Optimal data types and structures
+- **Parallel Processing**: Multi-threading for large datasets
+- **Caching**: Preprocessed data caching for reuse
+- **Lazy Loading**: On-demand data processing
+
+Error Handling:
+--------------
+- **Network Failures**: Robust handling of API failures
+- **Data Corruption**: Detection and recovery mechanisms
+- **Partial Data**: Graceful handling of incomplete datasets
+- **Processing Errors**: Comprehensive exception handling
+- **User Notification**: Clear error reporting via SocketIO
+
+Data Output Structure:
+---------------------
+Standardized pandas DataFrame with:
+```python
+columns = [
+    'Open', 'High', 'Low', 'Close', 'Volume',  # OHLCV data
+    'SMA_20', 'EMA_50', 'RSI', 'MACD',         # Technical indicators
+    'Returns', 'Volatility', 'Volume_MA',       # Derived features
+    'Trading_Day', 'Week_Day', 'Month'          # Time-based features
+]
+index = DatetimeIndex  # Timezone-aware datetime index
+```
+
+Usage Examples:
+--------------
+```python
+# Basic preprocessing
+clean_data = fetch_stock_data('AAPL')
+
+# Advanced preprocessing with custom parameters
+processed_data = preprocess_data(
+    ticker='AAPL',
+    start_date='2020-01-01',
+    include_indicators=True,
+    outlier_treatment='cap',
+    missing_data_method='interpolate'
+)
+
+# Bulk preprocessing
+all_data = {}
+for ticker in ['AAPL', 'GOOGL', 'MSFT']:
+    all_data[ticker] = fetch_stock_data(ticker)
+```
+
+Integration Points:
+------------------
+- Called by automation_scripts/pipeline.py for analysis workflow
+- Feeds into Models/prophet_model.py for forecasting
+- Provides data for analysis_scripts/ modules
+- Supports real-time data updates and validation
+
+Quality Metrics:
+---------------
+- **Data Completeness**: Percentage of expected data points
+- **Processing Success Rate**: Successful preprocessing percentage
+- **Error Rates**: Frequency of data quality issues
+- **Performance Metrics**: Processing time and memory usage
+
+Configuration:
+-------------
+Tunable parameters for different use cases:
+- **Outlier Thresholds**: Statistical significance levels
+- **Missing Data Tolerance**: Maximum allowable gaps
+- **Feature Selection**: Configurable indicator inclusion
+- **Processing Options**: Speed vs accuracy trade-offs
+
+Author: TickZen Development Team
+Version: 2.4
+Last Updated: January 2026
+"""
+
 import yfinance as yf
 import pandas as pd
 # Assuming add_technical_indicators is in the specified path relative to this script

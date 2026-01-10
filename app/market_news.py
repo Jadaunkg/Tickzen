@@ -1,4 +1,186 @@
-# market_news.py - Handles market news functionality with intelligent caching
+#!/usr/bin/env python3
+"""
+Market News Intelligence System
+==============================
+
+Advanced market news aggregation and analysis system providing real-time
+financial news, intelligent caching, sentiment analysis, and personalized
+news delivery for enhanced market awareness and decision-making.
+
+Core News Features:
+------------------
+1. **Multi-Source Aggregation**:
+   - Financial news APIs (Alpha Vantage, Finnhub, etc.)
+   - RSS feed monitoring from major financial publications
+   - Press release and SEC filing alerts
+   - Earnings announcement and guidance updates
+   - Economic indicator releases and analysis
+
+2. **Real-Time Processing**:
+   - Live news feed monitoring and updates
+   - Breaking news alert system
+   - Market-moving event detection
+   - Automated news categorization
+   - Priority scoring and ranking
+
+3. **Intelligent Caching**:
+   - Multi-level caching strategy for performance
+   - Content deduplication and merge logic
+   - Cache invalidation based on news freshness
+   - Bandwidth optimization for API calls
+   - Smart prefetching for popular content
+
+News Analysis Engine:
+--------------------
+- **Sentiment Analysis**: NLP-based news sentiment scoring
+- **Market Impact Assessment**: Prediction of news impact on markets
+- **Trend Detection**: Identification of emerging market themes
+- **Entity Recognition**: Company, person, and location extraction
+- **Event Classification**: Categorization of news events by type
+
+Content Organization:
+--------------------
+1. **By Category**:
+   - Market Updates and General News
+   - Earnings and Corporate News
+   - Economic Indicators and Policy
+   - Sector and Industry Analysis
+   - International Markets and Global Events
+
+2. **By Priority**:
+   - Breaking News (immediate market impact)
+   - High Priority (significant market relevance)
+   - Standard News (general market interest)
+   - Background Information (context and analysis)
+
+3. **By Timeframe**:
+   - Real-time (last 15 minutes)
+   - Recent (last 2 hours)
+   - Today's News (current trading day)
+   - Weekly Summary (past 7 days)
+
+Personalization Features:
+------------------------
+- **User Preferences**: Customizable news categories and sources
+- **Ticker Watchlists**: Personalized news for followed stocks
+- **Industry Focus**: Sector-specific news filtering
+- **Reading History**: Content recommendations based on past behavior
+- **Notification Settings**: Customizable alert preferences
+
+Advanced Analytics:
+------------------
+- **Market Correlation**: News sentiment vs price movement analysis
+- **Event Impact Tracking**: Historical analysis of news impact
+- **Trending Topics**: Real-time identification of trending themes
+- **Source Reliability**: Track record of news source accuracy
+- **Timing Analysis**: Optimal news consumption timing
+
+API Endpoints:
+-------------
+```python
+News API Routes:
+├── /api/news/latest - Latest market news
+├── /api/news/breaking - Breaking news alerts
+├── /api/news/ticker/<symbol> - Company-specific news
+├── /api/news/sector/<sector> - Sector-specific news
+├── /api/news/search - News search functionality
+└── /api/news/sentiment - News sentiment analysis
+```
+
+Caching Strategy:
+----------------
+- **L1 Cache**: In-memory cache for frequently accessed content (5 min TTL)
+- **L2 Cache**: Redis cache for shared content across users (30 min TTL)
+- **L3 Cache**: Disk-based cache for historical news (24 hour TTL)
+- **Smart Invalidation**: Content-aware cache expiration
+- **Preemptive Updates**: Background cache warming for popular content
+
+News Sources Integration:
+------------------------
+1. **Primary APIs**:
+   - Alpha Vantage News & Sentiment API
+   - Finnhub News API
+   - NewsAPI for general financial news
+   - Yahoo Finance news feeds
+
+2. **RSS Feeds**:
+   - Bloomberg, Reuters, MarketWatch
+   - CNBC, CNN Business, Fox Business
+   - Wall Street Journal, Financial Times
+   - Seeking Alpha, The Motley Fool
+
+3. **Specialized Sources**:
+   - SEC EDGAR filings
+   - Federal Reserve communications
+   - Economic calendar events
+   - Earnings call transcripts
+
+Data Processing Pipeline:
+------------------------
+1. **News Collection**: Aggregate from multiple sources
+2. **Content Normalization**: Standardize format and structure
+3. **Deduplication**: Remove duplicate and similar content
+4. **Enhancement**: Add sentiment, categories, and metadata
+5. **Ranking**: Score and prioritize based on relevance
+6. **Caching**: Store processed content for fast retrieval
+7. **Delivery**: Serve personalized content to users
+
+Usage Examples:
+--------------
+```python
+# Get latest market news
+latest_news = get_latest_market_news(limit=20)
+
+# Get ticker-specific news
+aapl_news = get_ticker_news('AAPL', hours=24)
+
+# Search news with filters
+search_results = search_news(
+    query='federal reserve',
+    category='economic',
+    sentiment='neutral',
+    hours=48
+)
+
+# Get breaking news alerts
+breaking_news = get_breaking_news(priority='high')
+```
+
+Real-Time Features:
+------------------
+- **WebSocket Updates**: Real-time news delivery via SocketIO
+- **Push Notifications**: Browser and mobile push notifications
+- **Email Digests**: Personalized news summaries
+- **SMS Alerts**: Critical breaking news via SMS
+- **Slack Integration**: Team news sharing capabilities
+
+Performance Optimization:
+------------------------
+- **Async Processing**: Non-blocking news collection and processing
+- **Rate Limiting**: API quota management and optimization
+- **Content Compression**: Efficient data transfer and storage
+- **CDN Integration**: Global content delivery optimization
+- **Database Indexing**: Optimized queries for fast news retrieval
+
+Integration Points:
+------------------
+- Integrated with main_portal_app.py for dashboard news display
+- Provides market context for analysis_scripts/ modules
+- Supports sentiment_analysis.py with news sentiment data
+- Connects to notification system for breaking news alerts
+
+Monitoring and Analytics:
+------------------------
+- **Usage Metrics**: Track news consumption patterns
+- **Performance Monitoring**: API response times and success rates
+- **Content Analytics**: Most popular and engaging news content
+- **User Engagement**: Reading time and interaction metrics
+- **Source Performance**: Track reliability and speed of news sources
+
+Author: TickZen Development Team
+Version: 3.0
+Last Updated: January 2026
+"""
 
 import os
 import re

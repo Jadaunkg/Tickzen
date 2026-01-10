@@ -1380,7 +1380,7 @@
                          data-category="{{ article.category }}"
                          data-importance="{{ article.importance_tier|default('Medium') }}"
                          data-score="{{ article.importance_score|default(50) }}"
-                         data-published="{{ article.published_date }}"
+                         data-published="{{ article.display_date_iso|default(article.published_date) }}"
                          data-title="{{ article.title }}"
                          data-url="{{ article.link or article.url or '' }}">
                         
@@ -1418,7 +1418,7 @@
                     <div class="article-meta">
                         <span class="article-meta-item">
                             <i class="fas fa-clock"></i>
-                            {{ article.published_date|default('Unknown Date') }}
+                            {{ article.display_date_ist|default(article.published_date|default('Unknown Date')) }}
                         </span>
                         <span class="article-meta-item">
                             <i class="fas fa-user"></i>
@@ -2770,7 +2770,7 @@
             card.dataset.category = article.category || 'uncategorized';
             card.dataset.importance = article.importance_tier || 'Medium';
             card.dataset.score = article.importance_score || 50;
-            card.dataset.published = article.published_date || '';
+            card.dataset.published = article.display_date_iso || article.published_date || '';
             card.dataset.title = article.title;
             card.dataset.url = article.link || article.url || '';
             
@@ -2841,7 +2841,7 @@
                     <div class="article-meta">
                         <span class="article-meta-item">
                             <i class="fas fa-clock"></i>
-                            ${article.published_date || 'Unknown Date'}
+                            ${article.display_date_ist || article.published_date || 'Unknown Date'}
                         </span>
                         <span class="article-meta-item">
                             <i class="fas fa-user"></i>
@@ -2860,7 +2860,12 @@
                             <i class="fas fa-chart-line"></i> ${(article.importance_score || 50).toFixed(1)}
                         </span>
                         <span class="badge badge-source">
-                            <i class="fas fa-clock"></i> ${(article.time_bracket || 'recent').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                            <i class="fas fa-clock"></i> ${(() => {
+                                const tb = article.time_bracket;
+                                const map = {0: 'ultra fresh', 1: 'very fresh', 2: 'fresh', 3: 'recent'};
+                                const text = (typeof tb === 'number' ? map[tb] : (tb || 'recent'));
+                                return String(text).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                            })()}
                         </span>
                     </div>
                 </div>
@@ -2882,7 +2887,12 @@
                             </div>
                             <div class="metadata-item">
                                 <span class="metadata-label">Time Bracket</span>
-                                <span class="metadata-value">${(article.time_bracket || 'recent').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+                                <span class="metadata-value">${(() => {
+                                    const tb = article.time_bracket;
+                                    const map = {0: 'ultra fresh', 1: 'very fresh', 2: 'fresh', 3: 'recent'};
+                                    const text = (typeof tb === 'number' ? map[tb] : (tb || 'recent'));
+                                    return String(text).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                                })()}</span>
                             </div>
                             <div class="metadata-item">
                                 <span class="metadata-label">Collected Date</span>

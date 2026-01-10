@@ -1,3 +1,45 @@
+#!/usr/bin/env python3
+"""
+Analytics Utilities Module
+=========================
+
+Common analytics utilities and data processing functions used across
+the TickZen platform. Provides standardized data transformation,
+calculation helpers, and Firebase integration for analytics operations.
+
+Core Utilities:
+--------------
+1. **Data Transformation**: Standardized data formatting and cleaning
+2. **Statistical Calculations**: Common financial metrics and ratios
+3. **Chart Data Preparation**: Data formatting for frontend visualizations
+4. **Firebase Integration**: Analytics data persistence and retrieval
+5. **Performance Metrics**: Portfolio and individual stock calculations
+
+Key Functions:
+-------------
+- Data validation and cleaning utilities
+- Financial ratio calculations
+- Time-series analysis helpers
+- Chart data formatting functions
+- Firebase analytics integration
+- Caching and performance optimization
+
+Usage Pattern:
+-------------
+Utility module imported by analysis scripts and main application
+for consistent data processing and calculations across the platform.
+
+Integration:
+-----------
+- Used by analysis_scripts/ modules for data processing
+- Integrated with Firebase for analytics persistence
+- Supports dashboard and reporting functionality
+
+Author: TickZen Development Team
+Version: 1.8
+Last Updated: January 2026
+"""
+
 import os
 import sys
 from datetime import datetime

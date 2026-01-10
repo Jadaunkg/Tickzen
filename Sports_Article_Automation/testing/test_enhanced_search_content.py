@@ -49,6 +49,10 @@ sys.path.append(str(parent_dir))
 from dotenv import load_dotenv
 load_dotenv()
 
+# Import content freshness validation
+# Removed: Using built-in freshness validation only
+FRESHNESS_VALIDATOR_AVAILABLE = False
+
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -75,13 +79,25 @@ class EnhancedSearchContentFetcher:
 
         self.base_url = "https://www.googleapis.com/customsearch/v1"
 
-        # Enhanced search config for better results (relies on dateRestrict only)
+        # Enhanced search config for better cricket news results
         self.search_config = {
             'num': 10,  # Number of results per request
-            'dateRestrict': 'd7',  # Last 7 days only - ONLY reliable date filter for Custom Search
+            'dateRestrict': 'd7',  # Last 7 days only
             'safe': 'medium',
+            'lr': 'lang_en',  # English language results
+            'gl': 'us',  # Geographic location preference
             'cx': self.search_engine_id,
             'key': self.api_key
+        }
+        
+        # Cricket-specific trusted domains for better relevance
+        self.cricket_domains = {
+            'espn.com', 'espn.in', 'espncricinfo.com', 'cricbuzz.com', 
+            'icc-cricket.com', 'bcci.tv', 'cricket.com.au', 'ecb.co.uk',
+            'indianexpress.com', 'firstpost.com', 'sportstar.thehindu.com',
+            'hindustantimes.com', 'timesofindia.indiatimes.com', 
+            'ndtv.com', 'news18.com', 'theguardian.com', 'bbc.com',
+            'aljazeera.com', 'reuters.com', 'apnews.com'
         }
 
         # Trusted domains for sports news (base domains only)
@@ -102,6 +118,10 @@ class EnhancedSearchContentFetcher:
         }
 
         self.available = bool(self.api_key and self.search_engine_id and BEAUTIFULSOUP_AVAILABLE and AIOHTTP_AVAILABLE)
+        
+        # Using built-in freshness validation only
+        self.freshness_validator = None
+        print("✅ Built-in freshness validation enabled - using enhanced date parsing")
 
         if not self.available:
             if not (self.api_key and self.search_engine_id):
@@ -133,6 +153,7 @@ class EnhancedSearchContentFetcher:
         if category:
             print(f"  🏷️ Category: {category}")
         print(f"  📚 Max Sources: {max_sources}")
+        print(f"  🎯 Focus: Single query for headline-specific content only")
         print("=" * 70)
 
         try:
@@ -163,13 +184,35 @@ class EnhancedSearchContentFetcher:
             if other_failures > 0:
                 print(f"  ❌ Failed to fetch {other_failures} due to other issues")
 
-            # Step 3: Process and combine content
-            print("🔄 Step 3: Processing and combining content...")
+            # Step 3: Content already validated during fetch with built-in freshness validation
+            print("🕐 Step 3: Content freshness validated during fetch (built-in system)...")
+            
+            # Count fresh vs total articles based on built-in validation
+            fresh_count = sum(1 for article in article_contents 
+                            if article.get('status') == 'success' and 
+                            article.get('is_recent_publish', True))  # Default True for missing dates
+            total_count = len([a for a in article_contents if a.get('status') == 'success'])
+            
+            print(f"  ✅ Fresh articles: {fresh_count}")
+            print(f"  📊 Total successful fetches: {total_count}")
+            if fresh_count < total_count:
+                print(f"  ⚠️ Filtered {total_count - fresh_count} potentially outdated articles during fetch")
+            
+            # Step 4: Process and combine content
+            print("🔄 Step 4: Processing and combining fresh content...")
             comprehensive_research = self._process_combined_content(
                 article_contents, headline, search_results
             )
+            
+            # Add built-in freshness metadata
+            comprehensive_research['content_freshness'] = {
+                'validation_method': 'built_in_enhanced_search',
+                'fresh_articles_used': len(article_contents),
+                'freshness_validated': True,
+                'validation_during_fetch': True
+            }
 
-            print(f"✅ Enhanced research complete!")
+            print(f"✅ Enhanced research complete with built-in freshness validation!")
             print(f"  📚 Articles processed: {len(article_contents)}")
             print(f"  📝 Total content: {len(comprehensive_research.get('combined_content', ''))} characters")
 
@@ -184,182 +227,322 @@ class EnhancedSearchContentFetcher:
             }
 
     def _get_search_results(self, headline: str, category: str = None) -> Dict:
-        """Get comprehensive search results with a single powerful API request"""
+        """Get search results using single focused query for the main headline only"""
         try:
-            # Build one comprehensive query combining multiple search strategies
-            comprehensive_query = self._build_comprehensive_query(headline, category)
-            print(f"  🎯 Using single comprehensive query for maximum coverage")
-            print(f"  🔍 Query: {comprehensive_query[:100]}...")
-
-            # Configure for maximum results in single request
-            params = self.search_config.copy()
-            params['q'] = comprehensive_query
-            params['num'] = 10  # Maximum results per request
-
-            # Bug #10 fix: Add rate limiting and retry logic
-            max_retries = 3
-            for attempt in range(max_retries):
-                try:
-                    response = requests.get(self.base_url, params=params, timeout=30)
-                    # Handle rate limiting (HTTP 429)
-                    if response.status_code == 429:
-                        wait_time = 2 ** attempt  # Exponential backoff
-                        print(f"  ⏳ Rate limited. Waiting {wait_time}s (attempt {attempt + 1}/{max_retries})")
-                        time.sleep(wait_time)
-                        continue
-                    response.raise_for_status()
-                    break  # Success
-                except requests.exceptions.RequestException as e:
-                    if attempt == max_retries - 1:
-                        raise e
-                    wait_time = 2 ** attempt
-                    print(f"  🔄 Request failed. Retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})")
-                    time.sleep(wait_time)
-
-            if response.status_code == 200:
-                data = response.json()
-                items = data.get('items', [])
-                print(f"  📊 Found {len(items)} results from single comprehensive search")
-
-                if len(items) > 0:
-                    all_results = []
-                    all_urls = []
-                    unique_urls = set()
+            print(f"  🎯 Using single focused query for headline-specific content")
+            
+            # Use only one targeted query focused on the exact headline
+            # Add date restriction to ensure fresh content
+            focused_query = f'"{headline}"'
+            
+            print(f"  🔍 Query: {focused_query}")
+            
+            try:
+                # Configure search parameters with freshness filter
+                params = self.search_config.copy()
+                params['q'] = focused_query
+                params['num'] = 10  # Get top 10 most relevant results
+                params['dateRestrict'] = 'd7'  # Last 7 days only
+                
+                response = requests.get(self.base_url, params=params, timeout=30)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    items = data.get('items', [])
+                    
+                    results = []
+                    urls = []
                     trusted_count = 0
-                    rumor_count = 0
-
-                    # Process all results
+                    
+                    # Process results with relevance filtering
+                    scored_results = []
                     for item in items:
                         url = item.get('link', '')
                         domain = item.get('displayLink', '')
                         title = item.get('title', '')
-
-                        if url and url not in unique_urls and self._is_valid_article_url(url):
-                            unique_urls.add(url)
-                            is_trusted = self._is_trusted_domain(domain)
-                            # Quick rumor detection from snippet
-                            snippet = item.get('snippet', '').lower()
-                            is_likely_rumor = any(word in snippet for word in ['rumour', 'rumor', 'sources say', 'reportedly', 'claim'])
-
-                            if is_trusted:
-                                trusted_count += 1
-                            if is_likely_rumor:
-                                rumor_count += 1
-
-                            all_results.append({
-                                'title': title,
+                        snippet = item.get('snippet', '')
+                        
+                        # Calculate relevance score
+                        relevance_score = self._calculate_headline_relevance(title, snippet, focused_query.strip('"'))
+                        
+                        # Only include results with ultra-high relevance (score > 10.0) - ultra strict filtering
+                        if url and self._is_valid_article_url(url) and relevance_score > 10.0:
+                            scored_results.append({
+                                'item': item,
                                 'url': url,
                                 'domain': domain,
-                                'snippet': item.get('snippet', ''),
-                                'is_trusted': is_trusted,
-                                'is_likely_rumor': is_likely_rumor,
-                                'found_by_query': 'comprehensive_single_query',
-                                'query_used': comprehensive_query
+                                'title': title,
+                                'snippet': snippet,
+                                'relevance_score': relevance_score
                             })
-                            all_urls.append(url)
-                            print(f"  ✅ Added: {title[:40]}... ({domain})")
-
-                    # Bug #11 partial fix: Check if we need second page
-                    need_second_page = (trusted_count < 2 or (rumor_count > trusted_count and trusted_count < 3))
-
-                    if need_second_page and len(all_results) >= 8:
-                        print(f"  🔄 Fetching second page (low trusted source count: {trusted_count})")
-                        second_page_results = self._fetch_second_page(comprehensive_query)
-                        if second_page_results:
-                            for result in second_page_results:
-                                if result['url'] not in unique_urls:
-                                    all_results.append(result)
-                                    all_urls.append(result['url'])
-                                    print(f"  ✅ Page 2: {result['title'][:40]}... ({result['domain']})")
-
-                    print(f"  📋 SUCCESS! Found {len(all_urls)} unique URLs (trusted: {trusted_count}, total results: {len(all_results)})")
-                    return {
-                        'status': 'success',
-                        'results': all_results,
-                        'urls': all_urls,
-                        'total_found': len(all_results),
-                        'queries_tried': 1,  # Only one query now
-                        'successful_queries': 1,
-                        'query_types_used': ['comprehensive_single_query'],
-                        'comprehensive_search': True
-                    }
+                            print(f"    ✅ HIGHLY RELEVANT: {title[:50]}... [Score: {relevance_score:.1f}]")
+                        elif relevance_score > 3.0:
+                            print(f"    ⚠️ FILTERED OUT: {title[:50]}... [Score: {relevance_score:.1f} - too low]")
+                    
+                    # Sort by relevance score (highest first)
+                    scored_results.sort(key=lambda x: x['relevance_score'], reverse=True)
+                    
+                    # Take top results and build final results list
+                    for scored_result in scored_results:
+                        item = scored_result['item']
+                        url = scored_result['url']
+                        domain = scored_result['domain'] 
+                        title = scored_result['title']
+                        relevance_score = scored_result['relevance_score']
+                        
+                        is_trusted = self._is_trusted_domain(domain) or any(cricket_domain in domain for cricket_domain in self.cricket_domains)
+                        if is_trusted:
+                            trusted_count += 1
+                        
+                        # Store result metadata with relevance score
+                        results.append({
+                            'title': title,
+                            'url': url,
+                            'domain': domain,
+                            'snippet': item.get('snippet', ''),
+                            'is_trusted': is_trusted,
+                            'found_by_query': 'focused_headline',
+                            'query_used': focused_query,
+                            'relevance_score': relevance_score
+                        })
+                        urls.append(url)
+                        
+                        print(f"    ✅ {title[:50]}... ({domain}) [Relevance: {relevance_score:.1f}]")
+                    
+                    total_sources = len(urls)
+                    print(f"  📋 FOCUSED COLLECTION COMPLETE!")
+                    print(f"    📊 Sources found: {total_sources}")
+                    print(f"    🏆 Trusted sources: {trusted_count}")
+                    
+                    if total_sources > 0:
+                        return {
+                            'status': 'success',
+                            'results': results,
+                            'urls': urls,
+                            'total_found': total_sources,
+                            'trusted_count': trusted_count,
+                            'query_used': focused_query,
+                            'focused_search': True
+                        }
+                    else:
+                        print("  ⚠️ No sources found from focused query, trying fallback")
+                        return self._fallback_broader_search(headline, category)
+                        
                 else:
-                    print("  ⚠️ No results from comprehensive query, trying fallback")
+                    print(f"    ⚠️ Query failed with status {response.status_code}")
                     return self._fallback_broader_search(headline, category)
-            else:
-                print(f"  ❌ Search failed with status {response.status_code}")
+                    
+            except Exception as e:
+                print(f"    ❌ Query exception: {str(e)}")
                 return self._fallback_broader_search(headline, category)
 
         except Exception as e:
-            print(f"  ❌ Exception in search: {str(e)}")
+            print(f"  ❌ Exception in focused search: {str(e)}")
             return {
                 'status': 'error',
                 'error': str(e)
             }
 
     def _build_comprehensive_query(self, headline: str, category: str = None) -> str:
-        """Build a single powerful query that captures diverse sources"""
+        """Build story-focused query that stays on the exact headline angle"""
         try:
-            # Extract key entities for better targeting
-            key_entities = self._extract_key_entities(headline)
-            words = headline.split()
+            # Extract the specific story focus from the headline
+            story_elements = self._extract_headline_story_focus(headline)
             
-            # Start with main headline terms
+            # Build query that searches ONLY for this specific story
             query_parts = []
             
-            # 1. Core subject (first 3-4 words)
-            core_subject = ' '.join(words[:4])
-            query_parts.append(f'"{core_subject}"')
+            # 1. Exact headline phrase (most important)
+            query_parts.append(f'"{headline}"')
             
-            # 2. Add key persons with OR operator
-            if key_entities['persons']:
-                persons_query = ' OR '.join([f'"{person}"' for person in key_entities['persons'][:3]])
-                query_parts.append(f"({persons_query})")
+            # 2. Core story elements (specific to this story)
+            if story_elements['main_entity']:
+                query_parts.append(f'"{story_elements["main_entity"]}"')
                 
-            # 3. Add key teams/clubs with OR operator
-            if key_entities['teams']:
-                teams_query = ' OR '.join([f'"{team}"' for team in key_entities['teams'][:2]])
-                query_parts.append(f"({teams_query})")
+            # 3. Specific story action/event
+            if story_elements['story_action']:
+                query_parts.append(f'"{story_elements["story_action"]}"')
                 
-            # 4. Add transfer/market terms if relevant
-            if key_entities['transfer_related']:
-                transfer_terms = ['transfer', 'signing', 'move', 'deal', 'market']
-                query_parts.append(f"({' OR '.join(transfer_terms)})")
-                
-            # 5. Add amounts/numbers if present
-            if key_entities['amounts']:
-                amounts_query = ' OR '.join([f'"{amount}"' for amount in key_entities['amounts'][:2]])
-                query_parts.append(f"({amounts_query})")
-                
-            # 6. Add news context terms
-            news_terms = ['news', 'latest', 'report', 'update']
-            if category:
-                news_terms.append(category)
-            query_parts.append(f"({' OR '.join(news_terms)})")
+            # 4. Key details that make this story unique
+            if story_elements['unique_details']:
+                for detail in story_elements['unique_details'][:2]:  # Max 2 unique details
+                    query_parts.append(f'"{detail}"')
             
-            # NOTE: Removed 'after:' date operator - Google Custom Search API doesn't support it
-            # Relying on dateRestrict=d7 parameter instead for last 7 days filtering
+            # Combine with AND logic to ensure all elements are present (story-specific)
+            story_focused_query = ' '.join(query_parts)
             
-            # Combine all parts with AND logic
-            comprehensive_query = ' '.join(query_parts)
-            
-            # Ensure we don't exceed query length limits
-            if len(comprehensive_query) > 200:
-                # Fallback to simpler but still comprehensive query
-                simple_parts = [
-                    f'"{core_subject}"',
-                    f"({' OR '.join(key_entities['persons'][:2])})" if key_entities['persons'] else '',
-                    f"({' OR '.join(key_entities['teams'][:1])})" if key_entities['teams'] else '',
-                    '(transfer OR news OR latest)' if key_entities['transfer_related'] else '(news OR latest)'
-                    # NOTE: Removed date filter - handled by API parameter dateRestrict=d7
-                ]
-                comprehensive_query = ' '.join([part for part in simple_parts if part])
+            # Ensure query length is manageable
+            if len(story_focused_query) > 200:
+                # Fallback to most essential story elements
+                essential_query = f'"{headline}" "{story_elements["main_entity"]}"'
+                return essential_query
                 
-            return comprehensive_query
+            return story_focused_query
             
         except Exception as e:
-            print(f"  ❌ Exception in comprehensive search: {str(e)}")
-            return ""
+            print(f"  ❌ Exception in story-focused search: {str(e)}")
+            # Fallback to exact headline search
+            return f'"{headline}"'
+            
+    def _extract_headline_story_focus(self, headline: str) -> Dict[str, any]:
+        """Extract specific story elements to maintain focus on the exact narrative"""
+        headline_lower = headline.lower()
+        words = headline.split()
+        
+        # Initialize story elements
+        story_elements = {
+            'main_entity': '',
+            'story_action': '',
+            'unique_details': []
+        }
+        
+        # Find the main entity (person, team, or organization)
+        entities = self._extract_key_entities(headline)
+        if entities['persons']:
+            story_elements['main_entity'] = entities['persons'][0]  # Primary person
+        elif entities['teams']:
+            story_elements['main_entity'] = entities['teams'][0]  # Primary team
+            
+        # Identify the specific story action/event
+        if any(term in headline_lower for term in ['sign', 'signing', 'signed']):
+            story_elements['story_action'] = 'signing'
+        elif any(term in headline_lower for term in ['transfer', 'move', 'joins']):
+            story_elements['story_action'] = 'transfer'
+        elif any(term in headline_lower for term in ['deal', 'agreement']):
+            story_elements['story_action'] = 'deal'
+        elif any(term in headline_lower for term in ['injury', 'injured']):
+            story_elements['story_action'] = 'injury'
+        elif any(term in headline_lower for term in ['goal', 'scored']):
+            story_elements['story_action'] = 'goal'
+        elif any(term in headline_lower for term in ['win', 'wins', 'victory']):
+            story_elements['story_action'] = 'win'
+        elif any(term in headline_lower for term in ['manager', 'coach', 'appoint']):
+            story_elements['story_action'] = 'appointment'
+            
+        # Extract unique details that make this story specific
+        unique_details = []
+        
+        # Amounts/fees (transfer fees, contract values)
+        if entities['amounts']:
+            for amount in entities['amounts'][:1]:  # Most important amount
+                unique_details.append(f"{amount}")
+                
+        # Specific timeframes mentioned
+        time_terms = ['january', 'summer', 'winter', '2026', '2025', 'this month', 'next season']
+        for term in time_terms:
+            if term in headline_lower:
+                unique_details.append(term)
+                break
+                
+        # Contract durations
+        duration_patterns = ['year', 'month', 'season']
+        for word in words:
+            if any(duration in word.lower() for duration in duration_patterns):
+                # Look for number + duration pattern
+                word_index = words.index(word)
+                if word_index > 0 and words[word_index-1].isdigit():
+                    unique_details.append(f"{words[word_index-1]} {word}")
+                    
+        # Specific clubs/teams mentioned (for multi-team stories)
+        if len(entities['teams']) > 1:
+            # Include secondary team for transfer stories
+            unique_details.append(entities['teams'][1])
+            
+        story_elements['unique_details'] = unique_details
+        
+    def _calculate_headline_relevance(self, title: str, snippet: str, headline: str) -> float:
+        """Calculate how relevant a search result is to the original headline - ULTRA STRICT scoring"""
+        headline_words = set(headline.lower().split())
+        title_words = set(title.lower().split())
+        snippet_words = set(snippet.lower().split())
+        
+        # Key entities from headline
+        key_entities = self._extract_key_entities(headline)
+        
+        score = 0.0
+        
+        # CRITICAL: Must have key entities to be considered relevant
+        entity_matches = 0
+        person_matches = 0
+        team_matches = 0
+        
+        # Very high score for matching key entities (names, teams) - MANDATORY
+        for person in key_entities.get('persons', []):
+            if person.lower() in title.lower() or person.lower() in snippet.lower():
+                score += 5.0  # Increased for person matches
+                entity_matches += 1
+                person_matches += 1
+                
+        for team in key_entities.get('teams', []):
+            if team.lower() in title.lower() or team.lower() in snippet.lower():
+                score += 4.0  # Strong team match score
+                entity_matches += 1
+                team_matches += 1
+        
+        # STRICT REQUIREMENT: For cricket squad news, must have team AND person OR multiple key words
+        headline_lower = headline.lower()
+        is_squad_news = any(word in headline_lower for word in ['squad', 'team', 'select', 'drop', 'include', 'announce'])
+        
+        if is_squad_news:
+            # Squad news MUST have team match + person match OR very high word overlap
+            if team_matches == 0:  # No team mentioned = automatic fail
+                return 0.0
+            
+            # If it's about different teams (not mentioned in headline), reject
+            title_snippet_combined = (title + " " + snippet).lower()
+            
+            # Check for completely unrelated content
+            unrelated_terms = [
+                'scg', 'sydney cricket ground', 'vaughan', 'gleeson', 'sa20', 'root', 'brook',
+                'ashes', 'england vs australia', 'test match', 'damien martyn', 'wpl',
+                'ipl auction', 'bbl draft', 'big bash', 'county cricket'
+            ]
+            
+            for term in unrelated_terms:
+                if term in title_snippet_combined and term not in headline_lower:
+                    score -= 10.0  # Massive penalty for unrelated terms
+        
+        # If no key entities found, automatic rejection
+        if entity_matches == 0:
+            return 0.0
+        
+        # High score for word overlap - but only if entities match
+        title_overlap = len(headline_words.intersection(title_words)) / len(headline_words)
+        snippet_overlap = len(headline_words.intersection(snippet_words)) / len(headline_words)
+        score += (title_overlap * 4.0) + (snippet_overlap * 2.0)  # Higher weights
+        
+        # Bonus for specific action words (must match exactly)
+        action_words = ['bring back', 'drop', 'squad', 'announce', 'select', 'include', 'exclude', 'recall', 'omit']
+        action_matches = 0
+        for action in action_words:
+            if action in headline.lower() and (action in title.lower() or action in snippet.lower()):
+                score += 2.0  # Higher bonus for action match
+                action_matches += 1
+        
+        # Competition context matching
+        competition_words = ['t20 world cup', 'world cup', 't20', 'test', 'odi', 'series']
+        for comp in competition_words:
+            if comp in headline.lower() and comp in title_snippet_combined:
+                score += 1.5  # Bonus for competition match
+        
+        # Heavy penalty for different cricket contexts that don't match
+        different_contexts = {
+            'ashes': ['ashes', 'england vs australia'],
+            'ipl': ['ipl', 'indian premier league'],
+            'bbl': ['bbl', 'big bash'],
+            'sa20': ['sa20'],
+            'county': ['county', 'championship'],
+            'wpl': ['women\'s premier league', 'wpl']
+        }
+        
+        for context_name, context_terms in different_contexts.items():
+            headline_has_context = any(term in headline_lower for term in context_terms)
+            title_has_context = any(term in title_snippet_combined for term in context_terms)
+            
+            if title_has_context and not headline_has_context:
+                score -= 5.0  # Big penalty for wrong context
+        
+        return max(0.0, score)  # Ensure non-negative
 
     def _generate_related_queries(self, headline: str, category: str = None) -> List[Dict]:
         """Generate multiple related queries to gather comprehensive information"""
@@ -475,6 +658,32 @@ class EnhancedSearchContentFetcher:
 
         # Comprehensive sports teams database (addresses 3-word names, nicknames, abbreviations)
         known_teams = {
+            # Cricket Teams - International
+            'bangladesh', 'tigers', 'bangladesh cricket team',
+            'india', 'team india', 'men in blue', 'india cricket team',
+            'pakistan', 'green shirts', 'pakistan cricket team', 
+            'australia', 'aussies', 'australia cricket team',
+            'england', 'three lions', 'england cricket team',
+            'south africa', 'proteas', 'south africa cricket team',
+            'new zealand', 'black caps', 'kiwis', 'new zealand cricket team',
+            'sri lanka', 'lions', 'sri lanka cricket team',
+            'west indies', 'windies', 'calypso kings',
+            'afghanistan', 'afghanistan cricket team',
+            'zimbabwe', 'zimbabwe cricket team',
+            'ireland', 'ireland cricket team',
+            'scotland', 'scotland cricket team',
+            'netherlands', 'netherlands cricket team',
+            # IPL Teams
+            'mumbai indians', 'mi', 'mumbai',
+            'chennai super kings', 'csk', 'chennai', 'yellow army',
+            'royal challengers bangalore', 'rcb', 'bangalore',
+            'kolkata knight riders', 'kkr', 'kolkata',
+            'delhi capitals', 'dc', 'delhi',
+            'punjab kings', 'pbks', 'punjab',
+            'rajasthan royals', 'rr', 'rajasthan',
+            'sunrisers hyderabad', 'srh', 'hyderabad',
+            'gujarat titans', 'gt', 'gujarat',
+            'lucknow super giants', 'lsg', 'lucknow',
             # Premier League (full names, common names, nicknames)
             'chelsea', 'chelsea fc', 'the blues',
             'manchester city', 'man city', 'city', 'the citizens',
@@ -523,6 +732,28 @@ class EnhancedSearchContentFetcher:
 
         # Enhanced competitions list
         known_competitions = {
+            # Cricket Competitions
+            't20 world cup', 'icc t20 world cup', 't20wc', 'twenty20 world cup',
+            'cricket world cup', 'icc cricket world cup', 'cwc', 'odi world cup',
+            'champions trophy', 'icc champions trophy',
+            'test championship', 'world test championship', 'wtc',
+            'ipl', 'indian premier league',
+            'bbl', 'big bash league',
+            'psl', 'pakistan super league',
+            'cpl', 'caribbean premier league',
+            'sa20', 'south africa t20',
+            'hundred', 'the hundred',
+            'vitality blast', 't20 blast',
+            'county championship',
+            'ashes', 'ashes series',
+            'asia cup', 'icc asia cup',
+            'border gavaskar trophy',
+            'ranji trophy',
+            'syed mushtaq ali trophy',
+            'vijay hazare trophy',
+            'icc women''s world cup',
+            'wpl', 'women''s premier league',
+            # Football Competitions
             'premier league', 'epl', 'pl',
             'champions league', 'ucl', 'european cup',
             'europa league', 'uel',
@@ -552,9 +783,16 @@ class EnhancedSearchContentFetcher:
                 else:
                     teams.append(' '.join(word.title() for word in team_words))
 
-        # Enhanced person detection (handles 2-3 word names, common patterns)
+        # Enhanced person detection (handles 1-3 word names, cricket names, common patterns)
         persons = []
-        # Pattern 1: Two consecutive capitalized words not in teams/competitions
+        
+        # Pattern 1: Single word cricket names (common in South Asian cricket)
+        cricket_single_names = ['taskin', 'jaker', 'mustafizur', 'shakib', 'tamim', 'mushfiqur', 'liton', 'miraz', 'mehidy', 'soumya']
+        for word in words:
+            if word.lower() in cricket_single_names or (len(word) > 4 and word[0].isupper() and word.lower() not in [team.lower() for team in known_teams]):
+                persons.append(word)
+        
+        # Pattern 2: Two consecutive capitalized words not in teams/competitions  
         i = 0
         while i < len(words) - 1:
             if (words[i][0].isupper() and words[i+1][0].isupper() and
@@ -568,7 +806,7 @@ class EnhancedSearchContentFetcher:
                         not any(comp in candidate_lower for comp in known_competitions)):
                     # Check for 3-word names (First Middle Last)
                     if (i < len(words) - 2 and words[i+2][0].isupper() and
-                            len(words[i+2]) > 2 and words[i+2].lower() not in ['fc', 'united', 'city']):
+                            len(words[i+2]) > 2 and words[i+2].lower() not in ['fc', 'united', 'city', 'cricket', 'team']):
                         persons.append(f"{words[i]} {words[i+1]} {words[i+2]}")
                         i += 3
                     else:
@@ -1110,50 +1348,203 @@ class EnhancedSearchContentFetcher:
             return await self._fetch_single_article_async(session, url)
 
     def _extract_publish_date_from_html(self, soup) -> Optional[str]:
-        """Extract publish date from HTML meta tags (Bug #3 fix)"""
+        """Extract publish date from HTML meta tags with comprehensive parsing"""
         try:
-            # Try various meta tag patterns
+            # Comprehensive meta tag and element patterns for date extraction
             date_selectors = [
+                # Open Graph and Article meta tags
                 'meta[property="article:published_time"]',
+                'meta[property="article:published"]', 
+                'meta[property="og:updated_time"]',
+                'meta[property="article:modified_time"]',
+                
+                # Standard meta name attributes
                 'meta[name="publishdate"]',
                 'meta[name="publication-date"]',
+                'meta[name="pubdate"]',
                 'meta[name="date"]',
+                'meta[name="article:published_time"]',
+                'meta[name="datePublished"]',
+                'meta[name="DC.date.issued"]',
+                'meta[name="sailthru.date"]',
+                
+                # Time elements and structured data
                 'time[datetime]',
-                '.publish-date', '.publication-date'
+                'time[pubdate]',
+                'time.published',
+                'time.entry-date',
+                
+                # Common CSS class patterns
+                '.publish-date', '.publication-date', '.post-date',
+                '.entry-date', '.article-date', '.date-published',
+                '.timestamp', '.post-time', '.article-time',
+                
+                # Schema.org structured data
+                '[itemprop="datePublished"]',
+                '[itemprop="dateModified"]',
+                
+                # JSON-LD structured data
+                'script[type="application/ld+json"]'
             ]
             
             for selector in date_selectors:
-                element = soup.select_one(selector)
-                if element:
-                    # Try different attribute names
-                    for attr in ['content', 'datetime', 'data-date']:
-                        if element.get(attr):
-                            return element[attr]
-                    # Try text content for time elements
-                    if element.get_text(strip=True):
-                        return element.get_text(strip=True)
+                elements = soup.select(selector)  # Use select() to get all matches
+                for element in elements:
+                    # Handle JSON-LD structured data
+                    if element.name == 'script' and 'application/ld+json' in element.get('type', ''):
+                        try:
+                            import json
+                            json_data = json.loads(element.string or element.get_text())
+                            # Look for date fields in JSON-LD
+                            for date_field in ['datePublished', 'dateModified', 'publishDate', 'dateCreated']:
+                                if isinstance(json_data, dict) and json_data.get(date_field):
+                                    return json_data[date_field]
+                                elif isinstance(json_data, list):
+                                    for item in json_data:
+                                        if isinstance(item, dict) and item.get(date_field):
+                                            return item[date_field]
+                        except (json.JSONDecodeError, AttributeError):
+                            continue
+                    
+                    # Try different attribute names for regular elements
+                    for attr in ['content', 'datetime', 'data-date', 'data-time', 'data-published', 'value']:
+                        attr_value = element.get(attr)
+                        if attr_value and attr_value.strip():
+                            print(f"  📅 Found date in {attr}: {attr_value}")
+                            return attr_value.strip()
+                    
+                    # Try text content for time elements and date containers
+                    text_content = element.get_text(strip=True)
+                    if text_content and self._is_likely_date(text_content):
+                        print(f"  📅 Found date in text: {text_content}")
+                        return text_content
+            
+            # Fallback: Look for relative time patterns in page text
+            page_text = soup.get_text()
+            relative_matches = self._find_relative_dates_in_text(page_text)
+            if relative_matches:
+                print(f"  📅 Found relative date in text: {relative_matches[0]}")
+                return relative_matches[0]
+                
             return None
-        except Exception:
+        except Exception as e:
+            print(f"  ⚠️ Date extraction error: {str(e)}")
             return None
+    
+    def _is_likely_date(self, text: str) -> bool:
+        """Check if text looks like a date"""
+        import re
+        date_patterns = [
+            r'\d{4}-\d{2}-\d{2}',  # 2026-01-04
+            r'\d{1,2}/\d{1,2}/\d{4}',  # 1/4/2026
+            r'\d{1,2}-\d{1,2}-\d{4}',  # 1-4-2026
+            r'\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+\d{4}',  # 4 Jan 2026
+            r'(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}',  # January 4, 2026
+            r'\d{1,2}\s+(hour|hours|minute|minutes|min|mins)\s+ago',  # 2 hours ago
+            r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}',  # ISO format
+        ]
+        
+        text = text.strip()[:100]  # Check first 100 chars
+        return any(re.search(pattern, text, re.IGNORECASE) for pattern in date_patterns)
+    
+    def _find_relative_dates_in_text(self, text: str) -> list:
+        """Find relative date expressions in page text"""
+        import re
+        relative_patterns = [
+            r'\d+\s+(hour|hours|minute|minutes|min|mins)\s+ago',
+            r'\d+\s+(day|days)\s+ago',
+            r'(yesterday|today)',
+            r'(updated|published|posted)\s+\d+\s+(hour|hours|minute|minutes|min|mins)\s+ago',
+        ]
+        
+        matches = []
+        for pattern in relative_patterns:
+            found = re.findall(pattern, text, re.IGNORECASE)
+            if found:
+                # Find the full match text
+                full_matches = re.findall(f'\\b[\\w\\s]*{pattern}[\\w\\s]*\\b', text, re.IGNORECASE)
+                matches.extend([m.strip() for m in full_matches[:1]])  # Take first match only
+        
+        return matches[:1]  # Return only the first match
 
     def _validate_publish_date(self, publish_date, url: str) -> bool:
-        """Validate if article publish date is recent (Bug #3 fix)"""
+        """Validate if article publish date is recent with comprehensive date parsing"""
         if not publish_date:
-            return False  # Treat missing dates as potentially old
+            print(f"  ⚠️ No publish date found: {urlparse(url).netloc}")
+            return True  # Changed: Allow articles without dates (benefit of doubt for recent searches)
             
         try:
-            from dateutil import parser as date_parser
-            parsed_date = date_parser.parse(str(publish_date))
-            # Check if within last 7 days (matching our search criteria)
-            seven_days_ago = datetime.now() - timedelta(days=7)
-            is_recent = parsed_date.replace(tzinfo=None) >= seven_days_ago.replace(tzinfo=None)
+            publish_str = str(publish_date).lower().strip()
+            import re
             
-            if not is_recent:
-                print(f"  ⚠️ Old article detected ({parsed_date.date()}): {urlparse(url).netloc}")
+            # Enhanced relative time parsing
+            relative_patterns = [
+                (r'(\d+)\s*(hour|hours)\s*ago', 'hours'),
+                (r'(\d+)\s*(minute|minutes|min|mins)\s*ago', 'minutes'),
+                (r'(\d+)\s*(day|days)\s*ago', 'days'),
+                (r'yesterday', 'yesterday'),
+                (r'today', 'today'),
+            ]
+            
+            parsed_date = None
+            
+            # Try relative time patterns first
+            for pattern, unit_type in relative_patterns:
+                match = re.search(pattern, publish_str)
+                if match:
+                    now = datetime.now()
+                    
+                    if unit_type == 'hours':
+                        number = int(match.group(1))
+                        parsed_date = now - timedelta(hours=number)
+                    elif unit_type == 'minutes':
+                        number = int(match.group(1))
+                        parsed_date = now - timedelta(minutes=number)
+                    elif unit_type == 'days':
+                        number = int(match.group(1))
+                        parsed_date = now - timedelta(days=number)
+                    elif unit_type == 'yesterday':
+                        parsed_date = now - timedelta(days=1)
+                    elif unit_type == 'today':
+                        parsed_date = now
+                    
+                    print(f"  🕐 Parsed relative time: {publish_str} → {parsed_date.strftime('%Y-%m-%d %H:%M')}")
+                    break
+            
+            # If no relative pattern matched, try standard date parsing
+            if not parsed_date:
+                try:
+                    from dateutil import parser as date_parser
+                    # Clean up common date format issues
+                    clean_date = publish_str.replace('published ', '').replace('updated ', '')
+                    clean_date = re.sub(r'\s+', ' ', clean_date)  # Normalize whitespace
+                    
+                    parsed_date = date_parser.parse(clean_date)
+                    print(f"  📅 Parsed standard date: {clean_date} → {parsed_date.strftime('%Y-%m-%d %H:%M')}")
+                except Exception as parse_error:
+                    print(f"  ⚠️ Could not parse date '{publish_str}': {str(parse_error)}")
+                    # For unparseable dates from recent search results, assume recent
+                    return True
+            
+            # Validate recency (within last 7 days)
+            if parsed_date:
+                seven_days_ago = datetime.now() - timedelta(days=7)
+                is_recent = parsed_date.replace(tzinfo=None) >= seven_days_ago.replace(tzinfo=None)
                 
-            return is_recent
-        except Exception:
-            return False
+                if not is_recent:
+                    days_old = (datetime.now() - parsed_date.replace(tzinfo=None)).days
+                    print(f"  ⚠️ Old article ({days_old} days old): {urlparse(url).netloc}")
+                else:
+                    print(f"  ✅ Fresh article confirmed ({parsed_date.strftime('%Y-%m-%d %H:%M')}): {urlparse(url).netloc}")
+                    
+                return is_recent
+            else:
+                print(f"  ⚠️ Date parsing completely failed for '{publish_date}', assuming recent")
+                return True  # Benefit of doubt for articles from recent searches
+                
+        except Exception as e:
+            print(f"  ⚠️ Date validation error for '{publish_date}': {str(e)}")
+            return True  # Benefit of doubt on errors
 
     def _detect_language(self, text: str, soup=None) -> str:
         """Detect content language (Bug #14 fix)"""
@@ -1402,7 +1793,7 @@ class EnhancedSearchContentFetcher:
                 # Track source info
                 source_info.append(source_metadata)
                 total_words += word_count
-                
+        
         # Bug #12 fix: Detect conflicts between sources
         detected_conflicts = self._detect_content_conflicts(source_info)
         

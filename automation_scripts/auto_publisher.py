@@ -1,4 +1,113 @@
-# auto_publisher.py
+#!/usr/bin/env python3
+"""
+WordPress Auto-Publisher Module
+==============================
+
+This module handles automated WordPress content publishing with advanced
+state management, daily limits, and multi-user support. It integrates with
+Firebase Firestore for persistent state tracking across sessions.
+
+Core Functionality:
+------------------
+1. **Multi-Site Publishing**: Support for multiple WordPress sites per user
+2. **Daily Limits**: Configurable post limits per site (default: 20/day)
+3. **Author Rotation**: Round-robin author assignment for content variety
+4. **State Persistence**: Firestore-backed state for resume capability
+5. **Asset Management**: Image upload and optimization for WordPress
+6. **Error Handling**: Comprehensive error tracking and recovery
+
+Key Classes:
+-----------
+- AutoPublisher: Main publishing orchestrator
+- FirestoreStateManager: State persistence handler
+
+Publishing Workflow:
+-------------------
+1. Load user profiles and configuration from Firestore
+2. Validate daily publishing limits per profile
+3. Process ticker list or uploaded content
+4. Generate WordPress-optimized content
+5. Upload assets (images, charts) to WordPress media library
+6. Create and publish WordPress posts
+7. Update state tracking in Firestore
+8. Emit real-time progress via SocketIO
+
+State Management:
+----------------
+Firestore Document Structure:
+```
+userSiteProfiles/{user_uid}/profiles/{profile_id}/
+├── processedTickers/{ticker}/
+│   ├── status: 'completed' | 'failed' | 'in_progress'
+│   ├── publishedDate: ISO timestamp
+│   ├── wordpressPostId: WordPress post ID
+│   └── errorMessage: Error details (if failed)
+├── dailyPublishingStats/
+│   └── {date}/
+│       ├── postsPublished: number
+│       └── lastPublishTime: timestamp
+└── publishingConfig/
+    ├── dailyLimit: number (default: 20)
+    ├── lastAuthorIndex: number (for rotation)
+    └── enabledCategories: array
+```
+
+API Integration:
+---------------
+- WordPress REST API v2 for content publishing
+- WordPress Media API for asset uploads
+- Firebase Firestore for state management
+- SocketIO for real-time progress updates
+
+Configuration:
+-------------
+Environment Variables:
+- WP_USERNAME_{PROFILE_ID}: WordPress username
+- WP_PASSWORD_{PROFILE_ID}: WordPress app password
+- WP_SITE_URL_{PROFILE_ID}: WordPress site URL
+- ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP: Global daily limit
+
+Usage Example:
+-------------
+```python
+publisher = AutoPublisher()
+state = publisher.load_state(user_uid='user123')
+
+result = publisher.trigger_publishing_run(
+    user_uid='user123',
+    profiles_to_process_data_list=[profile_data],
+    articles_to_publish_per_profile_map={'profile1': 5},
+    socketio_instance=socketio,
+    user_room='user123'
+)
+```
+
+Error Handling:
+--------------
+- Network timeout handling for WordPress API
+- Graceful degradation for Firebase failures
+- Detailed error logging with context preservation
+- Automatic retry mechanisms for transient failures
+
+Performance Optimizations:
+-------------------------
+- Batch processing for multiple articles
+- Lazy loading of heavy dependencies
+- Connection pooling for API requests
+- Efficient state caching mechanisms
+
+Security Features:
+-----------------
+- Input sanitization for WordPress content
+- Secure credential management via environment variables
+- Rate limiting to prevent API abuse
+- User isolation in multi-tenant environment
+
+Author: TickZen Development Team
+Version: 2.5
+Last Updated: January 2026
+"""
+
 import sys
 import os
 import pandas as pd

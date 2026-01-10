@@ -8,8 +8,7 @@ import json
 import logging
 import re
 from datetime import datetime
-from typing import Dict, List, Set
-import os
+from typing import Dict, List
 from pathlib import Path
 
 class SportsNewsCategorizer:
@@ -37,120 +36,155 @@ class SportsNewsCategorizer:
             'cricket': {
                 'filename': self.data_dir / 'cricket_news_database.json',
                 'keywords': {
-                    # Cricket-specific terms
+                    # Cricket-specific core terms (highest weight)
                     'cricket', 'wicket', 'wickets', 'batting', 'bowling', 'bowler', 'batsman', 'batsmen',
-                    'innings', 'over', 'overs', 'run', 'runs', 'century', 'half-century', 'duck',
-                    'stumps', 'catch', 'caught', 'lbw', 'boundary', 'six', 'four', 'maiden',
+                    'innings', 'over', 'overs', 'century', 'half-century', 'duck',
+                    'stumps', 'lbw', 'maiden over', 'cricket boundary',
                     
-                    # Cricket formats
-                    'test', 'odi', 'twenty20', 't20', 'ipl', 'county', 'ashes', 'world cup cricket',
+                    # Cricket formats (very specific)
+                    'test cricket', 'odi cricket', 'twenty20', 't20 cricket', 'ipl', 'test match',
+                    'one day international', 'ashes cricket', 'cricket world cup', 'county cricket',
                     
-                    # Cricket positions
-                    'captain', 'keeper', 'wicket-keeper', 'all-rounder', 'spinner', 'pace',
+                    # Cricket positions (specific to cricket)
+                    'wicket-keeper', 'cricket captain', 'all-rounder', 'cricket spinner', 'pace bowler',
+                    'opening batsman', 'middle order', 'tail ender',
                     
-                    # Cricket competitions
-                    'bbl', 'psl', 'cpl', 'hundred', 'county championship', 'ranji',
+                    # Cricket competitions (unambiguous)
+                    'big bash league', 'pakistan super league', 'caribbean premier league', 
+                    'the hundred cricket', 'county championship', 'ranji trophy', 'sheffield shield',
+                    'indian premier league',
                     
-                    # Cricket teams/boards
-                    'england cricket', 'india cricket', 'australia cricket', 'pakistan cricket',
-                    'south africa cricket', 'new zealand cricket', 'sri lanka cricket', 'bangladesh cricket',
-                    'west indies cricket', 'afghanistan cricket', 'ireland cricket',
+                    # Cricket-specific terms (avoid generic)
+                    'cricket team', 'cricket match', 'cricket player', 'cricket ground',
+                    'cricket ball', 'cricket bat', 'cricket pitch', 'cricket field',
                     
-                    # Cricket venues
-                    'lords', 'oval', 'old trafford', 'headingley', 'trent bridge', 'edgbaston',
-                    'mcg', 'scg', 'waca', 'gabba', 'adelaide oval',
+                    # Cricket venues (specific)
+                    'lords cricket', 'the oval cricket', 'old trafford cricket', 'headingley cricket',
+                    'trent bridge', 'edgbaston cricket', 'melbourne cricket ground', 'sydney cricket ground',
+                    'waca ground', 'the gabba', 'adelaide oval cricket',
                     
-                    # Cricket personalities (add major current players)
-                    'kohli', 'sharma', 'dhoni', 'bumrah', 'ashwin', 'jadeja',
-                    'root', 'stokes', 'anderson', 'broad', 'bairstow',
-                    'smith', 'warner', 'cummins', 'starc', 'hazlewood',
-                    'williamson', 'boult', 'southee',
-                    'babar', 'rizwan', 'shaheen'
+                    # Cricket personalities (with context when possible)
+                    'virat kohli', 'rohit sharma', 'ms dhoni', 'jasprit bumrah', 'ravichandran ashwin', 'ravindra jadeja',
+                    'joe root', 'ben stokes', 'james anderson', 'stuart broad', 'jonny bairstow',
+                    'steve smith cricket', 'david warner cricket', 'pat cummins', 'mitchell starc', 'josh hazlewood',
+                    'kane williamson', 'trent boult', 'tim southee',
+                    'babar azam', 'mohammad rizwan', 'shaheen afridi'
                 },
                 'sources': {
-                    'espncricinfo', 'bbc cricket', 'sky sports cricket', 'cricket australia',
-                    'cricinfo', 'wisden', 'cricket world'
+                    'espncricinfo', 'cricinfo', 'wisden.com', 'cricket.com.au', 'cricbuzz.com',
+                    'bbc cricket', 'sky sports cricket', 'cricket australia', 'cricket world',
+                    'icc-cricket.com', 'cricket.com', 'the cricketer'
                 }
             },
             
             'football': {
                 'filename': self.data_dir / 'football_news_database.json', 
                 'keywords': {
-                    # Football terms
-                    'football', 'soccer', 'goal', 'goals', 'penalty', 'free kick', 'corner',
-                    'offside', 'yellow card', 'red card', 'referee', 'var', 'substitute',
-                    'transfer', 'signing', 'contract', 'loan', 'bid', 'deal',
+                    # Football terms (soccer - be specific to avoid American football)
+                    'soccer', 'football match', 'football game', 'football player', 'football team',
+                    'penalty kick', 'free kick', 'corner kick', 'offside', 'yellow card', 'red card',
+                    'var football', 'football referee', 'football substitute', 'football transfer',
                     
-                    # Positions
-                    'goalkeeper', 'defender', 'midfielder', 'striker', 'winger', 'forward',
+                    # Football-specific actions
+                    'football goal', 'header goal', 'volley goal', 'penalty shootout',
+                    'football dribble', 'football tackle', 'football cross', 'football pass',
+                    
+                    # Positions (football-specific)
+                    'goalkeeper', 'football defender', 'midfielder', 'striker', 'winger',
                     'centre-back', 'full-back', 'attacking midfielder', 'defensive midfielder',
+                    'centre-forward', 'left-back', 'right-back',
                     
-                    # Competitions
-                    'premier league', 'championship', 'fa cup', 'carabao cup', 'community shield',
-                    'champions league', 'europa league', 'conference league', 'uefa',
+                    # Competitions (unambiguous)
+                    'premier league', 'english premier league', 'fa cup', 'carabao cup', 'community shield',
+                    'champions league', 'uefa champions league', 'europa league', 'conference league',
                     'la liga', 'serie a', 'bundesliga', 'ligue 1', 'eredivisie',
-                    'world cup', 'euros', 'copa america', 'african cup',
+                    'fifa world cup', 'european championship', 'copa america', 'african cup of nations',
                     
-                    # Teams (major clubs)
-                    'manchester united', 'manchester city', 'liverpool', 'arsenal', 'chelsea',
-                    'tottenham', 'newcastle', 'brighton', 'west ham', 'aston villa',
-                    'real madrid', 'barcelona', 'atletico madrid', 'sevilla',
-                    'juventus', 'inter milan', 'ac milan', 'napoli', 'roma',
+                    # Teams (major clubs with context)
+                    'manchester united fc', 'manchester city fc', 'liverpool fc', 'arsenal fc', 'chelsea fc',
+                    'tottenham hotspur', 'newcastle united', 'brighton football', 'west ham united', 'aston villa fc',
+                    'real madrid cf', 'fc barcelona', 'atletico madrid', 'sevilla fc',
+                    'juventus fc', 'inter milan', 'ac milan', 'napoli fc', 'as roma',
                     'bayern munich', 'borussia dortmund', 'rb leipzig',
-                    'psg', 'monaco', 'marseille', 'lyon',
+                    'paris saint-germain', 'psg football', 'as monaco', 'marseille', 'lyon',
                     
-                    # Football personalities
-                    'messi', 'ronaldo', 'mbappe', 'haaland', 'neymar', 'benzema',
-                    'salah', 'kane', 'son', 'de bruyne', 'modric', 'lewandowski',
-                    'guardiola', 'klopp', 'arteta', 'ancelotti', 'mourinho'
+                    # Football personalities (with context)
+                    'lionel messi', 'cristiano ronaldo', 'kylian mbappe', 'erling haaland', 'neymar jr', 'karim benzema',
+                    'mohamed salah', 'harry kane', 'heung-min son', 'kevin de bruyne', 'luka modric', 'robert lewandowski',
+                    'pep guardiola', 'jurgen klopp', 'mikel arteta', 'carlo ancelotti', 'jose mourinho'
                 },
                 'sources': {
                     'bbc sport football', 'bbc football', 'guardian football', 'espn fc',
-                    'sky sports football', 'sky sports premier league', 'football365'
+                    'sky sports football', 'sky sports premier league', 'football365',
+                    'goal.com', 'fourfourtwo', 'talksport football', 'the athletic football',
+                    'premierleague.com', 'uefa.com', 'fifa.com', 'marca', 'as.com'
                 }
             },
             
             'basketball': {
                 'filename': self.data_dir / 'basketball_news_database.json',
                 'keywords': {
-                    # Basketball terms
-                    'basketball', 'nba', 'wnba', 'ncaa basketball', 'euroleague',
-                    'dunk', 'three-pointer', 'free throw', 'rebound', 'assist', 'steal',
-                    'block', 'foul', 'technical', 'flagrant', 'playoff', 'playoffs',
-                    'draft', 'rookie', 'veteran', 'trade', 'waiver',
+                    # Basketball terms (be very specific)
+                    'basketball', 'nba', 'wnba', 'ncaa basketball', 'euroleague basketball',
+                    'basketball dunk', 'three-pointer', 'three-point shot', 'free throw', 'basketball rebound',
+                    'basketball assist', 'steal basketball', 'basketball block', 'basketball foul',
+                    'technical foul', 'flagrant foul', 'nba playoffs', 'nba draft',
                     
-                    # Positions
-                    'point guard', 'shooting guard', 'small forward', 'power forward', 'center',
-                    'guard', 'forward', 'sixth man',
+                    # Basketball-specific actions
+                    'slam dunk', 'basketball shot', 'basketball pass', 'basketball turnover',
+                    'double-double', 'triple-double', 'basketball layup', 'basketball crossover',
                     
-                    # NBA Teams
-                    'lakers', 'warriors', 'celtics', 'heat', 'bulls', 'knicks', 'nets',
-                    'sixers', 'bucks', 'raptors', 'magic', 'hawks', 'hornets',
-                    'pistons', 'pacers', 'cavaliers', 'wizards',
-                    'nuggets', 'timberwolves', 'thunder', 'blazers', 'jazz', 'kings',
-                    'suns', 'clippers', 'mavericks', 'rockets', 'spurs', 'grizzlies', 'pelicans',
+                    # Positions (basketball-specific)
+                    'point guard', 'shooting guard', 'small forward', 'power forward', 'center basketball',
+                    'basketball guard', 'basketball forward', 'sixth man basketball',
                     
-                    # Basketball personalities
-                    'lebron', 'curry', 'durant', 'giannis', 'jokic', 'tatum', 'doncic',
-                    'embiid', 'kawhi', 'davis', 'harden', 'westbrook', 'paul', 'lillard',
-                    'jimmy butler', 'kyrie', 'klay', 'green', 'thompson',
+                    # NBA Teams (with full names when possible)
+                    'los angeles lakers', 'golden state warriors', 'boston celtics', 'miami heat', 'chicago bulls',
+                    'new york knicks', 'brooklyn nets', 'philadelphia 76ers', 'milwaukee bucks', 'toronto raptors',
+                    'orlando magic', 'atlanta hawks', 'charlotte hornets', 'detroit pistons', 'indiana pacers',
+                    'cleveland cavaliers', 'washington wizards', 'denver nuggets', 'minnesota timberwolves',
+                    'oklahoma city thunder', 'portland trail blazers', 'utah jazz', 'sacramento kings',
+                    'phoenix suns', 'la clippers', 'dallas mavericks', 'houston rockets', 'san antonio spurs',
+                    'memphis grizzlies', 'new orleans pelicans',
                     
-                    # Competitions
-                    'nba finals', 'all-star', 'mvp', 'dpoy', 'roty', 'sixth man award',
-                    'march madness', 'final four', 'elite eight'
+                    # Basketball personalities (with full names)
+                    'lebron james', 'stephen curry', 'kevin durant', 'giannis antetokounmpo', 'nikola jokic',
+                    'jayson tatum', 'luka doncic', 'joel embiid', 'kawhi leonard', 'anthony davis',
+                    'james harden', 'russell westbrook', 'chris paul', 'damian lillard', 'jimmy butler',
+                    'kyrie irving', 'klay thompson', 'draymond green',
+                    
+                    # Competitions (basketball-specific)
+                    'nba finals', 'nba all-star', 'nba mvp', 'defensive player of the year',
+                    'rookie of the year basketball', 'sixth man of the year',
+                    'march madness', 'ncaa final four', 'elite eight basketball'
                 },
                 'sources': {
                     'the athletic nba', 'yahoo sports nba', 'espn nba', 'nba.com',
-                    'bleacher report', 'sportingnews nba'
+                    'bleacher report nba', 'sportingnews nba', 'cbs sports nba',
+                    'fox sports nba', 'basketball reference', 'hoopshype',
+                    'slam magazine', 'nbc sports basketball'
                 }
             }
         }
         
-        # Configure logging
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s'
-        )
+        # Configure module-level logger (safe for library use)
+        self.logger = logging.getLogger(__name__)
+        if not self.logger.handlers:  # Avoid duplicate handlers
+            self.logger.setLevel(logging.INFO)
+            
+            # Console handler
+            console_handler = logging.StreamHandler()
+            console_handler.setFormatter(
+                logging.Formatter('%(asctime)s - %(levelname)s - [CATEGORIZER] %(message)s')
+            )
+            self.logger.addHandler(console_handler)
+            
+            # File handler
+            file_handler = logging.FileHandler(self.data_dir / 'sports_categorization.log')
+            file_handler.setFormatter(
+                logging.Formatter('%(asctime)s - %(levelname)s - [CATEGORIZER] %(message)s')
+            )
+            self.logger.addHandler(file_handler)
 
     def load_source_database(self) -> Dict:
         """Load the main sports news database"""
@@ -158,7 +192,7 @@ class SportsNewsCategorizer:
             with open(self.source_database, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except FileNotFoundError:
-            logging.error(f"Source database {self.source_database} not found")
+            self.logger.error(f"Source database {self.source_database} not found")
             return {'articles': [], 'metadata': {}}
 
     def categorize_article(self, article: Dict) -> str:
@@ -169,68 +203,138 @@ class SportsNewsCategorizer:
         STRICT RULES:
         - Only Cricket, Football, Basketball are valid categories
         - Articles must clearly belong to one of these sports
+        - Strong exclusion rules to prevent cross-contamination
         - Uncategorized articles are NOT saved (other sports filtered out)
         """
         title = article.get('title', '').lower()
         summary = article.get('summary', '').lower() 
-        source = article.get('source_name', '').lower()
+        source_raw = article.get('source_name', '').lower()
+        
+        # Normalize source for better matching
+        source = re.sub(r'[^a-z0-9 ]', ' ', source_raw).strip()
         
         # Combine all text for analysis
         text_content = f"{title} {summary}"
         
-        # Score each category
+        # FIRST: Check for exclusion patterns (other sports that should be rejected)
+        exclusion_patterns = {
+            'tennis': ['tennis', 'wimbledon', 'us open tennis', 'french open', 'australian open tennis', 'atp', 'wta', 'federer', 'nadal', 'djokovic', 'serena'],
+            'golf': ['golf', 'pga tour', 'masters tournament', 'us open golf', 'british open', 'ryder cup', 'tiger woods', 'mcilroy'],
+            'baseball': ['baseball', 'mlb', 'world series', 'home run', 'pitcher', 'batter', 'inning', 'yankees', 'red sox'],
+            'ice_hockey': ['hockey', 'nhl', 'stanley cup', 'puck', 'goalie', 'ice hockey', 'rangers', 'bruins'],
+            'american_football': ['nfl', 'super bowl', 'quarterback', 'touchdown', 'patriots', 'cowboys', 'packers'],
+            'motorsport': ['formula 1', 'f1', 'nascar', 'motogp', 'hamilton', 'verstappen', 'racing'],
+            'boxing': ['boxing match', 'boxing fight', 'heavyweight boxer', 'knockout punch', 'boxing round', 'boxing champion'],  # More specific boxing terms
+            'mma': ['ufc', 'mixed martial arts', 'octagon', 'fight night'],
+            'swimming': ['swimming', 'olympics swimming', 'freestyle', 'butterfly stroke'],
+            'athletics': ['track and field', 'marathon', 'sprint', '100m', 'olympics athletics']
+        }
+        
+        # Collect exclusion matches but don't immediately reject
+        exclusion_matches = []
+        for sport, patterns in exclusion_patterns.items():
+            for pattern in patterns:
+                if pattern.lower() in text_content:
+                    exclusion_matches.append((sport, pattern))
+                    self.logger.debug(f"Found {sport} keyword '{pattern}': {article.get('title', '')[:50]}")
+        
+        # Score each target category (cricket, football, basketball)
         category_scores = {}
         
         for category, config in self.categories.items():
             score = 0
+            keyword_matches = []
             
             # Source-based scoring (highest priority - very strong signal)
+            source_match = False
+            source_tokens = source.split()
             for source_keyword in config['sources']:
-                if source_keyword.lower() in source:
-                    score += 15  # Increased weight for source match
+                source_keyword_tokens = source_keyword.lower().split()
+                if all(token in source_tokens for token in source_keyword_tokens):
+                    score += 20  # Strong weight for source match
+                    source_match = True
                     break
             
-            # Keyword-based scoring with weighted importance
+            # Keyword-based scoring with phrase-safe matching
             for keyword in config['keywords']:
-                # Exact word matches (not partial)
-                if re.search(rf'\b{re.escape(keyword.lower())}\b', text_content):
-                    # Weight by keyword importance and specificity
-                    if len(keyword) > 10:  # Very specific keywords
-                        score += 5
-                    elif len(keyword) > 8:  # Longer keywords are more specific
-                        score += 3
-                    elif len(keyword) > 5:
-                        score += 2
-                    else:
-                        score += 1
+                if keyword.lower() in text_content:
+                    keyword_matches.append(keyword)
+                    
+                    # Sport-specific keyword weighting (only using keywords from actual sets)
+                    if category == 'cricket':
+                        # Cricket-specific high-value terms
+                        high_value_cricket = {'wicket', 'wickets', 'innings', 'bowling', 'batsman', 'century', 'stumps', 'lbw', 'maiden over', 'ashes cricket', 'ipl', 't20 cricket', 'virat kohli', 'test cricket', 'test match'}
+                        medium_value_cricket = {'cricket', 'over', 'overs'}
+                        
+                        if keyword in high_value_cricket:
+                            score += 8
+                        elif keyword in medium_value_cricket:
+                            score += 5
+                        else:
+                            score += 2
+                    
+                    elif category == 'football':
+                        # Football-specific high-value terms
+                        high_value_football = {'premier league', 'champions league', 'europa league', 'var football', 'offside', 'penalty kick', 'free kick'}
+                        medium_value_football = {'soccer', 'football match', 'football game', 'football goal'}
+                        
+                        if keyword in high_value_football:
+                            score += 8
+                        elif keyword in medium_value_football:
+                            score += 5
+                        else:
+                            score += 2
+                    
+                    elif category == 'basketball':
+                        # Basketball-specific high-value terms
+                        high_value_basketball = {'nba', 'wnba', 'three-pointer', 'basketball dunk', 'nba playoffs', 'nba mvp', 'nba finals'}
+                        medium_value_basketball = {'basketball', 'basketball rebound', 'basketball assist', 'nba draft'}
+                        
+                        if keyword in high_value_basketball:
+                            score += 8
+                        elif keyword in medium_value_basketball:
+                            score += 5
+                        else:
+                            score += 2
+            
+            # Bonus for multiple relevant keywords
+            if len(keyword_matches) >= 3:
+                score += 5
+            elif len(keyword_matches) >= 2:
+                score += 2
             
             category_scores[category] = score
+            
+            # Log detailed scoring for debugging
+            if score > 0:
+                self.logger.debug(f"{category}: score={score}, source_match={source_match}, keywords={keyword_matches[:5]}")
         
-        # Return category with highest score, but ONLY if confident
+        # Return category with highest score, but check exclusions first
         if category_scores:
             max_score = max(category_scores.values())
             
-            # Stricter threshold: must score at least 5 to be categorized
-            if max_score >= 5:
+            # Apply exclusions only if no category scores high enough
+            if max_score < 8 and exclusion_matches:
+                self.logger.debug(f"Article excluded due to {len(exclusion_matches)} exclusion matches: {article.get('title', '')[:50]}")
+                return 'uncategorized'
+            
+            # Much stricter threshold: must score at least 8 to be categorized
+            if max_score >= 8:
                 best_category = max(category_scores, key=category_scores.get)
                 
-                # Check for ambiguous categorization (two categories very close)
+                # Stricter ambiguity check: if second best is within 50% of best, it's ambiguous
                 sorted_scores = sorted(category_scores.values(), reverse=True)
                 if len(sorted_scores) >= 2:
-                    # If second best is within 30% of best, it's ambiguous - reject
-                    if sorted_scores[1] >= (sorted_scores[0] * 0.7):
-                        logging.debug(f"Ambiguous categorization rejected: {article.get('title', '')[:50]}")
+                    if sorted_scores[1] >= (sorted_scores[0] * 0.5):
+                        logging.debug(f"Ambiguous categorization rejected (scores: {sorted_scores[:2]}): {article.get('title', '')[:50]}")
                         return 'uncategorized'
                 
+                logging.debug(f"Article categorized as {best_category} (score: {max_score}): {article.get('title', '')[:50]}")
                 return best_category
+            else:
+                logging.debug(f"Score too low ({max_score} < 10): {article.get('title', '')[:50]}")
         
         # Not confident enough in any category - reject
-        return 'uncategorized'
-        if category_scores:
-            max_score = max(category_scores.values())
-            if max_score >= 3:  # Minimum threshold for categorization
-                return max(category_scores, key=category_scores.get)
-        
         return 'uncategorized'
 
     def categorize_all_articles(self, save_individual_files: bool = True) -> Dict:
@@ -241,18 +345,29 @@ class SportsNewsCategorizer:
         articles = source_db.get('articles', [])
         
         if not articles:
-            logging.warning("No articles found in source database")
+            self.logger.warning("No articles found in source database")
             return {}
         
         # Initialize category databases
         categorized_data = {}
+        current_time = datetime.now().isoformat()
+        
         for category in self.categories.keys():
+            # Check if file exists to preserve created_date
+            existing_created_date = current_time
+            try:
+                with open(self.categories[category]['filename'], 'r', encoding='utf-8') as f:
+                    existing_data = json.load(f)
+                    existing_created_date = existing_data.get('metadata', {}).get('created_date', current_time)
+            except FileNotFoundError:
+                pass
+                
             categorized_data[category] = {
                 'articles': [],
                 'metadata': {
                     'category': category,
-                    'created_date': datetime.now().isoformat(),
-                    'last_updated': datetime.now().isoformat(),
+                    'created_date': existing_created_date,
+                    'last_updated': current_time,
                     'total_articles': 0,
                     'sources': [],
                     'parent_database': str(self.source_database)
@@ -264,8 +379,8 @@ class SportsNewsCategorizer:
             'articles': [],
             'metadata': {
                 'category': 'uncategorized',
-                'created_date': datetime.now().isoformat(),
-                'last_updated': datetime.now().isoformat(),
+                'created_date': current_time,
+                'last_updated': current_time,
                 'total_articles': 0,
                 'sources': [],
                 'parent_database': str(self.source_database)
@@ -279,21 +394,23 @@ class SportsNewsCategorizer:
             'uncategorized': 0
         }
         
-        logging.info(f"Categorizing {len(articles)} articles...")
+        self.logger.info(f"Categorizing {len(articles)} articles...")
         
         for article in articles:
             category = self.categorize_article(article)
             
-            # Add category info to article
+            # Add category info to article (create copy to avoid mutation)
             article_copy = article.copy()
             article_copy['category'] = category
-            article_copy['categorization_date'] = datetime.now().isoformat()
+            article_copy['categorization_date'] = current_time
             
             # Add to appropriate category
             categorized_data[category]['articles'].append(article_copy)
-            categorization_stats['categorized'][category] = categorization_stats['categorized'].get(category, 0) + 1
             
-            if category == 'uncategorized':
+            # Fix statistics counting
+            if category in self.categories:
+                categorization_stats['categorized'][category] += 1
+            else:
                 categorization_stats['uncategorized'] += 1
         
         # Update metadata for each category
@@ -316,23 +433,23 @@ class SportsNewsCategorizer:
             for category in self.categories.keys():
                 filename = self.categories[category]['filename']
                 self.save_category_database(categorized_data[category], filename)
-                logging.info(f"✅ Saved {category}: {len(categorized_data[category]['articles'])} articles")
+                # Remove duplicate logging - save_category_database already logs
         
         # DO NOT save uncategorized articles - they are filtered out
         # Uncategorized = other sports we don't support (tennis, hockey, etc.)
         if categorization_stats['uncategorized'] > 0:
-            logging.info(f"🗑️  Filtered out {categorization_stats['uncategorized']} uncategorized articles (other sports)")
+            self.logger.info(f"Filtered out {categorization_stats['uncategorized']} uncategorized articles (other sports)")
         
         # Log results
-        logging.info("=" * 70)
-        logging.info("CATEGORIZATION RESULTS (CRICKET, FOOTBALL, BASKETBALL ONLY):")
-        logging.info("=" * 70)
+        self.logger.info("=" * 70)
+        self.logger.info("CATEGORIZATION RESULTS (CRICKET, FOOTBALL, BASKETBALL ONLY):")
+        self.logger.info("=" * 70)
         for category, count in categorization_stats['categorized'].items():
             if count > 0 and category in self.categories:
-                logging.info(f"  ✅ {category.capitalize()}: {count} articles")
+                self.logger.info(f"  {category.capitalize()}: {count} articles")
         if categorization_stats['uncategorized'] > 0:
-            logging.info(f"  🗑️  Filtered out: {categorization_stats['uncategorized']} articles (other sports)")
-        logging.info("=" * 70)
+            self.logger.info(f"  Filtered out: {categorization_stats['uncategorized']} articles (other sports)")
+        self.logger.info("=" * 70)
         
         return {
             'categorized_data': categorized_data,
@@ -341,11 +458,15 @@ class SportsNewsCategorizer:
 
     def calculate_category_importance_distribution(self, articles: List[Dict]) -> Dict:
         """Calculate importance distribution for a category"""
-        distribution = {'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0, 'Minimal': 0}
+        valid_tiers = {'Critical', 'High', 'Medium', 'Low', 'Minimal'}
+        distribution = {tier: 0 for tier in valid_tiers}
         
         for article in articles:
             tier = article.get('importance_tier', 'Minimal')
-            distribution[tier] = distribution.get(tier, 0) + 1
+            # Validate tier and normalize to Minimal if invalid
+            if tier not in valid_tiers:
+                tier = 'Minimal'
+            distribution[tier] += 1
         
         return distribution
 
@@ -356,9 +477,9 @@ class SportsNewsCategorizer:
             filepath = str(filename)
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(category_data, f, indent=2, ensure_ascii=False)
-            logging.info(f"Saved {len(category_data['articles'])} articles to {filepath}")
+            self.logger.info(f"Saved {len(category_data['articles'])} articles to {filepath}")
         except Exception as e:
-            logging.error(f"Error saving {filename}: {e}")
+            self.logger.error(f"Error saving {filename}: {e}")
 
     def get_category_summary(self) -> Dict:
         """Get summary of all category databases"""
@@ -392,7 +513,7 @@ class SportsNewsCategorizer:
         source_db = self.load_source_database()
         articles = source_db.get('articles', [])
         
-        logging.info("Adding category information to main database...")
+        self.logger.info("Adding category information to main database...")
         
         updated_count = 0
         for article in articles:
@@ -416,18 +537,21 @@ class SportsNewsCategorizer:
         try:
             with open(self.source_database, 'w', encoding='utf-8') as f:
                 json.dump(source_db, f, indent=2, ensure_ascii=False)
-            logging.info(f"Updated main database with category information for {updated_count} articles")
+            self.logger.info(f"Updated main database with category information for {updated_count} articles")
         except Exception as e:
-            logging.error(f"Error updating main database: {e}")
+            self.logger.error(f"Error updating main database: {e}")
+
+# Alias for backward compatibility
+SportsCategorizer = SportsNewsCategorizer
 
 
 def main():
     """Run the categorization system"""
     categorizer = SportsNewsCategorizer()
     
-    logging.info("=" * 60)
-    logging.info("SPORTS NEWS CATEGORIZATION SYSTEM")
-    logging.info("=" * 60)
+    categorizer.logger.info("=" * 60)
+    categorizer.logger.info("SPORTS NEWS CATEGORIZATION SYSTEM")
+    categorizer.logger.info("=" * 60)
     
     # Categorize all articles
     result = categorizer.categorize_all_articles(save_individual_files=True)
@@ -436,25 +560,24 @@ def main():
     categorizer.update_main_database_with_categories()
     
     # Show summary
-    logging.info("\n" + "=" * 60)
-    logging.info("CATEGORIZATION SUMMARY")
-    logging.info("=" * 60)
+    categorizer.logger.info("\n" + "=" * 60)
+    categorizer.logger.info("CATEGORIZATION SUMMARY")
+    categorizer.logger.info("=" * 60)
     
     summary = categorizer.get_category_summary()
     for category, info in summary.items():
-        logging.info(f"{category.upper()}:")
-        logging.info(f"  File: {info['filename']}")
-        logging.info(f"  Articles: {info['article_count']}")
+        categorizer.logger.info(f"{category.upper()}:")
+        categorizer.logger.info(f"  File: {info['filename']}")
+        categorizer.logger.info(f"  Articles: {info['article_count']}")
         if 'top_sources' in info:
-            logging.info(f"  Sources: {', '.join(info['top_sources'][:3])}")
-        logging.info("")
+            categorizer.logger.info(f"  Sources: {', '.join(info['top_sources'][:3])}")
+        categorizer.logger.info("")
     
-    logging.info("✅ Categorization completed successfully!")
-    logging.info("🏏 Cricket articles → cricket_news_database.json")
-    logging.info("⚽ Football articles → football_news_database.json") 
-    logging.info("🏀 Basketball articles → basketball_news_database.json")
-    logging.info("📰 Other articles → uncategorized_news_database.json")
-
+    categorizer.logger.info("Categorization completed successfully!")
+    categorizer.logger.info("Cricket articles → cricket_news_database.json")
+    categorizer.logger.info("Football articles → football_news_database.json") 
+    categorizer.logger.info("Basketball articles → basketball_news_database.json")
+    categorizer.logger.info("Other articles → uncategorized_news_database.json")
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,124 @@
-# technical_analysis.py 
+#!/usr/bin/env python3
+"""
+Technical Analysis Engine
+========================
+
+Comprehensive technical analysis module providing advanced technical indicators,
+chart pattern recognition, and trading signal generation for stock market analysis.
+Integrates with Plotly for interactive visualizations and Matplotlib for static charts.
+
+Core Technical Indicators:
+-------------------------
+1. **Momentum Indicators**:
+   - RSI (Relative Strength Index): Overbought/oversold conditions
+   - MACD (Moving Average Convergence Divergence): Trend momentum
+   - Stochastic Oscillator: Price momentum analysis
+   - Williams %R: Momentum indicator for reversal signals
+
+2. **Trend Indicators**:
+   - Moving Averages: SMA, EMA, WMA for trend identification
+   - Bollinger Bands: Volatility and mean reversion analysis
+   - ADX (Average Directional Index): Trend strength measurement
+   - Parabolic SAR: Stop and reverse trend signals
+
+3. **Volume Indicators**:
+   - Volume-Price Trend (VPT): Volume-based momentum
+   - On-Balance Volume (OBV): Cumulative volume analysis
+   - Chaikin Money Flow: Money flow indicator
+   - Volume Rate of Change: Volume momentum analysis
+
+4. **Volatility Indicators**:
+   - Average True Range (ATR): Volatility measurement
+   - Bollinger Band Width: Volatility expansion/contraction
+   - Keltner Channels: Volatility-based trading bands
+
+Chart Pattern Recognition:
+-------------------------
+- **Reversal Patterns**: Head and shoulders, double tops/bottoms
+- **Continuation Patterns**: Triangles, flags, pennants
+- **Candlestick Patterns**: Doji, hammer, shooting star, engulfing
+- **Support/Resistance**: Dynamic level identification
+
+Signal Generation:
+-----------------
+- **Buy Signals**: Bullish crossovers, breakouts, oversold recoveries
+- **Sell Signals**: Bearish crossovers, breakdowns, overbought corrections
+- **Neutral Signals**: Sideways trends, consolidation patterns
+- **Strength Scoring**: Composite signal strength calculation
+
+Visualization Features:
+----------------------
+- **Interactive Charts**: Plotly-based interactive technical charts
+- **Multi-Timeframe**: Support for various timeframes (1m to 1M)
+- **Overlay Indicators**: Multiple indicators on price charts
+- **Subplots**: Separate panels for oscillators and volume
+- **Candlestick Charts**: OHLC visualization with volume
+
+Advanced Analysis:
+-----------------
+- **Multi-Timeframe Analysis**: Cross-timeframe signal confirmation
+- **Divergence Detection**: Price vs indicator divergences
+- **Trend Strength**: Quantitative trend strength measurement
+- **Volatility Analysis**: Market volatility regime identification
+- **Market Structure**: Higher highs/lows analysis
+
+Integration Points:
+------------------
+- Used by automation_scripts/pipeline.py for comprehensive analysis
+- Provides data for dashboard_analytics.py visualizations
+- Integrated with report_generator.py for technical analysis reports
+- Supports real-time analysis updates via SocketIO
+
+Performance Optimizations:
+-------------------------
+- **Vectorized Calculations**: NumPy-based efficient computations
+- **Caching**: Indicator calculation results caching
+- **Lazy Loading**: On-demand indicator calculation
+- **Memory Management**: Efficient handling of large datasets
+
+Usage Examples:
+--------------
+```python
+# Basic RSI calculation
+rsi = calculate_rsi(price_data, window=14)
+
+# MACD with custom parameters
+macd_line, signal_line, histogram = calculate_macd(
+    price_data, fast=12, slow=26, signal=9
+)
+
+# Bollinger Bands
+upper, middle, lower = calculate_bollinger_bands(
+    price_data, window=20, std_dev=2
+)
+
+# Comprehensive technical analysis
+analysis_result = perform_technical_analysis(
+    ticker='AAPL',
+    timeframe='1d',
+    indicators=['RSI', 'MACD', 'BB', 'SMA']
+)
+```
+
+Chart Generation:
+----------------
+- **Plotly Charts**: Interactive web-ready visualizations
+- **Matplotlib Charts**: High-quality static images for reports
+- **Custom Styling**: Professional chart themes and layouts
+- **Export Formats**: PNG, SVG, HTML, PDF support
+
+Signal Interpretation:
+---------------------
+- **Signal Strength**: 1-10 scale for signal reliability
+- **Confidence Levels**: Statistical confidence in signals
+- **Risk Assessment**: Signal-based risk evaluation
+- **Time Horizons**: Short, medium, long-term signal analysis
+
+Author: TickZen Development Team
+Version: 3.1
+Last Updated: January 2026
+"""
+
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots

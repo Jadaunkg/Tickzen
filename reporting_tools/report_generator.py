@@ -1,4 +1,157 @@
-# report_generator.py (MODIFIED FOR BASE64 EMBEDDING AND KALEIDO ROBUSTNESS)
+#!/usr/bin/env python3
+"""
+Comprehensive Report Generation System
+=====================================
+
+Advanced report generation module that creates multi-format analytical reports
+for stock analysis. Produces PDF documents, web-ready assets, and interactive
+visualizations using Plotly and robust image rendering with Kaleido.
+
+Core Report Types:
+-----------------
+1. **Full Analysis Reports**: Comprehensive PDF documents with:
+   - Executive summary and key metrics
+   - Technical analysis charts and indicators
+   - Fundamental analysis and valuation
+   - Prophet forecasting with confidence bands
+   - Risk assessment and recommendations
+
+2. **WordPress-Ready Assets**: Web-optimized content including:
+   - High-resolution chart images (PNG/SVG)
+   - SEO-optimized article content
+   - Featured images and thumbnails
+   - Social media-ready graphics
+
+3. **Interactive Dashboards**: Web-based visualizations:
+   - Interactive Plotly charts
+   - Real-time data updates
+   - Multi-timeframe analysis
+   - Comparative analysis tools
+
+Visualization Capabilities:
+--------------------------
+- **Price Charts**: OHLC candlestick charts with volume
+- **Technical Indicators**: Moving averages, RSI, MACD, Bollinger Bands
+- **Forecast Charts**: Prophet predictions with uncertainty bands
+- **Performance Metrics**: Return analysis and risk metrics
+- **Comparison Charts**: Peer analysis and sector comparisons
+- **Portfolio Analytics**: Portfolio composition and performance
+
+Technical Features:
+------------------
+- **Kaleido Integration**: Robust static image generation
+- **Base64 Embedding**: Embedded images for self-contained reports
+- **Multi-Format Output**: PDF, HTML, PNG, SVG support
+- **Responsive Design**: Mobile-optimized chart layouts
+- **High-DPI Support**: Retina/4K display compatibility
+- **Color Accessibility**: Colorblind-friendly palettes
+
+Report Generation Pipeline:
+--------------------------
+1. **Data Preparation**: Clean and validate input data
+2. **Chart Creation**: Generate Plotly visualizations
+3. **Image Rendering**: Convert charts to static images
+4. **Content Assembly**: Combine text, charts, and metadata
+5. **Format Export**: Output in requested formats
+6. **Asset Optimization**: Compress and optimize for web delivery
+
+PDF Report Structure:
+--------------------
+- **Cover Page**: Company logo, ticker, report date
+- **Executive Summary**: Key findings and recommendations
+- **Price Analysis**: Historical performance and trends
+- **Technical Analysis**: Chart patterns and indicators
+- **Fundamental Analysis**: Financial metrics and valuation
+- **Forecasting**: Prophet predictions and scenarios
+- **Risk Assessment**: Volatility and risk metrics
+- **Appendices**: Detailed data tables and methodology
+
+WordPress Asset Generation:
+---------------------------
+- **Featured Images**: Social media optimized (1200x630px)
+- **Chart Images**: High-resolution for article embedding
+- **Thumbnail Images**: Various sizes for different use cases
+- **SEO Content**: Structured article content with headings
+- **Meta Descriptions**: SEO-optimized descriptions
+
+Chart Styling and Branding:
+---------------------------
+- **Consistent Branding**: TickZen color scheme and fonts
+- **Professional Layouts**: Clean, publication-ready designs
+- **Adaptive Layouts**: Responsive sizing for different contexts
+- **Accessibility**: WCAG-compliant color contrasts
+- **Print Optimization**: High-quality print-ready outputs
+
+Performance Optimizations:
+-------------------------
+- **Caching**: Chart template and style caching
+- **Parallel Processing**: Multi-threaded chart generation
+- **Memory Management**: Efficient handling of large datasets
+- **Compression**: Optimized image compression algorithms
+- **CDN-Ready**: Optimized for content delivery networks
+
+Error Handling:
+--------------
+- **Graceful Degradation**: Fallback for missing data
+- **Image Generation Errors**: Alternative rendering methods
+- **Memory Limits**: Automatic data sampling for large datasets
+- **Font Availability**: Fallback fonts for cross-platform compatibility
+
+Usage Examples:
+--------------
+```python
+# Full report generation
+report = create_full_report(
+    ticker='AAPL',
+    analysis_data=data,
+    forecast_data=forecast,
+    output_format='pdf'
+)
+
+# WordPress assets
+assets = create_wordpress_report_assets(
+    ticker='AAPL',
+    data=analysis_data,
+    template='financial_analysis'
+)
+
+# Interactive dashboard
+dashboard = create_interactive_dashboard(
+    portfolio_data=portfolio,
+    comparison_tickers=['AAPL', 'GOOGL']
+)
+```
+
+Integration Points:
+------------------
+- Called by automation_scripts/pipeline.py for analysis workflow
+- Used by automation_scripts/auto_publisher.py for WordPress publishing
+- Integrated with earnings_reports/earnings_publisher.py
+- Supports dashboard_analytics.py visualizations
+
+Configuration:
+-------------
+Environment Variables:
+- REPORT_OUTPUT_DIR: Default output directory
+- CHART_DPI: Chart resolution (default: 300)
+- FONT_FAMILY: Default font family
+- BRAND_COLOR_PRIMARY: Primary brand color
+- MAX_CHART_WIDTH: Maximum chart width in pixels
+
+Dependencies:
+------------
+- Plotly: Interactive visualization library
+- Kaleido: Static image generation
+- Pandas: Data manipulation
+- NumPy: Numerical computations
+- Pillow: Image processing
+- ReportLab: PDF generation
+
+Author: TickZen Development Team
+Version: 3.2
+Last Updated: January 2026
+"""
+
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.io import to_html, write_image

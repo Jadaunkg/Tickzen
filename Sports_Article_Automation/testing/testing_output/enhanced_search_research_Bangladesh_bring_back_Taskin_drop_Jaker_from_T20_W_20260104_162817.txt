@@ -1,0 +1,131 @@
+================================================================================
+ENHANCED SEARCH API RESEARCH WITH FULL CONTENT
+================================================================================
+
+RESEARCH INFORMATION:
+--------------------------------------------------
+Headline: Bangladesh bring back Taskin, drop Jaker from T20 World Cup squad
+Collection Method: enhanced_search_api_with_content_fetching
+Timestamp: 2026-01-04T16:28:17.545099
+Status: success
+
+RESEARCH STATISTICS:
+--------------------------------------------------
+Sources Processed: 3
+Total Words Collected: 1588
+Citations: 3
+
+CONTENT SUMMARY:
+================================================================================
+COMPREHENSIVE RESEARCH SUMMARY
+Headline: Bangladesh bring back Taskin, drop Jaker from T20 World Cup squad
+Total Sources Processed: 3
+Total Words Collected: 1588
+
+SOURCES PROCESSED:
+1. Bangladesh bring back Taskin, drop Jaker from T20 World Cup  (africa.espn.com) - 313 words [CONFIRMED, RECENT, TRUSTED]
+2. Bangladesh bring back Taskin, drop Jaker from T20 World Cup  (hutthawks.com) - 479 words [RECENT]
+3. 'Keep calm and keep a clear mind' - Gleeson the hero in SA20 (www.espn.com.sg) - 796 words [RECENT]
+
+SOURCE RELIABILITY ANALYSIS:
+ • Confirmed/Official: 1
+ • Rumor/Unconfirmed: 0
+ • Recent (last 7 days): 3
+ • Trusted domains: 1
+ • Average credibility score: 4.3/10
+ • Highest credibility source: 5.0/10
+
+RESEARCH CONTENT ANALYSIS:
+Key Terms Found:
+ • Hasan
+ • Gleeson
+ • Hossain
+ • Ahmed
+ • Super
+ • Jones
+ • Litton
+ • Taskin
+ • Mustafizur
+ • That
+
+FULL RESEARCH CONTENT:
+================================================================================
+
+==================================================SOURCE: Bangladesh bring back Taskin, drop Jaker from T20 World Cup squad [NEUTRAL] [RECENT] [STANDARD]
+URL: https://hutthawks.com/2026/01/04/bangladesh-bring-back-taskin-drop-jaker-from-t20-world-cup-squad-2/
+CONTENT: **Tigers Tweak: Bangladesh’s T20 World Cup 2026 Squad is Locked and Loaded!**
+
+Alright cricket fanatics, hold onto your hats because Bangladesh has just dropped their 15-member squad for the men’s T20 World Cup 2026, and there are definitely some eyebrow-raising inclusions and a major omission that’s got everyone talking!
+
+The biggest talking point has to be the surprising exclusion of **Jaker Ali**. Can you believe it? This guy has been a T20I staple for Bangladesh, featuring in *all 45* T20Is since March 2024. But, sadly, a dip in form and some serious criticism over his predominantly leg-side batting style – which, let’s be honest, hasn’t been delivering the goods lately – has seen him lose his spot, not just here but in other formats too. Tough break, Jaker!
+
+On the flip side, we’ve got some stability at the top with **Litton Das** retaining his captaincy – good call! And talk about a comeback: the fiery pacer **Taskin Ahmed** is back in the mix after missing the recent Ireland series. That’s a huge boost for the Tigers!
+
+Let’s talk willow power. The top three is looking solid with the in-form **Litton**, along with **Tanzid Hasan** and **Saif Hassan** ready to unleash. For the crucial middle order, we’ll see **Towhid Hridoy**, **Shamim Hossain**, and **Nurul Hasan** stepping up. Keep an eye on **Parvez Hossain Emon** too; he’s been impressing at No. 4 in the ongoing BPL and could definitely snag that spot!
+
+But where the Tigers truly roar is their bowling, and this squad really leans into that strength. Taskin’s return fortifies an already impressive pace battery that includes the ‘Fizz’ **Mustafizur Rahman**, the tenacious **Tanzim Hasan**, the left-arm swing of **Shoriful Islam**, and the all-round skills of **Mohammad Saifuddin**. That’s a serious pace attack, folks!
+
+And the spinners? They’re looking sharp too! **Rishad Hossain** will be leading the charge, supported by the crafty left-arm spin of **Nasum Ahmed** and the off-spin wizardry of **Mahedi Hasan**, who’s a known specialist in those crucial powerplay overs.
+
+Now, here’s a curveball for you! Bangladesh were originally slated to play their first three matches in Kolkata and the last one in Mumbai. BUT, the BCB is actually planning to write to the ICC to request a shift of all their fixtures to Sri Lanka! Why, you ask? Well, it seems Kolkata Knight Riders (KKR) released Mustafizur from their IPL 2026 squad following instructions from the BCCI. Talk about some behind-the-scenes drama!
+
+So there you have it, the full squad ready to make some noise at the T20 World Cup 2026:
+
+**Litton Das (capt), Saif Hassan, Tanzid Hasan, Parvez Hossain Emon, Towhid Hridoy, Shamim Hossain, Nurul Hasan (wk), Mahedi Hasan, Rishad Hossain, Nasum Ahmed, Mustafizur Rahman, Tanzim Hasan Sakib, Taskin Ahmed, Mohammad Saifuddin, Shoriful Islam.**
+
+What do you guys think of this lineup? Any surprises for you? Let us know in the comments! Go, Tigers!
+
+SOURCE: Bangladesh bring back Taskin, drop Jaker from T20 World Cup squad [CONFIRMED] [RECENT] [TRUSTED]
+URL: https://africa.espn.com/cricket/story/_/id/47498684/t20-world-cup-bangladesh-bring-back-taskin-ahmed-drop-jaker-ali
+CONTENT: Open Extended Reactions
+
+Bangladesh have left out Jaker Ali from their 15-member squad for the men's T20 World Cup 2026, while Litton Das stays on as captain and Taskin Ahmed returns to the side after missing the recent Ireland series.
+
+Jaker has been dropped from the side for the first time since March 2024, having appeared in all 45 T20Is that Bangladesh have played during this period. However, he had been out of form and has even lost his place in Bangladesh's sides for the other formats, while also facing extensive criticism for his predominantly leg-side batting style, which has seen diminishing returns.
+
+In-form batters - Litton, Tanzid Hasan and Saif Hassan - will make up the top three. Towhid Hridoy, Shamim Hossain and Nurul Hasan slot into the middle order. While Parvez Hossain Emon could also be used at No. 4 after impressing in the role during the ongoing Bangladesh Premier League (BPL).
+
+Bangladesh's 15-member squad for the T20 World Cup this year ESPNcricinfo Ltd
+
+Bangladesh's major strength is their bowling. The returning Taskin has Mustafizur Rahman, Tanzim Hasan, Shoriful Islam and Mohammad Saifuddin for company in an impressive pace department.
+
+Rishad Hossain, meanwhile, will lead a spin attack that has left-arm spinner Nasum Ahmed and offspinner Mahedi Hasan, with the latter specialising in powerplay bowling.
+
+Bangladesh are scheduled to play their first three matches in Kolkata and the last one in Mumbai. However, the BCB is expected to write to the ICC with a request to shift their fixtures to Sri Lanka after Kolkata Knight Riders (KKR) released Mustafizur from their IPL 2026 squad following instructions from the BCCI.
+
+Bangladesh squad for the men's T20 World Cup
+
+Litton Das (capt), Saif Hassan, Tanzid Hasan, Parvez Hossain Emon, Towhid Hridoy, Shamim Hossain, Nurul Hasan (wk), Mahedi Hasan, Rishad Hossain, Nasum Ahmed, Mustafizur Rahman, Tanzim Hasan Sakib, Taskin Ahmed, Mohammad Saifuddin, Shoriful Islam
+
+SOURCE: 'Keep calm and keep a clear mind' - Gleeson the hero in SA20's first Super Over finish [NEUTRAL] [RECENT] [STANDARD]
+URL: https://www.espn.com.sg/cricket/story/_/id/47479682/sa20-richard-gleeson-super-star-joburg-super-kings-beat-durban-super-giants
+CONTENT: Open Extended Reactions
+
+In a high-scoring match at a high-scoring ground at a high altitude, nobody wanted the ball more than Richard Gleeson, who stepped up to deliver the first Super Over in SA20 history for Joburg Super Kings (JSK) against Durban's Super Giants (DSG) on Thursday. With scores tied at 205 after 40 overs, the new year's day crowd at the Wanderers enjoyed an unexpected treat as Gleeson conceded only five runs in the Super Over and JSK then surged to victory and to the top of the points table.
+
+"You don't want easy wins each game. They are great but it's moments like these where you are under pressure and you have to fall back on your skills, which gives you great confidence as a bowler," Gleeson said afterwards. "That's the big bit: trying to execute under pressure. You can practice as much as you want but when you get wet conditions, with the dew and you're under pressure with the crowd, it is difficult. I've got a few techniques that we use with the psychologist and I've done it quite a bit in the past. I just call on that experience to try and keep calm and keep a clear mind."
+
+It was, in fact, the first time Gleeson has bowled a Super Over but he does have plenty of experience and success at the death. In 2022, he delivered the last over for Lancashire against Yorkshire in a Blast game that was tied because he dismissed Harry Brook off the final ball. Overall, since 2022, of bowlers who have delivered more than 400 balls in T20 cricket, Gleeson is the fifth best at the death (overs 17 to 20) in terms of economy rate (8.60) with 47 wickets at 13.82. Bear in mind that Jasprit Bumrah leads this list (6.65) and you have to understand how impressive Gleeson's numbers are.
+
+At the Wanderers, Gleeson took 3 for 41 in DSG's chase in the regular game, which included bouncing Jos Buttler out for 15, removing Aiden Markram with DSG needing 38 runs off 21 balls, and bowling David Wiese with a yorker in the penultimate over. He was then tasked with the Super Over and could have had a wicket first ball when Evan Jones hit him to long-on but Matthew de Villiers put the chance down. That could easily have put Gleeson off and though he had fleeting thoughts that the dropped catch could cost JSK, he quickly put those aside. "[I thought], you've just dropped the match," Gleeson joked. "But I backed myself. I knew I was executing and the next ball was the most important."
+
+As he delivered his second ball, Gleeson saw Buttler backing away and banged it in short and wide, away from where Buttler could connect with it well. He followed up with a yorker which Buttler could only squeeze away for one. Jones kept trying to swing big and inside-edged the next ball for one before Gleeson went short again to Buttler. He finished off with a yorker as DSG totalled just five and things had worked out exactly as Gleeson hoped they would.
+
+"The plans going into the Super Over were really simple: to try and execute the yorkers, try and get them to hit to the longer part of the boundary but not be too predictable," he said. "I knew I had the short ball I could go to, pace off, so I just wanted to try and keep them guessing and have the batter thinking about two deliveries instead of just one."
+
+Richard Gleeson claimed key wickets at the death ECB via Getty Images
+
+That Jones, who had earlier brought DSG back into the match with personal highest SA20 score of 43 off just 17 balls, could not get Gleeson away was testament to the bowler's skills.
+
+Jones' strategy during his match-tying innings was simple: "It's about standing still and make sure if the bowler misses, I cash in."
+
+The trouble was that Gleeson didn't miss. "He bowled a great over," Jones said, amid emotions that were running high "everywhere".
+
+Though disappointed with the result, Jones called the match "just great for cricket" and was not too down about DSG's prospects especially as they came back from being dismissed for 86 by this same JSK side two days prior.
+
+DSG are third on the table with one win from four games and remain confident of their chances in this competition. "We take this game as a good thing. We came quite close," Jones said. "With the experience in our team, and a young fast bowler [Kwena Maphaka], we tick a lot of boxes. We'll keep our heads down, play good cricket, and I am pretty sure the results will take care of themselves."
+
+
+================================================================================
+END OF ENHANCED RESEARCH RESULTS
+================================================================================
