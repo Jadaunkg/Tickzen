@@ -54,7 +54,22 @@ class GeminiEarningsWriter:
         
         # Configure Gemini using existing setup pattern
         genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        # Model fallback hierarchy (in order of preference)
+        self.model_hierarchy = [
+            'gemini-2.5-flash',           # Primary model (fast, high quality)
+            'gemini-3-flash-preview',     # Fallback 1 (latest preview, 20 RPD available)
+            'gemini-2.5-flash-lite',      # Fallback 2 (lighter version, 20 RPD available)
+            'gemini-2.0-flash-lite'       # Fallback 3 (stable lite version)
+        ]
+        self.current_model_index = 0
+        self.current_model_name = self.model_hierarchy[0]
+        self.model = genai.GenerativeModel(self.current_model_name)
+        
+        # Request counter for quota tracking
+        self.api_requests_made = 0
+        self.daily_limit_warning = 15  # Warn at 75% of 20 request limit
+        self.quota_exceeded_count = {}  # Track quota exceeded per model
         
         # Generation configuration for quality output
         self.generation_config = {
@@ -71,6 +86,32 @@ class GeminiEarningsWriter:
         self.processor = EarningsDataProcessor(self.config)
         
         logger.info("Gemini Earnings Writer initialized successfully")
+    
+    @property
+    def available(self) -> bool:
+        """Check if the generator is available (has valid API key and model)"""
+        return self.model is not None
+    
+    def _switch_to_fallback_model(self) -> bool:
+        """
+        Switch to the next available fallback model
+        
+        Returns:
+            bool: True if successfully switched to fallback, False if no fallbacks available
+        """
+        self.current_model_index += 1
+        
+        if self.current_model_index >= len(self.model_hierarchy):
+            logger.error("❌ All fallback models exhausted!")
+            return False
+        
+        self.current_model_name = self.model_hierarchy[self.current_model_index]
+        self.model = genai.GenerativeModel(self.current_model_name)
+        
+        logger.warning(f"🔄 Switching to fallback model: {self.current_model_name}")
+        logger.info(f"   📊 Remaining fallbacks: {len(self.model_hierarchy) - self.current_model_index - 1}")
+        
+        return True
     
     def collect_earnings_data(self, ticker: str) -> Dict[str, Any]:
         """
@@ -763,13 +804,69 @@ Now write your complete, analytical earnings report in simple English as if you'
                 config['temperature'] = min(1.0, 0.7 + (variation_number * 0.15))
                 logger.info(f"Temperature set to {config['temperature']} for variation #{variation_number}")
             
-            response = self.model.generate_content(
-                prompt,
-                generation_config=config
-            )
-            article_html = response.text
-            logger.info(f"Successfully generated article for {ticker}")
-            return article_html
+            # Check quota warning before making request
+            self.api_requests_made += 1
+            if self.api_requests_made >= self.daily_limit_warning:
+                logger.warning(f"⚠️  QUOTA WARNING: {self.api_requests_made} API requests made this session. Free tier limit is 20/day!")
+            
+            logger.info(f"🔄 Sending to Gemini for earnings article generation...")
+            logger.info(f"   🤖 Model: {self.current_model_name}, Request #{self.api_requests_made} this session)")
+            
+            # Try generation with automatic fallback on quota error
+            max_retries = len(self.model_hierarchy)
+            response = None
+            for attempt in range(max_retries):
+                try:
+                    # Generate article using Gemini
+                    response = self.model.generate_content(
+                        prompt,
+                        generation_config=config
+                    )
+                    
+                    if not response or not response.text:
+                        logger.error("❌ Gemini returned empty response")
+                        raise RuntimeError("Empty response from Gemini")
+                    
+                    # Success! Log which model was used
+                    if attempt > 0:
+                        logger.info(f"✅ Successfully generated using fallback model: {self.current_model_name}")
+                    
+                    article_html = response.text
+                    logger.info(f"Successfully generated article for {ticker}")
+                    return article_html
+                    
+                except Exception as e:
+                    error_str = str(e)
+                    
+                    # Check if it's a quota error (429)
+                    if '429' in error_str and 'quota' in error_str.lower():
+                        # Track quota exceeded for this model
+                        if self.current_model_name not in self.quota_exceeded_count:
+                            self.quota_exceeded_count[self.current_model_name] = 0
+                        self.quota_exceeded_count[self.current_model_name] += 1
+                        
+                        logger.error(f"❌ Quota exceeded for {self.current_model_name} (attempt {attempt + 1}/{max_retries})")
+                        
+                        # Try to switch to fallback model
+                        if attempt < max_retries - 1:
+                            if self._switch_to_fallback_model():
+                                logger.info(f"♻️  Retrying with {self.current_model_name}...")
+                                continue
+                            else:
+                                # No more fallbacks available
+                                logger.error(f"❌ All fallback models exhausted for {ticker}")
+                                raise
+                        else:
+                            # Last attempt failed
+                            logger.error(f"❌ Final attempt failed for {ticker}")
+                            raise
+                    else:
+                        # Non-quota error, don't retry
+                        logger.error(f"Error generating article with Gemini: {str(e)}")
+                        raise
+            
+            # Should never reach here, but just in case
+            raise RuntimeError("Failed to generate article after all retries")
             
         except Exception as e:
             logger.error(f"Error generating article with Gemini: {str(e)}")

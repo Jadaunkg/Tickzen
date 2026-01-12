@@ -3,414 +3,419 @@
 {% block title %}Sports Automation Dashboard | Tickzen{% endblock %}
 
 {% block head_extra %}
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="description" content="Sports Article Automation Dashboard - Monitor and manage your sports content automation">
-    <link rel="canonical" href="https://tickzen.app/automation/sports/dashboard">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --background: 0 0% 100%;
-            --foreground: 0 0% 3.9%;
-            --card: 0 0% 100%;
-            --card-foreground: 0 0% 3.9%;
-            --border: 0 0% 89.8%;
-            --muted: 0 0% 96.1%;
-            --muted-foreground: 0 0% 45.1%;
-            --green-50: #f0fdf4;
-            --green-100: #dcfce7;
-            --green-600: #16a34a;
-            --green-700: #15803d;
-            --purple-50: #faf5ff;
-            --purple-100: #f3e8ff;
-            --purple-600: #9333ea;
-            --orange-50: #fff7ed;
-            --orange-100: #ffedd5;
-            --orange-600: #ea580c;
-            --orange-700: #c2410c;
-            --orange-800: #9a3412;
-            --blue-50: #eff6ff;
-            --blue-600: #2563eb;
-        }
+<meta name="robots" content="noindex, nofollow">
+<meta name="description"
+    content="Sports Article Automation Dashboard - Monitor and manage your sports content automation">
+<link rel="canonical" href="https://tickzen.app/automation/sports/dashboard">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 3.9%;
+        --border: 0 0% 89.8%;
+        --muted: 0 0% 96.1%;
+        --muted-foreground: 0 0% 45.1%;
+        --green-50: #f0fdf4;
+        --green-100: #dcfce7;
+        --green-600: #16a34a;
+        --green-700: #15803d;
+        --purple-50: #faf5ff;
+        --purple-100: #f3e8ff;
+        --purple-600: #9333ea;
+        --orange-50: #fff7ed;
+        --orange-100: #ffedd5;
+        --orange-600: #ea580c;
+        --orange-700: #c2410c;
+        --orange-800: #9a3412;
+        --blue-50: #eff6ff;
+        --blue-600: #2563eb;
+    }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.5;
-            color: hsl(var(--foreground));
-            background: hsl(var(--background));
-            font-size: 14px;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        /* Page Layout */
-        .automation-page-layout {
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.5;
+        color: hsl(var(--foreground));
+        background: hsl(var(--background));
+        font-size: 14px;
+    }
+
+    /* Page Layout */
+    .automation-page-layout {
+        display: flex;
+        min-height: calc(100vh - 60px);
+    }
+
+    .automation-page-content {
+        flex: 1;
+        overflow-x: hidden;
+        padding: 1.5rem;
+    }
+
+    /* Mobile sidebar toggle button */
+    .mobile-sidebar-toggle {
+        display: none;
+        position: fixed;
+        bottom: 1.5rem;
+        left: 1.5rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--orange-600) 0%, var(--orange-700) 100%);
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(234, 88, 12, 0.4);
+        z-index: 999;
+        font-size: 1.25rem;
+        transition: transform 0.2s ease;
+    }
+
+    .mobile-sidebar-toggle:hover {
+        transform: scale(1.1);
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .mobile-sidebar-toggle {
             display: flex;
-            min-height: calc(100vh - 60px);
+            align-items: center;
+            justify-content: center;
         }
 
         .automation-page-content {
-            flex: 1;
-            overflow-x: hidden;
+            padding: 1rem;
+        }
+    }
+
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--orange-600) 0%, var(--orange-700) 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        color: white;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-header p {
+        opacity: 0.9;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-box {
+        background: white;
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-box .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        font-size: 1.125rem;
+        background: var(--orange-100);
+        color: var(--orange-700);
+    }
+
+    .stat-box .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+    }
+
+    .stat-box .stat-label {
+        font-size: 0.813rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    /* Content Cards */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .content-card {
+        background: white;
+        border: 1px solid hsl(var(--border));
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .content-card-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid hsl(var(--border));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .content-card-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .content-card-body {
+        padding: 1.25rem;
+    }
+
+    /* Trending Topics */
+    .trending-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.875rem;
+        border-radius: 8px;
+        transition: background 0.15s ease;
+        margin-bottom: 0.5rem;
+    }
+
+    .trending-item:hover {
+        background: var(--orange-50);
+    }
+
+    .trending-rank {
+        width: 32px;
+        height: 32px;
+        background: var(--orange-100);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: var(--orange-700);
+        font-size: 0.875rem;
+    }
+
+    .trending-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .trending-title {
+        font-weight: 600;
+        font-size: 0.938rem;
+        color: hsl(var(--foreground));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .trending-meta {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .trending-badge {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.25rem 0.5rem;
+        background: var(--orange-50);
+        color: var(--orange-700);
+        border-radius: 4px;
+    }
+
+    /* Sport Categories Grid */
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+
+    .category-card {
+        background: var(--orange-50);
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: hsl(var(--foreground));
+    }
+
+    .category-card:hover {
+        background: var(--orange-100);
+        transform: translateY(-2px);
+    }
+
+    .category-card i {
+        font-size: 1.5rem;
+        color: var(--orange-600);
+        margin-bottom: 0.5rem;
+    }
+
+    .category-card .category-name {
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .category-card .category-count {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+        margin-top: 0.25rem;
+    }
+
+    /* Quick Actions */
+    .quick-action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .quick-action-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background: linear-gradient(135deg, var(--green-50) 0%, var(--blue-50) 100%);
+        border: 1px solid rgba(22, 163, 74, 0.2);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--green-700);
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+
+    .quick-action-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        transition: left 0.5s;
+    }
+
+    .quick-action-link:hover {
+        background: linear-gradient(135deg, var(--green-100) 0%, var(--blue-50) 100%);
+        border-color: var(--green-600);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(22, 163, 74, 0.2), 0 0 20px rgba(22, 163, 74, 0.1);
+        color: var(--green-800);
+    }
+
+    .quick-action-link:hover::before {
+        left: 100%;
+    }
+
+    .quick-action-link:active {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(22, 163, 74, 0.15);
+    }
+
+    .quick-action-link i {
+        width: 20px;
+        text-align: center;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state p {
+        font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .categories-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header {
             padding: 1.5rem;
         }
 
-        /* Mobile sidebar toggle button */
-        .mobile-sidebar-toggle {
-            display: none;
-            position: fixed;
-            bottom: 1.5rem;
-            left: 1.5rem;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--orange-600) 0%, var(--orange-700) 100%);
-            color: white;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(234, 88, 12, 0.4);
-            z-index: 999;
-            font-size: 1.25rem;
-            transition: transform 0.2s ease;
-        }
-
-        .mobile-sidebar-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .sidebar-overlay.active {
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-sidebar-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            .automation-page-content {
-                padding: 1rem;
-            }
-        }
-
-        /* Page Header */
-        .page-header {
-            background: linear-gradient(135deg, var(--orange-600) 0%, var(--orange-700) 100%);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            color: white;
-        }
-
         .page-header h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .page-header p {
-            opacity: 0.9;
-            margin: 0;
-            font-size: 0.95rem;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-box {
-            background: white;
-            border: 1px solid hsl(var(--border));
-            border-radius: 10px;
-            padding: 1.25rem;
-            text-align: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .stat-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .stat-box .stat-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 0.75rem;
-            font-size: 1.125rem;
-            background: var(--orange-100);
-            color: var(--orange-700);
-        }
-
-        .stat-box .stat-value {
             font-size: 1.5rem;
-            font-weight: 700;
-            color: hsl(var(--foreground));
         }
 
-        .stat-box .stat-label {
-            font-size: 0.813rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        /* Content Cards */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .content-card {
-            background: white;
-            border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .content-card-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid hsl(var(--border));
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .content-card-header h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .content-card-body {
-            padding: 1.25rem;
-        }
-
-        /* Trending Topics */
-        .trending-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.875rem;
-            border-radius: 8px;
-            transition: background 0.15s ease;
-            margin-bottom: 0.5rem;
-        }
-
-        .trending-item:hover {
-            background: var(--orange-50);
-        }
-
-        .trending-rank {
-            width: 32px;
-            height: 32px;
-            background: var(--orange-100);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: var(--orange-700);
-            font-size: 0.875rem;
-        }
-
-        .trending-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .trending-title {
-            font-weight: 600;
-            font-size: 0.938rem;
-            color: hsl(var(--foreground));
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .trending-meta {
-            font-size: 0.75rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .trending-badge {
-            font-size: 0.75rem;
-            font-weight: 500;
-            padding: 0.25rem 0.5rem;
-            background: var(--orange-50);
-            color: var(--orange-700);
-            border-radius: 4px;
-        }
-
-        /* Sport Categories Grid */
         .categories-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
+            grid-template-columns: 1fr 1fr;
         }
-
-        .category-card {
-            background: var(--orange-50);
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: hsl(var(--foreground));
-        }
-
-        .category-card:hover {
-            background: var(--orange-100);
-            transform: translateY(-2px);
-        }
-
-        .category-card i {
-            font-size: 1.5rem;
-            color: var(--orange-600);
-            margin-bottom: 0.5rem;
-        }
-
-        .category-card .category-name {
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-
-        .category-card .category-count {
-            font-size: 0.75rem;
-            color: hsl(var(--muted-foreground));
-            margin-top: 0.25rem;
-        }
-
-        /* Quick Actions */
-        .quick-action-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .quick-action-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.25rem;
-            background: linear-gradient(135deg, var(--green-50) 0%, var(--blue-50) 100%);
-            border: 1px solid rgba(22, 163, 74, 0.2);
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--green-700);
-            font-weight: 600;
-            font-size: 0.875rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-        }
-
-        .quick-action-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-            transition: left 0.5s;
-        }
-
-        .quick-action-link:hover {
-            background: linear-gradient(135deg, var(--green-100) 0%, var(--blue-50) 100%);
-            border-color: var(--green-600);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(22, 163, 74, 0.2), 0 0 20px rgba(22, 163, 74, 0.1);
-            color: var(--green-800);
-        }
-
-        .quick-action-link:hover::before {
-            left: 100%;
-        }
-
-        .quick-action-link:active {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.15);
-        }
-
-        .quick-action-link i {
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 2rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .empty-state i {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        .empty-state p {
-            font-size: 0.875rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .categories-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .page-header {
-                padding: 1.5rem;
-            }
-
-            .page-header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .categories-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-    </style>
+    }
+</style>
 {% endblock %}
 
 {% set active_section = 'sports' %}
@@ -419,10 +424,10 @@
 <div class="automation-page-layout">
     <!-- Sidebar -->
     {% include 'automation/_sidebar.html' %}
-    
+
     <!-- Sidebar overlay for mobile -->
     <div class="sidebar-overlay" onclick="toggleAutomationSidebar()"></div>
-    
+
     <!-- Main Content -->
     <div class="automation-page-content">
         <!-- Page Header -->
@@ -469,25 +474,27 @@
             <div class="content-card">
                 <div class="content-card-header">
                     <h3><i class="fas fa-fire"></i> Trending Topics</h3>
-                    <a href="{{ url_for('automation.sports_automation.trends') }}" style="font-size: 0.813rem; color: var(--orange-600); text-decoration: none;">View All →</a>
+                    <a href="{{ url_for('automation.sports_automation.trends') }}"
+                        style="font-size: 0.813rem; color: var(--orange-600); text-decoration: none;">View All →</a>
                 </div>
                 <div class="content-card-body">
                     {% if trending_topics and trending_topics|length > 0 %}
-                        {% for topic in trending_topics[:5] %}
-                        <div class="trending-item">
-                            <div class="trending-rank">{{ loop.index }}</div>
-                            <div class="trending-info">
-                                <div class="trending-title">{{ topic.query if topic is mapping else topic }}</div>
-                                <div class="trending-meta">{{ topic.category|default('sports')|title if topic is mapping else 'Sports' }}</div>
-                            </div>
-                            <span class="trending-badge">Hot</span>
+                    {% for topic in trending_topics[:5] %}
+                    <div class="trending-item">
+                        <div class="trending-rank">{{ loop.index }}</div>
+                        <div class="trending-info">
+                            <div class="trending-title">{{ topic.query if topic is mapping else topic }}</div>
+                            <div class="trending-meta">{{ topic.category|default('sports')|title if topic is mapping
+                                else 'Sports' }}</div>
                         </div>
-                        {% endfor %}
+                        <span class="trending-badge">Hot</span>
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <div class="empty-state">
-                            <i class="fas fa-chart-line"></i>
-                            <p>No trending topics available.<br>Check Google Trends for latest data.</p>
-                        </div>
+                    <div class="empty-state">
+                        <i class="fas fa-chart-line"></i>
+                        <p>No trending topics available.<br>Check Google Trends for latest data.</p>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -500,44 +507,44 @@
                 <div class="content-card-body">
                     <div class="categories-grid">
                         {% if sport_categories %}
-                            {% for category in sport_categories %}
-                            <div class="category-card">
-                                <i class="fas {{ category.icon|default('fa-trophy') }}"></i>
-                                <div class="category-name">{{ category.name }}</div>
-                                <div class="category-count">{{ category.count|default(0) }} articles</div>
-                            </div>
-                            {% endfor %}
+                        {% for category in sport_categories %}
+                        <div class="category-card">
+                            <i class="fas {{ category.icon|default('fa-trophy') }}"></i>
+                            <div class="category-name">{{ category.name }}</div>
+                            <div class="category-count">{{ category.count|default(0) }} articles</div>
+                        </div>
+                        {% endfor %}
                         {% else %}
-                            <div class="category-card">
-                                <i class="fas fa-baseball-ball"></i>
-                                <div class="category-name">Cricket</div>
-                                <div class="category-count">0 articles</div>
-                            </div>
-                            <div class="category-card">
-                                <i class="fas fa-futbol"></i>
-                                <div class="category-name">Football</div>
-                                <div class="category-count">0 articles</div>
-                            </div>
-                            <div class="category-card">
-                                <i class="fas fa-basketball-ball"></i>
-                                <div class="category-name">Basketball</div>
-                                <div class="category-count">0 articles</div>
-                            </div>
-                            <div class="category-card">
-                                <i class="fas fa-table-tennis"></i>
-                                <div class="category-name">Tennis</div>
-                                <div class="category-count">0 articles</div>
-                            </div>
-                            <div class="category-card">
-                                <i class="fas fa-flag-checkered"></i>
-                                <div class="category-name">Formula 1</div>
-                                <div class="category-count">0 articles</div>
-                            </div>
-                            <div class="category-card">
-                                <i class="fas fa-golf-ball"></i>
-                                <div class="category-name">Golf</div>
-                                <div class="category-count">0 articles</div>
-                            </div>
+                        <div class="category-card">
+                            <i class="fas fa-baseball-ball"></i>
+                            <div class="category-name">Cricket</div>
+                            <div class="category-count">0 articles</div>
+                        </div>
+                        <div class="category-card">
+                            <i class="fas fa-futbol"></i>
+                            <div class="category-name">Football</div>
+                            <div class="category-count">0 articles</div>
+                        </div>
+                        <div class="category-card">
+                            <i class="fas fa-basketball-ball"></i>
+                            <div class="category-name">Basketball</div>
+                            <div class="category-count">0 articles</div>
+                        </div>
+                        <div class="category-card">
+                            <i class="fas fa-table-tennis"></i>
+                            <div class="category-name">Tennis</div>
+                            <div class="category-count">0 articles</div>
+                        </div>
+                        <div class="category-card">
+                            <i class="fas fa-flag-checkered"></i>
+                            <div class="category-name">Formula 1</div>
+                            <div class="category-count">0 articles</div>
+                        </div>
+                        <div class="category-card">
+                            <i class="fas fa-golf-ball"></i>
+                            <div class="category-name">Golf</div>
+                            <div class="category-count">0 articles</div>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -567,7 +574,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Mobile sidebar toggle button -->
     <button class="mobile-sidebar-toggle" onclick="toggleAutomationSidebar()" aria-label="Toggle sidebar">
         <i class="fas fa-bars"></i>

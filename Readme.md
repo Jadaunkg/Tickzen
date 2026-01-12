@@ -2,6 +2,8 @@ Project Overview
 
 Tickzen is a production Flask-SocketIO web application for AI-powered stock analysis and automated WordPress content publishing. Deployed on Azure App Service with Firebase (Firestore + Storage) backend. Uses Prophet for time-series forecasting, extensive financial APIs (yfinance, FRED), and real-time WebSocket communication.
 
+**Performance Optimizations:** Firestore queries optimized with composite indexes, caching layer, and counter documents achieving ~58% faster queries and 70-80% cost reduction. See [COMPLETE_PROJECT_REPORT.md](COMPLETE_PROJECT_REPORT.md) for details.
+
 Critical Architecture Patterns
 
 1. Firebase Integration (Multi-Service)

@@ -647,13 +647,18 @@ class RSSNewsCollector:
         try:
             # Create temporary deduplicator instance
             deduplicator = ArticleDeduplicator(self.output_file)
-            deduplicator.database = self.news_database  # Use current database
+            
+            # Convert articles list to dictionary format expected by deduplicator
+            articles_list = self.news_database.get('articles', [])
+            articles_dict = {article.get('id', str(i)): article for i, article in enumerate(articles_list)}
+            deduplicator.database = articles_dict
             
             # Run deduplication
             stats = deduplicator.deduplicate_articles(similarity_threshold=0.75, backup=False)
             
-            # Update our database with deduplicated results
-            self.news_database = deduplicator.database
+            # Convert back to list format and update our database
+            deduplicated_articles = list(deduplicator.database.values())
+            self.news_database['articles'] = deduplicated_articles
             
             logging.info(f"Deduplication: Removed {stats['removed_count']} duplicates, kept {stats['final_count']} unique articles")
             

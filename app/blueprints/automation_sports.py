@@ -218,6 +218,7 @@ def run():
         def convert_articles_to_ist_display(articles_list):
             import pytz
             from datetime import datetime
+            from email.utils import parsedate_to_datetime
             
             ist = pytz.timezone('Asia/Kolkata')
             utc = pytz.UTC
@@ -225,9 +226,27 @@ def run():
             for article in articles_list:
                 if article.get('published_date'):
                     try:
-                        # Parse the timestamp
+                        # Parse the timestamp - support multiple formats
                         if isinstance(article['published_date'], str):
-                            dt = datetime.fromisoformat(article['published_date'].replace('Z', '+00:00'))
+                            pub_date = article['published_date']
+                            
+                            # Try ISO format first
+                            try:
+                                dt = datetime.fromisoformat(pub_date.replace('Z', '+00:00'))
+                            except ValueError:
+                                # Try RFC 2822 format (e.g., "Mon, 12 Jan 2026 15:03:34 GMT")
+                                try:
+                                    dt = parsedate_to_datetime(pub_date)
+                                except (ValueError, TypeError):
+                                    # Try common datetime formats
+                                    for fmt in ['%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%d %H:%M:%S', '%a, %d %b %Y %H:%M:%S %Z']:
+                                        try:
+                                            dt = datetime.strptime(pub_date, fmt)
+                                            break
+                                        except ValueError:
+                                            continue
+                                    else:
+                                        raise ValueError(f"Unable to parse date format: {pub_date}")
                         else:
                             dt = article['published_date']
                         
@@ -236,10 +255,10 @@ def run():
                             dt = utc.localize(dt)
                         ist_time = dt.astimezone(ist)
                         
-                        article['published_date_ist'] = ist_time.strftime('%Y-%m-%d %H:%M:%S IST')
+                        article['display_date_ist'] = ist_time.strftime('%Y-%m-%d %H:%M:%S IST')
                     except Exception as e:
                         current_app.logger.warning(f"Error converting timestamp for article: {e}")
-                        article['published_date_ist'] = article.get('published_date', 'N/A')
+                        article['display_date_ist'] = article.get('published_date', 'N/A')
             
             return articles_list
         

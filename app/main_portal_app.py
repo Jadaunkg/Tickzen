@@ -104,6 +104,36 @@ from firebase_admin import firestore, auth as firebase_auth
 from config.firebase_admin_setup import get_firestore_client
 from app.market_news import market_news_bp
 
+# Import cache utilities for performance optimization
+try:
+    from app.cache_utils import (
+        monitor_query_performance,
+        get_cached_user_profile,
+        get_cached_site_profiles,
+        invalidate_user_profile_cache,
+        invalidate_site_profiles_cache,
+        get_counter_value,
+        increment_counter,
+        initialize_user_counters,
+        batch_get_documents,
+        warm_user_cache
+    )
+    CACHE_UTILS_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️  Cache utilities not available: {e}")
+    CACHE_UTILS_AVAILABLE = False
+    # Create mock functions if import fails
+    def monitor_query_performance(name): return lambda f: f
+    def get_cached_user_profile(uid, fn, ttl=600): return fn(uid)
+    def get_cached_site_profiles(uid, fn, ttl=300): return fn(uid)
+    def invalidate_user_profile_cache(uid): pass
+    def invalidate_site_profiles_cache(uid): pass
+    def get_counter_value(db, uid, name, default=0): return default
+    def increment_counter(db, uid, name, inc=1): pass
+    def initialize_user_counters(db, uid): pass
+    def batch_get_documents(db, refs, max_size=500): return []
+    def warm_user_cache(db, uid): pass
+
 # Detect if running in reloader parent process (to skip expensive initialization)
 def is_reloader_process():
     """Check if this is the parent reloader process (not the actual worker)"""
@@ -353,6 +383,14 @@ app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+
+# Flask-Caching configuration for performance optimization
+from flask_caching import Cache
+app.config['CACHE_TYPE'] = 'SimpleCache'  # In-memory cache (can upgrade to Redis later)
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes default cache timeout
+app.config['CACHE_THRESHOLD'] = 500  # Maximum number of items the cache will store
+cache = Cache(app)
+app.logger.info("Flask-Caching initialized with SimpleCache (5-minute default timeout)")
 
 # Register blueprints (basic ones that don't need login_required)
 from app.info_routes import info_bp
@@ -785,8 +823,11 @@ def admin_required(f):
 
 # Blueprint registration moved to after all function definitions (see end of file)
 
+@monitor_query_performance('get_admin_analytics')
 def get_admin_analytics():
-    """Get comprehensive analytics for admin dashboard"""
+    """Get comprehensive analytics for admin dashboard (optimized with parallel queries)"""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    
     analytics = {
         'today': {},
         'system_health': {},
@@ -806,111 +847,142 @@ def get_admin_analytics():
         today_start = datetime.combine(today, datetime.min.time(), timezone.utc)
         today_end = datetime.combine(today, datetime.max.time(), timezone.utc)
         
-        # Today's statistics
-        try:
-            # Reports generated today
-            reports_today_query = db.collection('userGeneratedReports')\
-                .where('generated_at', '>=', today_start)\
-                .where('generated_at', '<=', today_end)
-            
-            reports_today = list(reports_today_query.stream())
-            analytics['today']['reports_generated'] = len(reports_today)
-            
-            # Unique users today
-            unique_users_today = set()
-            storage_types_today = {}
-            
-            for report in reports_today:
-                report_data = report.to_dict()
-                unique_users_today.add(report_data.get('user_uid'))
-                storage_type = report_data.get('storage_type', 'unknown')
-                storage_types_today[storage_type] = storage_types_today.get(storage_type, 0) + 1
-            
-            analytics['today']['active_users'] = len(unique_users_today)
-            analytics['today']['storage_breakdown'] = storage_types_today
-            
-        except Exception as e:
-            app.logger.error(f"Error getting today's stats: {e}")
-        
-        # Overall report statistics
-        try:
-            # Total reports
-            total_reports_query = db.collection('userGeneratedReports').count()
-            total_reports_result = total_reports_query.get()
-            analytics['report_stats']['total_reports'] = total_reports_result[0][0].value if total_reports_result else 0
-            
-            # Reports by storage type
-            all_reports_query = db.collection('userGeneratedReports').limit(1000)  # Sample for performance
-            all_reports = list(all_reports_query.stream())
-            
-            storage_breakdown = {}
-            user_report_counts = {}
-            
-            for report in all_reports:
-                report_data = report.to_dict()
-                storage_type = report_data.get('storage_type', 'unknown')
-                user_uid = report_data.get('user_uid', 'unknown')
+        # Define parallel query functions
+        def fetch_today_stats():
+            """Fetch today's statistics"""
+            try:
+                reports_today_query = db.collection('userGeneratedReports')\
+                    .where('generated_at', '>=', today_start)\
+                    .where('generated_at', '<=', today_end)
                 
-                storage_breakdown[storage_type] = storage_breakdown.get(storage_type, 0) + 1
-                user_report_counts[user_uid] = user_report_counts.get(user_uid, 0) + 1
-            
-            analytics['report_stats']['storage_breakdown'] = storage_breakdown
-            analytics['report_stats']['top_users'] = sorted(user_report_counts.items(), key=lambda x: x[1], reverse=True)[:10]
-            
-        except Exception as e:
-            app.logger.error(f"Error getting report stats: {e}")
+                reports_today = list(reports_today_query.stream())
+                
+                unique_users_today = set()
+                storage_types_today = {}
+                
+                for report in reports_today:
+                    report_data = report.to_dict()
+                    unique_users_today.add(report_data.get('user_uid'))
+                    storage_type = report_data.get('storage_type', 'unknown')
+                    storage_types_today[storage_type] = storage_types_today.get(storage_type, 0) + 1
+                
+                return {
+                    'reports_generated': len(reports_today),
+                    'active_users': len(unique_users_today),
+                    'storage_breakdown': storage_types_today
+                }
+            except Exception as e:
+                app.logger.error(f"Error fetching today's stats: {e}")
+                return {}
         
-        # User statistics
-        try:
-            # Total users (from user profiles)
-            users_query = db.collection('userProfiles').count()
-            users_result = users_query.get()
-            analytics['user_stats']['total_users'] = users_result[0][0].value if users_result else 0
-            
-            # Users with automation profiles
-            profiles_query = db.collection('userSiteProfiles').limit(100)
-            profiles_docs = list(profiles_query.stream())
-            
-            users_with_profiles = set()
-            total_profiles = 0
-            
-            for user_doc in profiles_docs:
-                users_with_profiles.add(user_doc.id)
-                profiles_collection = user_doc.reference.collection('profiles')
-                user_profiles = list(profiles_collection.stream())
-                total_profiles += len(user_profiles)
-            
-            analytics['user_stats']['users_with_automation'] = len(users_with_profiles)
-            analytics['user_stats']['total_automation_profiles'] = total_profiles
-            
-        except Exception as e:
-            app.logger.error(f"Error getting user stats: {e}")
+        def fetch_report_stats():
+            """Fetch overall report statistics"""
+            try:
+                # Use counter document for total reports
+                try:
+                    counter_doc = db.collection('_counters').document('userGeneratedReports').get()
+                    total_reports = counter_doc.to_dict().get('total_count', 0) if counter_doc.exists else 0
+                except:
+                    total_reports = 0
+                
+                # Sample reports for breakdown analysis
+                all_reports_query = db.collection('userGeneratedReports').limit(1000)
+                all_reports = list(all_reports_query.stream())
+                
+                storage_breakdown = {}
+                user_report_counts = {}
+                
+                for report in all_reports:
+                    report_data = report.to_dict()
+                    storage_type = report_data.get('storage_type', 'unknown')
+                    user_uid = report_data.get('user_uid', 'unknown')
+                    
+                    storage_breakdown[storage_type] = storage_breakdown.get(storage_type, 0) + 1
+                    user_report_counts[user_uid] = user_report_counts.get(user_uid, 0) + 1
+                
+                return {
+                    'total_reports': total_reports,
+                    'storage_breakdown': storage_breakdown,
+                    'top_users': sorted(user_report_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+                }
+            except Exception as e:
+                app.logger.error(f"Error fetching report stats: {e}")
+                return {}
         
-        # System health
+        def fetch_user_stats():
+            """Fetch user statistics"""
+            try:
+                # Use counter document for total users
+                try:
+                    counter_doc = db.collection('_counters').document('userProfiles').get()
+                    total_users = counter_doc.to_dict().get('total_count', 0) if counter_doc.exists else 0
+                except:
+                    total_users = 0
+                
+                # Sample automation profiles
+                profiles_query = db.collection('userSiteProfiles').limit(100)
+                profiles_docs = list(profiles_query.stream())
+                
+                users_with_profiles = set()
+                total_profiles = 0
+                
+                for user_doc in profiles_docs:
+                    users_with_profiles.add(user_doc.id)
+                    profiles_collection = user_doc.reference.collection('profiles')
+                    user_profiles = list(profiles_collection.stream())
+                    total_profiles += len(user_profiles)
+                
+                return {
+                    'total_users': total_users,
+                    'users_with_automation': len(users_with_profiles),
+                    'total_automation_profiles': total_profiles
+                }
+            except Exception as e:
+                app.logger.error(f"Error fetching user stats: {e}")
+                return {}
+        
+        def fetch_storage_stats():
+            """Fetch storage statistics"""
+            try:
+                bucket = get_storage_bucket()
+                if bucket:
+                    blobs = list(bucket.list_blobs(prefix='user_reports/', max_results=100))
+                    total_size = sum(blob.size for blob in blobs if blob.size)
+                    return {
+                        'firebase_storage_available': True,
+                        'sample_files_count': len(blobs),
+                        'sample_total_size_mb': round(total_size / (1024 * 1024), 2)
+                    }
+                else:
+                    return {'firebase_storage_available': False}
+            except Exception as e:
+                app.logger.error(f"Error fetching storage stats: {e}")
+                return {'firebase_storage_available': False, 'error': str(e)}
+        
+        # Execute queries in parallel
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            future_to_stat = {
+                executor.submit(fetch_today_stats): 'today',
+                executor.submit(fetch_report_stats): 'report_stats',
+                executor.submit(fetch_user_stats): 'user_stats',
+                executor.submit(fetch_storage_stats): 'storage_stats'
+            }
+            
+            for future in as_completed(future_to_stat):
+                stat_type = future_to_stat[future]
+                try:
+                    result = future.result()
+                    analytics[stat_type] = result
+                except Exception as e:
+                    app.logger.error(f"Error executing {stat_type} query: {e}")
+        
+        # System health (quick, no need for parallel)
         analytics['system_health'] = {
             'firebase_initialized': FIREBASE_INITIALIZED_SUCCESSFULLY,
             'pipeline_available': PIPELINE_IMPORTED_SUCCESSFULLY,
             'auto_publisher_available': globals().get('AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY', False),
             'timestamp': datetime.now(timezone.utc).isoformat()
         }
-        
-        # Storage health
-        try:
-            bucket = get_storage_bucket()
-            if bucket:
-                # Get a sample of storage usage
-                blobs = list(bucket.list_blobs(prefix='user_reports/', max_results=100))
-                total_size = sum(blob.size for blob in blobs if blob.size)
-                analytics['storage_stats'] = {
-                    'firebase_storage_available': True,
-                    'sample_files_count': len(blobs),
-                    'sample_total_size_mb': round(total_size / (1024 * 1024), 2)
-                }
-            else:
-                analytics['storage_stats'] = {'firebase_storage_available': False}
-        except Exception as e:
-            app.logger.error(f"Error getting storage stats: {e}")
-            analytics['storage_stats'] = {'firebase_storage_available': False, 'error': str(e)}
         
     except Exception as e:
         app.logger.error(f"Error in get_admin_analytics: {e}")
@@ -936,7 +1008,9 @@ def get_recent_system_errors(limit=50):
     
     return errors
 
-def get_user_site_profiles_from_firestore(user_uid, limit_profiles=20):
+@monitor_query_performance('get_user_site_profiles')
+def get_user_site_profiles_from_firestore(user_uid, limit_profiles=20, use_cache=True):
+    """Fetch user site profiles with optional caching for performance."""
     # Get current Firebase initialization status
     current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
     if not current_firebase_status: return []
@@ -944,6 +1018,31 @@ def get_user_site_profiles_from_firestore(user_uid, limit_profiles=20):
     if not db:
         app.logger.error(f"Firestore client not available for get_user_site_profiles_from_firestore (user: {user_uid}).")
         return []
+    
+    # Use cached profiles if available and requested
+    if use_cache and CACHE_UTILS_AVAILABLE:
+        def fetch_profiles(uid):
+            profiles = []
+            try:
+                profiles_ref = db.collection(u'userSiteProfiles').document(uid).collection(u'profiles').order_by(u'profile_name').limit(limit_profiles).stream()
+                for profile_doc in profiles_ref:
+                    profile_data = profile_doc.to_dict()
+                    profile_data['profile_id'] = profile_doc.id
+                    profile_data.setdefault('authors', [])
+                    profile_data.setdefault('uploaded_ticker_file_name', None)
+                    profile_data.setdefault('ticker_file_storage_path', None)
+                    profile_data.setdefault('ticker_file_uploaded_at', None)
+                    profile_data.setdefault('ticker_count_from_file', None)
+                    profile_data.setdefault('ticker_preview_from_file', [])
+                    profile_data.setdefault('all_tickers_from_file', [])
+                    profiles.append(profile_data)
+            except Exception as e:
+                app.logger.error(f"Error fetching site profiles for user {uid} from Firestore: {e}", exc_info=True)
+            return profiles
+        
+        return get_cached_site_profiles(user_uid, fetch_profiles, ttl=300)
+    
+    # No caching - fetch directly
     profiles = []
     try:
         profiles_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').order_by(u'profile_name').limit(limit_profiles).stream()
@@ -995,6 +1094,12 @@ def save_user_site_profile_to_firestore(user_uid, profile_data_to_save):
             doc_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').document(profile_id_to_save)
             doc_ref.set(profile_data, merge=True)
             app.logger.info(f"✅ Updated site profile {profile_id_to_save} for user {user_uid} in Firestore.")
+            
+            # Invalidate cache after update
+            if CACHE_UTILS_AVAILABLE:
+                invalidate_site_profiles_cache(user_uid)
+            cache.delete(f"site_profiles_data_{user_uid}")
+            
             return profile_id_to_save
         else:
             profile_data['created_at'] = now_iso
@@ -1002,6 +1107,14 @@ def save_user_site_profile_to_firestore(user_uid, profile_data_to_save):
             new_doc_ref.set(profile_data)
             profile_id_new = new_doc_ref.id
             app.logger.info(f"✅ Added new site profile {profile_id_new} for user {user_uid} in Firestore.")
+            
+            # Invalidate cache and increment profile counter after creation
+            if CACHE_UTILS_AVAILABLE:
+                invalidate_site_profiles_cache(user_uid)
+                increment_counter(db, user_uid, 'totalProfiles', 1)
+            cache.delete(f"site_profiles_data_{user_uid}")
+            cache.delete(f"user_profile_data_{user_uid}")
+            
             return profile_id_new
     except Exception as e:
         error_msg = f"Error saving site profile for user {user_uid} to Firestore"
@@ -2218,8 +2331,9 @@ def clear_all_notifications():
 
 @app.route('/api/user-profile-data')
 @login_required
+@cache.cached(timeout=600, key_prefix=lambda: f"user_profile_data_{session.get('firebase_user_uid')}")
 def get_user_profile_data():
-    """API endpoint to fetch user profile data for skeleton loader"""
+    """API endpoint to fetch user profile data for skeleton loader (cached for 10 minutes)"""
     user_uid = session['firebase_user_uid']
     user_email = session.get('user_email', '')
     
@@ -2251,17 +2365,21 @@ def get_user_profile_data():
                         'created_at': profile_data.get('created_at', None)
                     })
 
-                # Get automation count
-                automations_query = db.collection('userGeneratedReports').where(
-                    filter=firestore.FieldFilter('user_uid', '==', user_uid)
-                ).count()
-                automations_count = automations_query.get()
-                user_profile_data['total_automations'] = automations_count[0][0].value if automations_count else 0
+                # Use counter documents for better performance (fallback to count query if not available)
+                if CACHE_UTILS_AVAILABLE:
+                    user_profile_data['total_automations'] = get_counter_value(db, user_uid, 'totalReports', 0)
+                    user_profile_data['active_profiles'] = get_counter_value(db, user_uid, 'totalProfiles', 0)
+                else:
+                    # Fallback to slow count queries
+                    automations_query = db.collection('userGeneratedReports').where(
+                        filter=firestore.FieldFilter('user_uid', '==', user_uid)
+                    ).count()
+                    automations_count = automations_query.get()
+                    user_profile_data['total_automations'] = automations_count[0][0].value if automations_count else 0
 
-                # Get active profiles count
-                profiles_query = db.collection('userSiteProfiles').document(user_uid).collection('profiles').count()
-                profiles_count = profiles_query.get()
-                user_profile_data['active_profiles'] = profiles_count[0][0].value if profiles_count else 0
+                    profiles_query = db.collection('userSiteProfiles').document(user_uid).collection('profiles').count()
+                    profiles_count = profiles_query.get()
+                    user_profile_data['active_profiles'] = profiles_count[0][0].value if profiles_count else 0
 
                 # Format created_at date
                 if user_profile_data['created_at']:
@@ -2283,12 +2401,13 @@ def get_user_profile_data():
 
 @app.route('/api/site-profiles-data')
 @login_required
+@cache.cached(timeout=180, key_prefix=lambda: f"site_profiles_data_{session.get('firebase_user_uid')}")
 def get_site_profiles_data():
-    """API endpoint to fetch site profiles data for skeleton loader"""
+    """API endpoint to fetch site profiles data for skeleton loader (cached for 3 minutes)"""
     user_uid = session['firebase_user_uid']
     
     try:
-        profiles = get_user_site_profiles_from_firestore(user_uid)
+        profiles = get_user_site_profiles_from_firestore(user_uid, use_cache=True)
         
         # Format profiles data for JSON response
         profiles_data = []
@@ -2805,7 +2924,7 @@ def verify_token_route():
         except Exception as e_firestore:
             app.logger.error(f"Error ensuring user profile in Firestore for {decoded_token.get('uid')}: {e_firestore}", exc_info=True)
 
-        return jsonify({"status": "success", "uid": decoded_token['uid'], "next_url": url_for('dashboard_page')}), 200
+        return jsonify({"status": "success", "uid": decoded_token['uid'], "next_url": url_for('stock_analysis_hub_page')}), 200
     else:
         app.logger.warning(f"[DEBUG] Token verification failed. Decoded token: {decoded_token}")
         return jsonify({"error": "Invalid or expired token."}), 401
@@ -2995,7 +3114,6 @@ def add_site_profile():
     min_scheduling_gap_minutes_str = request.form.get('min_scheduling_gap_minutes', '45').strip()
     max_scheduling_gap_minutes_str = request.form.get('max_scheduling_gap_minutes', '68').strip()
     env_prefix = request.form.get('env_prefix_for_feature_image_colors', '').strip().upper()
-    report_sections = request.form.getlist('report_sections_to_include[]')
 
     # DEBUG: Log form data for internal linking
     app.logger.info(f"[INTERNAL_LINKING_FORM_DEBUG] add_site_profile form submission:")
@@ -3036,8 +3154,6 @@ def add_site_profile():
     if stockforecast_category_id_str:
         try: stockforecast_category_id = int(stockforecast_category_id_str)
         except ValueError: errors['stockforecast_category_id_add'] = "Category ID must be a number if provided."
-
-    if not report_sections: report_sections = ALL_SECTIONS
 
     authors_data = []
     submitted_authors_raw_for_repopulation = []
@@ -3120,7 +3236,6 @@ def add_site_profile():
             "min_scheduling_gap_minutes": min_scheduling_gap_minutes_str,
             "max_scheduling_gap_minutes": max_scheduling_gap_minutes_str,
             "env_prefix_for_feature_image_colors": env_prefix,
-            "report_sections_to_include": report_sections,
             "authors_raw": submitted_authors_raw_for_repopulation
         }
         session['errors_add_repopulate'] = errors
@@ -3144,7 +3259,6 @@ def add_site_profile():
         "stockforecast_category_id": str(stockforecast_category_id) if stockforecast_category_id is not None else "",
         "min_scheduling_gap_minutes": min_sched_gap, "max_scheduling_gap_minutes": max_sched_gap,
         "env_prefix_for_feature_image_colors": env_prefix, "authors": authors_data,
-        "report_sections_to_include": report_sections,
         "internal_linking": internal_linking_config  # Add internal linking config
     }
 
@@ -3212,6 +3326,13 @@ def edit_site_profile(profile_id_from_firestore):
 
 
     if request.method == 'POST':
+        # Log AJAX detection
+        is_ajax_check = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        accepts_json_check = 'application/json' in request.headers.get('Accept', '')
+        app.logger.info(f"[AJAX_DEBUG] Edit profile POST - X-Requested-With: {request.headers.get('X-Requested-With')}")
+        app.logger.info(f"[AJAX_DEBUG] Edit profile POST - Accept header: {request.headers.get('Accept')}")
+        app.logger.info(f"[AJAX_DEBUG] Edit profile POST - is_ajax_check: {is_ajax_check}, accepts_json_check: {accepts_json_check}")
+        
         errors = {}
         profile_name = request.form.get('profile_name', '').strip()
         site_url = request.form.get('site_url', '').strip()
@@ -3220,7 +3341,6 @@ def edit_site_profile(profile_id_from_firestore):
         min_scheduling_gap_minutes_str = request.form.get('min_scheduling_gap_minutes', '').strip()
         max_scheduling_gap_minutes_str = request.form.get('max_scheduling_gap_minutes', '').strip()
         env_prefix = request.form.get('env_prefix_for_feature_image_colors', '').strip().upper()
-        report_sections = request.form.getlist('report_sections_to_include[]')
 
         # DEBUG: Log form data for internal linking
         app.logger.info(f"[INTERNAL_LINKING_FORM_DEBUG] edit_site_profile form submission for profile {profile_id_from_firestore}:")
@@ -3261,8 +3381,6 @@ def edit_site_profile(profile_id_from_firestore):
         if stockforecast_category_id_str:
             try: stockforecast_category_id = int(stockforecast_category_id_str)
             except ValueError: errors['stockforecast_category_id'] = "Category ID must be a number."
-
-        if not report_sections: report_sections = ALL_SECTIONS
 
         updated_authors = []
         author_idx = 0
@@ -3366,6 +3484,17 @@ def edit_site_profile(profile_id_from_firestore):
             cache_expiry_hours = 24
 
         if errors:
+            # Check if AJAX request
+            is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+            accepts_json = 'application/json' in request.headers.get('Accept', '')
+            
+            if is_ajax or accepts_json:
+                return jsonify({
+                    'success': False,
+                    'message': 'Please correct the errors in the form.',
+                    'errors': errors
+                }), 400
+            
             flash("Please correct the errors in the form.", "danger")
             profile_data_repopulate = {
                 "profile_id": profile_id_from_firestore,
@@ -3374,7 +3503,6 @@ def edit_site_profile(profile_id_from_firestore):
                 "min_scheduling_gap_minutes": min_scheduling_gap_minutes_str,
                 "max_scheduling_gap_minutes": max_scheduling_gap_minutes_str,
                 "env_prefix_for_feature_image_colors": env_prefix,
-                "report_sections_to_include": report_sections,
                 "authors": submitted_authors_raw_for_repopulation 
             }
             profile_data_repopulate['uploaded_ticker_file_name'] = profile_data_original.get('uploaded_ticker_file_name')
@@ -3388,7 +3516,6 @@ def edit_site_profile(profile_id_from_firestore):
             return render_template('edit_profile.html',
                                    title=f"Edit {profile_data_original.get('profile_name')}",
                                    profile=profile_data_repopulate,
-                                   all_report_sections=ALL_SECTIONS,
                                    errors=errors)
 
         # Build internal linking config with extracted settings
@@ -3409,7 +3536,6 @@ def edit_site_profile(profile_id_from_firestore):
             'min_scheduling_gap_minutes': min_sched_gap, 'max_scheduling_gap_minutes': max_sched_gap,
             'env_prefix_for_feature_image_colors': env_prefix,
             'authors': updated_authors,
-            'report_sections_to_include': report_sections,
             'internal_linking': internal_linking_config  # Add internal linking config
         }
 
@@ -3422,17 +3548,31 @@ def edit_site_profile(profile_id_from_firestore):
         profile_data_to_save['ticker_preview_from_file'] = profile_data_original.get('ticker_preview_from_file', [])
         profile_data_to_save['all_tickers_from_file'] = profile_data_original.get('all_tickers_from_file', [])
 
+        # Check if AJAX request
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        accepts_json = 'application/json' in request.headers.get('Accept', '')
 
         if save_user_site_profile_to_firestore(user_uid, profile_data_to_save):
+            if is_ajax or accepts_json:
+                return jsonify({
+                    'success': True,
+                    'message': f"Publishing Profile '{profile_data_to_save['profile_name']}' updated successfully!",
+                    'profile_name': profile_data_to_save['profile_name'],
+                    'profile_id': profile_id_from_firestore
+                }), 200
             flash(f"Publishing Profile '{profile_data_to_save['profile_name']}' updated successfully!", "success")
         else:
+            if is_ajax or accepts_json:
+                return jsonify({
+                    'success': False,
+                    'message': f"Failed to update publishing profile '{profile_data_to_save['profile_name']}'."
+                }), 500
             flash(f"Failed to update publishing profile '{profile_data_to_save['profile_name']}'.", "danger")
         return redirect(url_for('manage_site_profiles'))
 
     return render_template('edit_profile.html',
                            title=f"Edit {profile_data_original.get('profile_name')}",
                            profile=profile_data_original,
-                           all_report_sections=ALL_SECTIONS,
                            errors=None)
 
 
@@ -3649,6 +3789,18 @@ def save_report_to_history(user_uid, ticker, filename, generated_at_dt, storage_
         reports_history_collection = db.collection(u'userGeneratedReports')
         doc_ref = reports_history_collection.add(report_data)
         
+        # Increment counter documents
+        try:
+            from firebase_admin import firestore as admin_firestore
+            counter_ref = db.collection('_counters').document('userGeneratedReports')
+            counter_ref.set({
+                'total_count': admin_firestore.Increment(1),
+                f'user_{user_uid}': admin_firestore.Increment(1),
+                'updated_at': admin_firestore.SERVER_TIMESTAMP
+            }, merge=True)
+        except Exception as counter_e:
+            app.logger.warning(f"Failed to update counter documents: {counter_e}")
+        
         app.logger.info(f"Report history saved for user {user_uid}, ticker {ticker}, filename {clean_filename}. Document ID: {doc_ref[1].id}, Storage Type: {storage_type}")
         
         # Also save metadata for analytics purposes
@@ -3683,8 +3835,9 @@ def save_report_to_history(user_uid, ticker, filename, generated_at_dt, storage_
         app.logger.error(f"Error saving report history for user {user_uid}, ticker {ticker}: {e}", exc_info=True)
         return False
 
+@monitor_query_performance('get_report_history_for_user')
 def get_report_history_for_user(user_uid, display_limit=10):
-    """Get report history for a user with enhanced storage information"""
+    """Get report history for a user with enhanced storage information (optimized)"""
     if not FIREBASE_INITIALIZED_SUCCESSFULLY:
         app.logger.error(f"Firestore not available for fetching report history for user {user_uid}.")
         return [], 0
@@ -3697,18 +3850,20 @@ def get_report_history_for_user(user_uid, display_limit=10):
     total_user_reports_count = 0
 
     try:
-        base_query = db.collection(u'userGeneratedReports').where(filter=firestore.FieldFilter(u'user_uid', u'==', user_uid))
-        # Try to use Firestore's count() aggregate if available
+        # Try to get counter from collection counter document, fallback to query if not available
         try:
-            count_query = base_query.count()
-            count_result = count_query.get()
-            total_user_reports_count = count_result[0][0].value if count_result else 0
-        except AttributeError:
-            # Fallback: Use a cached count if available, else estimate
-            app.logger.warning("Firestore count() aggregate not available, using estimated count.")
-            total_user_reports_count = 0  # Optionally, store and update a count in user profile for accuracy
-
+            counter_doc = db.collection('_counters').document('userGeneratedReports').get()
+            if counter_doc.exists:
+                total_user_reports_count = counter_doc.to_dict().get(f'user_{user_uid}', 0)
+            else:
+                # Fallback: estimate from query
+                total_user_reports_count = 0
+        except Exception as counter_err:
+            app.logger.warning(f"Counter lookup failed, will estimate count: {counter_err}")
+            total_user_reports_count = 0
+        
         # Only fetch the latest N reports for display
+        base_query = db.collection(u'userGeneratedReports').where(filter=firestore.FieldFilter(u'user_uid', u'==', user_uid))
         display_query = base_query.order_by(u'generated_at', direction='DESCENDING').limit(display_limit)
         docs_for_display_stream = display_query.stream()
         
@@ -3737,7 +3892,8 @@ def get_report_history_for_user(user_uid, display_limit=10):
                 clean_filename = os.path.basename(filename)
                 report_data['filename'] = clean_filename
                 
-                # Determine content availability based on storage type
+                # Determine content availability based on storage type (without verification)
+                # Storage verification is expensive; trust the metadata for listing
                 content_available = False
                 storage_location = "Unknown"
                 storage_details = {}
@@ -3758,35 +3914,21 @@ def get_report_history_for_user(user_uid, display_limit=10):
                         'compressed_size': len(report_data.get('compressed_content', '')) if content_available else 0
                     }
                 elif storage_type == 'firebase_storage':
+                    # Trust metadata - assume storage path exists if present
                     content_available = bool(storage_path)
                     storage_location = "Cloud Storage"
                     storage_details = {
                         'type': 'cloud_storage',
                         'path': storage_path
                     }
-                    # Verify Firebase Storage file exists
-                    if storage_path:
-                        try:
-                            bucket = get_storage_bucket()
-                            if bucket:
-                                blob = bucket.blob(storage_path)
-                                content_available = blob.exists()
-                                if content_available:
-                                    app.logger.debug(f"Report found in Firebase Storage: {storage_path}")
-                        except Exception as e:
-                            app.logger.warning(f"Error checking Firebase Storage for {storage_path}: {e}")
-                            content_available = False
                 elif storage_type == 'local_file_only':
+                    # Trust metadata - file exists flag from last save
                     content_available = local_file_exists
                     storage_location = "Local File Only"
                     storage_details = {
                         'type': 'local_only',
                         'exists': local_file_exists
                     }
-                    # Verify local file exists
-                    if local_file_exists:
-                        full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
-                        content_available = os.path.exists(full_file_path)
                 else:
                     # Legacy handling or unknown storage type
                     if storage_path:
@@ -3796,18 +3938,8 @@ def get_report_history_for_user(user_uid, display_limit=10):
                             'type': 'cloud_storage_legacy',
                             'path': storage_path
                         }
-                        # Check Firebase Storage availability
-                        try:
-                            bucket = get_storage_bucket()
-                            if bucket:
-                                blob = bucket.blob(storage_path)
-                                content_available = blob.exists()
-                        except Exception as e:
-                            app.logger.warning(f"Error checking Firebase Storage for {storage_path}: {e}")
-                            content_available = False
                     elif local_file_exists:
-                        full_file_path = os.path.join(STOCK_REPORTS_PATH, clean_filename)
-                        content_available = os.path.exists(full_file_path)
+                        content_available = True
                         storage_location = "Local File"
                         storage_details = {
                             'type': 'local_file',
@@ -3828,7 +3960,7 @@ def get_report_history_for_user(user_uid, display_limit=10):
                 report_data['has_storage_path'] = bool(storage_path)
                 
                 if not content_available:
-                    app.logger.warning(f"Report content missing for user {user_uid}: {clean_filename} (Storage Type: {storage_type})")
+                    app.logger.debug(f"Report content missing for user {user_uid}: {clean_filename} (Storage Type: {storage_type})")
                 
             reports_for_display.append(report_data)
             
@@ -5801,80 +5933,7 @@ def collect_sports_articles():
 #     pass
 
 
-@app.route('/api/sports-articles', methods=['GET'])
-@login_required
-def get_sports_articles_with_filters():
-    """Get sports articles with filtering support"""
-    try:
-        category = request.args.get('category')
-        importance_tier = request.args.get('importance_tier')
-        min_score = request.args.get('min_importance_score', type=int)
-        sort_by = request.args.get('sort_by', 'published_date')
-        
-        from Sports_Article_Automation.api.sports_articles_loader import get_sports_loader
-        
-        sports_loader = get_sports_loader()
-        articles = sports_loader.get_articles_by_filters(
-            category=category,
-            importance_tier=importance_tier,
-            min_importance_score=min_score,
-            sort_by=sort_by
-        )
-        
-        return jsonify({
-            'success': True,
-            'total': len(articles),
-            'articles': articles
-        })
-    
-    except Exception as e:
-        app.logger.error(f"Error getting sports articles: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
-@app.route('/run-sports-pipeline', methods=['POST'])
-@login_required
-def run_sports_pipeline():
-    """Legacy route - redirects to collect_sports_articles"""
-    app.logger.warning("Using legacy /run-sports-pipeline route - use /collect-sports-articles instead")
-    return collect_sports_articles()
-
-
-@app.route('/api/sports-articles-legacy', methods=['GET'])
-@login_required
-def get_sports_articles_api():
-    """API endpoint to get sports articles in JSON format"""
-    try:
-        category = request.args.get('category')  # Optional filter
-        
-        from Sports_Article_Automation.api.sports_articles_loader import get_sports_loader
-        
-        sports_loader = get_sports_loader()
-        articles = sports_loader.load_articles(category=category)
-        
-        # Sort by published date (newest first)
-        articles.sort(key=lambda x: x.get('published_date', ''), reverse=True)
-        
-        return jsonify({
-            'status': 'success',
-            'count': len(articles),
-            'category': category or 'all',
-            'articles': articles
-        })
-    
-    except Exception as e:
-        app.logger.error(f"Error fetching sports articles API: {e}")
-        return jsonify({
-            'status': 'error',
-            'message': str(e),
-            'articles': []
-        }), 500
-
-
-# ============================================================================
+# ============================================================================# ============================================================================
 # SPORTS AUTOMATION API ENDPOINTS
 # ============================================================================
 
@@ -6355,6 +6414,7 @@ def api_sports_get_articles():
         def convert_to_ist_display(articles_list):
             """Convert article timestamps to IST for frontend display"""
             from dateutil.tz import gettz
+            from email.utils import parsedate_to_datetime
             ist_tz = gettz('Asia/Kolkata')
             
             for article in articles_list:
@@ -6366,27 +6426,48 @@ def api_sports_get_articles():
                 if parsed_date:
                     # Convert to IST for display
                     ist_date = parsed_date.astimezone(ist_tz)
-                    article['display_date_ist'] = ist_date.strftime('%Y-%m-%d %H:%M:%S IST')
+                    article['display_date_ist'] = ist_date.strftime('%d %b %Y, %I:%M %p IST')
                     article['display_date_iso'] = ist_date.isoformat()
                 else:
                     # Fallback: try to parse and convert string dates
-                    date_str = (article.get('published_date_ist') or 
-                               article.get('published_date') or 
-                               article.get('collected_date'))
+                    # Prioritize published_date_ist if already in IST
+                    date_str = article.get('published_date_ist')
                     if date_str:
                         try:
                             from dateutil import parser as date_parser
                             parsed = date_parser.parse(date_str)
                             if parsed.tzinfo is None:
-                                # Assume UTC if no timezone
-                                from dateutil.tz import UTC
-                                parsed = parsed.replace(tzinfo=UTC)
+                                # Assume IST if from published_date_ist field
+                                parsed = parsed.replace(tzinfo=ist_tz)
                             ist_date = parsed.astimezone(ist_tz)
-                            article['display_date_ist'] = ist_date.strftime('%Y-%m-%d %H:%M:%S IST')
+                            article['display_date_ist'] = ist_date.strftime('%d %b %Y, %I:%M %p IST')
+                            article['display_date_iso'] = ist_date.isoformat()
+                            continue
+                        except:
+                            pass
+                    
+                    # Try published_date or collected_date
+                    date_str = article.get('published_date') or article.get('collected_date')
+                    if date_str:
+                        try:
+                            # Try RFC 2822 format first (e.g., "Mon, 12 Jan 2026 15:11:13 GMT")
+                            try:
+                                parsed = parsedate_to_datetime(date_str)
+                            except (ValueError, TypeError):
+                                # Fall back to dateutil parser
+                                from dateutil import parser as date_parser
+                                parsed = date_parser.parse(date_str)
+                                if parsed.tzinfo is None:
+                                    # Assume UTC if no timezone
+                                    from dateutil.tz import UTC
+                                    parsed = parsed.replace(tzinfo=UTC)
+                            
+                            ist_date = parsed.astimezone(ist_tz)
+                            article['display_date_ist'] = ist_date.strftime('%d %b %Y, %I:%M %p IST')
                             article['display_date_iso'] = ist_date.isoformat()
                         except Exception as e:
                             # Fallback to original string
-                            article['display_date_ist'] = str(date_str)[:25] + ' (Original)'
+                            article['display_date_ist'] = str(date_str)[:25]
                             article['display_date_iso'] = str(date_str)
                     else:
                         article['display_date_ist'] = 'No date available'
@@ -8376,7 +8457,8 @@ def _register_automation():
         get_firestore_client_func=get_firestore_client,
         get_firebase_app_initialized_func=get_firebase_app_initialized,
         auto_publisher_module=auto_publisher if AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY else None,
-        project_root=PROJECT_ROOT
+        project_root=PROJECT_ROOT,
+        cache_instance=cache  # Pass Flask-Caching instance
     )
     
     # Create fresh blueprint instances to avoid Flask reloader issues
@@ -8389,21 +8471,54 @@ def _register_automation():
     from app.blueprints.automation_utils import (
         login_required as bp_login_required,
         get_user_site_profiles_from_firestore,
-        get_automation_shared_context
+        get_automation_shared_context,
+        get_cache
     )
-    from flask import render_template, session
+    from flask import render_template, session, jsonify
     
     @automation_bp.route('/overview')
     @bp_login_required
     def overview():
+        """Automation hub overview - Instant load with skeleton."""
+        # Just render the page shell immediately - no data fetching
+        return render_template('automation/overview.html',
+                             title="Automation Hub - Tickzen")
+    
+    @automation_bp.route('/api/overview-stats')
+    @bp_login_required
+    def api_overview_stats():
+        """API endpoint to fetch overview stats with caching."""
+        user_cache = get_cache()
         user_uid = session['firebase_user_uid']
+        
+        # Try to get from cache first (5 minute cache)
+        cache_key = f'overview_stats_{user_uid}'
+        
+        if user_cache:
+            cached_data = user_cache.get(cache_key)
+            if cached_data:
+                return jsonify(cached_data)
+        
+        # Fetch data if not cached
         user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
         shared_context = get_automation_shared_context(user_uid, user_site_profiles)
         total_sites = len(user_site_profiles) if user_site_profiles else 0
-        return render_template('automation/overview.html',
-                             title="Automation Hub - Tickzen",
-                             total_sites=total_sites,
-                             **shared_context)
+        
+        response_data = {
+            'total_sites': total_sites,
+            'total_published_count': shared_context.get('total_published_count', 0),
+            'this_week_count': shared_context.get('this_week_count', 0),
+            'pending_count': shared_context.get('pending_count', 0),
+            'has_profiles': shared_context.get('has_profiles', False),
+            'recent_activity': shared_context.get('recent_activity', []),
+            'user_site_profiles': user_site_profiles or []
+        }
+        
+        # Cache for 5 minutes
+        if user_cache:
+            user_cache.set(cache_key, response_data, timeout=300)
+        
+        return jsonify(response_data)
     
     @automation_bp.route('/history')
     @bp_login_required

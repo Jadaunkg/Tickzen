@@ -3,351 +3,356 @@
 {% block title %}Earnings Automation Dashboard | Tickzen{% endblock %}
 
 {% block head_extra %}
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="description" content="Earnings Report Automation Dashboard - Monitor and manage your earnings content automation">
-    <link rel="canonical" href="https://tickzen.app/automation/earnings/dashboard">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --background: 0 0% 100%;
-            --foreground: 0 0% 3.9%;
-            --card: 0 0% 100%;
-            --card-foreground: 0 0% 3.9%;
-            --border: 0 0% 89.8%;
-            --muted: 0 0% 96.1%;
-            --muted-foreground: 0 0% 45.1%;
-            --green-50: #f0fdf4;
-            --green-100: #dcfce7;
-            --green-600: #16a34a;
-            --green-700: #15803d;
-            --purple-50: #faf5ff;
-            --purple-100: #f3e8ff;
-            --purple-600: #9333ea;
-            --purple-700: #7e22ce;
-            --purple-800: #6b21a8;
-            --blue-50: #eff6ff;
-            --blue-600: #2563eb;
-            --orange-50: #fff7ed;
-            --orange-600: #ea580c;
-        }
+<meta name="robots" content="noindex, nofollow">
+<meta name="description"
+    content="Earnings Report Automation Dashboard - Monitor and manage your earnings content automation">
+<link rel="canonical" href="https://tickzen.app/automation/earnings/dashboard">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 3.9%;
+        --border: 0 0% 89.8%;
+        --muted: 0 0% 96.1%;
+        --muted-foreground: 0 0% 45.1%;
+        --green-50: #f0fdf4;
+        --green-100: #dcfce7;
+        --green-600: #16a34a;
+        --green-700: #15803d;
+        --purple-50: #faf5ff;
+        --purple-100: #f3e8ff;
+        --purple-600: #9333ea;
+        --purple-700: #7e22ce;
+        --purple-800: #6b21a8;
+        --blue-50: #eff6ff;
+        --blue-600: #2563eb;
+        --orange-50: #fff7ed;
+        --orange-600: #ea580c;
+    }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.5;
-            color: hsl(var(--foreground));
-            background: hsl(var(--background));
-            font-size: 14px;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        /* Page Layout */
-        .automation-page-layout {
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.5;
+        color: hsl(var(--foreground));
+        background: hsl(var(--background));
+        font-size: 14px;
+    }
+
+    /* Page Layout */
+    .automation-page-layout {
+        display: flex;
+        min-height: calc(100vh - 60px);
+    }
+
+    .automation-page-content {
+        flex: 1;
+        overflow-x: hidden;
+        padding: 1.5rem;
+    }
+
+    /* Mobile sidebar toggle button */
+    .mobile-sidebar-toggle {
+        display: none;
+        position: fixed;
+        bottom: 1.5rem;
+        left: 1.5rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%);
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(147, 51, 234, 0.4);
+        z-index: 999;
+        font-size: 1.25rem;
+        transition: transform 0.2s ease;
+    }
+
+    .mobile-sidebar-toggle:hover {
+        transform: scale(1.1);
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .mobile-sidebar-toggle {
             display: flex;
-            min-height: calc(100vh - 60px);
+            align-items: center;
+            justify-content: center;
         }
 
         .automation-page-content {
-            flex: 1;
-            overflow-x: hidden;
+            padding: 1rem;
+        }
+    }
+
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        color: white;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-header p {
+        opacity: 0.9;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-box {
+        background: white;
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-box .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        font-size: 1.125rem;
+        background: var(--purple-100);
+        color: var(--purple-700);
+    }
+
+    .stat-box .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+    }
+
+    .stat-box .stat-label {
+        font-size: 0.813rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    /* Content Cards */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .content-card {
+        background: white;
+        border: 1px solid hsl(var(--border));
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .content-card-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid hsl(var(--border));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .content-card-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .content-card-body {
+        padding: 1.25rem;
+    }
+
+    /* Calendar Items */
+    .calendar-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.875rem;
+        border-radius: 8px;
+        transition: background 0.15s ease;
+        margin-bottom: 0.5rem;
+    }
+
+    .calendar-item:hover {
+        background: var(--purple-50);
+    }
+
+    .calendar-date {
+        width: 48px;
+        height: 48px;
+        background: var(--purple-100);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .calendar-date .day {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--purple-700);
+        line-height: 1;
+    }
+
+    .calendar-date .month {
+        font-size: 0.625rem;
+        font-weight: 600;
+        color: var(--purple-600);
+        text-transform: uppercase;
+    }
+
+    .calendar-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .calendar-ticker {
+        font-weight: 600;
+        font-size: 0.938rem;
+        color: hsl(var(--foreground));
+    }
+
+    .calendar-company {
+        font-size: 0.813rem;
+        color: hsl(var(--muted-foreground));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .calendar-time {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.25rem 0.5rem;
+        background: var(--purple-50);
+        color: var(--purple-700);
+        border-radius: 4px;
+    }
+
+    /* Quick Actions */
+    .quick-action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .quick-action-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        background: var(--purple-50);
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--purple-700);
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+
+    .quick-action-link:hover {
+        background: var(--purple-100);
+        transform: translateX(4px);
+    }
+
+    .quick-action-link i {
+        width: 20px;
+        text-align: center;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state p {
+        font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header {
             padding: 1.5rem;
         }
 
-        /* Mobile sidebar toggle button */
-        .mobile-sidebar-toggle {
-            display: none;
-            position: fixed;
-            bottom: 1.5rem;
-            left: 1.5rem;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%);
-            color: white;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.4);
-            z-index: 999;
-            font-size: 1.25rem;
-            transition: transform 0.2s ease;
-        }
-
-        .mobile-sidebar-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .sidebar-overlay.active {
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-sidebar-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            .automation-page-content {
-                padding: 1rem;
-            }
-        }
-
-        /* Page Header */
-        .page-header {
-            background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            color: white;
-        }
-
         .page-header h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .page-header p {
-            opacity: 0.9;
-            margin: 0;
-            font-size: 0.95rem;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-box {
-            background: white;
-            border: 1px solid hsl(var(--border));
-            border-radius: 10px;
-            padding: 1.25rem;
-            text-align: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .stat-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .stat-box .stat-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 0.75rem;
-            font-size: 1.125rem;
-            background: var(--purple-100);
-            color: var(--purple-700);
-        }
-
-        .stat-box .stat-value {
             font-size: 1.5rem;
-            font-weight: 700;
-            color: hsl(var(--foreground));
         }
-
-        .stat-box .stat-label {
-            font-size: 0.813rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        /* Content Cards */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .content-card {
-            background: white;
-            border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .content-card-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid hsl(var(--border));
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .content-card-header h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .content-card-body {
-            padding: 1.25rem;
-        }
-
-        /* Calendar Items */
-        .calendar-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.875rem;
-            border-radius: 8px;
-            transition: background 0.15s ease;
-            margin-bottom: 0.5rem;
-        }
-
-        .calendar-item:hover {
-            background: var(--purple-50);
-        }
-
-        .calendar-date {
-            width: 48px;
-            height: 48px;
-            background: var(--purple-100);
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .calendar-date .day {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: var(--purple-700);
-            line-height: 1;
-        }
-
-        .calendar-date .month {
-            font-size: 0.625rem;
-            font-weight: 600;
-            color: var(--purple-600);
-            text-transform: uppercase;
-        }
-
-        .calendar-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .calendar-ticker {
-            font-weight: 600;
-            font-size: 0.938rem;
-            color: hsl(var(--foreground));
-        }
-
-        .calendar-company {
-            font-size: 0.813rem;
-            color: hsl(var(--muted-foreground));
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .calendar-time {
-            font-size: 0.75rem;
-            font-weight: 500;
-            padding: 0.25rem 0.5rem;
-            background: var(--purple-50);
-            color: var(--purple-700);
-            border-radius: 4px;
-        }
-
-        /* Quick Actions */
-        .quick-action-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .quick-action-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.875rem 1rem;
-            background: var(--purple-50);
-            border-radius: 8px;
-            text-decoration: none;
-            color: var(--purple-700);
-            font-weight: 500;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-        }
-
-        .quick-action-link:hover {
-            background: var(--purple-100);
-            transform: translateX(4px);
-        }
-
-        .quick-action-link i {
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 2rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .empty-state i {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        .empty-state p {
-            font-size: 0.875rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .page-header {
-                padding: 1.5rem;
-            }
-
-            .page-header h1 {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
+    }
+</style>
 {% endblock %}
 
 {% set active_section = 'earnings' %}
@@ -356,10 +361,10 @@
 <div class="automation-page-layout">
     <!-- Sidebar -->
     {% include 'automation/_sidebar.html' %}
-    
+
     <!-- Sidebar overlay for mobile -->
     <div class="sidebar-overlay" onclick="toggleAutomationSidebar()"></div>
-    
+
     <!-- Main Content -->
     <div class="automation-page-content">
         <!-- Page Header -->
@@ -406,27 +411,29 @@
             <div class="content-card">
                 <div class="content-card-header">
                     <h3><i class="fas fa-calendar-alt"></i> Upcoming Earnings</h3>
-                    <a href="{{ url_for('automation.earnings_automation.calendar') }}" style="font-size: 0.813rem; color: var(--purple-600); text-decoration: none;">View Calendar →</a>
+                    <a href="{{ url_for('automation.earnings_automation.calendar') }}"
+                        style="font-size: 0.813rem; color: var(--purple-600); text-decoration: none;">View Calendar
+                        →</a>
                 </div>
                 <div class="content-card-body">
                     {% if upcoming_earnings and upcoming_earnings|length > 0 %}
-                        {% for item in upcoming_earnings[:5] %}
-                        <div class="calendar-item">
-                            <div class="calendar-date">
-                                <span class="day">{{ item.day[:3]|default('--') }}</span>
-                            </div>
-                            <div class="calendar-info">
-                                <div class="calendar-ticker">{{ item.ticker|default('N/A') }}</div>
-                                <div class="calendar-company">{{ item.company|default('Company Name') }}</div>
-                            </div>
-                            <span class="calendar-time">{{ item.time|default('TBD') }}</span>
+                    {% for item in upcoming_earnings[:5] %}
+                    <div class="calendar-item">
+                        <div class="calendar-date">
+                            <span class="day">{{ item.day[:3]|default('--') }}</span>
                         </div>
-                        {% endfor %}
+                        <div class="calendar-info">
+                            <div class="calendar-ticker">{{ item.ticker|default('N/A') }}</div>
+                            <div class="calendar-company">{{ item.company|default('Company Name') }}</div>
+                        </div>
+                        <span class="calendar-time">{{ item.time|default('TBD') }}</span>
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <div class="empty-state">
-                            <i class="fas fa-calendar-times"></i>
-                            <p>No upcoming earnings scheduled.<br>Refresh the calendar to load data.</p>
-                        </div>
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>No upcoming earnings scheduled.<br>Refresh the calendar to load data.</p>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -459,7 +466,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Mobile sidebar toggle button -->
     <button class="mobile-sidebar-toggle" onclick="toggleAutomationSidebar()" aria-label="Toggle sidebar">
         <i class="fas fa-bars"></i>

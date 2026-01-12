@@ -123,3 +123,47 @@ FORECAST_OPTIONS = {
 
 
 FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')
+
+# ============================================================================
+# CACHING CONFIGURATION
+# ============================================================================
+
+# Cache configuration for Flask-Caching
+CACHE_CONFIG = {
+    'CACHE_TYPE': 'SimpleCache',  # Use SimpleCache for development, Redis for production
+    'CACHE_DEFAULT_TIMEOUT': 300,  # 5 minutes default
+    'CACHE_KEY_PREFIX': 'tickzen_',
+    'CACHE_THRESHOLD': 500  # Maximum number of items in cache
+}
+
+# Redis configuration (for production)
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+
+# Production cache config
+PRODUCTION_CACHE_CONFIG = {
+    'CACHE_TYPE': 'redis',
+    'CACHE_REDIS_URL': REDIS_URL,
+    'CACHE_DEFAULT_TIMEOUT': 300,
+    'CACHE_KEY_PREFIX': 'tickzen_',
+    'CACHE_OPTIONS': {
+        'socket_connect_timeout': 2,
+        'socket_timeout': 2,
+        'retry_on_timeout': True,
+        'max_connections': 50
+    }
+}
+
+# Different TTL for different data types (in seconds)
+CACHE_TTL = {
+    'user_profile': 600,           # 10 minutes - rarely changes
+    'site_profiles': 300,          # 5 minutes - moderate changes
+    'site_profiles_list': 180,     # 3 minutes - for profile listings
+    'report_count': 60,            # 1 minute - changes frequently
+    'report_history': 120,         # 2 minutes - moderate frequency
+    'dashboard_stats': 120,        # 2 minutes - frequently updated
+    'admin_analytics': 180,        # 3 minutes - not critical to be real-time
+    'storage_check': 3600,         # 1 hour - expensive operation
+    'published_articles': 300,     # 5 minutes
+    'automation_state': 60,        # 1 minute - needs to be fresh
+    'counter_values': 30,          # 30 seconds - frequently updated
+}

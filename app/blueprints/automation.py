@@ -13,7 +13,7 @@ Routes:
 /automation/history - Shared publishing history for all automation types
 """
 
-from flask import Blueprint, render_template, redirect, url_for, session
+from flask import Blueprint, render_template, redirect, url_for, session, jsonify
 import sys
 import os
 
@@ -28,7 +28,8 @@ automation_bp = Blueprint('automation', __name__, url_prefix='/automation')
 from app.blueprints.automation_utils import (
     login_required,
     get_user_site_profiles_from_firestore,
-    get_automation_shared_context
+    get_automation_shared_context,
+    get_cache
 )
 
 
@@ -36,25 +37,53 @@ from app.blueprints.automation_utils import (
 @login_required
 def overview():
     """
-    Automation hub overview page.
-    
-    Shows an overview of all automation types with quick access links.
+    Automation hub overview page - Instant load with skeleton.
+    Data is fetched via AJAX after page renders.
     """
+    # Just render the page shell immediately - no data fetching
+    return render_template('automation/overview.html',
+                         title="Automation Hub - Tickzen")
+
+
+@automation_bp.route('/api/overview-stats')
+@login_required
+def api_overview_stats():
+    """
+    API endpoint to fetch overview stats with caching.
+    Called via AJAX after page loads for better perceived performance.
+    """
+    cache = get_cache()
     user_uid = session['firebase_user_uid']
     
-    # Get user site profiles for context
-    user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
+    # Try to get from cache first (5 minute cache)
+    cache_key = f'overview_stats_{user_uid}'
     
-    # Get shared context for automation
+    if cache:
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return jsonify(cached_data)
+    
+    # Fetch data if not cached
+    user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
     shared_context = get_automation_shared_context(user_uid, user_site_profiles)
     
-    # Calculate stats for the overview
+    # Calculate stats
     total_sites = len(user_site_profiles) if user_site_profiles else 0
     
-    return render_template('automation/overview.html',
-                         title="Automation Hub - Tickzen",
-                         total_sites=total_sites,
-                         **shared_context)
+    response_data = {
+        'total_sites': total_sites,
+        'total_published_count': shared_context.get('total_published_count', 0),
+        'this_week_count': shared_context.get('this_week_count', 0),
+        'pending_count': shared_context.get('pending_count', 0),
+        'has_profiles': shared_context.get('has_profiles', False),
+        'user_site_profiles': user_site_profiles or []
+    }
+    
+    # Cache for 5 minutes
+    if cache:
+        cache.set(cache_key, response_data, timeout=300)
+    
+    return jsonify(response_data)
 
 
 @automation_bp.route('/history')

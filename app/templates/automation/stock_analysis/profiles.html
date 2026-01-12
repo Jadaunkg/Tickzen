@@ -664,25 +664,6 @@
                 <!-- Internal Linking Settings -->
                 {% include "components/internal_linking_form.html" %}
 
-                <h3><i class="fas fa-tasks"></i> Report Sections to Include</h3>
-                <div class="report-sections-controls">
-                    <button type="button" id="selectAllSectionsAdd" class="btn-secondary-action btn-sm">Select All</button>
-                    <button type="button" id="unselectAllSectionsAdd" class="btn-secondary-action btn-sm">Unselect All</button>
-                </div>
-                <div class="report-sections-container" id="reportSectionsAddContainer">
-                    {% set selected_sections = form_data_add.report_sections_to_include if form_data_add and form_data_add.report_sections_to_include is defined else all_report_sections %}
-                    {% for section_key in all_report_sections %}
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="add_section_{{ section_key }}" name="report_sections_to_include[]" value="{{ section_key }}"
-                                   {% if section_key in selected_sections %}checked{% endif %}>
-                            <label for="add_section_{{ section_key }}">{{ section_key.replace("_", " ").title() }}</label>
-                        </div>
-                    {% endfor %}
-                </div>
-                 {% if errors_add and errors_add.report_sections_add %}
-                    <small class="form-text text-danger">{{ errors_add.report_sections_add }}</small>
-                {% endif %}
-
                 <div class="btn-group" style="margin-top: 20px;">
                     <button type="submit" class="btn-submit-profile"><i class="fas fa-save"></i> Add Profile</button>
                     <button type="button" id="cancelAddProfileBtn" class="btn-secondary-action" style="background-color: #6c757d; color:white;">Cancel</button>

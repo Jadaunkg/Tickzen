@@ -35,29 +35,54 @@ from app.blueprints.automation_utils import (
     login_required,
     get_user_site_profiles_from_firestore,
     get_automation_shared_context,
-    ALL_SECTIONS
+    ALL_SECTIONS,
+    get_cache
 )
 
 
 @stock_automation_bp.route('/dashboard')
 @login_required
 def dashboard():
-    """Stock analysis automation dashboard."""
+    """Stock analysis automation dashboard - Instant load with skeleton."""
+    return render_template('automation/stock_analysis/dashboard.html', 
+                           title="Stock Analysis Dashboard - Tickzen")
+
+
+@stock_automation_bp.route('/api/dashboard-stats')
+@login_required
+def api_dashboard_stats():
+    """API endpoint to fetch dashboard stats with caching."""
+    cache = get_cache()
     user_uid = session['firebase_user_uid']
+    
+    # Try to get from cache first (5 minute cache)
+    cache_key = f'stock_dashboard_stats_{user_uid}'
+    
+    if cache:
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return jsonify(cached_data)
+    
+    # Fetch data if not cached
     user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
     shared_context = get_automation_shared_context(user_uid, user_site_profiles)
-    
-    # Get stats for the dashboard
     connected_sites = len(user_site_profiles) if user_site_profiles else 0
     
-    return render_template('automation/stock_analysis/dashboard.html', 
-                           title="Stock Analysis Dashboard - Tickzen",
-                           connected_sites=connected_sites,
-                           stock_published=0,  # TODO: Fetch from Firestore
-                           total_tickers=0,    # TODO: Fetch from Firestore
-                           success_rate="100%",
-                           recent_reports=[],  # TODO: Fetch recent reports
-                           **shared_context)
+    response_data = {
+        'connected_sites': connected_sites,
+        'stock_published': 0,  # TODO: Fetch from Firestore
+        'total_tickers': 0,    # TODO: Fetch from Firestore
+        'success_rate': "100%",
+        'recent_reports': [],  # TODO: Fetch recent reports
+        'has_profiles': shared_context.get('has_profiles', False),
+        **shared_context
+    }
+    
+    # Cache for 5 minutes
+    if cache:
+        cache.set(cache_key, response_data, timeout=300)
+    
+    return jsonify(response_data)
 
 
 @stock_automation_bp.route('/run')

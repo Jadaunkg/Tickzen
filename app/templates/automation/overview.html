@@ -72,6 +72,16 @@
     margin-bottom: 20px;
 }
 
+/* Skeleton Shimmer Animation */
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.hub-stat-card.skeleton-loading .hub-stat-value.skeleton {
+    border-radius: 4px;
+}
+
 .hub-badge {
     display: inline-flex;
     align-items: center;
@@ -927,32 +937,33 @@
         </section>
         
         <!-- Stats Row -->
-        <div class="hub-stats-row">
-            <div class="hub-stat-card">
+        <div class="hub-stats-row" id="statsRow">
+            <!-- Skeleton Loading -->
+            <div class="hub-stat-card skeleton-loading">
                 <div class="hub-stat-icon green"><i data-lucide="file-check"></i></div>
                 <div class="hub-stat-info">
-                    <div class="hub-stat-value">{{ total_published_count|default(0) }}</div>
+                    <div class="hub-stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
                     <div class="hub-stat-label">Total Published</div>
                 </div>
             </div>
-            <div class="hub-stat-card">
+            <div class="hub-stat-card skeleton-loading">
                 <div class="hub-stat-icon blue"><i data-lucide="globe"></i></div>
                 <div class="hub-stat-info">
-                    <div class="hub-stat-value">{{ total_sites|default(0) }}</div>
+                    <div class="hub-stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
                     <div class="hub-stat-label">Sites Connected</div>
                 </div>
             </div>
-            <div class="hub-stat-card">
+            <div class="hub-stat-card skeleton-loading">
                 <div class="hub-stat-icon purple"><i data-lucide="calendar-check"></i></div>
                 <div class="hub-stat-info">
-                    <div class="hub-stat-value">{{ this_week_count|default(0) }}</div>
+                    <div class="hub-stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
                     <div class="hub-stat-label">Published This Week</div>
                 </div>
             </div>
-            <div class="hub-stat-card">
+            <div class="hub-stat-card skeleton-loading">
                 <div class="hub-stat-icon orange"><i data-lucide="clock"></i></div>
                 <div class="hub-stat-info">
-                    <div class="hub-stat-value">{{ pending_count|default(0) }}</div>
+                    <div class="hub-stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
                     <div class="hub-stat-label">Pending/Drafts</div>
                 </div>
             </div>
@@ -1216,41 +1227,24 @@
                         </a>
                     </div>
                     
-                    {% if recent_activity and recent_activity|length > 0 %}
-                    <ul class="hub-activity-list">
-                        {% for activity in recent_activity[:8] %}
-                        <li class="hub-activity-item">
-                            <div class="hub-activity-icon {{ activity.type|default('sports') }}">
-                                {% if activity.type == 'earnings' %}
-                                <i data-lucide="file-text"></i>
-                                {% elif activity.type == 'stock' %}
-                                <i data-lucide="trending-up"></i>
-                                {% else %}
-                                <i data-lucide="trophy"></i>
-                                {% endif %}
-                            </div>
-                            <div class="hub-activity-content">
-                                <div class="hub-activity-title">{{ activity.title|default('Article Title') }}</div>
-                                <div class="hub-activity-meta">
-                                    <span>{{ activity.site|default('Site') }}</span>
+                    <!-- Activity content populated by AJAX -->
+                    <div id="recentActivityContent">
+                        <!-- Skeleton loading -->
+                        <ul class="hub-activity-list">
+                            {% for i in range(5) %}
+                            <li class="hub-activity-item" style="opacity: 0.6;">
+                                <div class="hub-activity-icon" style="background: #f0f0f0;">
+                                    <div style="width: 16px; height: 16px; background: linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 50%, #e0e0e0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 2px;"></div>
                                 </div>
-                            </div>
-                            <span class="hub-activity-status {{ activity.status|default('draft') }}">
-                                {% if activity.status == 'published' %}
-                                <i data-lucide="check" style="width:10px;height:10px;"></i>
-                                {% endif %}
-                                {{ activity.status|default('draft')|title }}
-                            </span>
-                            <div class="hub-activity-time">{{ activity.time|default('Recently') }}</div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% else %}
-                    <div class="hub-empty-state">
-                        <i data-lucide="inbox"></i>
-                        <p>No recent activity yet. Start automating to see your publishing history here!</p>
+                                <div class="hub-activity-content" style="flex: 1;">
+                                    <div style="height: 16px; width: 70%; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 6px;"></div>
+                                    <div style="height: 12px; width: 40%; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
+                                </div>
+                                <div style="height: 20px; width: 70px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px;"></div>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
-                    {% endif %}
                 </div>
             </section>
         </div>
@@ -1262,11 +1256,102 @@
 </div>
 
 <script>
-// Initialize Lucide icons
+// Fetch overview stats via AJAX
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Lucide icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
+    
+    // Fetch stats data
+    fetch("{{ url_for('automation.api_overview_stats') }}")
+        .then(response => response.json())
+        .then(data => {
+            // Update stats with real data
+            const statsRow = document.getElementById('statsRow');
+            statsRow.innerHTML = `
+                <div class="hub-stat-card">
+                    <div class="hub-stat-icon green"><i data-lucide="file-check"></i></div>
+                    <div class="hub-stat-info">
+                        <div class="hub-stat-value">${data.total_published_count || 0}</div>
+                        <div class="hub-stat-label">Total Published</div>
+                    </div>
+                </div>
+                <div class="hub-stat-card">
+                    <div class="hub-stat-icon blue"><i data-lucide="globe"></i></div>
+                    <div class="hub-stat-info">
+                        <div class="hub-stat-value">${data.total_sites || 0}</div>
+                        <div class="hub-stat-label">Sites Connected</div>
+                    </div>
+                </div>
+                <div class="hub-stat-card">
+                    <div class="hub-stat-icon purple"><i data-lucide="calendar-check"></i></div>
+                    <div class="hub-stat-info">
+                        <div class="hub-stat-value">${data.this_week_count || 0}</div>
+                        <div class="hub-stat-label">Published This Week</div>
+                    </div>
+                </div>
+                <div class="hub-stat-card">
+                    <div class="hub-stat-icon orange"><i data-lucide="clock"></i></div>
+                    <div class="hub-stat-info">
+                        <div class="hub-stat-value">${data.pending_count || 0}</div>
+                        <div class="hub-stat-label">Pending/Drafts</div>
+                    </div>
+                </div>
+            `;
+            
+            // Re-initialize Lucide icons for new content
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            // Update recent activity section
+            const activityContent = document.getElementById('recentActivityContent');
+            if (data.recent_activity && data.recent_activity.length > 0) {
+                const activitiesHtml = data.recent_activity.slice(0, 8).map(activity => {
+                    const iconType = activity.type === 'earnings' ? 'file-text' : 
+                                    activity.type === 'stock' ? 'trending-up' : 'trophy';
+                    const statusIcon = activity.status === 'published' ? '<i data-lucide="check" style="width:10px;height:10px;"></i>' : '';
+                    
+                    return `
+                        <li class="hub-activity-item">
+                            <div class="hub-activity-icon ${activity.type || 'sports'}">
+                                <i data-lucide="${iconType}"></i>
+                            </div>
+                            <div class="hub-activity-content">
+                                <div class="hub-activity-title">${activity.title || 'Article Title'}</div>
+                                <div class="hub-activity-meta">
+                                    <span>${activity.site || 'Site'}</span>
+                                </div>
+                            </div>
+                            <span class="hub-activity-status ${activity.status || 'draft'}">
+                                ${statusIcon}
+                                ${(activity.status || 'draft').charAt(0).toUpperCase() + (activity.status || 'draft').slice(1)}
+                            </span>
+                            <div class="hub-activity-time">${activity.time || 'Recently'}</div>
+                        </li>
+                    `;
+                }).join('');
+                
+                activityContent.innerHTML = `<ul class="hub-activity-list">${activitiesHtml}</ul>`;
+            } else {
+                activityContent.innerHTML = `
+                    <div class="hub-empty-state">
+                        <i data-lucide="inbox"></i>
+                        <p>No recent activity yet. Start automating to see your publishing history here!</p>
+                    </div>
+                `;
+            }
+            
+            // Re-initialize Lucide icons for activity section
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching overview stats:', error);
+            // Keep skeleton on error - user can refresh
+        });
 });
 </script>
 {% endblock %}

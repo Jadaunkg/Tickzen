@@ -1,9 +1,193 @@
 {% extends "_base.html" %}
 
-{% block title %}Edit Publishing Profile - {{ profile.profile_name }}{% endblock %}
+{% block title %}Edit Publishing Profile - {{ profile.profile_name }} | Tickzen{% endblock %}
+
+{% block head_extra %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
 
 {% block content %}
-<style> /* Profile Form Styling - Landscape Layout */
+<style>
+/* Automation Page Layout */
+.automation-page-layout {
+    display: flex;
+    min-height: calc(100vh - 60px);
+}
+
+.automation-page-content {
+    flex: 1;
+    overflow-x: hidden;
+}
+
+/* Mobile sidebar toggle */
+.mobile-sidebar-toggle {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: none;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+    z-index: 999;
+    transition: all 0.2s ease;
+}
+
+.mobile-sidebar-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(22, 163, 74, 0.5);
+}
+
+.mobile-sidebar-toggle svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    stroke-width: 2;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .mobile-sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Toast Notification Styles */
+.toast-container {
+    position: fixed;
+    top: 80px;
+    right: 30px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+}
+
+.toast {
+    background: white;
+    border-radius: 8px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    animation: slideInRight 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-left: 4px solid;
+}
+
+.toast.success {
+    border-left-color: #22c55e;
+}
+
+.toast.error {
+    border-left-color: #ef4444;
+}
+
+.toast.info {
+    border-left-color: #3b82f6;
+}
+
+.toast-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.toast.success .toast-icon {
+    color: #22c55e;
+}
+
+.toast.error .toast-icon {
+    color: #ef4444;
+}
+
+.toast.info .toast-icon {
+    color: #3b82f6;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-message {
+    margin: 0;
+    font-size: 14px;
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.toast-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+.toast.hiding {
+    animation: slideOutRight 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* Profile Form Styling - Landscape Layout */
 .profile-card-form {
   max-width: 1400px;
   margin: 2rem auto;
@@ -633,10 +817,19 @@
 }
 </style>
 
-<div class="profile-summary-card">
-  <div class="form-header">
-    <h2><i class="fas fa-edit"></i> Edit Publishing Profile: {{ profile.profile_name }}</h2>
-  </div>
+<div class="automation-page-layout">
+    <!-- Sidebar -->
+    {% include 'automation/_sidebar.html' %}
+    
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" onclick="toggleAutomationSidebar()"></div>
+    
+    <div class="automation-page-content">
+        <div class="profile-card-form">
+            <div class="profile-summary-card">
+              <div class="form-header">
+                <h2><i class="fas fa-edit"></i> Edit Publishing Profile: {{ profile.profile_name }}</h2>
+              </div>
   <div class="profile-info-bar">
     <div>
       <i class="fas fa-id-badge" style="color:#6366f1; font-size:1rem;"></i>
@@ -781,26 +974,10 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Internal Linking + Report Sections -->
+                <!-- Right Column: Internal Linking -->
                 <div class="right-column">
                     <!-- Internal Linking Settings -->
                     {% include "components/internal_linking_form.html" %}
-
-                    <!-- Report Sections Section -->
-                    <div class="form-section">
-                        <h3><i class="fas fa-cogs"></i> Report Sections</h3>
-                        
-                        <div class="form-group">
-                            <select name="report_sections_to_include[]" id="report_sections_to_include_edit" multiple size="8" required>
-                                {% for section_key in all_report_sections %}
-                                    <option value="{{ section_key }}" {% if section_key in profile.report_sections_to_include %}selected{% endif %}>
-                                        {{ section_key.replace("_", " ").title() }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            <small class="form-text">(Hold Ctrl/Cmd to select multiple)</small>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -814,12 +991,121 @@
             </a>
         </div>
     </form>
-</section>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Sidebar Toggle -->
+<div class="mobile-sidebar-toggle" onclick="toggleAutomationSidebar()">
+    <i data-lucide="menu"></i>
+</div>
+
+<!-- Toast Notification Container -->
+<div class="toast-container" id="toastContainer"></div>
 {% endblock %}
 
 {% block scripts_extra %}
 <script>
+// Toast Notification Function
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    if (!container) {
+        console.error('Toast container not found');
+        return;
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    let iconHTML = '';
+    if (type === 'success') {
+        iconHTML = '<i class="fas fa-check-circle toast-icon"></i>';
+    } else if (type === 'error') {
+        iconHTML = '<i class="fas fa-exclamation-circle toast-icon"></i>';
+    } else if (type === 'info') {
+        iconHTML = '<i class="fas fa-info-circle toast-icon"></i>';
+    }
+    
+    toast.innerHTML = `
+        ${iconHTML}
+        <div class="toast-content">
+            <p class="toast-message">${message}</p>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        toast.classList.add('hiding');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // AJAX Form Submission
+    const editForm = document.getElementById('editProfileForm');
+    console.log('Edit profile form found:', editForm);
+    
+    if (editForm) {
+        console.log('Attaching AJAX submit handler to edit form');
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            console.log('Form submission intercepted - AJAX mode');
+            console.log('Form action:', editForm.action);
+            
+            const formData = new FormData(editForm);
+            const submitBtn = editForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            // Disable submit button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            fetch(editForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message || 'Profile updated successfully!', 'success');
+                    
+                    // Redirect back to profiles page after 1 second
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('manage_site_profiles') }}";
+                    }, 1000);
+                } else {
+                    showToast(data.message || 'Failed to update profile. Please try again.', 'error');
+                    
+                    // If there are field errors, display them
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            showToast(data.errors[field], 'error');
+                        });
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred while updating the profile.', 'error');
+            })
+            .finally(() => {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            });
+        });
+    }
+    
     // Only handle adding/removing new author forms, do not clear or re-render existing authors
     const authorsContainer = document.getElementById('authorsContainerEdit');
     const addBtn = document.getElementById('addAuthorBtnEdit');

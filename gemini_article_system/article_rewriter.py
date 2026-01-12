@@ -40,7 +40,22 @@ class GeminiArticleRewriter:
         
         # Configure Gemini
         genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        # Model fallback hierarchy (in order of preference)
+        self.model_hierarchy = [
+            'gemini-2.5-flash',           # Primary model (fast, high quality)
+            'gemini-3-flash-preview',     # Fallback 1 (latest preview, 20 RPD available)
+            'gemini-2.5-flash-lite',      # Fallback 2 (lighter version, 20 RPD available)
+            'gemini-2.0-flash-lite'       # Fallback 3 (stable lite version)
+        ]
+        self.current_model_index = 0
+        self.current_model_name = self.model_hierarchy[0]
+        self.model = genai.GenerativeModel(self.current_model_name)
+        
+        # Request counter for quota tracking
+        self.api_requests_made = 0
+        self.daily_limit_warning = 15  # Warn at 75% of 20 request limit
+        self.quota_exceeded_count = {}  # Track quota exceeded per model
         
         # Generation configuration for quality output
         self.generation_config = {
@@ -50,6 +65,32 @@ class GeminiArticleRewriter:
             'max_output_tokens': 32768,  # Increased to handle complete long reports
             'candidate_count': 1,
         }
+    
+    @property
+    def available(self) -> bool:
+        """Check if the generator is available (has valid API key and model)"""
+        return self.model is not None
+    
+    def _switch_to_fallback_model(self) -> bool:
+        """
+        Switch to the next available fallback model
+        
+        Returns:
+            bool: True if successfully switched to fallback, False if no fallbacks available
+        """
+        self.current_model_index += 1
+        
+        if self.current_model_index >= len(self.model_hierarchy):
+            print("❌ All fallback models exhausted!")
+            return False
+        
+        self.current_model_name = self.model_hierarchy[self.current_model_index]
+        self.model = genai.GenerativeModel(self.current_model_name)
+        
+        print(f"🔄 Switching to fallback model: {self.current_model_name}")
+        print(f"   📊 Remaining fallbacks: {len(self.model_hierarchy) - self.current_model_index - 1}")
+        
+        return True
     
     def rewrite_report(
         self,
@@ -88,7 +129,7 @@ class GeminiArticleRewriter:
             # Gemini 2.5 Flash can handle up to ~1M tokens input
         
         # Generate the rewritten article
-        print("\nStep 2: Generating SEO-optimized article with Gemini 2.5 Flash...")
+        print("\nStep 2: Generating SEO-optimized article with Gemini AI...")
         if variation_number > 0:
             print(f"   ⚙ VARIATION MODE: Generating different perspective (variation #{variation_number + 1})")
         prompt = self._build_rewrite_prompt(ticker, company_name, report_text, variation_number)
@@ -96,25 +137,86 @@ class GeminiArticleRewriter:
         try:
             # Adjust temperature for variations to get different perspectives
             config = self.generation_config.copy() if hasattr(self.generation_config, 'copy') else genai.GenerationConfig(
-                temperature=self.generation_config.temperature,
-                top_p=self.generation_config.top_p,
-                top_k=self.generation_config.top_k,
-                max_output_tokens=self.generation_config.max_output_tokens
+                temperature=self.generation_config.get('temperature', 0.8),
+                top_p=self.generation_config.get('top_p', 0.95),
+                top_k=self.generation_config.get('top_k', 50),
+                max_output_tokens=self.generation_config.get('max_output_tokens', 32768)
             )
             
             # Increase temperature for variations to get more diverse content
             if variation_number > 0:
                 # Base: 0.7, Variation 1: 0.85, Variation 2: 1.0, etc.
-                config.temperature = min(1.0, 0.7 + (variation_number * 0.15))
-                print(f"   ⚙ Temperature set to {config.temperature} for variation")
+                new_temp = min(1.0, 0.7 + (variation_number * 0.15))
+                if hasattr(config, 'temperature'):
+                    config.temperature = new_temp
+                else:
+                    config['temperature'] = new_temp
+                print(f"   ⚙ Temperature set to {new_temp} for variation")
             
-            response = self.model.generate_content(
-                prompt,
-                generation_config=config
-            )
+            # Check quota warning before making request
+            self.api_requests_made += 1
+            if self.api_requests_made >= self.daily_limit_warning:
+                print(f"⚠️  QUOTA WARNING: {self.api_requests_made} API requests made this session. Free tier limit is 20/day!")
             
-            article_html = response.text
-            print(f"   ✓ Generated article: ~{len(article_html.split()):,} words")
+            print(f"🔄 Sending to Gemini for article rewriting...")
+            print(f"   🤖 Model: {self.current_model_name}, Request #{self.api_requests_made} this session)")
+            
+            # Try generation with automatic fallback on quota error
+            max_retries = len(self.model_hierarchy)
+            response = None
+            for attempt in range(max_retries):
+                try:
+                    # Generate article using Gemini
+                    response = self.model.generate_content(
+                        prompt,
+                        generation_config=config
+                    )
+                    
+                    if not response or not response.text:
+                        print("❌ Gemini returned empty response")
+                        raise RuntimeError("Empty response from Gemini")
+                    
+                    # Success! Log which model was used
+                    if attempt > 0:
+                        print(f"✅ Successfully generated using fallback model: {self.current_model_name}")
+                    
+                    article_html = response.text
+                    print(f"   ✓ Generated article: ~{len(article_html.split()):,} words")
+                    break  # Exit retry loop on success
+                    
+                except Exception as e:
+                    error_str = str(e)
+                    
+                    # Check if it's a quota error (429)
+                    if '429' in error_str and 'quota' in error_str.lower():
+                        # Track quota exceeded for this model
+                        if self.current_model_name not in self.quota_exceeded_count:
+                            self.quota_exceeded_count[self.current_model_name] = 0
+                        self.quota_exceeded_count[self.current_model_name] += 1
+                        
+                        print(f"❌ Quota exceeded for {self.current_model_name} (attempt {attempt + 1}/{max_retries})")
+                        
+                        # Try to switch to fallback model
+                        if attempt < max_retries - 1:
+                            if self._switch_to_fallback_model():
+                                print(f"♻️  Retrying with {self.current_model_name}...")
+                                continue
+                            else:
+                                # No more fallbacks available
+                                print(f"❌ All fallback models exhausted for {ticker}")
+                                raise
+                        else:
+                            # Last attempt failed
+                            print(f"❌ Final attempt failed for {ticker}")
+                            raise
+                    else:
+                        # Non-quota error, don't retry
+                        print(f"   ✗ Error generating article: {e}")
+                        raise
+            
+            # Should never reach here, but just in case
+            if not article_html:
+                raise RuntimeError("Failed to generate article after all retries")
             
         except Exception as e:
             print(f"   ✗ Error generating article: {e}")
@@ -355,8 +457,9 @@ class GeminiArticleRewriter:
    - All sections must have proper conclusions
    - NO WORD LIMIT - Write as much as needed to cover the full report (typically 3000-5000+ words)
    - Count the sections in the original report and ensure your output has the SAME number
-   - End with a strong concluding paragraph, FAQ section, and disclaimer
+   - End with a strong concluding paragraph
    - The article should be as comprehensive as the original report
+   - DO NOT include an FAQ (Frequently Asked Questions) section - it repeats information already covered
 
 8. SECTION MAPPING:
    Look at the original report sections and map them directly:
@@ -391,9 +494,7 @@ OUTPUT FORMAT REQUIREMENTS:
 - Use <strong> for bold, NEVER use **
 - Use proper <table> tags for all tabular data
 - Include 3-4 external links with <a href> tags (CRITICAL)
-- Add comprehensive FAQ section at the end with 5-7 questions
-- Structure FAQ using <h2>Frequently Asked Questions</h2> then <h3> for each question
-- DO NOT include hardcoded FAQ JSON-LD schema in the article
+- DO NOT include an FAQ (Frequently Asked Questions) section
 - DO NOT include any disclaimer section about investment advice
 
 ⚠️ FINAL CRITICAL REMINDERS:
@@ -509,6 +610,19 @@ Now rewrite the COMPLETE report with proper HTML formatting:
             ]):
                 li.decompose()
         
+        # Remove any FAQ sections (we don't want them in the blog)
+        for heading in soup.find_all(['h2', 'h3']):
+            heading_text = heading.get_text().lower()
+            if 'faq' in heading_text or 'frequently asked' in heading_text:
+                # Remove the heading and all content until the next h2
+                current = heading
+                while current:
+                    next_sibling = current.find_next_sibling()
+                    current.decompose()
+                    if next_sibling and next_sibling.name == 'h2':
+                        break
+                    current = next_sibling
+        
         # Convert back to string
         article_html = str(soup)
         
@@ -570,22 +684,33 @@ Now rewrite the COMPLETE report with proper HTML formatting:
             # Case-insensitive replacement
             article_html = re.sub(re.escape(phrase), '', article_html, flags=re.IGNORECASE)
         
+        # Remove any FAQ sections (we don't want them in stock analysis blogs)
+        soup = BeautifulSoup(article_html, 'html.parser')
+        for heading in soup.find_all(['h2', 'h3']):
+            heading_text = heading.get_text().lower()
+            if 'faq' in heading_text or 'frequently asked' in heading_text:
+                # Remove the heading and all content until the next h2
+                current = heading
+                elements_to_remove = [current]
+                while current:
+                    next_sibling = current.find_next_sibling()
+                    if next_sibling and next_sibling.name == 'h2':
+                        break
+                    if next_sibling:
+                        elements_to_remove.append(next_sibling)
+                    current = next_sibling
+                
+                # Remove all collected elements
+                for element in elements_to_remove:
+                    element.decompose()
+        
+        article_html = str(soup)
+        
         # Break long paragraphs into shorter ones
         article_html = self._break_long_paragraphs(article_html)
         
         # Clean up excessive whitespace
         article_html = re.sub(r'\n\s*\n\s*\n', '\n\n', article_html)
-        
-        # Add FAQ schema if FAQ section exists but schema is missing
-        if ('frequently asked questions' in article_html.lower() or 'faq' in article_html.lower()) and 'application/ld+json' not in article_html:
-            print("   ⚠ FAQ found but schema missing - generating schema...")
-            schema = self._generate_faq_schema(article_html, ticker, company_name)
-            if schema:
-                # Insert schema before closing body tag or at end
-                if '</body>' in article_html:
-                    article_html = article_html.replace('</body>', f'{schema}\n</body>')
-                else:
-                    article_html = article_html + '\n' + schema
         
         # Ensure proper HTML structure
         if not article_html.startswith('<'):
@@ -713,10 +838,7 @@ Now rewrite the COMPLETE report with proper HTML formatting:
         h2_tags = soup.find_all('h2')
         section_count = len(h2_tags)
         
-        # Check for FAQ
-        has_faq = 'frequently asked questions' in text.lower() or 'faq' in text.lower()
-        
-        # Check for schema
+        # Check for schema (general, not FAQ-specific)
         has_schema = bool(soup.find('script', type='application/ld+json'))
         
         # Extract section titles
@@ -728,7 +850,6 @@ Now rewrite the COMPLETE report with proper HTML formatting:
             'word_count': word_count,
             'section_count': section_count,
             'sections': sections,
-            'has_faq': has_faq,
             'has_schema': has_schema,
             'generated_date': datetime.now().isoformat(),
             'model': 'gemini-2.5-flash',

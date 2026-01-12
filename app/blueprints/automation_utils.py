@@ -18,6 +18,7 @@ _get_firestore_client = None
 _get_firebase_app_initialized = None
 _auto_publisher = None
 _project_root = None
+_cache = None  # Flask-Caching instance
 
 # Section configuration
 ALL_SECTIONS = [
@@ -57,21 +58,27 @@ ALL_SECTIONS = [
 
 
 def register_dependencies(get_firestore_client_func, get_firebase_app_initialized_func, 
-                          auto_publisher_module=None, project_root=None):
+                          auto_publisher_module=None, project_root=None, cache_instance=None):
     """
     Register dependencies from main_portal_app.
     Called after app initialization to avoid circular imports.
     """
-    global _get_firestore_client, _get_firebase_app_initialized, _auto_publisher, _project_root
+    global _get_firestore_client, _get_firebase_app_initialized, _auto_publisher, _project_root, _cache
     _get_firestore_client = get_firestore_client_func
     _get_firebase_app_initialized = get_firebase_app_initialized_func
     _auto_publisher = auto_publisher_module
     _project_root = project_root
+    _cache = cache_instance
 
 
 def get_project_root():
     """Get the project root directory."""
     return _project_root
+
+
+def get_cache():
+    """Get the Flask-Caching instance."""
+    return _cache
 
 
 def login_required(f):

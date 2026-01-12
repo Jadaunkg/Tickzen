@@ -418,41 +418,54 @@ def find_latest_cache_file(ticker, cache_dir, interval='1d'):
         logger.warning(f"Error searching for cache files for {ticker}: {e}")
         return None
 
-def cleanup_duplicate_cache_files(ticker, cache_dir, keep_latest=True):
+def cleanup_duplicate_cache_files(ticker, cache_dir, interval='1d', max_age_hours=48):
     """
-    Clean up duplicate cache files for a ticker, keeping only the most recent one.
+    Clean up stale cache files for a specific ticker and interval.
+    Only removes files that are:
+    1. For the SAME ticker AND interval combination
+    2. Older than max_age_hours
+    
+    This allows multiple intervals (5m, 1d, etc.) to coexist.
     """
     if not os.path.exists(cache_dir):
         return
     
     clean_ticker = ticker.replace(':', '_').replace('^', '_').replace('=', '_')
-    ticker_files = []
+    current_time = datetime.now()
+    files_removed = 0
     
     try:
-        # Find all cache files for this ticker
+        # Find all cache files for this specific ticker + interval combination
+        target_pattern = f"{clean_ticker}_stock_data_{interval}.csv"
+        
         for filename in os.listdir(cache_dir):
+            # Only process files that match this exact ticker + interval
             if (filename.startswith(f"{clean_ticker}_stock_data") and 
                 filename.endswith('.csv') and 
-                'processed_data' not in filename):
+                'processed_data' not in filename and
+                interval in filename):
                 
                 filepath = os.path.join(cache_dir, filename)
-                file_mtime = os.path.getmtime(filepath)
-                ticker_files.append((filepath, file_mtime, filename))
-        
-        if len(ticker_files) > 1 and keep_latest:
-            # Sort by modification time (newest first)
-            ticker_files.sort(key=lambda x: x[1], reverse=True)
-            
-            # Keep the newest file, remove the rest
-            latest_file = ticker_files[0]
-            logger.info(f"Keeping latest cache file for {ticker}: {latest_file[2]}")
-            
-            for filepath, mtime, filename in ticker_files[1:]:
+                
+                # Skip the exact target file (the one we're about to use/create)
+                if filename == target_pattern:
+                    continue
+                
                 try:
-                    os.remove(filepath)
-                    logger.info(f"Removed duplicate cache file: {filename}")
+                    # Check file age
+                    file_mtime = datetime.fromtimestamp(os.path.getmtime(filepath))
+                    age_hours = (current_time - file_mtime).total_seconds() / 3600
+                    
+                    # Remove only if stale (older than max_age_hours)
+                    if age_hours > max_age_hours:
+                        os.remove(filepath)
+                        files_removed += 1
+                        logger.info(f"Removed stale cache file: {filename} (age: {age_hours:.1f} hours)")
                 except Exception as e:
-                    logger.warning(f"Error removing duplicate cache file {filename}: {e}")
+                    logger.warning(f"Error removing stale cache file {filename}: {e}")
+        
+        if files_removed > 0:
+            logger.info(f"Cleaned up {files_removed} stale cache files for {ticker} ({interval})")
                     
     except Exception as e:
         logger.error(f"Error cleaning duplicate cache files for {ticker}: {e}")
@@ -508,13 +521,10 @@ def fetch_stock_data(
     cache_dir = os.path.join(app_root, '..', 'generated_data', 'data_cache')
     os.makedirs(cache_dir, exist_ok=True)
     
-    # Clean up old cache files periodically
+    # Clean up old cache files periodically (files older than 7 days, any ticker)
     cleanup_old_cache_files(cache_dir)
-    
-    # Clean up duplicate cache files for this ticker first
-    cleanup_duplicate_cache_files(ticker, cache_dir)
 
-    # Find the most recent cache file for this ticker
+    # Find the most recent cache file for this ticker and interval
     latest_cache_file = find_latest_cache_file(ticker, cache_dir, interval)
     
     # Fallback to standard naming if no cache found
@@ -696,12 +706,13 @@ def fetch_stock_data(
         save_cache_filename = f"{ticker.replace(':', '_').replace('^', '_').replace('=', '_')}_stock_data_{interval}.csv"
         save_cache_filepath = os.path.join(cache_dir, save_cache_filename)
         
-        # Remove any old cache files with different naming patterns before saving new one
-        cleanup_duplicate_cache_files(ticker, cache_dir, keep_latest=False)
-        
         data_to_save = data[required]
         data_to_save.to_csv(save_cache_filepath, index=False)
         logger.info(f"Saved downloaded data for {ticker} to cache: {save_cache_filename}")
+        
+        # Clean up stale duplicate files for this ticker+interval AFTER successful save
+        # This prevents removing fresh cache before we try to use it
+        cleanup_duplicate_cache_files(ticker, cache_dir, interval, max_age_hours=48)
         
         # Update cache_filepath reference for return consistency
         cache_filepath = save_cache_filepath
