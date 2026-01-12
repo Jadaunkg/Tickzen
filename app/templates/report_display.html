@@ -109,7 +109,7 @@
 <div class="report-controls-bar">
     <h1>Report: {{ ticker }}</h1> {# Slightly shorter title prefix #}
     <div class="report-actions">
-        <a href="{{ url_for('analyzer_input_page') }}"><i class="fas fa-search-plus"></i>Analyze Another</a>
+        <a href="{{ url_for('stock_analysis_homepage_route') }}"><i class="fas fa-search-plus"></i>Analyze Another</a>
         <a href="{{ report_url }}" download="{{ download_filename }}"><i class="fas fa-download"></i>Download</a> {# Shorter button text #}
     </div>
 </div>
@@ -128,7 +128,7 @@
 {% block scripts_extra %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const analyzeAnotherButton = document.querySelector("a[href='{{ url_for('analyzer_input_page') }}']");
+        const analyzeAnotherButton = document.querySelector("a[href='{{ url_for('stock_analysis_homepage_route') }}']");
         if (analyzeAnotherButton) {
             analyzeAnotherButton.addEventListener('click', function() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });

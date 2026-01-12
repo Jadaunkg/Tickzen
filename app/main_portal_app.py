@@ -165,6 +165,7 @@ except ImportError as e:
 FIREBASE_INITIALIZED_SUCCESSFULLY = True
 AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True
 PIPELINE_IMPORTED_SUCCESSFULLY = True
+PIPELINE_IMPORT_ERROR = None
 
 # Only initialize Firebase in the actual worker process, not the reloader parent
 if not is_reloader_process():
@@ -292,11 +293,16 @@ if not is_reloader_process():
 
 
     try:
-        from earnings_reports.pipeline import run_pipeline, run_wp_pipeline
+        # Stock analysis + WP asset generation pipelines
+        # NOTE: The canonical implementations live under automation_scripts.pipeline
+        from automation_scripts.pipeline import run_pipeline, run_wp_pipeline
         PIPELINE_IMPORTED_SUCCESSFULLY = True
-    except ImportError as e_pipeline:
-        print(f"CRITICAL: Failed to import pipeline.py: {e_pipeline}")
+        PIPELINE_IMPORT_ERROR = None
+    except Exception as e_pipeline:
         PIPELINE_IMPORTED_SUCCESSFULLY = False
+        PIPELINE_IMPORT_ERROR = str(e_pipeline)
+        print(f"CRITICAL: Failed to import stock analysis pipeline: {e_pipeline}")
+        print(traceback.format_exc())
         def run_pipeline(*args, socketio_instance=None, task_room=None, **kwargs):
             print("Mock Pipeline: run_pipeline called");
             if socketio_instance and task_room:
@@ -348,10 +354,13 @@ ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
-# Register blueprints
+# Register blueprints (basic ones that don't need login_required)
 from app.info_routes import info_bp
 app.register_blueprint(info_bp, url_prefix='/info')
 app.register_blueprint(market_news_bp)
+
+# Note: Stock Analysis blueprint is registered after login_required is defined
+# See registration below after login_required definition
 
 # Security headers for SEO and security
 @app.after_request
@@ -671,6 +680,32 @@ def format_datetime_filter(value, fmt="%Y-%m-%d %H:%M:%S"):
         return value
 
 
+@app.template_filter('format_earnings_date')
+def format_earnings_date_filter(value):
+    """Format earnings calendar date into readable format with day name"""
+    if not value: return "N/A"
+    try:
+        from datetime import datetime, date, timedelta
+        dt_obj = datetime.strptime(value, "%Y-%m-%d")
+        
+        # Get day name and formatted date
+        day_name = dt_obj.strftime("%A")
+        formatted_date = dt_obj.strftime("%B %d, %Y")
+        
+        # Check if it's today, tomorrow, or show day name
+        today = date.today()
+        tomorrow = today + timedelta(days=1)
+        
+        if dt_obj.date() == today:
+            return f"Today - {formatted_date}"
+        elif dt_obj.date() == tomorrow:
+            return f"Tomorrow - {formatted_date}"
+        else:
+            return f"{day_name} - {formatted_date}"
+    except (ValueError, AttributeError, TypeError) as e:
+        return value
+
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -747,6 +782,8 @@ def admin_required(f):
         app.logger.info(f"Admin access granted to {user_email} for route: {request.endpoint}")
         return f(*args, **kwargs)
     return decorated_function
+
+# Blueprint registration moved to after all function definitions (see end of file)
 
 def get_admin_analytics():
     """Get comprehensive analytics for admin dashboard"""
@@ -995,13 +1032,29 @@ def delete_user_site_profile_from_firestore(user_uid, profile_id_to_delete): # M
             if old_storage_path:
                 delete_file_from_storage(old_storage_path)
         
-        # Delete persisted ticker statuses for this profile
+        # Delete persisted ticker statuses for this profile using batch operations
         processed_tickers_ref = profile_doc_ref.collection(u'processedTickers')
-        docs = processed_tickers_ref.limit(500).stream() # Batch delete if many, or use async helper
+        docs = processed_tickers_ref.limit(500).stream()
+        
         deleted_count = 0
+        batch = db.batch()
+        batch_count = 0
+        
         for doc in docs:
-            doc.reference.delete()
+            batch.delete(doc.reference)
             deleted_count += 1
+            batch_count += 1
+            
+            # Firestore batch limit is 500 operations, commit when approaching limit
+            if batch_count >= 500:
+                batch.commit()
+                batch = db.batch()
+                batch_count = 0
+        
+        # Commit any remaining operations
+        if batch_count > 0:
+            batch.commit()
+        
         if deleted_count > 0:
             app.logger.info(f"Deleted {deleted_count} persisted ticker statuses for profile {profile_id_to_delete}.")
 
@@ -1256,119 +1309,70 @@ def is_valid_url(url_string):
 def stock_analysis_homepage_route():
     return render_template('stock-analysis-homepage.html', title="AI Stock Predictions & Analysis")
 
-@app.route('/dashboard')
-@login_required
-def dashboard_page():
-    """Dashboard page - renders immediately without blocking on data fetch"""
-    # Page loads instantly, data fetched asynchronously via API
-    return render_template('dashboard.html', title="Dashboard - Tickzen")
-
-@app.route('/api/dashboard/reports')
-@login_required
-def api_dashboard_reports():
-    """API endpoint for async report history loading"""
-    try:
-        start = time.time()
-        user_uid = session.get('firebase_user_uid')
-        
-        if not user_uid:
-            return jsonify({'error': 'User not authenticated', 'reports': [], 'total_reports': 0}), 401
-        
-        # Fetch report history
-        report_history, total_reports = get_report_history_for_user(user_uid, display_limit=10)
-        
-        # Convert reports to JSON-serializable format
-        reports_data = []
-        for report in report_history:
-            report_dict = {
-                'ticker': report.ticker if hasattr(report, 'ticker') else report.get('ticker'),
-                'filename': report.filename if hasattr(report, 'filename') else report.get('filename'),
-                'generated_at': report.generated_at.strftime('%Y-%m-%d %I:%M %p UTC') if hasattr(report, 'generated_at') and report.generated_at else report.get('generated_at', 'N/A'),
-                'storage_location': report.storage_location if hasattr(report, 'storage_location') else report.get('storage_location'),
-                'content_available': report.content_available if hasattr(report, 'content_available') else report.get('content_available', True),
-                'file_exists': report.file_exists if hasattr(report, 'file_exists') else report.get('file_exists', True),
-                'has_storage_path': report.has_storage_path if hasattr(report, 'has_storage_path') else report.get('has_storage_path', False)
-            }
-            reports_data.append(report_dict)
-        
-        elapsed = time.time() - start
-        app.logger.info(f"API /api/dashboard/reports completed in {elapsed:.3f}s - returned {len(reports_data)} reports")
-        
-        return jsonify({
-            'reports': reports_data,
-            'total_reports': total_reports,
-            'count': len(reports_data),
-            'load_time': round(elapsed, 3)
-        }), 200
-        
-    except Exception as e:
-        app.logger.error(f"Error in /api/dashboard/reports: {e}", exc_info=True)
-        return jsonify({'error': str(e), 'reports': [], 'total_reports': 0}), 500
-
-@app.route('/dashboard-analytics')
-def dashboard_analytics():
-    """Dashboard with interactive charts and analytics"""
-    return render_template('dashboard_analytics.html')
-
 @app.route('/analyzer', methods=['GET'])
 def analyzer_input_page():
-    return render_template('analyzer_input.html', title="Stock Analyzer Input")
+    """Stock analyzer input page - direct route for navigation compatibility."""
+    return render_template('stock_analysis/analyzer.html', title="Stock Analyzer Input")
 
-@app.route('/ai-assistant')
-def ai_chatbot():
-    """Tickzen AI Assistant chatbot page"""
-    return render_template('ai_chatbot.html', title="Tickzen AI Assistant")
+# NOTE: Old route handlers removed - these routes now redirect via backward compatibility redirects
+# See backward compatibility section (around line 790) for redirect definitions
+# Old routes now redirect to:
+# - /dashboard -> /stock-analysis/dashboard
+# - /api/dashboard/reports -> /stock-analysis/api/reports  
+# - /dashboard-analytics -> /stock-analysis/analytics
+# - /analyzer -> /stock-analysis/analyzer (also has direct route above)
+# - /ai-assistant -> /stock-analysis/ai-assistant
 
-# Feature Pages Routes
+# Feature Pages Routes - Use existing templates or redirect to appropriate pages
 @app.route('/features/live-demo')
 def live_demo_page():
-    """Live interactive demo page"""
-    return render_template('features/live-demo.html', title="Live Demo - AI Stock Analysis & Content Automation")
+    """Live interactive demo - redirects to stock analysis homepage"""
+    return redirect(url_for('stock_analysis_homepage_route'))
 
 @app.route('/features/stock-analysis-hub')
 def stock_analysis_hub_page():
-    """Stock analysis hub with detailed explanations"""
-    return render_template('features/stock-analysis-hub.html', title="AI-Powered Stock Analysis Hub - 32 Sections & Prophet ML")
+    """Stock analysis hub - renders stock analysis dashboard"""
+    return render_template('stock_analysis/dashboard.html', title="AI-Powered Stock Analysis Hub - 32 Sections & Prophet ML")
 
 @app.route('/features/content-automation')
 def content_automation_page():
-    """Content automation hub (placeholder for now)"""
-    return render_template('features/content-automation.html', title="Content Automation Hub - Financial & Sports Content")
+    """Content automation hub - renders automation dashboard"""
+    return render_template('automation/stock_analysis/dashboard.html', title="Content Automation Hub - Financial & Sports Content")
 
 @app.route('/features/wordpress-integration')
 def wordpress_integration_page():
-    """WordPress integration guide (placeholder for now)"""
-    return render_template('features/wordpress-integration.html', title="WordPress Integration & Publishing")
+    """WordPress integration guide - redirects to site profiles"""
+    return redirect(url_for('manage_site_profiles'))
 
 @app.route('/features/how-it-works')
 def how_it_works_page():
-    """How our system works transparency page (placeholder for now)"""
-    return render_template('features/how-it-works.html', title="How Our System Works - Complete Transparency")
+    """How our system works transparency page"""
+    return render_template('how-it-works.html', title="How Our System Works - Complete Transparency")
 
 @app.route('/features/sample-content')
 def sample_content_page():
-    """Sample content gallery (placeholder for now)"""
-    return render_template('features/sample-content.html', title="Sample Content Gallery")
+    """Sample content gallery - redirects to publishing history"""
+    return redirect(url_for('publishing_history'))
 
 @app.route('/features/documentation')
 def documentation_page():
-    """Documentation and support (placeholder for now)"""
-    return render_template('features/documentation.html', title="Documentation & Support")
+    """Documentation and support - renders FAQ page"""
+    return render_template('info/faq.html', title="Documentation & Support")
 
 @app.route('/features/getting-started')
 def getting_started_page():
-    """Getting started guide (placeholder for now)"""
-    return render_template('features/getting-started.html', title="Getting Started Guide")
+    """Getting started guide - renders how it works page"""
+    return render_template('how-it-works.html', title="Getting Started Guide")
 
 @app.route('/features/user-dashboard')
 def user_dashboard_page():
-    """User dashboard and settings (placeholder for now)"""
-    return render_template('features/user-dashboard.html', title="User Dashboard & Settings")
+    """User dashboard and settings"""
+    return render_template('stock_analysis/dashboard.html', title="User Dashboard & Settings")
 
 @app.route('/features/about')
 def about_page():
-    """About us and legal information (placeholder for now)"""
-    return render_template('features/about.html', title="About Us & Legal Information")
+    """About us and legal information"""
+    return render_template('info/about.html', title="About Us & Legal Information")
 
 @app.route('/health')
 def simple_health_check():
@@ -2021,6 +2025,43 @@ def ticker_suggestions():
         return jsonify([])
 
 
+@app.route('/api/dashboard/reports')
+@login_required
+def api_dashboard_reports():
+    """API endpoint to get user's report history for dashboard"""
+    user_uid = session.get('firebase_user_uid')
+    if not user_uid:
+        return jsonify({'status': 'error', 'message': 'Not authenticated', 'reports': [], 'total_reports': 0}), 401
+    
+    try:
+        display_limit = request.args.get('limit', 10, type=int)
+        reports, total_reports = get_report_history_for_user(user_uid, display_limit=display_limit)
+        
+        # Format reports for JSON response
+        formatted_reports = []
+        for report in reports:
+            formatted_report = {
+                'id': report.get('id', ''),
+                'ticker': report.get('ticker', 'N/A'),
+                'filename': report.get('filename', 'N/A'),
+                'generated_at': report.get('generated_at').isoformat() if hasattr(report.get('generated_at'), 'isoformat') else str(report.get('generated_at', 'N/A')),
+                'storage_location': report.get('storage_location', ''),
+                'file_url': report.get('file_url', ''),
+                'status': report.get('status', 'completed')
+            }
+            formatted_reports.append(formatted_report)
+        
+        return jsonify({
+            'status': 'success',
+            'reports': formatted_reports,
+            'total_reports': total_reports
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error fetching dashboard reports for user {user_uid}: {e}", exc_info=True)
+        return jsonify({'status': 'error', 'message': str(e), 'reports': [], 'total_reports': 0}), 500
+
+
 @app.route('/api/notifications')
 @login_required
 def get_notifications():
@@ -2318,8 +2359,10 @@ def start_stock_analysis():
         return redirect(url_for('analyzer_input_page'))
 
     if not PIPELINE_IMPORTED_SUCCESSFULLY:
+        reason = PIPELINE_IMPORT_ERROR or "pipeline not loaded"
+        app.logger.error(f"Stock analysis pipeline unavailable: {reason}")
         flash("The Stock Analysis service is temporarily unavailable. Please try again later.", "danger")
-        socketio.emit('analysis_error', {'message': 'Stock Analysis service is temporarily unavailable.', 'ticker': ticker}, room=room_id)
+        socketio.emit('analysis_error', {'message': 'Stock Analysis service is temporarily unavailable. Check server logs for details.', 'ticker': ticker}, room=room_id)
         return redirect(url_for('analyzer_input_page'))
 
     try:
@@ -2450,6 +2493,12 @@ def get_report_content_from_firebase_storage(storage_path):
     except Exception as e:
         app.logger.error(f"Error downloading report from Firebase Storage {storage_path}: {e}", exc_info=True)
         return None
+
+@app.route('/report/<ticker>/<path:filename>')
+@login_required
+def report_shortcut(ticker, filename):
+    """Shortcut route for /report/ that redirects to display-report"""
+    return redirect(url_for('display_report', ticker=ticker, filename=filename))
 
 @app.route('/display-report/<ticker>/<path:filename>')
 @login_required
@@ -2924,7 +2973,7 @@ def manage_site_profiles():
     show_add_form_on_load_flag = session.pop('show_add_form_on_load_flag', False)
     errors_add_repopulate = session.pop('errors_add_repopulate', None)
 
-    return render_template('manage_profiles.html',
+    return render_template('automation/stock_analysis/profiles.html',
                            title="Publishing Profiles - Tickzen",
                            profiles=profiles,
                            all_report_sections=ALL_SECTIONS,
@@ -3061,6 +3110,10 @@ def add_site_profile():
         cache_expiry_hours = 24
 
     if errors:
+        # Check if AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'errors': errors}), 400
+        
         session['form_data_add_repopulate'] = {
             "profile_name": profile_name, "site_url": site_url, "sheet_name": sheet_name,
             "stockforecast_category_id": stockforecast_category_id_str,
@@ -3097,7 +3150,34 @@ def add_site_profile():
 
     app.logger.info(f"[INTERNAL_LINKING_FORM_DEBUG] Saving profile with internal_linking config: enabled={internal_linking_config.get('enabled')}")
 
-    if save_user_site_profile_to_firestore(user_uid, new_profile_data):
+    profile_id = save_user_site_profile_to_firestore(user_uid, new_profile_data)
+    
+    # Check if AJAX/Fetch request (check both XMLHttpRequest header and Accept header)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    accepts_json = 'application/json' in request.headers.get('Accept', '')
+    
+    app.logger.info(f"[ADD_PROFILE_DEBUG] is_ajax={is_ajax}, accepts_json={accepts_json}, X-Requested-With={request.headers.get('X-Requested-With')}")
+    
+    if is_ajax or accepts_json:
+        if profile_id:
+            # Return the complete profile data with ID for frontend rendering
+            new_profile_data['profile_id'] = profile_id
+            new_profile_data['created_at'] = datetime.now(timezone.utc).isoformat()
+            app.logger.info(f"[ADD_PROFILE_DEBUG] Returning JSON success response for profile {profile_id}")
+            return jsonify({
+                'success': True,
+                'message': f"Publishing Profile '{new_profile_data['profile_name']}' added successfully!",
+                'profile': new_profile_data
+            }), 200
+        else:
+            app.logger.error(f"[ADD_PROFILE_DEBUG] Profile save failed, returning JSON error")
+            return jsonify({
+                'success': False,
+                'message': f"Failed to add publishing profile '{new_profile_data['profile_name']}'. An unexpected error occurred."
+            }), 500
+    
+    # Fallback for non-AJAX requests
+    if profile_id:
         flash(f"Publishing Profile '{new_profile_data['profile_name']}' added successfully!", "success")
     else:
         flash(f"Failed to add publishing profile '{new_profile_data['profile_name']}'. An unexpected error occurred.", "danger")
@@ -3360,11 +3440,27 @@ def edit_site_profile(profile_id_from_firestore):
 @login_required
 def delete_site_profile(profile_id_to_delete):
     user_uid = session['firebase_user_uid']
-    if delete_user_site_profile_from_firestore(user_uid, profile_id_to_delete): # Modified
-        flash(f"Publishing Profile ID '{profile_id_to_delete}' deleted successfully, including its persisted ticker statuses.", "success") # Modified
-    else:
-        flash(f"Failed to delete publishing profile ID '{profile_id_to_delete}'.", "error")
-    return redirect(url_for('manage_site_profiles'))
+    success = delete_user_site_profile_from_firestore(user_uid, profile_id_to_delete)
+    
+    # Check if AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    accepts_json = 'application/json' in request.headers.get('Accept', '')
+    
+    if is_ajax or accepts_json:
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Profile deleted successfully!',
+                'profile_id': profile_id_to_delete
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Failed to delete profile. Please try again.'
+            }), 500
+    
+    # Fallback for non-AJAX requests
+    return redirect(url_for('manage_site_profiles', deleted=profile_id_to_delete if success else None, delete_error='1' if not success else None))
 
 # --- REPORT HISTORY MANAGEMENT ---
 def save_report_to_firebase_storage(user_uid, ticker, filename, content):
@@ -3836,7 +3932,7 @@ def cleanup_orphaned_reports(user_uid=None, dry_run=True):
 @app.route('/wordpress-automation-portal')
 @login_required
 def wordpress_automation_portal_route():
-    return render_template('automate_homepage.html', title="WordPress Automation - Tickzen")
+    return render_template('automation/stock_analysis/dashboard.html', title="WordPress Automation - Tickzen")
 
 @app.route('/automation-runner')
 @login_required
@@ -3850,7 +3946,7 @@ def automation_runner_page():
     shared_context = get_automation_shared_context(user_uid, user_site_profiles)
     t3 = time.time()
     app.logger.info(f"get_automation_shared_context took {t3-t2:.3f} seconds")
-    result = render_template('run_automation_page.html',
+    result = render_template('automation/stock_analysis/run.html',
                            title="Run Automation - Tickzen",
                            user_site_profiles=user_site_profiles,
                            **shared_context)
@@ -4114,59 +4210,9 @@ def stop_automation_run(profile_id):
         return jsonify({'status': 'error', 'message': f'An error occurred while processing the stop request: {str(e)[:100]}...'}), 500
 
 
-@app.route('/automation-earnings-runner')
-@login_required
-def automation_earnings_runner():
-    """Display the earnings report automation page with site profiles"""
-    user_uid = session['firebase_user_uid']
-    
-    # Get user site profiles (same as stock analysis automation)
-    user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
-    
-    # Get shared context for automation
-    shared_context = get_automation_shared_context(user_uid, user_site_profiles)
-    
-    # Load weekly earnings calendar
-    earnings_calendar = None
-    last_refreshed = None
-    last_refreshed_date = None
-    calendar_outdated = False
-    
-    calendar_path = os.path.join(PROJECT_ROOT, 'data', 'weekly_earnings_calendar.json')
-    if os.path.exists(calendar_path):
-        try:
-            with open(calendar_path, 'r', encoding='utf-8') as f:
-                calendar_data = json.load(f)
-                
-                # Check if it's the new format with metadata
-                if isinstance(calendar_data, dict) and 'calendar' in calendar_data:
-                    earnings_calendar = calendar_data.get('calendar', {})
-                    last_refreshed = calendar_data.get('last_refreshed')
-                    last_refreshed_date = calendar_data.get('last_refreshed_date')
-                    
-                    # Check if calendar is outdated (older than today)
-                    if last_refreshed_date:
-                        from datetime import datetime
-                        refresh_date = datetime.strptime(last_refreshed_date, '%Y-%m-%d').date()
-                        today = datetime.now().date()
-                        calendar_outdated = refresh_date < today
-                else:
-                    # Old format without metadata
-                    earnings_calendar = calendar_data
-                    calendar_outdated = True  # Assume outdated if no metadata
-                    
-        except Exception as e:
-            app.logger.error(f"Error loading earnings calendar: {e}")
-            earnings_calendar = None
-    
-    return render_template('run_automation_earnings.html',
-                         title="Earnings Report Automation - Tickzen",
-                         user_site_profiles=user_site_profiles,
-                         earnings_calendar=earnings_calendar,
-                         last_refreshed=last_refreshed,
-                         last_refreshed_date=last_refreshed_date,
-                         calendar_outdated=calendar_outdated,
-                         **shared_context)
+# NOTE: Old route handler removed - this route now redirects via backward compatibility
+# See backward compatibility section (around line 790) for redirect definition
+# Old route /automation-earnings-runner -> /automation/earnings/run
 
 @app.route('/refresh-earnings-calendar', methods=['POST'])
 @login_required
@@ -4185,21 +4231,50 @@ def refresh_earnings_calendar():
         
         app.logger.info(f"Manual earnings calendar refresh initiated by user {user_uid}")
         
-        # Fetch the calendar
+        # Fetch the calendar with timeout handling
         calendar_data = fetch_weekly_earnings_calendar()
         
         if calendar_data:
-            flash(f"Earnings calendar refreshed successfully! Found earnings data for {len(calendar_data.get('calendar', {}))} days.", "success")
+            message = f"Earnings calendar refreshed successfully! Found earnings data for {len(calendar_data.get('calendar', {}))} days."
+            flash(message, "success")
             app.logger.info(f"Earnings calendar refreshed successfully by user {user_uid}")
+            
+            # Return JSON for AJAX requests
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'success': True,
+                    'message': message,
+                    'days_count': len(calendar_data.get('calendar', {}))
+                })
         else:
-            flash("Failed to refresh earnings calendar. Please try again later.", "warning")
+            message = "Failed to refresh earnings calendar. No data received from API."
+            flash(message, "warning")
             app.logger.warning(f"Earnings calendar refresh returned no data for user {user_uid}")
             
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'success': False,
+                    'message': message
+                })
+            
     except Exception as e:
+        error_msg = str(e)
+        if 'timeout' in error_msg.lower() or 'connection' in error_msg.lower():
+            message = "Connection timeout - Please check your internet connection and try again."
+        else:
+            message = f"Error refreshing earnings calendar: {error_msg[:100]}"
+            
         app.logger.error(f"Error refreshing earnings calendar for user {user_uid}: {e}", exc_info=True)
-        flash(f"Error refreshing earnings calendar: {str(e)[:100]}", "danger")
+        flash(message, "danger")
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({
+                'success': False,
+                'message': message,
+                'error_type': 'timeout' if 'timeout' in error_msg.lower() else 'general'
+            })
     
-    return redirect(url_for('automation_earnings_runner'))
+    return redirect(url_for('automation.earnings_automation.calendar'))
 
 @app.route('/run-earnings-automation', methods=['POST'])
 @login_required
@@ -4213,7 +4288,7 @@ def run_earnings_automation():
     if not AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY:
         app.logger.error(f"AUTO_PUBLISHER not imported successfully for user {user_uid}")
         flash("Automation service is currently unavailable. Please try again later.", "danger")
-        return redirect(url_for('automation_earnings_runner'))
+        return redirect(url_for('automation.earnings_automation.run'))
 
     # Get selected profile IDs
     profile_ids_to_run = request.form.getlist('run_profile_ids[]')
@@ -4221,14 +4296,14 @@ def run_earnings_automation():
     
     if not profile_ids_to_run:
         flash("No profiles selected to run earnings automation.", "info")
-        return redirect(url_for('automation_earnings_runner'))
+        return redirect(url_for('automation.earnings_automation.run'))
 
     # Get ticker(s) from form - can be comma-separated for multiple tickers
     ticker_input = request.form.get('ticker', '').strip().upper()
     app.logger.info(f"Ticker input from form: '{ticker_input}'")
     if not ticker_input:
         flash("Please select at least one ticker symbol.", "danger")
-        return redirect(url_for('automation_earnings_runner'))
+        return redirect(url_for('automation.earnings_automation.run'))
     
     # Parse multiple tickers (comma-separated)
     tickers = [t.strip() for t in ticker_input.split(',') if t.strip()]
@@ -4237,11 +4312,11 @@ def run_earnings_automation():
     invalid_tickers = [t for t in tickers if len(t) < 1 or len(t) > 5 or not t.isalpha()]
     if invalid_tickers:
         flash(f"Invalid ticker symbol(s): {', '.join(invalid_tickers)}. Each ticker must be 1-5 letters.", "danger")
-        return redirect(url_for('automation_earnings_runner'))
+        return redirect(url_for('automation.earnings_automation.run'))
     
     if len(tickers) == 0:
         flash("Please select at least one valid ticker symbol.", "danger")
-        return redirect(url_for('automation_earnings_runner'))
+        return redirect(url_for('automation.earnings_automation.run'))
 
     # Get all user profiles and filter selected ones
     all_user_profiles_from_db = get_user_site_profiles_from_firestore(user_uid)
@@ -4701,7 +4776,7 @@ def run_earnings_automation():
             }, room=user_uid)
         flash(f"Earnings automation error: {error_msg}", "danger")
 
-    return redirect(url_for('automation_earnings_runner'))
+    return redirect(url_for('automation.earnings_automation.run'))
 
 
 # ============================================================================
@@ -4845,9 +4920,11 @@ def get_publishing_history():
 # SPORTS ARTICLE AUTOMATION ROUTES
 # ============================================================================
 
-@app.route('/automation-sports-runner')
-@login_required
-def automation_sports_runner():
+# NOTE: Route handler removed - redirects via backward compatibility (see line ~852)
+# Old route /automation-sports-runner -> /automation/sports/run
+# @app.route('/automation-sports-runner')
+# @login_required
+# def automation_sports_runner():
     """Display the sports article automation page with site profiles"""
     user_uid = session['firebase_user_uid']
     
@@ -4950,7 +5027,7 @@ def automation_sports_runner():
         sports_articles = []
     
     # Use improved template with new design and API integration
-    return render_template('run_automation_sports_improved.html',
+    return render_template('automation/sports/run.html',
                          title="Sports Article Automation - Tickzen",
                          user_site_profiles=user_site_profiles,
                          sports_articles=sports_articles,
@@ -4987,7 +5064,7 @@ def trends_dashboard():
             'collection_count': collector.collection_count
         }
         
-        return render_template('google_trends_dashboard.html', **context)
+        return render_template('automation/sports/trends.html', **context)
         
     except Exception as e:
         app.logger.error(f"Error loading trends dashboard: {e}", exc_info=True)
@@ -5009,7 +5086,7 @@ def run_sports_automation():
     
     if not profile_ids_to_run:
         flash("No profiles selected to run sports automation.", "info")
-        return redirect(url_for('automation_sports_runner'))
+        return redirect(url_for('automation.sports_automation.run'))
 
     # Get selected articles from form
     selected_articles_json = request.form.get('selected_articles', '[]')
@@ -5025,7 +5102,7 @@ def run_sports_automation():
     if not selected_articles:
         app.logger.warning(f"No articles selected - received: {selected_articles_json}")
         flash("Please select at least one article to publish.", "warning")
-        return redirect(url_for('automation_sports_runner'))
+        return redirect(url_for('automation.sports_automation.run'))
 
     # Get profile data from Firestore
     selected_profiles_data_for_run = []
@@ -5049,7 +5126,7 @@ def run_sports_automation():
     if not selected_profiles_data_for_run:
         app.logger.error("Failed to load any profile data - redirecting")
         flash("Failed to load profile data.", "danger")
-        return redirect(url_for('automation_sports_runner'))
+        return redirect(url_for('automation.sports_automation.run'))
 
     app.logger.info(f"Sports automation starting for {len(selected_articles)} article(s) across {len(selected_profiles_data_for_run)} profiles by user {user_uid}")
 
@@ -5647,7 +5724,7 @@ def run_sports_automation():
             }, room=user_uid)
         flash(f"Sports automation error: {error_msg}", "danger")
 
-    return redirect(url_for('automation_sports_runner'))
+    return redirect(url_for('automation.sports_automation.run'))
 
 
 @app.route('/refresh-sports-articles', methods=['POST'])
@@ -5686,7 +5763,7 @@ def refresh_sports_articles():
         app.logger.error(f"Error refreshing sports articles: {e}")
         flash(f"Error refreshing articles: {str(e)}", "danger")
     
-    return redirect(url_for('automation_sports_runner'))
+    return redirect(url_for('automation.sports_automation.run'))
 
 
 @app.route('/collect-sports-articles', methods=['POST'])
@@ -6803,6 +6880,8 @@ def generate_wp_assets():
         return jsonify({'status': 'error', 'message': f"Invalid ticker symbol: '{ticker}'. Please use standard symbols."}), 400
 
     if not PIPELINE_IMPORTED_SUCCESSFULLY:
+        reason = PIPELINE_IMPORT_ERROR or "pipeline not loaded"
+        app.logger.error(f"WP asset pipeline unavailable: {reason}")
         socketio.emit('wp_asset_error', {'message': 'WP Asset service unavailable.', 'ticker': ticker}, room=room_id)
         return jsonify({'status': 'error', 'message': 'WordPress Asset generation service is temporarily unavailable.'}), 503
 
@@ -8254,6 +8333,105 @@ def google_business_profile():
     return jsonify(business_data)
 
 # ==================== END SEO ROUTES ====================
+
+# ==================== BLUEPRINT REGISTRATION ====================
+# Use app.extensions to track registration status across module double-imports
+# (This survives when module is imported as both 'main_portal_app' and 'app.main_portal_app')
+if not hasattr(app, 'extensions'):
+    app.extensions = {}
+if '_blueprint_registration_done' not in app.extensions:
+    app.extensions['_blueprint_registration_done'] = set()
+
+def _register_blueprint_once(blueprint_name, register_func):
+    """Helper to ensure blueprint is registered exactly once."""
+    if blueprint_name in app.extensions['_blueprint_registration_done']:
+        return False  # Already registered
+    if blueprint_name in app.blueprints:
+        app.extensions['_blueprint_registration_done'].add(blueprint_name)
+        return False  # Already registered
+    try:
+        register_func()
+        app.extensions['_blueprint_registration_done'].add(blueprint_name)
+        return True
+    except Exception as e:
+        app.logger.error(f"Error registering {blueprint_name} blueprint: {e}", exc_info=True)
+        return False
+
+# --- Stock Analysis Blueprint ---
+def _register_stock_analysis():
+    from app.blueprints.stock_analysis import stock_analysis_bp, register_dependencies as register_stock_deps
+    register_stock_deps(
+        login_required_func=login_required,
+        get_report_history_func=get_report_history_for_user
+    )
+    app.register_blueprint(stock_analysis_bp)
+    app.logger.info("Stock Analysis blueprint registered successfully")
+
+_register_blueprint_once('stock_analysis', _register_stock_analysis)
+
+# --- Automation Blueprints ---
+def _register_automation():
+    from app.blueprints.automation_utils import register_dependencies
+    register_dependencies(
+        get_firestore_client_func=get_firestore_client,
+        get_firebase_app_initialized_func=get_firebase_app_initialized,
+        auto_publisher_module=auto_publisher if AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY else None,
+        project_root=PROJECT_ROOT
+    )
+    
+    # Create fresh blueprint instances to avoid Flask reloader issues
+    from flask import Blueprint
+    
+    # Create parent blueprint
+    automation_bp = Blueprint('automation', __name__, url_prefix='/automation')
+    
+    # Import route functions and register on fresh blueprint
+    from app.blueprints.automation_utils import (
+        login_required as bp_login_required,
+        get_user_site_profiles_from_firestore,
+        get_automation_shared_context
+    )
+    from flask import render_template, session
+    
+    @automation_bp.route('/overview')
+    @bp_login_required
+    def overview():
+        user_uid = session['firebase_user_uid']
+        user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
+        shared_context = get_automation_shared_context(user_uid, user_site_profiles)
+        total_sites = len(user_site_profiles) if user_site_profiles else 0
+        return render_template('automation/overview.html',
+                             title="Automation Hub - Tickzen",
+                             total_sites=total_sites,
+                             **shared_context)
+    
+    @automation_bp.route('/history')
+    @bp_login_required
+    def history():
+        user_uid = session['firebase_user_uid']
+        user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
+        shared_context = get_automation_shared_context(user_uid, user_site_profiles)
+        return render_template('automation/history.html',
+                             title="Publishing History - Tickzen",
+                             user_site_profiles=user_site_profiles,
+                             **shared_context)
+    
+    # Import and create fresh sub-blueprints
+    from app.blueprints.automation_stock import stock_automation_bp
+    from app.blueprints.automation_earnings import earnings_automation_bp
+    from app.blueprints.automation_sports import sports_automation_bp
+    
+    # Register sub-blueprints on the fresh parent
+    automation_bp.register_blueprint(stock_automation_bp)
+    automation_bp.register_blueprint(earnings_automation_bp)
+    automation_bp.register_blueprint(sports_automation_bp)
+    
+    # Register parent with app
+    app.register_blueprint(automation_bp)
+    app.logger.info("Automation blueprints registered successfully")
+
+_register_blueprint_once('automation', _register_automation)
+# ==================== END BLUEPRINT REGISTRATION ====================
 
 if __name__ == '__main__':
     try:

@@ -1,0 +1,403 @@
+# TickZen Project - AI Assistant Reference Guide
+
+## Project Overview
+**Type**: Production Flask-SocketIO web app for AI stock analysis & WordPress automation
+**Stack**: Flask, SocketIO, Firebase (Firestore/Storage/Auth), Prophet ML, Azure App Service
+**Purpose**: (1) Deep stock analysis with 32-section reports (2) Automated content publishing (Stock/Earnings/Sports)
+
+## Critical Architecture
+
+### 1. Firebase Multi-Service Integration
+- **Init**: `config/firebase_admin_setup.py` - centralized Firebase setup
+- **Check before use**: `get_firebase_app_initialized()` or `FIREBASE_INITIALIZED_SUCCESSFULLY`
+- **Functions**: `get_firestore_client()`, `get_storage_bucket()`, `verify_firebase_token()`
+- **Storage**: Dual strategy - local files + Firebase Storage (Firebase is primary)
+- **Health**: `is_firebase_healthy()`, `get_firebase_health_status()`
+
+### 2. SocketIO Real-Time (Threading Mode)
+- **Mode**: `async_mode='threading'` (NOT eventlet) - Azure compatible
+- **Rooms**: User UID or client SID for targeted updates
+- **Events**:
+  - `analysis_progress` - Stock analysis updates (progress%, stage, message)
+  - `automation_update` - WordPress publishing progress
+  - `ticker_status_persisted` - Analysis completion
+  - `analysis_error`, `wp_asset_error` - Error notifications
+
+### 3. Authentication
+- **Client**: Firebase Auth (frontend)
+- **Server**: Token verification via `verify_firebase_token()`
+- **Session**: `firebase_user_uid`, `firebase_user_email` in Flask session
+- **Decorators**: `@login_required`, `@admin_required`
+
+### 4. Lazy Loading (Azure cold start optimization)
+- **Pattern**: Use `get_pandas()`, `get_jwt()` instead of direct imports
+- **Matplotlib**: Pre-configured with `Agg` backend
+- **File**: `scripts/startup_optimization.py`
+
+## Route Structure (Current - Redesign Planned)
+
+### Stock Analysis Routes
+```
+/                      → Homepage (stock-analysis-homepage.html)
+/dashboard             → User dashboard (analysis reports, tools)
+/analyzer              → Stock analysis input form
+/dashboard-analytics   → Portfolio analytics dashboard
+/ai-assistant          → AI chatbot for stock analysis
+/api/dashboard/reports → Get user's analysis reports (Firebase Storage)
+```
+
+### Automation Routes
+```
+/wordpress-automation-portal  → Automation homepage (legacy)
+/automation-runner            → Stock analysis automation (run_automation_page.html)
+/automation-earnings-runner   → Earnings report automation (run_automation_earnings.html)
+/automation-sports-runner     → Sports article automation (run_automation_sports_improved.html)
+/trends-dashboard             → Google Trends for sports (google_trends_dashboard.html)
+/run-automation-now           → POST - Execute stock automation
+/run-earnings-automation      → POST - Execute earnings automation
+/run-sports-automation        → POST - Execute sports automation
+```
+
+### Supporting Routes
+```
+/manage-profiles       → WordPress site profile management
+/publishing-history    → View published content history
+/wp-generator          → Generate WordPress assets from analysis
+/user-profile          → User profile settings
+/login, /register      → Auth pages
+/health                → System health check
+```
+
+## Key Modules
+
+### Analysis Pipeline (`automation_scripts/pipeline.py`)
+```python
+run_pipeline(ticker, timestamp, app_root, socketio_instance, task_room)
+# Returns: (model, forecast, report_path, html_content)
+# Stages: Data (5-25%) → Preprocessing (25-35%) → Model (35-60%) → Report (60-100%)
+# Caching: generated_data/data_cache/ (7-day retention)
+```
+
+### WordPress Auto-Publisher (`automation_scripts/auto_publisher.py`)
+```python
+AutoPublisher.trigger_publishing_run(
+    user_uid, profiles_list, articles_map, 
+    custom_tickers, uploaded_files, 
+    socketio_instance, user_room, save_status_callback
+)
+# State: Firestore userSiteProfiles/{uid}/profiles/{pid}/processedTickers/{ticker}
+# Limits: ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP (env var, default 20)
+# Author rotation: Round-robin via Firestore state
+```
+
+### Stock Analysis Scripts (`analysis_scripts/`)
+```
+technical_analysis.py      → 25+ indicators (RSI, MACD, Bollinger, etc.)
+fundamental_analysis.py    → DCF, P/E, EV/EBITDA, peer comparison
+sentiment_analysis.py      → News/social/analyst sentiment aggregation
+risk_analysis.py           → VaR, stress testing, portfolio risk
+dashboard_analytics.py     → Portfolio performance, market analytics
+```
+
+### Earnings System (`earnings_reports/`)
+```
+data_collector.py          → Multi-source earnings data (yfinance, Alpha Vantage, Finnhub)
+gemini_earnings_writer.py  → AI-powered earnings analysis generation
+pipeline.py                → Earnings automation pipeline
+fetch_weekly_earnings_calendar.py → Upcoming earnings calendar
+```
+
+### Sports Automation (`Sports_Article_Automation/`)
+```
+core/article_generation_pipeline.py → Two-stage: Perplexity research → Gemini writing
+google_trends/               → Trending topic identification
+publishers/                  → WordPress publishing for sports
+utilities/perplexity_ai_client.py → Research data collection
+utilities/sports_article_generator.py → Gemini content generation
+```
+
+### Data Processing (`data_processing_scripts/`)
+```
+macro_data.py              → FRED economic data integration
+data_preprocessing.py      → Data cleaning, outlier detection, normalization
+feature_engineering.py     → Technical indicators, derived metrics
+```
+
+## File Structure
+```
+tickzen2/
+├── app/
+│   ├── main_portal_app.py        → Core Flask app (8000+ lines, monolithic)
+│   ├── market_news.py             → Market news blueprint
+│   ├── info_routes.py             → Info/health blueprints
+│   ├── analytics_utils.py         → Common analytics functions
+│   ├── templates/                 → HTML templates
+│   │   ├── dashboard.html
+│   │   ├── analyzer_input.html
+│   │   ├── run_automation_page.html
+│   │   ├── run_automation_earnings.html
+│   │   ├── run_automation_sports_improved.html
+│   │   └── _base.html             → Base template with navigation
+│   └── static/                    → CSS, JS, images
+├── automation_scripts/
+│   ├── pipeline.py                → Stock analysis pipeline
+│   ├── auto_publisher.py          → WordPress automation
+│   └── firestore_state_manager.py → State persistence
+├── analysis_scripts/              → All analysis modules
+├── earnings_reports/              → Earnings automation system
+├── Sports_Article_Automation/     → Sports content system
+├── data_processing_scripts/       → Data collection & preprocessing
+├── gemini_article_system/         → AI content generation
+├── config/
+│   ├── firebase_admin_setup.py    → Firebase initialization
+│   ├── firebase-service-account-key.json
+│   └── config.py                  → App configuration
+├── Models/
+│   └── wsl_prophet_bridge.py     → WSL Prophet integration
+├── generated_data/                → Cached data & reports
+├── scripts/
+│   └── startup_optimization.py    → Lazy loading setup
+├── wsgi.py                        → Azure deployment entry
+├── gunicorn.conf.py               → Production server config
+└── requirements.txt               → Dependencies
+```
+
+## Firebase Schema
+
+### Firestore Collections
+```
+userProfiles/{user_uid}/
+  email, displayName, created_at, subscription_tier
+
+userGeneratedReports/{report_id}/
+  user_uid, ticker, created_at, report_path, storage_path, metadata
+
+userSiteProfiles/{user_uid}/profiles/{profile_id}/
+  site_name, site_url, username, password, daily_limit
+  processedTickers/{ticker}/
+    status, publishedDate, wordpressPostId, errorMessage, contentHash
+  dailyPublishingStats/{date}/
+    postsPublished, successRate
+
+automationState/{user_uid}/
+  last_author_index_by_profile, publishing_history
+
+earningsCalendar/weekly/
+  tickers, dates, estimates
+```
+
+### Firebase Storage
+```
+user_reports/{user_uid}/{ticker}_{timestamp}.html
+user_uploads/{user_uid}/ticker_lists/{filename}
+sports_articles/generated/{article_id}.json
+```
+
+## Development Patterns
+
+### SocketIO Progress Updates
+```python
+socketio.emit('analysis_progress', {
+    'progress': 45,
+    'message': 'Training Prophet model...',
+    'stage': 'Model Training',
+    'ticker': ticker,
+    'timestamp': datetime.now(timezone.utc).isoformat()
+}, room=user_room)
+```
+
+### Firebase Operations
+```python
+# Always check first
+if not get_firebase_app_initialized():
+    log_firebase_operation_error("op_name", "Firebase unavailable")
+    return None
+
+# Firestore query
+db = get_firestore_client()
+docs = db.collection('userProfiles').where('email', '==', email).limit(1).stream()
+
+# Storage upload
+bucket = get_storage_bucket()
+blob = bucket.blob(f'user_reports/{uid}/{filename}')
+blob.upload_from_string(content, content_type='text/html')
+```
+
+### Dual Storage Pattern
+```python
+# Save locally AND Firebase
+with open(local_path, 'w') as f:
+    f.write(html_content)
+storage_path = save_report_to_firebase_storage(uid, ticker, filename, content)
+
+# Read: Try Firebase first
+if storage_path:
+    content = get_report_content_from_firebase_storage(storage_path)
+else:
+    with open(local_path, 'r') as f:
+        content = f.read()
+```
+
+## External APIs
+
+### Financial Data
+- **yfinance**: Primary stock data (price, volume, fundamentals)
+- **Alpha Vantage**: Detailed financials, earnings, company overview
+- **Finnhub**: Real-time data, news, earnings calendar
+- **FRED**: Macroeconomic indicators (GDP, unemployment, rates)
+
+### AI Services
+- **Gemini AI**: Content generation (stock articles, earnings, sports)
+- **Perplexity AI**: Research data collection for sports articles
+- **Prophet**: Time-series forecasting (Facebook Prophet via WSL)
+
+### WordPress
+- **REST API**: Post creation, media upload, metadata management
+- **Multi-site support**: Multiple profiles per user with daily limits
+
+## Environment Variables
+```
+FIREBASE_PROJECT_ID
+FIREBASE_STORAGE_BUCKET
+GOOGLE_APPLICATION_CREDENTIALS
+ALPHA_VANTAGE_API_KEY
+FINNHUB_API_KEY
+FRED_API_KEY
+GEMINI_API_KEY
+PERPLEXITY_API_KEY
+FLASK_SECRET_KEY
+ABSOLUTE_MAX_POSTS_PER_DAY_ENV_CAP
+```
+
+## Azure Deployment
+- **Entry**: `wsgi.py` → `app.main_portal_app:app`
+- **Server**: Gunicorn (1 worker, 100 threads, 600s timeout)
+- **Detection**: `WEBSITE_SITE_NAME` env var for production mode
+- **Startup**: `startup.cmd` (Windows) or `startup.sh` (Linux)
+
+## Common Tasks
+
+### Run Analysis
+```python
+# Via pipeline
+from automation_scripts.pipeline import run_pipeline
+model, forecast, path, html = run_pipeline('AAPL', timestamp, app_root)
+
+# Via Flask route
+@app.route('/analyze', methods=['POST'])
+@login_required
+def analyze_stock():
+    ticker = request.form.get('ticker')
+    # Emit progress via SocketIO
+    # Call pipeline
+    # Save to Firebase
+    # Emit completion
+```
+
+### Trigger Automation
+```python
+# Stock automation
+auto_publisher.trigger_publishing_run(
+    user_uid, profiles_data, articles_map,
+    custom_tickers, uploaded_files,
+    socketio, user_room, save_callback
+)
+
+# Earnings automation
+earnings_pipeline.run_earnings_automation(ticker, profile_id)
+
+# Sports automation
+sports_pipeline.run_sports_pipeline(topics, profile_id)
+```
+
+### Check Publishing Status
+```python
+# Get processed tickers for profile
+status = get_processed_ticker_status(user_uid, profile_id, ticker)
+# Returns: {status, publishedDate, wordpressPostId, errorMessage}
+
+# Get daily stats
+stats = get_daily_publishing_stats(user_uid, profile_id, date)
+# Returns: {postsPublished, successRate, revenue}
+```
+
+## Navigation Redesign (Planned)
+See `NAVIGATION_REDESIGN_ROADMAP.md`, `NAVIGATION_VISUAL_GUIDE.md`, `ROUTE_MAPPING.md`
+
+**New Structure**:
+- `/stock-analysis/*` - All analysis tools
+- `/automation/overview` - Automation hub
+- `/automation/stock-analysis/*` - Stock automation
+- `/automation/earnings/*` - Earnings automation  
+- `/automation/sports/*` - Sports automation
+
+## Error Handling
+- **User-facing**: SocketIO events (seamless UX, no page reload)
+- **No flash() after analysis starts**: WebSocket handles all feedback
+- **Graceful degradation**: Mock objects when imports fail
+- **Firebase errors**: Logged via `log_firebase_operation_error()`
+
+## Testing
+```bash
+# Local dev
+python -m app.main_portal_app
+
+# Test pipeline
+python -c "from automation_scripts.pipeline import run_pipeline; run_pipeline('AAPL', '1234', '.')"
+
+# Test Firebase
+python -c "from config.firebase_admin_setup import *; initialize_firebase_admin(); print(get_firebase_health_status())"
+```
+
+## Performance Notes
+- **Caching**: 7-day data cache in `generated_data/data_cache/`
+- **Lazy loading**: Heavy imports loaded on-demand
+- **SocketIO threading**: 100 threads for concurrent users
+- **Prophet via WSL**: Avoids Windows CmdStan issues
+- **Matplotlib Agg**: Headless backend for server
+
+## Security
+- **Firebase Auth**: Client + server verification
+- **Admin emails**: Hardcoded list for admin routes
+- **CSRF**: Flask-WTF protection on forms
+- **Secrets**: Environment variables, never committed
+- **Storage**: User-scoped paths (`user_reports/{uid}/`)
+
+## Key Conventions
+- **Function naming**: Snake_case for Python
+- **Route naming**: Kebab-case for URLs
+- **Template naming**: Underscore for partials (_base.html)
+- **SocketIO rooms**: Use user UID for isolation
+- **Timestamps**: ISO 8601 with UTC timezone
+- **Progress**: 0-100 integer percentage
+- **Status**: 'completed', 'failed', 'in_progress', 'queued'
+
+## Quick Reference
+
+**Start here for new features**:
+1. Check Firebase availability
+2. Setup SocketIO room if real-time needed
+3. Use lazy-loaded imports
+4. Emit progress events
+5. Save to Firebase + local
+6. Handle errors gracefully
+7. Update Firestore state
+
+**File a ticker is analyzed**:
+1. User submits `/analyzer` form
+2. `handle_analysis_request()` SocketIO handler
+3. `run_pipeline()` executes (with progress events)
+4. Report saved locally + Firebase Storage
+5. Metadata saved to Firestore
+6. `ticker_status_persisted` event emitted
+7. User sees result in real-time
+
+**When automation runs**:
+1. User configures profiles + tickers
+2. Submits `/run-automation-now`
+3. `trigger_publishing_run()` executes
+4. For each ticker: analyze → generate article → publish to WP
+5. Progress via `automation_update` events
+6. Status saved to Firestore `processedTickers`
+7. Daily limits enforced
+8. Publishing history updated

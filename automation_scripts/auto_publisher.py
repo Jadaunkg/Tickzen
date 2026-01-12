@@ -634,42 +634,56 @@ def create_wordpress_post(site_url, author, title, content, sched_time, cat_id=N
     # Determine article type from profile_config if available
     current_article_type = profile_config.get('article_type', 'stock_analysis') if profile_config else 'stock_analysis'
     
+    # Define max slug length constant (must be less than 75 for WordPress permalinks)
+    MAX_SLUG_LENGTH = 74
+    
     if current_article_type in ['earnings', 'pre_earnings', 'post_earnings']:
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         # EARNINGS ARTICLES: headline-only format
         # Example: "apple-earnings-beat-expectations", "tesla-q4-earnings-guidance"
-        # Uses headline only, cut at 75 characters
+        # Uses headline only, cut at max 74 characters (less than 75)
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         slug = re.sub(r'[^\w\s]', '', title.lower()).strip()
         slug = re.sub(r'[\s]+', '-', slug).strip('-')
         
-        # Limit to 75 characters with word boundary respect
-        if len(slug) > 75:
-            slug = slug[:75].rsplit('-', 1)[0].strip('-')
+        # Limit to max 74 characters with word boundary respect
+        if len(slug) >= 75:
+            truncated = slug[:MAX_SLUG_LENGTH]
+            if '-' in truncated:
+                slug = truncated.rsplit('-', 1)[0].strip('-')
+            else:
+                slug = truncated.strip('-')
         
         slug = slug.strip('-')
-        app_logger.info(f"[SLUG] EARNINGS ({current_article_type}) - Headline: {title[:50]} → '{slug}' ({len(slug)}/75 chars)")
+        app_logger.info(f"[SLUG] EARNINGS ({current_article_type}) - Headline: {title[:50]} → '{slug}' ({len(slug)}/74 chars)")
     
     elif ticker and company_name:
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         # STOCK ANALYSIS ARTICLES: ticker-company-name format
         # Example: "aapl-apple-inc", "tsla-tesla-motors"
+        # Permalink must be less than 75 characters (max 74)
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         company_slug = re.sub(r'[^\w]+', '-', company_name.lower()).strip('-')
         slug = f"{ticker.lower()}-{company_slug}"
         
-        # Limit to 75 characters with word boundary respect
-        if len(slug) > 75:
-            slug = slug[:75].rsplit('-', 1)[0]
+        # Limit to max 74 characters with word boundary respect
+        if len(slug) >= 75:
+            truncated = slug[:MAX_SLUG_LENGTH]
+            if '-' in truncated:
+                slug = truncated.rsplit('-', 1)[0]
+            else:
+                slug = truncated
+            slug = slug.strip('-')
         
         slug = slug.strip('-')
-        app_logger.info(f"[SLUG] STOCK ANALYSIS - Ticker: {ticker}, Company: {company_name} → '{slug}' ({len(slug)}/75 chars)")
+        app_logger.info(f"[SLUG] STOCK ANALYSIS - Ticker: {ticker}, Company: {company_name} → '{slug}' ({len(slug)}/74 chars)")
     
     else:
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         # SPORTS ARTICLES: headline-only format
         # Example: "england-demands-dog-mentality", "nba-finals-game-7"
         # NO category prefix, NO special filtering - just headline
+        # Permalink must be LESS than 75 characters (max 74 chars)
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         app_logger.info(f"[SLUG_DEBUG] SPORTS - Original title: {title}")
         
@@ -681,32 +695,46 @@ def create_wordpress_post(site_url, author, title, content, sched_time, cat_id=N
         slug = re.sub(r'[\s]+', '-', slug).strip('-')
         app_logger.info(f"[SLUG_DEBUG] SPORTS - After hyphenation: '{slug}' ({len(slug)} chars)")
         
-        # Step 3: Enforce 75 character limit with word boundary respect
-        if len(slug) > 75:
-            app_logger.info(f"[SLUG_DEBUG] SPORTS - Slug too long ({len(slug)}), truncating to 75 chars")
-            # Find the last hyphen within 75 characters to break at word boundary
-            truncated = slug[:75]
+        # Step 3: Enforce LESS THAN 75 character limit (max 74) with word boundary respect
+        if len(slug) >= 75:  # Changed to >= to catch exactly 75 as well
+            app_logger.info(f"[SLUG_DEBUG] SPORTS - Slug too long ({len(slug)}), truncating to max {MAX_SLUG_LENGTH} chars")
+            # Find the last hyphen within MAX_SLUG_LENGTH characters to break at word boundary
+            truncated = slug[:MAX_SLUG_LENGTH]
             if '-' in truncated:
+                # Break at the last hyphen to preserve word boundaries
                 slug = truncated.rsplit('-', 1)[0]
             else:
-                slug = truncated  # Fallback: hard truncate if no hyphens
+                # No hyphens found - hard truncate to max length
+                slug = truncated[:MAX_SLUG_LENGTH]
             app_logger.info(f"[SLUG_DEBUG] SPORTS - After truncation: '{slug}' ({len(slug)} chars)")
         
         # Step 4: Final cleanup - remove any trailing hyphens
         slug = slug.strip('-')
         app_logger.info(f"[SLUG_DEBUG] SPORTS - After final cleanup: '{slug}' ({len(slug)} chars)")
         
-        # Step 5: Emergency validation
-        if len(slug) > 75:
+        # Step 5: Emergency validation - ensure it's always less than 75 characters
+        if len(slug) >= 75:
             app_logger.warning(f"[SLUG_ERROR] SPORTS - Slug still too long after processing: '{slug}' ({len(slug)} chars) - forcing hard truncation")
-            slug = slug[:75].rstrip('-')
+            slug = slug[:MAX_SLUG_LENGTH].rstrip('-')
             app_logger.warning(f"[SLUG_ERROR] SPORTS - After emergency truncation: '{slug}' ({len(slug)} chars)")
+        
+        # Step 6: Final safety check - ensure we never exceed 74 characters
+        if len(slug) > MAX_SLUG_LENGTH:
+            app_logger.error(f"[SLUG_CRITICAL] SPORTS - Slug exceeds max length: '{slug}' ({len(slug)} chars) - hard truncating")
+            slug = slug[:MAX_SLUG_LENGTH].rstrip('-')
+            app_logger.error(f"[SLUG_CRITICAL] SPORTS - Final slug: '{slug}' ({len(slug)} chars)")
         
         if not slug:
             app_logger.error(f"[SLUG_ERROR] SPORTS - Empty slug generated from title: {title}")
             slug = "sports-article"  # Fallback slug
         
-        app_logger.info(f"[SLUG] SPORTS ARTICLE - Headline: '{title[:50]}...' → '{slug}' ({len(slug)}/75 chars) ✅")
+        # Final validation before returning
+        if len(slug) >= 75:
+            app_logger.error(f"[SLUG_CRITICAL] SPORTS - Slug validation failed: '{slug}' ({len(slug)} chars) - using fallback")
+            slug = "sports-article-" + str(int(time.time()))[-6:]  # Timestamp fallback
+            slug = slug[:MAX_SLUG_LENGTH].rstrip('-')  # Ensure fallback also respects limit
+        
+        app_logger.info(f"[SLUG] SPORTS ARTICLE - Headline: '{title[:50]}...' → '{slug}' ({len(slug)}/74 chars) ✅")
     
     
     # ═══════════════════════════════════════════════════════════
@@ -720,16 +748,18 @@ def create_wordpress_post(site_url, author, title, content, sched_time, cat_id=N
     app_logger.info(f"[FINAL_VALIDATION] - Category: {cat_id}")
     app_logger.info(f"[FINAL_VALIDATION] - Author: {author['wp_username']} (ID: {author['wp_user_id']})")
     
-    # Critical validation: Ensure slug never exceeds 75 characters
-    if len(slug) > 75:
-        app_logger.error(f"[CRITICAL_ERROR] Slug exceeds 75 characters: '{slug}' ({len(slug)} chars)")
+    # Critical validation: Ensure slug never exceeds 74 characters (less than 75)
+    # MAX_SLUG_LENGTH already defined above - reuse it
+    if len(slug) >= 75:
+        app_logger.error(f"[CRITICAL_ERROR] Slug exceeds 74 characters: '{slug}' ({len(slug)} chars)")
         app_logger.error(f"[CRITICAL_ERROR] This should never happen - emergency truncation")
-        slug = slug[:70].rstrip('-')  # Leave buffer for safety
+        slug = slug[:MAX_SLUG_LENGTH].rstrip('-')  # Truncate to max 74 chars
         app_logger.error(f"[CRITICAL_ERROR] Emergency slug: '{slug}' ({len(slug)} chars)")
     
     if len(slug) == 0:
         app_logger.error(f"[CRITICAL_ERROR] Empty slug - using fallback")
         slug = "article-" + str(int(time.time()))[-6:]  # Timestamp fallback
+        slug = slug[:MAX_SLUG_LENGTH].rstrip('-')  # Ensure fallback respects limit
         app_logger.error(f"[CRITICAL_ERROR] Fallback slug: '{slug}'")
     
     # Build payload with flexible status

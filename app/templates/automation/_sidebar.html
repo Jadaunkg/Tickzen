@@ -1,0 +1,558 @@
+<!-- Ultra-Compact Modern Automation Sidebar -->
+{# 
+    Usage: include 'automation/_sidebar.html'
+    Required variables: None (uses request.endpoint for active state)
+    Uses Lucide icons for modern look
+#}
+
+<aside class="auto-sidebar">
+    <!-- Compact Header -->
+    <div class="auto-sidebar-header">
+        <a href="{{ url_for('automation.overview') }}" class="auto-brand">
+            <div class="auto-brand-icon">
+                <i data-lucide="bot"></i>
+            </div>
+            <span class="auto-brand-text">Automation</span>
+        </a>
+    </div>
+    
+    <nav class="auto-nav">
+        <!-- Overview -->
+        <a href="{{ url_for('automation.overview') }}" class="auto-nav-item {% if request.endpoint == 'automation.overview' %}active{% endif %}">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Overview</span>
+        </a>
+        
+        <!-- Site Profiles - Global -->
+        <a href="{{ url_for('manage_site_profiles') }}" class="auto-nav-item {% if request.endpoint == 'manage_site_profiles' %}active{% endif %}">
+            <i data-lucide="globe"></i>
+            <span>Site Profiles</span>
+        </a>
+        
+        <!-- Publishing History - Global -->
+        <a href="{{ url_for('automation.history') }}" class="auto-nav-item {% if request.endpoint == 'automation.history' %}active{% endif %}">
+            <i data-lucide="history"></i>
+            <span>Publishing History</span>
+        </a>
+        
+        <div class="auto-nav-divider"></div>
+        
+        <!-- Stock Analysis -->
+        <div class="auto-nav-group {% if 'stock_automation' in (request.endpoint or '') or request.endpoint == 'automation.stock_automation.history' %}expanded{% endif %}">
+            <button class="auto-nav-toggle" type="button" data-target="stock-menu">
+                <div class="auto-nav-toggle-left">
+                    <i data-lucide="trending-up" class="icon-stock"></i>
+                    <span>Stock Analysis</span>
+                </div>
+                <i data-lucide="chevron-right" class="toggle-arrow"></i>
+            </button>
+            <div class="auto-submenu" id="stock-menu">
+                <a href="{{ url_for('automation.stock_automation.dashboard') }}" class="auto-submenu-item {% if request.endpoint == 'automation.stock_automation.dashboard' %}active{% endif %}">
+                    <i data-lucide="gauge"></i>Dashboard
+                </a>
+                <a href="{{ url_for('automation.stock_automation.run') }}" class="auto-submenu-item {% if request.endpoint == 'automation.stock_automation.run' %}active{% endif %}">
+                    <i data-lucide="play"></i>Run Automation
+                </a>
+            </div>
+        </div>
+        
+        <!-- Earnings Reports -->
+        <div class="auto-nav-group {% if 'earnings_automation' in (request.endpoint or '') or request.endpoint == 'automation.earnings_automation.history' %}expanded{% endif %}">
+            <button class="auto-nav-toggle" type="button" data-target="earnings-menu">
+                <div class="auto-nav-toggle-left">
+                    <i data-lucide="file-text" class="icon-earnings"></i>
+                    <span>Earnings Reports</span>
+                </div>
+                <i data-lucide="chevron-right" class="toggle-arrow"></i>
+            </button>
+            <div class="auto-submenu" id="earnings-menu">
+                <a href="{{ url_for('automation.earnings_automation.dashboard') }}" class="auto-submenu-item {% if request.endpoint == 'automation.earnings_automation.dashboard' %}active{% endif %}">
+                    <i data-lucide="gauge"></i>Dashboard
+                </a>
+                <a href="{{ url_for('automation.earnings_automation.run') }}" class="auto-submenu-item {% if request.endpoint == 'automation.earnings_automation.run' %}active{% endif %}">
+                    <i data-lucide="play"></i>Run Automation
+                </a>
+                <a href="{{ url_for('automation.earnings_automation.calendar') }}" class="auto-submenu-item {% if request.endpoint == 'automation.earnings_automation.calendar' %}active{% endif %}">
+                    <i data-lucide="calendar"></i>Calendar
+                </a>
+            </div>
+        </div>
+        
+        <!-- Sports Content -->
+        <div class="auto-nav-group {% if 'sports_automation' in (request.endpoint or '') or request.endpoint == 'automation.sports_automation.history' %}expanded{% endif %}">
+            <button class="auto-nav-toggle" type="button" data-target="sports-menu">
+                <div class="auto-nav-toggle-left">
+                    <i data-lucide="trophy" class="icon-sports"></i>
+                    <span>Sports Content</span>
+                </div>
+                <i data-lucide="chevron-right" class="toggle-arrow"></i>
+            </button>
+            <div class="auto-submenu" id="sports-menu">
+                <a href="{{ url_for('automation.sports_automation.dashboard') }}" class="auto-submenu-item {% if request.endpoint == 'automation.sports_automation.dashboard' %}active{% endif %}">
+                    <i data-lucide="gauge"></i>Dashboard
+                </a>
+                <a href="{{ url_for('automation.sports_automation.run') }}" class="auto-submenu-item {% if request.endpoint == 'automation.sports_automation.run' %}active{% endif %}">
+                    <i data-lucide="play"></i>Run Automation
+                </a>
+                <a href="{{ url_for('automation.sports_automation.trends') }}" class="auto-submenu-item {% if request.endpoint == 'automation.sports_automation.trends' %}active{% endif %}">
+                    <i data-lucide="flame"></i>Trends
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Footer -->
+    <div class="auto-sidebar-footer">
+        <a href="{{ url_for('info.faq') }}" class="auto-footer-help" title="Help & Documentation">
+            <i data-lucide="help-circle"></i>
+            <span>Help & Support</span>
+        </a>
+        <div class="auto-powered-badge">
+            <i data-lucide="sparkles"></i>
+            <span>Powered by AI</span>
+        </div>
+    </div>
+</aside>
+
+<style>
+/* ============================================
+   Light Theme Sidebar - Modern & Clean
+   ============================================ */
+
+.auto-sidebar {
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 56px);
+    position: sticky;
+    top: 56px;
+    font-size: 14px;
+    overflow: hidden;
+    border-right: 1px solid #e5e7eb;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+}
+
+.auto-sidebar:hover {
+    overflow-y: auto;
+}
+
+/* Scrollbar */
+.auto-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+.auto-sidebar::-webkit-scrollbar-track {
+    background: #f9fafb;
+}
+.auto-sidebar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+.auto-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Header */
+.auto-sidebar-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.auto-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #166534;
+}
+
+.auto-brand-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(34,197,94,0.3);
+}
+
+.auto-brand-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: white;
+    stroke-width: 2;
+}
+
+.auto-brand-text {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #15803d;
+}
+
+/* Navigation */
+.auto-nav {
+    flex: 1;
+    padding: 10px 0;
+    overflow-y: auto;
+}
+
+/* Nav Item */
+.auto-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    margin: 2px 8px;
+    border-radius: 8px;
+    color: #4b5563;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.auto-nav-item svg {
+    width: 17px;
+    height: 17px;
+    stroke-width: 2;
+    flex-shrink: 0;
+    stroke: #6b7280;
+}
+
+.auto-nav-item:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.auto-nav-item:hover svg {
+    stroke: #374151;
+}
+
+.auto-nav-item.active {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #166534;
+}
+
+.auto-nav-item.active svg {
+    stroke: #16a34a;
+}
+
+/* Nav Group */
+.auto-nav-group {
+    margin: 2px 0;
+}
+
+.auto-nav-toggle {
+    width: calc(100% - 16px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 16px;
+    margin: 0 8px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: #4b5563;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.auto-nav-toggle:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.auto-nav-toggle-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.auto-nav-toggle-left svg {
+    width: 17px;
+    height: 17px;
+    stroke-width: 2;
+}
+
+/* Section-specific icon colors */
+.icon-stock { stroke: #16a34a; }
+.icon-earnings { stroke: #7c3aed; }
+.icon-sports { stroke: #ea580c; }
+
+.toggle-arrow {
+    width: 14px !important;
+    height: 14px !important;
+    stroke: #9ca3af;
+    opacity: 0.7;
+    transition: transform 0.2s ease;
+}
+
+.auto-nav-group.expanded .toggle-arrow {
+    transform: rotate(90deg);
+    opacity: 1;
+    stroke: #6b7280;
+}
+
+/* Submenu */
+.auto-submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease;
+    margin-left: 20px;
+    border-left: 2px solid #e5e7eb;
+}
+
+.auto-nav-group.expanded .auto-submenu {
+    max-height: 200px;
+}
+
+.auto-submenu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    margin: 2px 8px 2px 0;
+    border-radius: 6px;
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.auto-submenu-item svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2;
+    stroke: #9ca3af;
+}
+
+.auto-submenu-item:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.auto-submenu-item:hover svg {
+    stroke: #6b7280;
+}
+
+.auto-submenu-item.active {
+    background: #16a34a;
+    color: #fff;
+}
+
+.auto-submenu-item.active svg {
+    stroke: #fff;
+}
+
+/* Divider */
+.auto-nav-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 10px 16px;
+}
+
+/* Footer */
+.auto-sidebar-footer {
+    padding: 12px 16px 18px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.auto-footer-help {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.auto-footer-help svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+}
+
+.auto-footer-help:hover {
+    background: #f0fdf4;
+    border-color: #16a34a;
+    color: #16a34a;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.15);
+}
+
+.auto-footer-help:hover svg {
+    stroke: #16a34a;
+}
+
+/* Powered by AI Badge */
+.auto-powered-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border: 1px solid #86efac;
+    color: #15803d;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+    animation: gentleGlow 3s ease-in-out infinite;
+}
+
+.auto-powered-badge::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 70%
+    );
+    animation: shimmer 3s infinite;
+}
+
+.auto-powered-badge svg {
+    width: 14px;
+    height: 14px;
+    stroke: #16a34a;
+    stroke-width: 2.5;
+    filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.4));
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes gentleGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.2),
+                    0 0 10px rgba(34, 197, 94, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(34, 197, 94, 0.3),
+                    0 0 15px rgba(34, 197, 94, 0.2),
+                    inset 0 0 10px rgba(34, 197, 94, 0.1);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%);
+    }
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1) rotate(5deg);
+        opacity: 0.8;
+    }
+.auto-footer-btn:hover svg {
+    stroke: #16a34a;
+}
+
+/* Mobile */
+@media (max-width: 1024px) {
+    .auto-sidebar {
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .auto-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+        width: 260px;
+        min-width: 260px;
+        max-width: 260px;
+    }
+    
+    .auto-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+}
+</style>
+
+<script>
+// Compact sidebar interactions
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle groups
+    document.querySelectorAll('.auto-nav-toggle').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const group = this.closest('.auto-nav-group');
+            const wasExpanded = group.classList.contains('expanded');
+            
+            // Optional: close others
+            // document.querySelectorAll('.auto-nav-group.expanded').forEach(g => g.classList.remove('expanded'));
+            
+            if (wasExpanded) {
+                group.classList.remove('expanded');
+            } else {
+                group.classList.add('expanded');
+            }
+        });
+    });
+    
+    // Auto-expand active section
+    const activeSubmenuItem = document.querySelector('.auto-submenu-item.active');
+    if (activeSubmenuItem) {
+        const parentGroup = activeSubmenuItem.closest('.auto-nav-group');
+        if (parentGroup) parentGroup.classList.add('expanded');
+    }
+    
+    // Mobile toggle
+    window.toggleAutomationSidebar = function() {
+        const sidebar = document.querySelector('.auto-sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (sidebar) {
+            sidebar.classList.toggle('mobile-open');
+            if (overlay) overlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
+        }
+    };
+    
+    // Re-initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>

@@ -266,6 +266,66 @@
             transition: transform 0.2s ease-in-out;
         }
 
+        /* Automation Hub Dropdown Styles */
+        .dropdown-menu.automation-dropdown {
+            min-width: 240px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 0;
+        }
+        .dropdown-menu.automation-dropdown .dropdown-header {
+            padding: 0.5rem 1rem 0.75rem;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #16a34a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 0.5rem;
+        }
+        .dropdown-menu.automation-dropdown .dropdown-header i {
+            font-size: 1rem;
+        }
+        .dropdown-menu.automation-dropdown .dropdown-divider {
+            height: 1px;
+            background-color: #e2e8f0;
+            margin: 0.5rem 0;
+        }
+        .dropdown-menu.automation-dropdown .dropdown-section-title {
+            padding: 0.5rem 1rem 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dropdown-menu.automation-dropdown .dropdown-section-title i {
+            font-size: 0.875rem;
+        }
+        .dropdown-menu.automation-dropdown .nav-link {
+            padding: 0.5rem 1rem 0.5rem 2rem;
+            font-size: 0.875rem;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .dropdown-menu.automation-dropdown .nav-link:hover {
+            background-color: #f0fdf4;
+            color: #16a34a;
+        }
+        .dropdown-menu.automation-dropdown .nav-link i {
+            font-size: 0.8125rem;
+            width: 1rem;
+            margin-right: 0.25rem;
+            opacity: 0.7;
+        }
 
         .main-content { flex-grow: 1; padding: 0; }
         .flash-messages-container { width: 80%; max-width: 900px; margin: 20px auto; padding: 0; list-style: none; }
@@ -937,7 +997,7 @@
             <div class="navbar-container">
                 <div class="navbar-left">
                     {% if is_user_logged_in %}
-                        <a href="{{ url_for('dashboard_page') }}" class="navbar-brand">
+                        <a href="{{ url_for('stock_analysis_hub_page') }}" class="navbar-brand">
                             <img src="{{ url_for('static', filename='images/site icon 40x.png') }}" alt="Tickzen Icon" height="40" class="site-icon">
                             Tickzen
                         </a>
@@ -958,33 +1018,78 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if request.endpoint == 'dashboard_page' %}active{% endif %}" href="{{ url_for('dashboard_page') }}">
+                                <a class="nav-link {% if request.endpoint == 'stock_analysis_hub_page' %}active{% endif %}" href="{{ url_for('stock_analysis_hub_page') }}">
                                     Dashboard<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 24 24" style="margin-left: 0.3rem; vertical-align: middle;">
                                         <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
                                     </svg>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if request.endpoint == 'analyzer_input_page' %}active{% endif %}" href="{{ url_for('analyzer_input_page') }}">
+                                <a class="nav-link {% if request.endpoint == 'analyzer_input_page' or request.endpoint == 'stock_analysis.analyzer' %}active{% endif %}" href="{{ url_for('analyzer_input_page') }}">
                                     Stock Analyzer<i class="fas fa-search-dollar" style="margin-left: 0.3rem;"></i>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if request.endpoint == 'market_news_page' %}active{% endif %}" href="{{ url_for('market_news.market_news_page') }}">
+                                <a class="nav-link {% if request.endpoint == 'market_news.market_news_page' %}active{% endif %}" href="{{ url_for('market_news.market_news_page') }}">
                                     Market News<i class="fas fa-newspaper" style="margin-left: 0.3rem;"></i>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if request.endpoint == 'manage_site_profiles' %}active{% endif %}" href="{{ url_for('manage_site_profiles') }}">
-                                    Profiles<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-left: 0.3rem; vertical-align: middle;">
-                                        <path d="M4 4h16v2H4V4zm0 4h10v2H4V8zm0 4h16v2H4v-2zm0 4h10v2H4v-2z"/>
-                                    </svg>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle {% if 'automation' in (request.endpoint or '') %}active{% endif %}" href="/automation/overview" id="automationDropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    Automation<i class="fas fa-robot" style="margin-left: 0.3rem;"></i>
                                 </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if request.endpoint == 'automation_runner_page' %}active{% endif %}" href="{{ url_for('automation_runner_page') }}">
-                                    Run Automation<i class="fas fa-play-circle" style="margin-left: 0.3rem;"></i>
-                                </a>
+                                <ul class="dropdown-menu automation-dropdown" aria-labelledby="automationDropdown">
+                                    <li class="dropdown-header">
+                                        <i class="fas fa-robot"></i> Automation Hub
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" href="/automation/overview">
+                                            <i class="fas fa-th-large"></i> Overview
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-divider"></li>
+                                    <li class="dropdown-section-title">
+                                        <i class="fas fa-chart-line" style="color: #16a34a;"></i> Stock Analysis
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" href="/automation/stock-analysis/dashboard">
+                                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" href="/automation/stock-analysis/run">
+                                            <i class="fas fa-play"></i> Run Automation
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-divider"></li>
+                                    <li class="dropdown-section-title">
+                                        <i class="fas fa-file-invoice-dollar" style="color: #9333ea;"></i> Earnings Reports
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" href="/automation/earnings/dashboard">
+                                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" href="/automation/earnings/run">
+                                            <i class="fas fa-play"></i> Run Automation
+                                        </a>
+                                    </li>
+                                    <li class="dropdown-divider"></li>
+                                    <li class="dropdown-section-title">
+                                        <i class="fas fa-football-ball" style="color: #ea580c;"></i> Sports Articles
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" href="/automation/sports/dashboard">
+                                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" href="/automation/sports/run">
+                                            <i class="fas fa-play"></i> Run Automation
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -1118,14 +1223,14 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'dashboard_page' %}active{% endif %}" href="{{ url_for('dashboard_page') }}">
+                        <a class="nav-link {% if request.endpoint == 'user_dashboard_page' %}active{% endif %}" href="{{ url_for('user_dashboard_page') }}">
                             Dashboard<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 24 24" style="margin-left: 0.3rem; vertical-align: middle;">
                                 <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
                             </svg>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'analyzer_input_page' %}active{% endif %}" href="{{ url_for('analyzer_input_page') }}">
+                        <a class="nav-link {% if request.endpoint == 'analyzer_input_page' or request.endpoint == 'stock_analysis.analyzer' %}active{% endif %}" href="{{ url_for('analyzer_input_page') }}">
                             Stock Analyzer<i class="fas fa-search-dollar" style="margin-left: 0.3rem;"></i>
                         </a>
                     </li>
@@ -1141,10 +1246,56 @@
                             </svg>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'automation_runner_page' %}active{% endif %}" href="{{ url_for('automation_runner_page') }}">
-                            Run Automation<i class="fas fa-play-circle" style="margin-left: 0.3rem;"></i>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if 'automation' in (request.endpoint or '') %}active{% endif %}" href="#" id="mobileAutomationDropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            Automation<i class="fas fa-robot" style="margin-left: 0.3rem;"></i>
                         </a>
+                        <ul class="dropdown-menu" aria-labelledby="mobileAutomationDropdown">
+                            <li>
+                                <a class="nav-link" href="/automation/overview">
+                                    <i class="fas fa-th-large"></i> Hub Overview
+                                </a>
+                            </li>
+                            <li style="padding: 0.5rem 1rem 0.25rem; font-size: 0.7rem; font-weight: 700; color: #16a34a; text-transform: uppercase;">
+                                Stock Analysis
+                            </li>
+                            <li>
+                                <a class="nav-link" href="/automation/stock-analysis/dashboard">
+                                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="/automation/stock-analysis/run">
+                                    <i class="fas fa-play"></i> Run Automation
+                                </a>
+                            </li>
+                            <li style="padding: 0.5rem 1rem 0.25rem; font-size: 0.7rem; font-weight: 700; color: #9333ea; text-transform: uppercase;">
+                                Earnings Reports
+                            </li>
+                            <li>
+                                <a class="nav-link" href="/automation/earnings/dashboard">
+                                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="/automation/earnings/run">
+                                    <i class="fas fa-play"></i> Run Automation
+                                </a>
+                            </li>
+                            <li style="padding: 0.5rem 1rem 0.25rem; font-size: 0.7rem; font-weight: 700; color: #ea580c; text-transform: uppercase;">
+                                Sports Articles
+                            </li>
+                            <li>
+                                <a class="nav-link" href="/automation/sports/dashboard">
+                                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="/automation/sports/run">
+                                    <i class="fas fa-play"></i> Run Automation
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="mobileToolsDropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -1467,6 +1618,15 @@
     
     <script src="{{ url_for('static', filename='js/firebase-init.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/lucide.js') }}" defer></script>
+    <script>
+        // Initialize Lucide icons on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
     
     <!-- Notification System - Must be outside blocks to prevent override -->
     <script>
@@ -1660,9 +1820,11 @@
                 notificationCount.style.display = 'none';
             }
         }
-        
+    </script>
+    
+    {% if is_user_logged_in %}
+    <script>
         // Check for new notifications every 15 seconds if user is logged in (faster updates)
-        {% if is_user_logged_in %}
         document.addEventListener('DOMContentLoaded', function() {
             loadNotifications();
             notificationCheckInterval = setInterval(loadNotifications, 15000);
@@ -1677,7 +1839,10 @@
                 panel.classList.remove('show');
             }
         });
-        {% endif %}
+    </script>
+    {% endif %}
+    
+    <script>
     </script>
     
     {% block scripts_extra %}

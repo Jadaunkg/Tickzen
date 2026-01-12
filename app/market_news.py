@@ -1358,7 +1358,7 @@ def process_alpha_vantage_news(data):
 @market_news_bp.route('/market-news')
 def market_news_page():
     """Modern market news page with enhanced design"""
-    return render_template('market_news_modern_v2.html')
+    return render_template('stock_analysis/market_news.html')
 
 @market_news_bp.route('/api/refresh-cache')
 def refresh_cache():

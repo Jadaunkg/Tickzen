@@ -1,181 +1,253 @@
 {
   "trends": [
     {
-      "query": "nba games",
+      "query": "Sports",
       "rank": 1,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 100
     },
     {
-      "query": "nba schedule",
+      "query": "arrow_forward_ios",
       "rank": 2,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 95
     },
     {
-      "query": "nba basketball",
+      "query": "man united vs brighton",
       "rank": 3,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 90
     },
     {
-      "query": "martha stewart",
+      "query": "nfl games today",
       "rank": 4,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 85
     },
     {
-      "query": "max brosmer",
+      "query": "bayern vs wolfsburg",
       "rank": 5,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 80
     },
     {
-      "query": "bo jackson",
+      "query": "trevor lawrence",
       "rank": 6,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 75
     },
     {
-      "query": "javonte williams stats",
+      "query": "illinois vs iowa",
       "rank": 7,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 70
     },
     {
-      "query": "deebo samuel stats",
+      "query": "matt ryan president of football",
       "rank": 8,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 65
     },
     {
-      "query": "david montgomery stats",
+      "query": "levante - rcd espanyol",
       "rank": 9,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 60
     },
     {
-      "query": "lions vs vikings prediction",
+      "query": "real madrid vs",
       "rank": 10,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 55
     },
     {
-      "query": "chris rodriguez jr",
+      "query": "nfl today",
       "rank": 11,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.007732",
       "source": "google_trends_collector",
       "importance_score": 50
     },
     {
-      "query": "ucf",
+      "query": "fc barcelona",
       "rank": 12,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.012738",
       "source": "google_trends_collector",
       "importance_score": 45
     },
     {
-      "query": "world juniors 2026",
+      "query": "west ham vs qpr",
       "rank": 13,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.012738",
       "source": "google_trends_collector",
       "importance_score": 40
     },
     {
-      "query": "nba schedule today",
+      "query": "pumas - querétaro",
       "rank": 14,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.012738",
       "source": "google_trends_collector",
       "importance_score": 40
     },
     {
-      "query": "nfl week 17",
+      "query": "liam coen",
       "rank": 15,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.012738",
       "source": "google_trends_collector",
       "importance_score": 40
     },
     {
-      "query": "adou thiero",
+      "query": "jakobi meyers",
       "rank": 16,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.012738",
       "source": "google_trends_collector",
       "importance_score": 40
     },
     {
-      "query": "premier league schedule",
+      "query": "parker washington",
       "rank": 17,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.012738",
       "source": "google_trends_collector",
       "importance_score": 40
     },
     {
-      "query": "tennessee football",
+      "query": "tony romo",
       "rank": 18,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.012738",
       "source": "google_trends_collector",
       "importance_score": 40
     },
     {
-      "query": "ryan kennedy lions fan",
+      "query": "bills depth chart",
       "rank": 19,
       "category": "sports",
       "region": "US",
-      "collected_date": "2025-12-25T15:40:19.250327",
+      "collected_date": "2026-01-11T18:11:11.012738",
+      "source": "google_trends_collector",
+      "importance_score": 40
+    },
+    {
+      "query": "dalton kincaid",
+      "rank": 20,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2026-01-11T18:11:11.012738",
+      "source": "google_trends_collector",
+      "importance_score": 40
+    },
+    {
+      "query": "bills injury report",
+      "rank": 21,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2026-01-11T18:11:11.012738",
+      "source": "google_trends_collector",
+      "importance_score": 40
+    },
+    {
+      "query": "man u",
+      "rank": 22,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2026-01-11T18:11:11.012738",
+      "source": "google_trends_collector",
+      "importance_score": 40
+    },
+    {
+      "query": "mike vrabel",
+      "rank": 23,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2026-01-11T18:11:11.012738",
+      "source": "google_trends_collector",
+      "importance_score": 40
+    },
+    {
+      "query": "levante vs espanyol",
+      "rank": 24,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2026-01-11T18:11:11.015787",
+      "source": "google_trends_collector",
+      "importance_score": 40
+    },
+    {
+      "query": "jalen hurts stats",
+      "rank": 25,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2026-01-11T18:11:11.015787",
+      "source": "google_trends_collector",
+      "importance_score": 40
+    },
+    {
+      "query": "keon coleman",
+      "rank": 26,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2026-01-11T18:11:11.015787",
+      "source": "google_trends_collector",
+      "importance_score": 40
+    },
+    {
+      "query": "jaguars depth chart",
+      "rank": 27,
+      "category": "sports",
+      "region": "US",
+      "collected_date": "2026-01-11T18:11:11.015787",
       "source": "google_trends_collector",
       "importance_score": 40
     }
   ],
-  "last_updated": "2025-12-25T15:40:19.258651",
+  "last_updated": "2026-01-11T18:11:11.016795",
   "metadata": {
     "total_collections": 0,
-    "total_trends_collected": 19,
+    "total_trends_collected": 27,
     "categories_tracked": [
       "sports",
       "technology",

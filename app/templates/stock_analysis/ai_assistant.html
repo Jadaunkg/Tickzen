@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#16a34a" />
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='chatbot/favicon.png') }}" />
+    <title>Tickzen AI Assistant</title>
+    <meta name="description" content="AI-powered financial assistant for stock analysis and investment research - Powered by Tickzen">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Puter SDK -->
+    <link rel="preconnect" href="https://js.puter.com" />
+    <link rel="dns-prefetch" href="//js.puter.com" />
+    <script src="https://js.puter.com/v2/"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='chatbot/styles.css') }}" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+        <div class="sidebar-header">
+          <div class="brand">
+            <img src="{{ url_for('static', filename='chatbot/favicon.png') }}" alt="Tickzen" class="logo" />
+            <span class="name">Tickzen AI</span>
+          </div>
+          <button id="btnNew" class="btn primary w-100" aria-label="Start new chat">
+            <span>✨</span>
+            <span>New chat</span>
+          </button>
+        </div>
+
+        <div class="sidebar-search">
+          <input id="search" type="text" placeholder="Search conversations..." aria-label="Search conversations" />
+        </div>
+
+        <nav id="sessionList" class="session-list" aria-label="Conversation history"></nav>
+
+        <div class="sidebar-footer">
+          <button id="btnExport" class="btn" title="Export chat history">
+            📤
+          </button>
+          <label for="importFile" class="btn" title="Import chat history">
+            📥
+            <input id="importFile" type="file" accept="application/json" hidden />
+          </label>
+          <a href="{{ url_for('user_dashboard_page') }}" class="btn" title="Back to Dashboard">
+            🏠
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main">
+        <div id="notice" class="notice hidden" role="alert" aria-live="assertive"></div>
+
+        <header class="topbar">
+          <div class="left">
+            <button id="btnToggleSidebar" class="icon-btn" title="Toggle sidebar" aria-label="Toggle sidebar">
+              ☰
+            </button>
+            <div class="title">Tickzen AI Assistant</div>
+          </div>
+          <div class="controls">
+            <select id="modelSelect" title="Select AI Model" aria-label="AI Model Selection"></select>
+            <input id="customModel" type="text" placeholder="Custom model (optional)" aria-label="Custom model name" />
+            <label class="muted" title="Enable speed mode for faster responses">
+              <input type="checkbox" id="chkSpeed" /> 
+              <span>⚡ Speed</span>
+            </label>
+            <button id="btnClear" class="btn" title="Clear current conversation">Clear</button>
+            <button id="btnDelete" class="btn danger" title="Delete current conversation">Delete</button>
+          </div>
+        </header>
+
+        <section class="system" aria-label="System settings">
+          <textarea id="systemPrompt" placeholder="System instructions (defaults to Tickzen financial assistant)" aria-label="System prompt"></textarea>
+          <div class="system-meta">
+            <label>
+              <input type="checkbox" id="chkMemory" checked /> 
+              <span>Include conversation history</span>
+            </label>
+            <label>
+              <span>Temperature</span>
+              <input id="temperature" type="range" min="0" max="2" step="0.1" value="1" aria-label="AI Temperature" /> 
+              <span id="temperatureVal">1.0</span>
+            </label>
+          </div>
+        </section>
+
+        <section id="messages" class="messages" aria-live="polite" aria-label="Chat conversation"></section>
+
+        <div class="composer-container">
+          <div class="composer-meta">
+            <span id="tokenInfo" class="token-info"></span>
+          </div>
+          <form id="composer" class="composer" autocomplete="off">
+            <textarea 
+              id="userInput" 
+              placeholder="Ask about stocks, financial analysis, or investment insights... (Shift+Enter for new line)" 
+              aria-label="Type your message"
+              rows="1"
+            ></textarea>
+            <div class="composer-actions">
+              <div class="composer-buttons">
+                <button id="btnStop" class="btn" type="button" disabled title="Stop generation">
+                  ⏹️
+                </button>
+                <button id="btnSend" class="btn primary" type="submit" title="Send message (Enter)">
+                  <span>Send</span>
+                  <span>↗</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="{{ url_for('static', filename='chatbot/app.js') }}"></script>
+  </body>
+</html>

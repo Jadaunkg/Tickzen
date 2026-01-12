@@ -1,0 +1,1173 @@
+{% extends "_base.html" %}
+
+{% block title %}WordPress Publishing Profiles | Manage Your Websites | Tickzen{% endblock %}
+
+{% block head_extra %}
+    <!-- Private profile management page - no indexing -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Private publishing profile management dashboard for Tickzen users.">
+    <link rel="canonical" href="https://tickzen.app/site-profiles">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --primary: var(--green-600); /* Site's green accent */
+            --success: #28a745;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #222;
+        }
+        
+        /* Automation Page Layout */
+        .automation-page-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        
+        .automation-page-content {
+            flex: 1;
+            overflow-x: hidden;
+        }
+        
+        /* Mobile sidebar toggle */
+        .mobile-sidebar-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border: none;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+            z-index: 999;
+            transition: all 0.2s ease;
+        }
+        
+        .mobile-sidebar-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(22, 163, 74, 0.5);
+        }
+        
+        .mobile-sidebar-toggle svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            stroke-width: 2;
+        }
+        
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+        
+        /* Overall page container for consistent padding */
+        .profile-dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 15px 2rem 15px; /* Added top/bottom padding to the whole page content */
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .page-header h1 {
+            margin-bottom: 0.25rem;
+            font-size: 2em;
+            color: var(--dark);
+        }
+        .page-header h1 i {
+            color: var(--primary); /* THEME: Use project primary */
+            margin-right: 10px;
+        }
+        .page-header .text-muted {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .profile-dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 1.5rem;
+            background-color: var(--light);
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .profile-dashboard-header h1#dashboard-title {
+            margin: 0;
+            font-size: 1.6em;
+            color: var(--dark);
+        }
+        .profile-dashboard-header h1#dashboard-title i {
+            color: var(--primary); /* THEME: Use project primary */
+            margin-right: 10px;
+        }
+
+        .btn-toggle-add-form {
+            background: var(--primary); /* THEME: Use project primary */
+            color: white;
+            padding: 10px 22px;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .btn-toggle-add-form:hover {
+            background-color: var(--green-700); /* Darker shade of green */
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        .btn-toggle-add-form i { margin-right: 8px; }
+
+        #addProfileFormContainer {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+        }
+        #addProfileFormContainer h2 {
+            font-size: 1.5em;
+            color: var(--dark);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary); /* THEME: Use project primary */
+            padding-bottom: 0.75rem;
+        }
+        #addProfileFormContainer h2 i {
+            color: var(--primary); /* THEME: Use project primary */
+            margin-right:10px;
+        }
+
+        .existing-profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+            align-items: stretch;
+        }
+
+        .profile-display-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e5e7eb;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .profile-display-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(22, 163, 74, 0.12), 0 4px 12px rgba(0,0,0,0.08);
+            border-color: #bbf7d0;
+        }
+
+        .profile-card-header {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        
+        .profile-card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #22c55e, #10b981, #22c55e);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .profile-card-header h3 { 
+            margin: 0; 
+            font-size: 1.15em; 
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+        .profile-card-header h3 i { 
+            margin-right: 10px;
+            opacity: 0.95;
+        }
+
+        .profile-card-header .actions .btn {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1.5px solid rgba(255,255,255,0.3);
+            padding: 7px 16px;
+            font-size: 0.8em;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+        .profile-card-header .actions .btn:hover { 
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-1px);
+        }
+        .profile-card-header .actions .btn-danger-action {
+            background: #dc2626;
+            border-color: #b91c1c;
+        }
+        .profile-card-header .actions .btn-danger-action:hover {
+            background: #b91c1c;
+            border-color: #991b1b;
+        }
+        .profile-card-header .actions form { margin-left: 10px; display: inline; }
+
+        .profile-card-body {
+            padding: 1.75rem 1.5rem;
+            flex-grow: 1;
+            font-size: 0.9rem;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1rem 1.25rem;
+            background: #ffffff;
+        }
+        .profile-card-body p.detail-item {
+            display: contents;
+        }
+        .profile-card-body .detail-label {
+            grid-column: 1;
+            color: #64748b;
+            font-weight: 600;
+            padding-right: 10px;
+            white-space: nowrap;
+            margin-top: 0.15rem;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .profile-card-body .detail-value {
+            grid-column: 2;
+            color: #1e293b;
+            word-break: break-word;
+            font-weight: 500;
+        }
+         .profile-card-body .detail-value a {
+             color: #16a34a;
+             text-decoration: none;
+             transition: color 0.2s ease;
+        }
+         .profile-card-body .detail-value a:hover {
+             color: #15803d;
+             text-decoration: underline;
+        }
+
+        .profile-card-body .section-list-container {
+            grid-column: span 2;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #f1f5f9;
+        }
+        .profile-card-body .section-list-label {
+            display: block;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .profile-card-body .section-list {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .profile-card-body .section-list li {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #15803d;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            border: 1px solid #86efac;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .profile-card-body .section-list li:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.2);
+        }
+
+        /* Footer removed - no longer needed */
+        .profile-card-footer-removed { /* placeholder */
+        }
+        .profile-card-footer-removed h4 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            font-size: 1em;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        .processing-log-list-display { list-style: none; padding: 10px; font-size: 0.85em; max-height: 120px; overflow-y: auto; background-color: #fff; border: 1px solid #dee2e6; border-radius: 6px; }
+        .processing-log-list-display li { margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dotted #e9ecef; display: flex; align-items: flex-start;}
+        .processing-log-list-display li:last-child { border-bottom: none; }
+        .log-icon { margin-right: 8px; min-width: 16px; text-align: center; margin-top: 1px;}
+        .log-success .fa-check-circle, .log-icon.log-success { color: var(--success); }
+        .log-failure .fa-times-circle, .log-icon.log-failure { color: var(--danger); }
+        .log-skipped .fa-info-circle, .log-icon.log-skipped { color: var(--info); }
+        .log-unknown .fa-question-circle, .log-icon.log-unknown { color: var(--text-muted); }
+        .log-details { display: flex; flex-direction: column; }
+        .log-ticker { font-weight: 500; color: var(--dark); }
+        .log-message { color: #555; font-size:0.95em; }
+        .log-timestamp { color: var(--text-muted); font-size: 0.85em; margin-top: 2px;}
+
+
+        .no-profiles-message {
+            text-align: center; padding: 3rem 1.5rem;
+            background-color: #fff;
+            border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+        }
+        .no-profiles-message p { font-size: 1.1em; margin-bottom: 1rem; color: #555;}
+        .no-profiles-message .fa-folder-open {
+            color: var(--primary);
+            margin-bottom:1.5rem; font-size: 3em;
+        }
+
+        .form-section-card h3 { font-size: 1.2em; color: var(--dark); margin-top: 1.5rem; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: #444; font-size: 0.9em;}
+        .form-control, .form-select { width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.95em; transition: border-color 0.2s ease, box-shadow 0.2s ease; background-color: #fff; }
+        .form-control.is-invalid { border-color: var(--danger, #dc3545); }
+        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 0.2rem rgba(16, 172, 132, 0.15); }
+        .btn-secondary-action { background-color: #6c757d; color: white; padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin-right: 10px; transition: background-color 0.2s ease;}
+        .btn-secondary-action:hover { background-color: #5a6268;}
+        .report-sections-container { border: 1px solid #ccc; border-radius: 6px; padding: 1rem; max-height: 200px; overflow-y: auto; background-color: #fdfdfd; margin-bottom:1rem;}
+        .report-sections-container .checkbox-group { display: block; margin-bottom: 0.5rem; }
+        .report-sections-container .checkbox-group input[type="checkbox"] { margin-right: 8px; vertical-align: middle; accent-color: var(--primary); }
+        .report-sections-container .checkbox-group label { font-weight: normal; font-size: 0.9em; color: #333; cursor: pointer;}
+        .report-sections-controls { margin-top: 0.5rem; margin-bottom: 0.75rem; }
+        .writer-entry { background-color: #f8f9fa; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border: 1px solid #e0e0e0; position: relative; }
+        .writer-entry h4 { font-size: 1em; color: var(--dark); margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;}
+        .remove-writer-btn { background-color: #fbe0e2; color: var(--danger); border: 1px solid var(--danger); padding: 5px 10px; font-size: 0.8em; border-radius: 4px; cursor: pointer; }
+        .remove-writer-btn:hover { background-color: var(--danger); color: white; }
+        .btn-submit-profile {
+            background: var(--primary);
+            color: white; padding: 12px 28px;
+            border: none; border-radius: 25px; cursor: pointer;
+            font-size: 1em; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.05em; transition: all 0.25s ease; margin-top: 1.5rem;
+        }
+        .btn-submit-profile:hover {
+            background-color: #0b6e55;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+         .guidelines-card {
+            margin-top: 3rem; padding: 1.5rem;
+            background-color: #e9f5fd;
+            border-left: 4px solid var(--info);
+            border-radius: 8px;
+        }
+        .guidelines-card h2 i { color: var(--info); }
+        .guidelines-card h3 { margin-top: 1rem; color: var(--dark)}
+        .guidelines-card ol li { margin-bottom: 0.5rem;}
+        .guidelines-card code { background-color: #d0d0d0; color: var(--dark); padding: 2px 5px; border-radius:3px; }
+        .form-text.text-danger {
+            font-size: 0.8rem;
+            color: var(--danger, #dc3545);
+            display: block;
+            margin-top: .25rem;
+        }
+        .error-summary {
+            background-color: var(--danger-bg, #f8d7da);
+            color: var(--danger-text, #721c24);
+            border: 1px solid var(--danger, #f5c2c7);
+            padding: 1rem;
+            border-radius: .25rem;
+            margin-bottom: 1.5rem;
+        }
+        .error-summary h5 { margin-top: 0; color: var(--danger-text); font-size: 1.1em; margin-bottom: 0.5rem;}
+        .error-summary ul { list-style: disc; margin-left: 1.5rem; padding-left: 0.5rem; margin-bottom: 0;}
+        .error-summary ul li { font-size: 0.9em; }
+        .alert-info {
+            background: #e6f9f2 !important;
+            color: #0d8a6a !important;
+            border: 1px solid #b3e0d3 !important;
+        }
+        .alert-info i {
+            color: #0d8a6a !important;
+        }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            top: 80px;
+            right: 30px;
+            background: white;
+            border-left: 4px solid #16a34a;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(100px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 400px;
+            min-width: 300px;
+        }
+
+        .toast-notification.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-message {
+            flex: 1;
+            color: #1e293b;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+        }
+
+        .toast-close:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        @media (max-width: 768px) {
+            .toast-notification {
+                top: 70px;
+                right: 20px;
+                left: 20px;
+                max-width: none;
+                min-width: auto;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="automation-page-layout">
+    <!-- Sidebar -->
+    {% include 'automation/_sidebar.html' %}
+    
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" onclick="toggleAutomationSidebar()"></div>
+    
+    <div class="automation-page-content">
+        <div class="profile-dashboard-container">
+            <div class="page-header">
+                <h1><i class="fas fa-sitemap"></i> Publishing Profile Dashboard</h1>
+                <p class="text-muted mb-2">Welcome, {{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'User') }}! Manage your WordPress publishing configurations.</p>
+                <div class="alert alert-info" style="font-size:1em; background:#e9f5fd; color:#1976D2; border:1px solid #b3e0fc;">
+                    <i class="fas fa-info-circle" title="What is a Publishing Profile?"></i>
+                    <strong>What is a Publishing Profile?</strong> <br>
+                    <span>
+                        <b>User Profile</b> contains your personal account information and notification preferences.<br>
+                        <b>Publishing Profiles</b> are used to configure and automate publishing to your connected websites (e.g., WordPress blogs). Each publishing profile stores the settings, writers, and sections for a specific destination site.<br>
+                        <span style="font-size:0.95em; color:#1976D2;">Tip: You can have multiple publishing profiles for different sites or publishing strategies.</span>
+                    </span>
+                </div>
+            </div>
+
+    <!-- Toast notification container -->
+    <div id="toast-notification" class="toast-notification">
+        <div class="toast-icon">
+            <i data-lucide="check-circle" style="width: 24px; height: 24px; color: #16a34a;"></i>
+        </div>
+        <div class="toast-message"></div>
+        <button class="toast-close" onclick="closeToast()">
+            <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+        </button>
+    </div>
+
+    <div class="profile-dashboard-header">
+        <h1 id="dashboard-title"><i class="fas fa-stream"></i> Your Publishing Profiles</h1>
+        <button id="toggleAddProfileFormBtn" class="btn-toggle-add-form">
+            <i class="fas {{ 'fa-minus-circle' if show_add_form_on_load else 'fa-plus-circle' }}"></i>
+            {{ 'Hide Add Profile Form' if show_add_form_on_load else 'Add New Publishing Profile' }}
+        </button>
+    </div>
+
+    <div id="addProfileFormContainer" {% if show_add_form_on_load %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+        <section class="form-section-card">
+            <h2><i class="fas fa-plus-circle"></i> Add New Publishing Profile</h2>
+
+            {% if errors_add and errors_add is mapping and errors_add|length > 0 %}
+            <div class="error-summary">
+                <h5>Please correct the following errors:</h5>
+                <ul>
+                    {% for field, error_message in errors_add.items() %}
+                        <li>{{ error_message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form action="{{ url_for('add_site_profile') }}" method="POST" id="addSiteProfileForm">
+                <div class="form-group">
+                    <label for="profile_name_add">Profile Name:</label>
+                    <input type="text" id="profile_name_add" name="profile_name" 
+                           class="form-control {% if errors_add and errors_add.profile_name_add %}is-invalid{% endif %}" required
+                           value="{{ form_data_add.profile_name if form_data_add and form_data_add.profile_name is not none else '' }}"
+                           placeholder="e.g., My Awesome Blog">
+                    {% if errors_add and errors_add.profile_name_add %}
+                        <small class="form-text text-danger">{{ errors_add.profile_name_add }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="site_url_add">Site URL:</label>
+                    <input type="url" id="site_url_add" name="site_url" 
+                           class="form-control {% if errors_add and errors_add.site_url_add %}is-invalid{% endif %}" required
+                           value="{{ form_data_add.site_url if form_data_add and form_data_add.site_url is not none else '' }}"
+                           placeholder="https://example.com">
+                    {% if errors_add and errors_add.site_url_add %}
+                        <small class="form-text text-danger">{{ errors_add.site_url_add }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="sheet_name_add">Default Google Sheet Name (for Tickers):</label>
+                    <input type="text" id="sheet_name_add" name="sheet_name" class="form-control"
+                           value="{{ form_data_add.sheet_name if form_data_add and form_data_add.sheet_name is not none else '' }}"
+                           placeholder="Sheet1 (Optional)">
+                </div>
+
+                <div class="form-group">
+                    <label for="stockforecast_category_id_add">WordPress Category ID (for posts):</label>
+                    <input type="text" id="stockforecast_category_id_add" name="stockforecast_category_id" 
+                           class="form-control {% if errors_add and errors_add.stockforecast_category_id_add %}is-invalid{% endif %}"
+                           value="{{ form_data_add.stockforecast_category_id if form_data_add and form_data_add.stockforecast_category_id is not none else '' }}"
+                           placeholder="e.g., 6 (Optional, must be a number)">
+                    {% if errors_add and errors_add.stockforecast_category_id_add %}
+                        <small class="form-text text-danger">{{ errors_add.stockforecast_category_id_add }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="min_scheduling_gap_minutes_add">Min Scheduling Gap (minutes):</label>
+                    <input type="number" id="min_scheduling_gap_minutes_add" name="min_scheduling_gap_minutes" 
+                           class="form-control {% if errors_add and (errors_add.min_scheduling_gap_minutes_add or errors_add.scheduling_gaps_general) %}is-invalid{% endif %}"
+                           value="{{ form_data_add.min_scheduling_gap_minutes if form_data_add and form_data_add.min_scheduling_gap_minutes is not none else '45' }}"
+                           min="1" required>
+                    {% if errors_add and errors_add.min_scheduling_gap_minutes_add %}
+                        <small class="form-text text-danger">{{ errors_add.min_scheduling_gap_minutes_add }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="max_scheduling_gap_minutes_add">Max Scheduling Gap (minutes):</label>
+                    <input type="number" id="max_scheduling_gap_minutes_add" name="max_scheduling_gap_minutes" 
+                           class="form-control {% if errors_add and (errors_add.max_scheduling_gap_minutes_add or errors_add.scheduling_gaps_general) %}is-invalid{% endif %}"
+                           value="{{ form_data_add.max_scheduling_gap_minutes if form_data_add and form_data_add.max_scheduling_gap_minutes is not none else '68' }}"
+                           min="1" required>
+                    {% if errors_add and errors_add.max_scheduling_gap_minutes_add %}
+                        <small class="form-text text-danger">{{ errors_add.max_scheduling_gap_minutes_add }}</small>
+                    {% endif %}
+                    {% if errors_add and errors_add.scheduling_gaps_general %}
+                        <small class="form-text text-danger">{{ errors_add.scheduling_gaps_general }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="env_prefix_for_feature_image_colors_add">.env Prefix for Feature Image Colors:</label>
+                    <input type="text" id="env_prefix_for_feature_image_colors_add" name="env_prefix_for_feature_image_colors" class="form-control"
+                           value="{{ form_data_add.env_prefix_for_feature_image_colors if form_data_add and form_data_add.env_prefix_for_feature_image_colors is not none else '' }}"
+                           placeholder="e.g., MYSITE (Optional)">
+                    <small class="form-text">If 'MYSITE', expects MYSITE_FEATURE_BG_COLOR in .env.</small>
+                </div>
+
+                <h3><i class="fas fa-users"></i> WordPress Writers</h3>
+                <div id="authorsContainerAdd">
+                    {# JS will populate based on form_data_add.authors_raw if available #}
+                </div>
+                <button type="button" id="addAuthorBtn" class="btn-secondary-action"><i class="fas fa-user-plus"></i> Add Writer</button>
+                {% if errors_add and errors_add.authors_general %}
+                    <p class="form-text text-danger" style="margin-top: 0.5rem;">{{ errors_add.authors_general }}</p>
+                {% endif %}
+                {% if errors_add and form_data_add and form_data_add.authors_raw %}
+                    {% for i in range(form_data_add.authors_raw|length) %}
+                        {% if errors_add['author_' ~ i ~ '_general'] %}
+                             <p class="form-text text-danger" style="margin-top: 0.25rem;">{{ errors_add['author_' ~ i ~ '_general'] }}</p>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                <p class="form-text">At least one writer required. App Password is required for each writer. <a href="#wp-guidelines" class="smooth-scroll">Help?</a></p>
+
+                <!-- Internal Linking Settings -->
+                {% include "components/internal_linking_form.html" %}
+
+                <h3><i class="fas fa-tasks"></i> Report Sections to Include</h3>
+                <div class="report-sections-controls">
+                    <button type="button" id="selectAllSectionsAdd" class="btn-secondary-action btn-sm">Select All</button>
+                    <button type="button" id="unselectAllSectionsAdd" class="btn-secondary-action btn-sm">Unselect All</button>
+                </div>
+                <div class="report-sections-container" id="reportSectionsAddContainer">
+                    {% set selected_sections = form_data_add.report_sections_to_include if form_data_add and form_data_add.report_sections_to_include is defined else all_report_sections %}
+                    {% for section_key in all_report_sections %}
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="add_section_{{ section_key }}" name="report_sections_to_include[]" value="{{ section_key }}"
+                                   {% if section_key in selected_sections %}checked{% endif %}>
+                            <label for="add_section_{{ section_key }}">{{ section_key.replace("_", " ").title() }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+                 {% if errors_add and errors_add.report_sections_add %}
+                    <small class="form-text text-danger">{{ errors_add.report_sections_add }}</small>
+                {% endif %}
+
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button type="submit" class="btn-submit-profile"><i class="fas fa-save"></i> Add Profile</button>
+                    <button type="button" id="cancelAddProfileBtn" class="btn-secondary-action" style="background-color: #6c757d; color:white;">Cancel</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    {# --- Existing Profiles Grid --- #}
+    {% if profiles and profiles|length > 0 %}
+        <div class="existing-profiles-grid">
+            {% for profile in profiles %}
+            <div class="profile-display-card">
+                <div class="profile-card-header">
+                    <h3><i class="fas fa-globe-americas"></i> {{ profile.profile_name }}</h3>
+                    <div class="actions btn-group">
+                        <a href="{{ url_for('edit_site_profile', profile_id_from_firestore=profile.profile_id) }}" class="btn btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                        <form action="{{ url_for('delete_site_profile', profile_id_to_delete=profile.profile_id) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger-action" onclick="return confirm('Are you sure you want to delete profile \'{{ profile.profile_name|escape }}\'? This cannot be undone.');"><i class="fas fa-trash"></i> Delete</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="profile-card-body">
+                    <p class="detail-item"><span class="detail-label">Site URL:</span><span class="detail-value"><a href="{{ profile.site_url }}" target="_blank" rel="noopener noreferrer">{{ profile.site_url }}</a></span></p>
+                    <p class="detail-item"><span class="detail-label">Writers:</span><span class="detail-value">{{ profile.authors|length if profile.authors else 0 }}</span></p>
+                    <p class="detail-item"><span class="detail-label">Default Sheet:</span><span class="detail-value">{{ profile.sheet_name if profile.sheet_name else 'N/A' }}</span></p>
+                    <p class="detail-item"><span class="detail-label">Category ID:</span><span class="detail-value">{{ profile.stockforecast_category_id if profile.stockforecast_category_id else 'N/A' }}</span></p>
+                    <div class="section-list-container">
+                        {% if profile.report_sections_to_include and profile.report_sections_to_include|length > 0 %}
+                            <span class="section-list-label">Active Sections:</span>
+                            <ul class="section-list">
+                            {% for section in profile.report_sections_to_include[:3] %}<li>{{ section.replace("_", " ").title() }}</li>{% endfor %}
+                            {% if profile.report_sections_to_include|length > 3 %}<li>+ {{ profile.report_sections_to_include|length - 3 }} more</li>{% endif %}
+                            </ul>
+                        {% else %}<p class="detail-item"><span class="detail-label">Active Sections:</span><span class="detail-value">All default</span></p>{% endif %}
+                    </div>
+                    <p class="detail-item"><span class="detail-label">Last Updated:</span><span class="detail-value"><small class="text-muted">{{ profile.last_updated_at|format_datetime if profile.last_updated_at else 'N/A' }}</small></span></p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-profiles-message">
+            <p><i class="fas fa-folder-open"></i></p>
+            <p>No publishing profiles configured yet.</p>
+            <p>Click "Add New Publishing Profile" to create one!</p>
+        </div>
+    {% endif %}
+
+    <div id="wp-guidelines" class="guidelines-card">
+        <h2><i class="fab fa-wordpress-simple"></i> WordPress Connection Guidelines</h2>
+        <p>For each writer, you'll need their WordPress User ID and an Application Password from the target WordPress site.</p>
+        <h3>How to Find WordPress User ID:</h3>
+        <ol>
+            <li>Log in to your WordPress admin dashboard.</li>
+            <li>Go to <strong>Users &rarr; All Users</strong>.</li>
+            <li>Hover over a username. The link in your browser's status bar will show <code>user_id=X</code>. Or, click "Edit" for that user; the URL in your address bar will show the <code>user_id</code>. This number <code>X</code> is the User ID.</li>
+        </ol>
+        <h3>How to Generate a WordPress Application Password:</h3>
+        <ol>
+            <li>Log in as the WordPress user who will be posting.</li>
+            <li>Go to <strong>Users &rarr; Profile</strong> (or Edit Profile).</li>
+            <li>Scroll down to the "Application Passwords" section. (If this section is not visible, the REST API might be disabled on your site, or a security plugin might be blocking Application Passwords. You may need to enable the REST API or check plugin settings.)</li>
+            <li>Enter a name for this application (e.g., "Tickzen Automation") and click "Add New Application Password".</li>
+            <li>A new password will be generated (e.g., <code>xxxx xxxx xxxx xxxx</code>). <strong>Copy this password immediately and save it securely. You will not be able to see it again after leaving this page.</strong></li>
+            <li>Use this generated password in the "Application Password" field when adding or editing a writer in Tickzen. <em>Do not use your main WordPress login password here.</em></li>
+        </ol>
+        <p><small><strong>Security Tip:</strong> Consider creating a dedicated WordPress user with an "Editor" or "Author" role specifically for automation, rather than using an Administrator account, to limit potential security exposure.</small></p>
+    </div>
+        </div>
+    </div>
+    
+    <!-- Mobile sidebar toggle button -->
+    <button class="mobile-sidebar-toggle" onclick="toggleAutomationSidebar()" aria-label="Toggle sidebar">
+        <i data-lucide="menu"></i>
+    </button>
+</div>
+{% endblock %}
+{% block scripts_extra %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Manage Profiles JS Loaded (Validation Enhanced V4 - JS/Jinja Fix)");
+
+        const addProfileFormContainer = document.getElementById('addProfileFormContainer');
+        const toggleButton = document.getElementById('toggleAddProfileFormBtn');
+
+        // Safely get and parse the boolean flag from Jinja
+        // Jinja renders {{ show_add_form_on_load | default(false) | tojson | safe }}
+        // as 'true' or 'false' (a string). JSON.parse converts it to a JS boolean.
+        const shouldShowAddForm = JSON.parse('{{ show_add_form_on_load | default(false) | tojson | safe }}');
+
+        // This script block primarily handles the state when the page is loaded
+        // with the "Add Profile" form already open due to server-side validation errors.
+        // The main click-to-toggle functionality is handled by static/js/main.js.
+
+        if (shouldShowAddForm) {
+            console.log("Add form is shown on load (due to server-side validation error).");
+            // Ensure the container is visible (Jinja template should also handle this based on the same flag)
+            if (addProfileFormContainer) {
+                addProfileFormContainer.style.display = 'block';
+            }
+
+            // Update the toggle button's text since the form is open.
+            if (toggleButton) {
+                toggleButton.innerHTML = '<i class="fas fa-minus-circle"></i> Hide Add Profile Form';
+            }
+
+            // Initialize author fields with any submitted data (for repopulation).
+            let submittedAuthorsData = [];
+            // Default to an empty array string '[]' if form_data_add.authors_raw is not available or empty.
+            // Jinja renders this into a string like: const rawDataJSString = '[{"wp_username":"Test","wp_user_id":"1"}, ...]' or '[]';
+            const rawDataJSString = '{{ (form_data_add.authors_raw if form_data_add and form_data_add.authors_raw else []) | tojson | safe }}';
+            
+            try {
+                const parsedData = JSON.parse(rawDataJSString); // Parse the JSON string into a JS array
+                if (Array.isArray(parsedData)) {
+                   submittedAuthorsData = parsedData;
+                }
+                console.log("Repopulating 'Add Profile' authors with (from manage_profiles.html):", JSON.stringify(submittedAuthorsData));
+            } catch (e) {
+                console.error("Error parsing submitted authors data for repopulation (in manage_profiles.html):", e, "Raw string was:", rawDataJSString);
+            }
+
+            if (typeof initializeAuthorManagement === "function") {
+                // The 'add' type ensures passwords aren't pre-filled from this data,
+                // only username and user ID if available in submittedAuthorsData.
+                initializeAuthorManagement('authorsContainerAdd', 'addAuthorBtn', submittedAuthorsData, 'add');
+            } else {
+                console.warn("initializeAuthorManagement function (expected from main.js) not found. Author fields might not repopulate correctly.");
+            }
+
+            // Initialize report section controls.
+            if (typeof setupReportSectionControls === "function") {
+                 setupReportSectionControls('Add'); // 'Add' prefix for IDs in add form
+            } else {
+                console.warn("setupReportSectionControls function (expected from main.js) not found. Report sections might not work correctly.");
+            }
+        } else {
+            // If the form is not pre-opened by the server (no validation error),
+            // main.js handles the initial setup for a *fresh* add form when the toggle button is clicked.
+            // We can still ensure that if main.js hasn't run its general initializers yet,
+            // they get a chance here for the hidden form.
+            // These functions in main.js should ideally be idempotent or check if already initialized.
+            console.log("Add form is not set to show on load. main.js will handle its fresh initialization on toggle if not already done.");
+            if (document.getElementById('authorsContainerAdd')) { // Check if the container exists
+                 if (typeof initializeAuthorManagement === "function") {
+                    // This might be redundant if main.js also calls it on DOMContentLoaded,
+                    // but ensures initialization if this script runs first or independently.
+                    initializeAuthorManagement('authorsContainerAdd', 'addAuthorBtn', [], 'add'); // Initialize empty for add
+                }
+            }
+            if (document.getElementById('reportSectionsAddContainer')) { // Check if the container exists
+                if (typeof setupReportSectionControls === "function") {
+                    setupReportSectionControls('Add');
+                }
+            }
+        }
+
+        // Smooth scroll for #wp-guidelines link (page-specific enhancement)
+        document.querySelectorAll('a.smooth-scroll[href="#wp-guidelines"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetElement = document.getElementById('wp-guidelines');
+                if (targetElement) {
+                    let navbarHeight = 0;
+                    const mainNavbar = document.querySelector('.navbar');
+                    if (mainNavbar && (getComputedStyle(mainNavbar).position === 'sticky' || getComputedStyle(mainNavbar).position === 'fixed') ) {
+                        navbarHeight = mainNavbar.offsetHeight;
+                    }
+                    const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                    const offsetPosition = elementPosition - navbarHeight - 20; // 20px extra buffer
+
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                }
+            });
+        });
+
+        // AJAX Form Submission for Add Profile
+        const addProfileForm = document.getElementById('addSiteProfileForm');
+        if (addProfileForm) {
+            addProfileForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitBtn = addProfileForm.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Profile...';
+                
+                try {
+                    const formData = new FormData(addProfileForm);
+                    
+                    console.log('[AJAX] Sending profile add request...');
+                    
+                    const response = await fetch('{{ url_for("add_site_profile") }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    });
+                    
+                    console.log('[AJAX] Response status:', response.status);
+                    console.log('[AJAX] Response content-type:', response.headers.get('content-type'));
+                    
+                    // Check if response is actually JSON
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const textResponse = await response.text();
+                        console.error('[AJAX] Expected JSON but got:', contentType, 'Response:', textResponse);
+                        throw new Error('Server did not return JSON response');
+                    }
+                    
+                    const result = await response.json();
+                    console.log('[AJAX] Response data:', result);
+                    console.log('[AJAX] Success status:', result.success);
+                    
+                    if (result.success) {
+                        console.log('[AJAX] Profile added successfully, updating UI...');
+                        
+                        // Show success toast
+                        showToast(result.message, 'success');
+                        console.log('[AJAX] Toast shown');
+                        
+                        // Add profile card to the page dynamically
+                        addProfileCardToPage(result.profile);
+                        console.log('[AJAX] Profile card added to page');
+                        
+                        // Reset form and hide it
+                        addProfileForm.reset();
+                        console.log('[AJAX] Form reset');
+                        
+                        if (addProfileFormContainer) {
+                            addProfileFormContainer.style.display = 'none';
+                            console.log('[AJAX] Form container hidden');
+                        }
+                        if (toggleButton) {
+                            toggleButton.innerHTML = '<i class="fas fa-plus-circle"></i> Add New Publishing Profile';
+                            console.log('[AJAX] Toggle button updated');
+                        }
+                        
+                        // Remove "no profiles" message if it exists
+                        const noProfilesMsg = document.querySelector('.no-profiles-message');
+                        if (noProfilesMsg) {
+                            noProfilesMsg.remove();
+                            console.log('[AJAX] No profiles message removed');
+                        }
+                        
+                        console.log('[AJAX] ✅ All UI updates completed successfully');
+                    } else {
+                        console.error('[AJAX] Server returned success=false:', result.message);
+                        // Show error toast
+                        showToast(result.message || 'Failed to add profile. Please check the form.', 'error');
+                    }
+                } catch (error) {
+                    console.error('[AJAX] Error adding profile:', error);
+                    showToast('An unexpected error occurred. Please try again.', 'error');
+                } finally {
+                    // Restore button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+            });
+        }
+
+        // Check for delete success/error toast notification
+        const urlParams = new URLSearchParams(window.location.search);
+        const deletedProfileId = urlParams.get('deleted');
+        const deleteError = urlParams.get('delete_error');
+        
+        if (deletedProfileId) {
+            showToast(`Profile deleted successfully!`, 'success');
+            // Clean URL without reloading
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (deleteError) {
+            showToast('Failed to delete profile. Please try again.', 'error');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // AJAX Delete Profile Handler
+        document.querySelectorAll('.profile-display-card form[action*="/site-profiles/delete/"]').forEach(form => {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const profileCard = this.closest('.profile-display-card');
+                const profileName = profileCard.querySelector('h3')?.textContent?.trim() || 'this profile';
+                
+                // Confirm deletion
+                if (!confirm(`Are you sure you want to delete ${profileName}? This cannot be undone.`)) {
+                    return;
+                }
+                
+                const deleteUrl = this.action;
+                const deleteBtn = this.querySelector('button[type="submit"]');
+                const originalBtnText = deleteBtn.innerHTML;
+                
+                // Show loading state
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+                
+                try {
+                    console.log('[DELETE] Sending delete request to:', deleteUrl);
+                    
+                    const response = await fetch(deleteUrl, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    console.log('[DELETE] Response status:', response.status);
+                    
+                    const result = await response.json();
+                    console.log('[DELETE] Response data:', result);
+                    
+                    if (result.success) {
+                        // Show success toast
+                        showToast(result.message, 'success');
+                        
+                        // Animate card removal
+                        profileCard.style.transition = 'all 0.3s ease';
+                        profileCard.style.opacity = '0';
+                        profileCard.style.transform = 'scale(0.95)';
+                        
+                        setTimeout(() => {
+                            profileCard.remove();
+                            
+                            // Check if there are any profiles left
+                            const profileGrid = document.querySelector('.existing-profiles-grid');
+                            const remainingCards = profileGrid?.querySelectorAll('.profile-display-card');
+                            
+                            if (!remainingCards || remainingCards.length === 0) {
+                                // Show "no profiles" message
+                                const noProfilesHTML = `
+                                    <div class="no-profiles-message">
+                                        <p><i class="fas fa-folder-open"></i></p>
+                                        <p>No publishing profiles configured yet.</p>
+                                        <p>Click "Add New Publishing Profile" to create one!</p>
+                                    </div>
+                                `;
+                                profileGrid.insertAdjacentHTML('afterend', noProfilesHTML);
+                                profileGrid.remove();
+                            }
+                            
+                            console.log('[DELETE] ✅ Profile card removed from DOM');
+                        }, 300);
+                    } else {
+                        showToast(result.message || 'Failed to delete profile. Please try again.', 'error');
+                        deleteBtn.disabled = false;
+                        deleteBtn.innerHTML = originalBtnText;
+                    }
+                } catch (error) {
+                    console.error('[DELETE] Error deleting profile:', error);
+                    showToast('An unexpected error occurred. Please try again.', 'error');
+                    deleteBtn.disabled = false;
+                    deleteBtn.innerHTML = originalBtnText;
+                }
+            });
+        });
+    });
+
+    // Function to dynamically add profile card to the page
+    function addProfileCardToPage(profile) {
+        const profileGrid = document.querySelector('.existing-profiles-grid');
+        if (!profileGrid) return;
+        
+        // Format sections list
+        let sectionsHTML = '';
+        if (profile.report_sections_to_include && profile.report_sections_to_include.length > 0) {
+            const sections = profile.report_sections_to_include.slice(0, 3).map(s => 
+                `<li>${s.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</li>`
+            ).join('');
+            const moreCount = profile.report_sections_to_include.length > 3 ? 
+                `<li>+ ${profile.report_sections_to_include.length - 3} more</li>` : '';
+            sectionsHTML = `
+                <span class="section-list-label">Active Sections:</span>
+                <ul class="section-list">${sections}${moreCount}</ul>
+            `;
+        } else {
+            sectionsHTML = `<p class="detail-item"><span class="detail-label">Active Sections:</span><span class="detail-value">All default</span></p>`;
+        }
+        
+        // Create profile card HTML
+        const cardHTML = `
+            <div class="profile-display-card" data-profile-id="${profile.profile_id}">
+                <div class="profile-card-header">
+                    <h3><i class="fas fa-globe-americas"></i> ${escapeHtml(profile.profile_name)}</h3>
+                    <div class="actions btn-group">
+                        <a href="/site-profiles/edit/${profile.profile_id}" class="btn btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                        <form action="/site-profiles/delete/${profile.profile_id}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger-action" onclick="return confirm('Are you sure you want to delete profile \\'${escapeHtml(profile.profile_name)}\\'? This cannot be undone.');"><i class="fas fa-trash"></i> Delete</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="profile-card-body">
+                    <p class="detail-item"><span class="detail-label">Site URL:</span><span class="detail-value"><a href="${escapeHtml(profile.site_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(profile.site_url)}</a></span></p>
+                    <p class="detail-item"><span class="detail-label">Writers:</span><span class="detail-value">${profile.authors ? profile.authors.length : 0}</span></p>
+                    <p class="detail-item"><span class="detail-label">Default Sheet:</span><span class="detail-value">${profile.sheet_name || 'N/A'}</span></p>
+                    <p class="detail-item"><span class="detail-label">Category ID:</span><span class="detail-value">${profile.stockforecast_category_id || 'N/A'}</span></p>
+                    <div class="section-list-container">
+                        ${sectionsHTML}
+                    </div>
+                    <p class="detail-item"><span class="detail-label">Last Updated:</span><span class="detail-value"><small class="text-muted">Just now</small></span></p>
+                </div>
+            </div>
+        `;
+        
+        // Insert at the beginning of the grid with animation
+        profileGrid.insertAdjacentHTML('afterbegin', cardHTML);
+        
+        // Animate the new card
+        const newCard = profileGrid.querySelector('.profile-display-card');
+        if (newCard) {
+            newCard.style.opacity = '0';
+            newCard.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                newCard.style.transition = 'all 0.3s ease';
+                newCard.style.opacity = '1';
+                newCard.style.transform = 'scale(1)';
+            }, 10);
+        }
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Toast notification functions
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast-notification');
+        if (!toast) {
+            console.error('[showToast] Toast notification element not found!');
+            return;
+        }
+        
+        const messageEl = toast.querySelector('.toast-message');
+        const icon = toast.querySelector('.toast-icon i');
+        
+        if (!messageEl) {
+            console.error('[showToast] Toast message element not found!');
+            return;
+        }
+        
+        if (messageEl) {
+            messageEl.textContent = message;
+        }
+        
+        // Update icon and colors based on type
+        if (icon) {
+            if (type === 'success') {
+                icon.setAttribute('data-lucide', 'check-circle');
+                icon.style.color = '#16a34a';
+                toast.style.borderLeftColor = '#16a34a';
+            } else if (type === 'error') {
+                icon.setAttribute('data-lucide', 'alert-circle');
+                icon.style.color = '#dc2626';
+                toast.style.borderLeftColor = '#dc2626';
+            }
+            
+            // Re-render Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        // Show toast
+        toast.classList.add('active');
+        
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+            closeToast();
+        }, 4000);
+    }
+
+    function closeToast() {
+        const toast = document.getElementById('toast-notification');
+        if (toast) {
+            toast.classList.remove('active');
+        }
+    }
+    </script>
+{% endblock %}

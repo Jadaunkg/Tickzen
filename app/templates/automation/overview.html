@@ -1,0 +1,1272 @@
+{% extends "_base.html" %}
+
+{% block title %}Automation Hub | Tickzen{% endblock %}
+
+{% block head_extra %}
+<meta name="robots" content="noindex, nofollow">
+<style>
+/* ============================================
+   Automation Hub - Bright Modern Design
+   ============================================ */
+
+:root {
+    --hub-bg: #f8fafc;
+    --hub-card: #ffffff;
+    --hub-border: #e2e8f0;
+    --hub-text: #1e293b;
+    --hub-muted: #64748b;
+    --hub-green: #16a34a;
+    --hub-green-light: #22c55e;
+    --hub-purple: #7c3aed;
+    --hub-purple-light: #8b5cf6;
+    --hub-orange: #ea580c;
+    --hub-orange-light: #f97316;
+    --hub-blue: #2563eb;
+}
+
+/* Page Layout */
+.automation-page-layout {
+    display: flex;
+    min-height: calc(100vh - 56px);
+    background: var(--hub-bg);
+}
+
+.automation-page-content {
+    flex: 1;
+    overflow-x: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Hero Section - Bright Theme */
+.hub-hero {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #d1fae5 100%);
+    padding: 32px 28px 56px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hub-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.hub-hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+/* Type Badges */
+.hub-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.hub-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.hub-badge svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.5;
+}
+
+.hub-badge.stock { background: #16a34a; color: #fff; }
+.hub-badge.earnings { background: #7c3aed; color: #fff; }
+.hub-badge.sports { background: #ea580c; color: #fff; }
+.hub-badge.wordpress { background: #2563eb; color: #fff; }
+
+/* Hero Title */
+.hub-hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--hub-text);
+    margin: 0 0 12px 0;
+    letter-spacing: -0.03em;
+}
+
+.hub-hero h1 .accent {
+    background: linear-gradient(135deg, #16a34a 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hub-hero-subtitle {
+    font-size: 16px;
+    color: var(--hub-muted);
+    max-width: 650px;
+    margin: 0 0 24px 0;
+    line-height: 1.6;
+}
+
+/* Hero Actions */
+.hub-hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.hub-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.hub-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5;
+}
+
+.hub-btn-stock {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(34,197,94,0.35);
+}
+
+.hub-btn-stock:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34,197,94,0.45);
+}
+
+.hub-btn-earnings {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(139,92,246,0.35);
+}
+
+.hub-btn-earnings:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139,92,246,0.45);
+}
+
+.hub-btn-sports {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+}
+
+.hub-btn-sports:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249,115,22,0.45);
+}
+
+/* Stats Row */
+.hub-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 1200px;
+    margin: -36px auto 0;
+    padding: 0 28px;
+    position: relative;
+    z-index: 10;
+}
+
+.hub-stat-card {
+    background: #fff;
+    border: 1px solid var(--hub-border);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    transition: all 0.2s ease;
+}
+
+.hub-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+    border-color: var(--hub-green);
+}
+
+.hub-stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.hub-stat-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+
+.hub-stat-icon.green { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); }
+.hub-stat-icon.green svg { stroke: #16a34a; }
+.hub-stat-icon.blue { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
+.hub-stat-icon.blue svg { stroke: #2563eb; }
+.hub-stat-icon.purple { background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); }
+.hub-stat-icon.purple svg { stroke: #7c3aed; }
+.hub-stat-icon.orange { background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%); }
+.hub-stat-icon.orange svg { stroke: #ea580c; }
+
+.hub-stat-info {
+    flex: 1;
+}
+
+.hub-stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--hub-text);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.hub-stat-label {
+    font-size: 13px;
+    color: var(--hub-muted);
+    font-weight: 500;
+}
+
+/* Container */
+.hub-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 28px;
+}
+
+/* Section */
+.hub-section {
+    margin-bottom: 36px;
+}
+
+.hub-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.hub-section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--hub-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hub-section-title svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--hub-green);
+    stroke-width: 2;
+}
+
+.hub-section-desc {
+    font-size: 14px;
+    color: var(--hub-muted);
+    margin: 6px 0 0 0;
+}
+
+.hub-section-link {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--hub-green);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.hub-section-link:hover {
+    text-decoration: underline;
+}
+
+.hub-section-link svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.5;
+}
+
+/* Automation Type Cards - Large */
+.hub-types-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.hub-type-card {
+    background: #fff;
+    border: 1px solid var(--hub-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.hub-type-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+}
+
+.hub-type-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.hub-type-card.stock::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.hub-type-card.earnings::before { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
+.hub-type-card.sports::before { background: linear-gradient(90deg, #f97316, #ea580c); }
+
+.hub-type-header {
+    padding: 24px 24px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.hub-type-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.hub-type-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 1.8;
+    stroke: #fff;
+}
+
+.hub-type-card.stock .hub-type-icon { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 4px 12px rgba(34,197,94,0.3); }
+.hub-type-card.earnings .hub-type-icon { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); box-shadow: 0 4px 12px rgba(139,92,246,0.3); }
+.hub-type-card.sports .hub-type-icon { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
+
+.hub-type-info h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--hub-text);
+    margin: 0 0 6px 0;
+}
+
+.hub-type-info p {
+    font-size: 13px;
+    color: var(--hub-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.hub-type-body {
+    padding: 0 24px 24px;
+}
+
+.hub-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.hub-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--hub-text);
+    font-weight: 500;
+}
+
+.hub-feature-item svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.5;
+    flex-shrink: 0;
+}
+
+.hub-type-card.stock .hub-feature-item svg { stroke: #16a34a; }
+.hub-type-card.earnings .hub-feature-item svg { stroke: #7c3aed; }
+.hub-type-card.sports .hub-feature-item svg { stroke: #ea580c; }
+
+.hub-type-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.hub-type-actions a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.hub-type-actions a svg {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2.5;
+}
+
+.hub-type-actions .action-run {
+    color: #fff;
+}
+
+.hub-type-card.stock .action-run { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+.hub-type-card.earnings .action-run { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+.hub-type-card.sports .action-run { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+
+.hub-type-actions .action-run:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.hub-type-actions .action-dash {
+    background: #f1f5f9;
+    color: var(--hub-text);
+    border: 1px solid #e2e8f0;
+}
+
+.hub-type-actions .action-dash:hover {
+    background: #e2e8f0;
+}
+
+/* Two Column Layout */
+.hub-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+/* Quick Actions Card */
+.hub-quick-card {
+    background: #fff;
+    border: 1px solid var(--hub-border);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.hub-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.hub-quick-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--hub-text);
+    transition: all 0.2s ease;
+}
+
+.hub-quick-item:hover {
+    background: #f0fdf4;
+    border-color: var(--hub-green);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(22,163,74,0.1);
+}
+
+.hub-quick-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.hub-quick-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+.hub-quick-icon.green { background: #dcfce7; }
+.hub-quick-icon.green svg { stroke: #16a34a; }
+.hub-quick-icon.blue { background: #dbeafe; }
+.hub-quick-icon.blue svg { stroke: #2563eb; }
+.hub-quick-icon.purple { background: #f3e8ff; }
+.hub-quick-icon.purple svg { stroke: #7c3aed; }
+.hub-quick-icon.orange { background: #ffedd5; }
+.hub-quick-icon.orange svg { stroke: #ea580c; }
+
+.hub-quick-info h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--hub-text);
+    margin: 0 0 2px 0;
+}
+
+.hub-quick-info p {
+    font-size: 12px;
+    color: var(--hub-muted);
+    margin: 0;
+}
+
+/* Workflow Card */
+.hub-workflow-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.hub-workflow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.hub-workflow-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+}
+
+.hub-workflow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 40px;
+    width: 2px;
+    height: calc(100% + 8px);
+    background: linear-gradient(to bottom, #22c55e, #16a34a);
+    border-radius: 2px;
+}
+
+.hub-step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.hub-step-content {
+    flex: 1;
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.hub-step-content h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--hub-text);
+    margin: 0 0 2px 0;
+}
+
+.hub-step-content p {
+    font-size: 12px;
+    color: var(--hub-muted);
+    margin: 0;
+}
+
+/* Activity Card */
+.hub-activity-card {
+    background: #fff;
+    border: 1px solid var(--hub-border);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.hub-activity-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hub-activity-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--hub-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hub-activity-header h3 svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--hub-green);
+    stroke-width: 2;
+}
+
+.hub-activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.hub-activity-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 24px;
+    border-bottom: 1px solid #f8fafc;
+    transition: background 0.15s ease;
+}
+
+.hub-activity-item:hover {
+    background: #f8fafc;
+}
+
+.hub-activity-item:last-child {
+    border-bottom: none;
+}
+
+.hub-activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.hub-activity-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+}
+
+.hub-activity-icon.stock { background: #dcfce7; }
+.hub-activity-icon.stock svg { stroke: #16a34a; }
+.hub-activity-icon.earnings { background: #f3e8ff; }
+.hub-activity-icon.earnings svg { stroke: #7c3aed; }
+.hub-activity-icon.sports { background: #ffedd5; }
+.hub-activity-icon.sports svg { stroke: #ea580c; }
+
+.hub-activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.hub-activity-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--hub-text);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hub-activity-meta {
+    font-size: 12px;
+    color: var(--hub-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hub-activity-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.hub-activity-status.published { background: #dcfce7; color: #166534; }
+.hub-activity-status.draft { background: #fef3c7; color: #92400e; }
+.hub-activity-status.scheduled { background: #dbeafe; color: #1e40af; }
+
+.hub-activity-time {
+    font-size: 11px;
+    color: var(--hub-muted);
+    white-space: nowrap;
+}
+
+.hub-empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--hub-muted);
+}
+
+.hub-empty-state svg {
+    width: 48px;
+    height: 48px;
+    stroke-width: 1.5;
+    margin-bottom: 16px;
+    opacity: 0.4;
+}
+
+.hub-empty-state p {
+    font-size: 14px;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+/* Mobile Toggle */
+.mobile-sidebar-toggle {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(34,197,94,0.4);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-sidebar-toggle svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .hub-types-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hub-two-col {
+        grid-template-columns: 1fr;
+    }
+    
+    .hub-feature-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .mobile-sidebar-toggle {
+        display: flex;
+    }
+    
+    .hub-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: -28px;
+        padding: 0 16px;
+    }
+    
+    .hub-hero {
+        padding: 24px 16px 44px;
+    }
+    
+    .hub-hero h1 {
+        font-size: 26px;
+    }
+    
+    .hub-hero-subtitle {
+        font-size: 14px;
+    }
+    
+    .hub-container {
+        padding: 24px 16px;
+    }
+    
+    .hub-hero-actions {
+        flex-direction: column;
+    }
+    
+    .hub-quick-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hub-feature-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hub-type-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .hub-stat-card {
+        padding: 14px;
+    }
+    
+    .hub-stat-icon {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .hub-stat-value {
+        font-size: 26px;
+    }
+    
+    .hub-badges {
+        gap: 6px;
+    }
+    
+    .hub-badge {
+        padding: 5px 10px;
+        font-size: 10px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="automation-page-layout">
+    {% include 'automation/_sidebar.html' %}
+    
+    <div class="sidebar-overlay" onclick="toggleAutomationSidebar()"></div>
+    
+    <div class="automation-page-content">
+        <!-- Hero Section -->
+        <section class="hub-hero">
+            <div class="hub-hero-inner">
+                <div class="hub-badges">
+                    <span class="hub-badge stock"><i data-lucide="trending-up"></i>Stock Analysis</span>
+                    <span class="hub-badge earnings"><i data-lucide="file-text"></i>Earnings Reports</span>
+                    <span class="hub-badge sports"><i data-lucide="trophy"></i>Sports Articles</span>
+                    <span class="hub-badge wordpress"><i data-lucide="globe"></i>WordPress Publishing</span>
+                </div>
+                
+                <h1><span class="accent">Automation Hub</span> — Content Publishing</h1>
+                <p class="hub-hero-subtitle">
+                    Streamline your content creation with AI-powered automation. Generate comprehensive stock analysis, 
+                    earnings reports, and trending sports articles — published directly to your WordPress sites.
+                </p>
+                
+                <div class="hub-hero-actions">
+                    <a href="{{ url_for('automation.stock_automation.run') }}" class="hub-btn hub-btn-stock">
+                        <i data-lucide="play"></i>Run Stock Automation
+                    </a>
+                    <a href="{{ url_for('automation.earnings_automation.run') }}" class="hub-btn hub-btn-earnings">
+                        <i data-lucide="file-text"></i>Run Earnings Automation
+                    </a>
+                    <a href="{{ url_for('automation.sports_automation.run') }}" class="hub-btn hub-btn-sports">
+                        <i data-lucide="trophy"></i>Run Sports Automation
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Stats Row -->
+        <div class="hub-stats-row">
+            <div class="hub-stat-card">
+                <div class="hub-stat-icon green"><i data-lucide="file-check"></i></div>
+                <div class="hub-stat-info">
+                    <div class="hub-stat-value">{{ total_published_count|default(0) }}</div>
+                    <div class="hub-stat-label">Total Published</div>
+                </div>
+            </div>
+            <div class="hub-stat-card">
+                <div class="hub-stat-icon blue"><i data-lucide="globe"></i></div>
+                <div class="hub-stat-info">
+                    <div class="hub-stat-value">{{ total_sites|default(0) }}</div>
+                    <div class="hub-stat-label">Sites Connected</div>
+                </div>
+            </div>
+            <div class="hub-stat-card">
+                <div class="hub-stat-icon purple"><i data-lucide="calendar-check"></i></div>
+                <div class="hub-stat-info">
+                    <div class="hub-stat-value">{{ this_week_count|default(0) }}</div>
+                    <div class="hub-stat-label">Published This Week</div>
+                </div>
+            </div>
+            <div class="hub-stat-card">
+                <div class="hub-stat-icon orange"><i data-lucide="clock"></i></div>
+                <div class="hub-stat-info">
+                    <div class="hub-stat-value">{{ pending_count|default(0) }}</div>
+                    <div class="hub-stat-label">Pending/Drafts</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hub-container">
+            <!-- Automation Types Section -->
+            <section class="hub-section">
+                <div class="hub-section-header">
+                    <div>
+                        <h2 class="hub-section-title">
+                            <i data-lucide="cpu"></i>
+                            Automation Types
+                        </h2>
+                        <p class="hub-section-desc">AI-powered content generation with automatic WordPress publishing</p>
+                    </div>
+                </div>
+                
+                <div class="hub-types-grid">
+                    <!-- Stock Analysis Card -->
+                    <div class="hub-type-card stock">
+                        <div class="hub-type-header">
+                            <div class="hub-type-icon">
+                                <i data-lucide="trending-up"></i>
+                            </div>
+                            <div class="hub-type-info">
+                                <h3>Stock Analysis</h3>
+                                <p>AI-powered comprehensive reports with Prophet ML forecasting for any stock ticker</p>
+                            </div>
+                        </div>
+                        <div class="hub-type-body">
+                            <div class="hub-feature-grid">
+                                <div class="hub-feature-item">
+                                    <i data-lucide="layers"></i>32-Section Reports
+                                </div>
+                                <div class="hub-feature-item">
+                                    <i data-lucide="brain"></i>Prophet ML Predictions
+                                </div>
+                                <div class="hub-feature-item">
+                                    <i data-lucide="globe"></i>Multi-Site Publishing
+                                </div>
+                                <div class="hub-feature-item">
+                                    <i data-lucide="search"></i>SEO Optimization
+                                </div>
+                            </div>
+                            <div class="hub-type-actions">
+                                <a href="{{ url_for('automation.stock_automation.run') }}" class="action-run">
+                                    <i data-lucide="play"></i>Run Automation
+                                </a>
+                                <a href="{{ url_for('automation.stock_automation.dashboard') }}" class="action-dash">
+                                    <i data-lucide="gauge"></i>Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Earnings Reports Card -->
+                    <div class="hub-type-card earnings">
+                        <div class="hub-type-header">
+                            <div class="hub-type-icon">
+                                <i data-lucide="file-text"></i>
+                            </div>
+                            <div class="hub-type-info">
+                                <h3>Earnings Reports</h3>
+                                <p>Quarterly earnings analysis with Gemini AI insights and real-time financial data</p>
+                            </div>
+                        </div>
+                        <div class="hub-type-body">
+                            <div class="hub-feature-grid">
+                                <div class="hub-feature-item">
+                                    <i data-lucide="calendar"></i>Weekly Earnings Calendar
+                                </div>
+                                <div class="hub-feature-item">
+                                    <i data-lucide="sparkles"></i>Gemini AI Analysis
+                                </div>
+                                <div class="hub-feature-item">
+                                    <i data-lucide="activity"></i>Real-time Data
+                                </div>
+                                <div class="hub-feature-item">
+                                    <i data-lucide="zap"></i>Instant Publishing
+                                </div>
+                            </div>
+                            <div class="hub-type-actions">
+                                <a href="{{ url_for('automation.earnings_automation.run') }}" class="action-run">
+                                    <i data-lucide="play"></i>Run Automation
+                                </a>
+                                <a href="{{ url_for('automation.earnings_automation.dashboard') }}" class="action-dash">
+                                    <i data-lucide="gauge"></i>Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sports Content Card -->
+                    <div class="hub-type-card sports">
+                        <div class="hub-type-header">
+                            <div class="hub-type-icon">
+                                <i data-lucide="trophy"></i>
+                            </div>
+                            <div class="hub-type-info">
+                                <h3>Sports Articles</h3>
+                                <p>Trending sports content with dual-AI generation (Perplexity Research + Gemini Writing)</p>
+                            </div>
+                        </div>
+                        <div class="hub-type-body">
+                            <div class="hub-feature-grid">
+                                <div class="hub-feature-item">
+                                    <i data-lucide="flame"></i>Google Trends Integration
+                                </div>
+                                <div class="hub-feature-item">
+                                    <i data-lucide="rss"></i>RSS Feed Aggregation
+                                </div>
+                                <div class="hub-feature-item">
+                                    <i data-lucide="bot"></i>Dual-AI Generation
+                                </div>
+                                <div class="hub-feature-item">
+                                    <i data-lucide="medal"></i>Multi-Sport Coverage
+                                </div>
+                            </div>
+                            <div class="hub-type-actions">
+                                <a href="{{ url_for('automation.sports_automation.run') }}" class="action-run">
+                                    <i data-lucide="play"></i>Run Automation
+                                </a>
+                                <a href="{{ url_for('automation.sports_automation.dashboard') }}" class="action-dash">
+                                    <i data-lucide="gauge"></i>Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Two Column: Quick Actions + Workflow -->
+            <div class="hub-two-col">
+                <!-- Quick Actions -->
+                <section class="hub-section" style="margin-bottom: 0;">
+                    <div class="hub-section-header">
+                        <div>
+                            <h2 class="hub-section-title">
+                                <i data-lucide="zap"></i>
+                                Quick Actions
+                            </h2>
+                            <p class="hub-section-desc">Fast access to essential tools and features</p>
+                        </div>
+                    </div>
+                    
+                    <div class="hub-quick-card">
+                        <div class="hub-quick-grid">
+                            <a href="{{ url_for('manage_site_profiles') }}" class="hub-quick-item">
+                                <div class="hub-quick-icon green">
+                                    <i data-lucide="settings"></i>
+                                </div>
+                                <div class="hub-quick-info">
+                                    <h4>Site Profiles</h4>
+                                    <p>Manage WordPress sites</p>
+                                </div>
+                            </a>
+                            <a href="{{ url_for('automation.history') }}" class="hub-quick-item">
+                                <div class="hub-quick-icon blue">
+                                    <i data-lucide="history"></i>
+                                </div>
+                                <div class="hub-quick-info">
+                                    <h4>Publishing History</h4>
+                                    <p>View all published articles</p>
+                                </div>
+                            </a>
+                            <a href="{{ url_for('automation.sports_automation.trends') }}" class="hub-quick-item">
+                                <div class="hub-quick-icon orange">
+                                    <i data-lucide="flame"></i>
+                                </div>
+                                <div class="hub-quick-info">
+                                    <h4>Google Trends</h4>
+                                    <p>Discover trending topics</p>
+                                </div>
+                            </a>
+                            <a href="{{ url_for('automation.earnings_automation.calendar') }}" class="hub-quick-item">
+                                <div class="hub-quick-icon purple">
+                                    <i data-lucide="calendar"></i>
+                                </div>
+                                <div class="hub-quick-info">
+                                    <h4>Earnings Calendar</h4>
+                                    <p>Upcoming earnings dates</p>
+                                </div>
+                            </a>
+                            <a href="{{ url_for('stock_analysis_homepage_route') }}" class="hub-quick-item">
+                                <div class="hub-quick-icon green">
+                                    <i data-lucide="bar-chart-3"></i>
+                                </div>
+                                <div class="hub-quick-info">
+                                    <h4>Stock Analysis</h4>
+                                    <p>Manual stock reports</p>
+                                </div>
+                            </a>
+                            <a href="{{ url_for('automation.sports_automation.library') }}" class="hub-quick-item">
+                                <div class="hub-quick-icon orange">
+                                    <i data-lucide="library"></i>
+                                </div>
+                                <div class="hub-quick-info">
+                                    <h4>Content Library</h4>
+                                    <p>Sports article library</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- How It Works -->
+                <section class="hub-section" style="margin-bottom: 0;">
+                    <div class="hub-section-header">
+                        <div>
+                            <h2 class="hub-section-title">
+                                <i data-lucide="route"></i>
+                                How It Works
+                            </h2>
+                            <p class="hub-section-desc">Simple 4-step automation process</p>
+                        </div>
+                    </div>
+                    
+                    <div class="hub-workflow-card">
+                        <div class="hub-workflow-steps">
+                            <div class="hub-workflow-step">
+                                <div class="hub-step-num">1</div>
+                                <div class="hub-step-content">
+                                    <h4>Select Automation Type</h4>
+                                    <p>Choose stock, earnings, or sports automation</p>
+                                </div>
+                            </div>
+                            <div class="hub-workflow-step">
+                                <div class="hub-step-num">2</div>
+                                <div class="hub-step-content">
+                                    <h4>Configure Parameters</h4>
+                                    <p>Set tickers, topics, or select from calendar</p>
+                                </div>
+                            </div>
+                            <div class="hub-workflow-step">
+                                <div class="hub-step-num">3</div>
+                                <div class="hub-step-content">
+                                    <h4>AI Content Generation</h4>
+                                    <p>Prophet ML, Gemini, or Perplexity generates content</p>
+                                </div>
+                            </div>
+                            <div class="hub-workflow-step">
+                                <div class="hub-step-num">4</div>
+                                <div class="hub-step-content">
+                                    <h4>WordPress Publishing</h4>
+                                    <p>Auto-publish to your connected sites</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Recent Activity -->
+            <section class="hub-section" style="margin-top: 36px;">
+                <div class="hub-activity-card">
+                    <div class="hub-activity-header">
+                        <h3><i data-lucide="activity"></i>Recent Activity</h3>
+                        <a href="{{ url_for('automation.history') }}" class="hub-section-link">
+                            View All <i data-lucide="arrow-right"></i>
+                        </a>
+                    </div>
+                    
+                    {% if recent_activity and recent_activity|length > 0 %}
+                    <ul class="hub-activity-list">
+                        {% for activity in recent_activity[:8] %}
+                        <li class="hub-activity-item">
+                            <div class="hub-activity-icon {{ activity.type|default('sports') }}">
+                                {% if activity.type == 'earnings' %}
+                                <i data-lucide="file-text"></i>
+                                {% elif activity.type == 'stock' %}
+                                <i data-lucide="trending-up"></i>
+                                {% else %}
+                                <i data-lucide="trophy"></i>
+                                {% endif %}
+                            </div>
+                            <div class="hub-activity-content">
+                                <div class="hub-activity-title">{{ activity.title|default('Article Title') }}</div>
+                                <div class="hub-activity-meta">
+                                    <span>{{ activity.site|default('Site') }}</span>
+                                </div>
+                            </div>
+                            <span class="hub-activity-status {{ activity.status|default('draft') }}">
+                                {% if activity.status == 'published' %}
+                                <i data-lucide="check" style="width:10px;height:10px;"></i>
+                                {% endif %}
+                                {{ activity.status|default('draft')|title }}
+                            </span>
+                            <div class="hub-activity-time">{{ activity.time|default('Recently') }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="hub-empty-state">
+                        <i data-lucide="inbox"></i>
+                        <p>No recent activity yet. Start automating to see your publishing history here!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <button class="mobile-sidebar-toggle" onclick="toggleAutomationSidebar()" aria-label="Toggle sidebar">
+        <i data-lucide="menu"></i>
+    </button>
+</div>
+
+<script>
+// Initialize Lucide icons
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,677 @@
+{% extends "_base.html" %}
+
+{% block title %}Stock Analysis History | Tickzen{% endblock %}
+
+{% block head_extra %}
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="View stock analysis automation history - all processed tickers with publishing metadata">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 3.9%;
+        --border: 0 0% 89.8%;
+        --muted: 0 0% 96.1%;
+        --muted-foreground: 0 0% 45.1%;
+        --green-50: #f0fdf4;
+        --green-100: #dcfce7;
+        --green-600: #16a34a;
+        --green-700: #15803d;
+        --green-800: #166534;
+        --blue-50: #eff6ff;
+        --blue-600: #2563eb;
+        --blue-700: #1d4ed8;
+        --orange-50: #fff7ed;
+        --orange-600: #ea580c;
+        --red-50: #fef2f2;
+        --red-600: #dc2626;
+        --red-700: #b91c1c;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.5;
+        color: hsl(var(--foreground));
+        background: hsl(var(--background));
+        font-size: 14px;
+    }
+
+    /* Page Layout */
+    .automation-page-layout {
+        display: flex;
+        min-height: calc(100vh - 56px);
+        background: #f8fafc;
+    }
+
+    .automation-page-content {
+        flex: 1;
+        min-width: 0;
+        padding: 1.5rem;
+        overflow-x: hidden;
+    }
+
+    /* Mobile sidebar toggle */
+    .mobile-sidebar-toggle {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(34,197,94,0.4);
+        z-index: 999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-sidebar-toggle svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 998;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .mobile-sidebar-toggle {
+            display: flex;
+        }
+        .automation-page-content {
+            padding: 1rem;
+        }
+    }
+
+    /* Page Header */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-header h1 i {
+        color: var(--green-600);
+    }
+
+    .page-header p {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    /* Stats Row */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .stat-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+
+    .stat-card-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .stat-card-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--green-50);
+    }
+
+    .stat-card-icon svg {
+        width: 20px;
+        height: 20px;
+        stroke: var(--green-600);
+    }
+
+    .stat-card-value {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    /* Filters */
+    .filters-section {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-group label {
+        font-size: 0.875rem;
+        color: #374151;
+        font-weight: 500;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        background: white;
+        color: #1f2937;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+        outline: none;
+        border-color: var(--green-600);
+        box-shadow: 0 0 0 3px rgba(22,163,74,0.1);
+    }
+
+    /* Table */
+    .history-table-container {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .history-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+
+    .history-table thead {
+        background: #f9fafb;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .history-table th {
+        padding: 0.875rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.8125rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .history-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        color: #1f2937;
+    }
+
+    .history-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .history-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Ticker Badge */
+    .ticker-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 0.75rem;
+        background: var(--green-50);
+        color: var(--green-700);
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .status-badge.published {
+        background: var(--green-50);
+        color: var(--green-700);
+    }
+
+    .status-badge.scheduled {
+        background: var(--blue-50);
+        color: var(--blue-700);
+    }
+
+    .status-badge.failed,
+    .status-badge.error {
+        background: var(--red-50);
+        color: var(--red-700);
+    }
+
+    .status-badge.skipped {
+        background: var(--orange-50);
+        color: var(--orange-600);
+    }
+
+    .status-badge.pending,
+    .status-badge.processing {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    /* Article Link */
+    .article-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--blue-600);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition: color 0.2s;
+    }
+
+    .article-link:hover {
+        color: var(--blue-700);
+        text-decoration: underline;
+    }
+
+    .article-link i {
+        font-size: 0.75rem;
+    }
+
+    .article-link.disabled {
+        color: #9ca3af;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* Profile Name */
+    .profile-name {
+        font-weight: 500;
+        color: #374151;
+    }
+
+    /* Writer Name */
+    .writer-name {
+        color: #6b7280;
+        font-size: 0.8125rem;
+    }
+
+    /* Timestamp */
+    .timestamp {
+        color: #6b7280;
+        font-size: 0.8125rem;
+        white-space: nowrap;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #9ca3af;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #6b7280;
+    }
+
+    .empty-state p {
+        font-size: 0.875rem;
+        color: #9ca3af;
+    }
+
+    @media (max-width: 768px) {
+        .history-table {
+            font-size: 0.75rem;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .filters-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-group {
+            width: 100%;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="automation-page-layout">
+    {% include 'automation/_sidebar.html' %}
+    
+    <div class="automation-page-content">
+        <div class="page-header">
+            <h1>
+                <i data-lucide="history"></i>
+                Stock Analysis History
+            </h1>
+            <p>View all processed tickers with publishing metadata and article links</p>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Total Processed</span>
+                    <div class="stat-card-icon">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value">{{ total_tickers }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Published</span>
+                    <div class="stat-card-icon" style="background: var(--green-50);">
+                        <i data-lucide="check-circle" style="stroke: var(--green-600);"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="published-count">{{ processed_tickers | selectattr('status', 'equalto', 'published') | list | length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">Sites Connected</span>
+                    <div class="stat-card-icon" style="background: var(--blue-50);">
+                        <i data-lucide="globe" style="stroke: var(--blue-600);"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value">{{ user_site_profiles | length }}</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="filter-group">
+                <label for="status-filter">Status:</label>
+                <select id="status-filter">
+                    <option value="all">All Status</option>
+                    <option value="published">Published</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="failed">Failed</option>
+                    <option value="skipped">Skipped</option>
+                    <option value="pending">Pending</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="profile-filter">Site:</label>
+                <select id="profile-filter">
+                    <option value="all">All Sites</option>
+                    {% for profile in user_site_profiles %}
+                    <option value="{{ profile.profile_id }}">{{ profile.profile_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="search-input">Search:</label>
+                <input type="text" id="search-input" placeholder="Ticker symbol...">
+            </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="history-table-container">
+            <div class="history-table-wrapper">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Title</th>
+                            <th>Site</th>
+                            <th>Published By</th>
+                            <th>Generated At</th>
+                            <th>Published At</th>
+                            <th>Status</th>
+                            <th>Article</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        {% if processed_tickers %}
+                            {% for ticker in processed_tickers %}
+                            <tr data-ticker="{{ ticker.ticker | upper }}" 
+                                data-status="{{ ticker.status | lower }}" 
+                                data-profile-id="{{ ticker.profile_id }}">
+                                <td>
+                                    <span class="ticker-badge">{{ ticker.ticker | upper }}</span>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 500; color: #1f2937; max-width: 250px;">
+                                        {{ ticker.title }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="profile-name">{{ ticker.profile_name }}</span>
+                                </td>
+                                <td>
+                                    <span class="writer-name">{{ ticker.writer_username }}</span>
+                                </td>
+                                <td>
+                                    <span class="timestamp">
+                                        {% if ticker.generated_at and ticker.generated_at != 'N/A' %}
+                                            {{ ticker.generated_at | format_datetime('%Y-%m-%d %H:%M') }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="timestamp">
+                                        {% if ticker.published_at and ticker.published_at != 'N/A' %}
+                                            {{ ticker.published_at | format_datetime('%Y-%m-%d %H:%M') }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge {{ ticker.status | lower | replace(' ', '-') }}">
+                                        {{ ticker.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if ticker.post_url and ticker.post_url != '#' and (ticker.status | lower) in ['published', 'scheduled'] %}
+                                        <a href="{{ ticker.post_url }}" target="_blank" rel="noopener noreferrer" class="article-link">
+                                            <i data-lucide="external-link"></i>
+                                            View Article
+                                        </a>
+                                    {% else %}
+                                        <span class="article-link disabled">
+                                            <i data-lucide="link-off"></i>
+                                            N/A
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty-state">
+                                        <i data-lucide="inbox"></i>
+                                        <h3>No History Available</h3>
+                                        <p>No processed tickers found. Start automation to see history here.</p>
+                                        <a href="{{ url_for('automation.stock_automation.run') }}" style="margin-top: 1rem; display: inline-block; padding: 0.5rem 1rem; background: var(--green-600); color: white; border-radius: 6px; text-decoration: none; font-weight: 500;">
+                                            Run Automation
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile sidebar toggle -->
+    <button class="mobile-sidebar-toggle" onclick="toggleAutomationSidebar()" aria-label="Toggle sidebar">
+        <i data-lucide="menu"></i>
+    </button>
+    
+    <!-- Sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleAutomationSidebar()"></div>
+</div>
+
+<script>
+// Initialize Lucide icons
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+}
+
+// Mobile sidebar toggle
+function toggleAutomationSidebar() {
+    const sidebar = document.querySelector('.auto-sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar && overlay) {
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+    }
+}
+
+// Filters functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const statusFilter = document.getElementById('status-filter');
+    const profileFilter = document.getElementById('profile-filter');
+    const searchInput = document.getElementById('search-input');
+    const tableBody = document.getElementById('history-table-body');
+    const rows = tableBody.querySelectorAll('tr[data-ticker]');
+
+    function applyFilters() {
+        const statusValue = statusFilter.value;
+        const profileValue = profileFilter.value;
+        const searchValue = searchInput.value.toLowerCase().trim();
+
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const ticker = row.dataset.ticker.toLowerCase();
+            const status = row.dataset.status;
+            const profileId = row.dataset.profileId;
+
+            // Status filter
+            const statusMatch = statusValue === 'all' || status === statusValue;
+
+            // Profile filter
+            const profileMatch = profileValue === 'all' || profileId === profileValue;
+
+            // Search filter
+            const searchMatch = !searchValue || ticker.includes(searchValue);
+
+            // Show/hide row
+            if (statusMatch && profileMatch && searchMatch) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update empty state if no rows visible
+        if (visibleCount === 0 && rows.length > 0) {
+            if (!tableBody.querySelector('.empty-state')) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i data-lucide="search"></i>
+                            <h3>No Results Found</h3>
+                            <p>Try adjusting your filters or search term.</p>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(emptyRow);
+                lucide.createIcons();
+            }
+        } else {
+            const emptyStateRow = tableBody.querySelector('.empty-state')?.closest('tr');
+            if (emptyStateRow) {
+                emptyStateRow.remove();
+            }
+        }
+    }
+
+    if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+    if (profileFilter) profileFilter.addEventListener('change', applyFilters);
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+});
+</script>
+{% endblock %}

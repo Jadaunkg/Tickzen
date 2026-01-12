@@ -17,6 +17,10 @@ def fetch_weekly_earnings_calendar():
     base_url = "https://finnhub.io/api/v1/calendar/earnings"
     start_date = datetime.now()
     
+    # Request session with timeout configuration
+    session = requests.Session()
+    session.timeout = 10  # 10 second timeout
+    
     for i in range(7):
         day = start_date + timedelta(days=i)
         day_str = day.strftime('%Y-%m-%d')
@@ -25,16 +29,25 @@ def fetch_weekly_earnings_calendar():
             'to': day_str,
             'token': API_KEY
         }
-        response = requests.get(base_url, params=params)
-        data = response.json()
-        daily_list = []
-        for entry in data.get('earningsCalendar', []):
-            daily_list.append({
-                'ticker': entry.get('symbol'),
-                'name': entry.get('company'),
-                'date': entry.get('date')
-            })
-        results[day_str] = daily_list
+        
+        try:
+            response = session.get(base_url, params=params, timeout=10)
+            response.raise_for_status()  # Raise an exception for bad status codes
+            data = response.json()
+            
+            daily_list = []
+            for entry in data.get('earningsCalendar', []):
+                daily_list.append({
+                    'ticker': entry.get('symbol'),
+                    'name': entry.get('company'),
+                    'date': entry.get('date')
+                })
+            results[day_str] = daily_list
+            
+        except (requests.RequestException, requests.Timeout, requests.ConnectTimeout) as e:
+            print(f"Error fetching data for {day_str}: {e}")
+            # Use empty list for failed dates
+            results[day_str] = []
     
     # Create the final data structure with metadata
     calendar_data = {
