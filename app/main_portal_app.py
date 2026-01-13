@@ -397,6 +397,16 @@ from app.info_routes import info_bp
 app.register_blueprint(info_bp, url_prefix='/info')
 app.register_blueprint(market_news_bp)
 
+# Register Quota API blueprint
+from app.blueprints.quota_api import quota_bp
+app.register_blueprint(quota_bp)
+app.logger.info("Quota API blueprint registered at /api/quota")
+
+# Register Admin Quota API blueprint
+from app.blueprints.admin_quota_api import admin_quota_bp
+app.register_blueprint(admin_quota_bp)
+app.logger.info("Admin Quota API blueprint registered at /admin/api/quota")
+
 # Note: Stock Analysis blueprint is registered after login_required is defined
 # See registration below after login_required definition
 
@@ -778,10 +788,12 @@ def login_required(f):
         
         if not current_firebase_status:
             app.logger.error("Login attempt failed: Firebase Admin SDK not initialized.")
-            flash("Authentication service is currently unavailable. Please try again later.", "danger")
+            session['notification_message'] = "Authentication service is currently unavailable. Please try again later."
+            session['notification_type'] = "danger"
             return redirect(url_for('stock_analysis_homepage_route'))
         if 'firebase_user_uid' not in session:
-            flash("Please login to access this page.", "warning")
+            session['notification_message'] = "Please login to access this page."
+            session['notification_type'] = "warning"
             return redirect(url_for('login', next=request.full_path))
         return f(*args, **kwargs)
     return decorated_function
@@ -795,11 +807,13 @@ def admin_required(f):
         
         if not current_firebase_status:
             app.logger.error("Admin access attempt failed: Firebase Admin SDK not initialized.")
-            flash("Authentication service is currently unavailable. Please try again later.", "danger")
+            session['notification_message'] = "Authentication service is currently unavailable. Please try again later."
+            session['notification_type'] = "danger"
             return redirect(url_for('stock_analysis_homepage_route'))
             
         if 'firebase_user_uid' not in session:
-            flash("Please log in to access this page.", "warning")
+            session['notification_message'] = "Please log in to access this page."
+            session['notification_type'] = "warning"
             return redirect(url_for('login', next=request.full_path))
         
         user_uid = session.get('firebase_user_uid')
@@ -814,7 +828,8 @@ def admin_required(f):
         
         if user_email not in admin_emails:
             app.logger.warning(f"Non-admin user {user_email} attempted to access admin route: {request.endpoint}")
-            flash("Access denied. Administrator privileges required.", "danger")
+            session['notification_message'] = "Access denied. Administrator privileges required."
+            session['notification_type'] = "danger"
             return redirect(url_for('dashboard_page'))
         
         app.logger.info(f"Admin access granted to {user_email} for route: {request.endpoint}")
@@ -1856,7 +1871,8 @@ def admin_panel():
         
     except Exception as e:
         app.logger.error(f"Error in admin panel: {e}", exc_info=True)
-        flash("Error loading admin dashboard. Please try again.", "danger")
+        session['notification_message'] = "Error loading admin dashboard. Please try again."
+        session['notification_type'] = "danger"
         return redirect(url_for('dashboard_page'))
 
 @app.route('/api/admin/contact/list')
@@ -2467,20 +2483,57 @@ def start_stock_analysis():
     elif not room_id and not client_sid_from_form:
         room_id = "task_room_" + str(int(time.time()))
         app.logger.warning(f"No user UID or client SID for analysis task. Generated room_id: {room_id}")
+    
+    # CHECK QUOTA BEFORE PROCEEDING (for logged-in users only)
+    user_uid = session.get('firebase_user_uid')
+    if user_uid:
+        try:
+            from app.services.quota_service import get_quota_service
+            from app.models.quota_models import ResourceType
+            
+            quota_service = get_quota_service()
+            has_quota, quota_info = quota_service.check_quota(user_uid, ResourceType.STOCK_REPORT.value)
+            
+            if not has_quota:
+                app.logger.warning(f"Quota exceeded for user {user_uid}: {quota_info}")
+                error_msg = f"You've used all {quota_info.get('limit', 0)} stock analysis reports this month."
+                
+                socketio.emit('quota_exceeded', {
+                    'message': error_msg,
+                    'quota_info': quota_info,
+                    'upgrade_url': '/pricing'
+                }, room=room_id)
+                
+                session['notification_message'] = error_msg + " Upgrade your plan to continue."
+                session['notification_type'] = "warning"
+                
+                return jsonify({
+                    'error': 'quota_exceeded',
+                    'message': error_msg,
+                    'quota_info': quota_info
+                }), 403
+            
+            app.logger.info(f"Quota check passed for user {user_uid}: {quota_info.get('remaining', 0)} reports remaining")
+            
+        except Exception as e:
+            app.logger.error(f"Error checking quota: {e}", exc_info=True)
+            # On error, allow the request to proceed (fail open) but log it
 
     app.logger.info(f"\n--- Received /start-analysis for ticker: {ticker} (Target Room: {room_id}) ---")
 
     # More permissive ticker pattern that allows common special characters including futures (=)
     valid_ticker_pattern = r'^[A-Z0-9\^.\-$&/=]+(\.[A-Z]{1,2})?$'
     if not ticker or not re.match(valid_ticker_pattern, ticker):
-        flash(f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, MSFT, GOOGL, GC=F).", "danger")
+        session['notification_message'] = f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, MSFT, GOOGL, GC=F)."
+        session['notification_type'] = "danger"
         socketio.emit('analysis_error', {'message': f"Invalid ticker format: '{ticker}'. Please use standard stock symbols.", 'ticker': ticker}, room=room_id)
         return redirect(url_for('analyzer_input_page'))
 
     if not PIPELINE_IMPORTED_SUCCESSFULLY:
         reason = PIPELINE_IMPORT_ERROR or "pipeline not loaded"
         app.logger.error(f"Stock analysis pipeline unavailable: {reason}")
-        flash("The Stock Analysis service is temporarily unavailable. Please try again later.", "danger")
+        session['notification_message'] = "The Stock Analysis service is temporarily unavailable. Please try again later."
+        session['notification_type'] = "danger"
         socketio.emit('analysis_error', {'message': 'Stock Analysis service is temporarily unavailable. Check server logs for details.', 'ticker': ticker}, room=room_id)
         return redirect(url_for('analyzer_input_page'))
 
@@ -2570,6 +2623,29 @@ def start_stock_analysis():
             # Pass the HTML content to save to Firebase Storage
             save_report_to_history(user_uid_for_history, ticker, report_filename_for_url, generated_at_dt, 
                                  content=report_html_content_from_pipeline if isinstance(report_html_content_from_pipeline, str) else None)
+            
+            # CONSUME QUOTA AFTER SUCCESSFUL REPORT GENERATION
+            try:
+                from app.quota_utils import consume_user_quota
+                from app.models.quota_models import ResourceType
+                
+                generation_time = int((time.time() - request_timestamp_for_report) * 1000)
+                
+                consume_user_quota(
+                    ResourceType.STOCK_REPORT.value,
+                    {
+                        'ticker': ticker,
+                        'status': 'success',
+                        'report_id': report_filename_for_url,
+                        'generation_time_ms': generation_time
+                    }
+                )
+                
+                app.logger.info(f"Quota consumed for user {user_uid_for_history} - ticker {ticker}")
+                
+            except Exception as quota_err:
+                app.logger.error(f"Failed to consume quota (non-critical): {quota_err}")
+                # Don't fail the request if quota consumption fails
 
         view_report_url = url_for('display_report', ticker=ticker, filename=report_filename_for_url)
         app.logger.info(f"Analysis for {ticker} complete. Signaling client in room {room_id} to redirect to: {view_report_url}")
@@ -2634,7 +2710,8 @@ def display_report(ticker, filename):
         
         user_uid = session.get('firebase_user_uid')
         if not user_uid:
-            flash("Please log in to view reports.", "error")
+            session['notification_message'] = "Please log in to view reports."
+            session['notification_type'] = "error"
             return redirect(url_for('login'))
         
         # Generate the report URL that will be loaded in the iframe
@@ -2651,7 +2728,8 @@ def display_report(ticker, filename):
         
     except Exception as e:
         app.logger.error(f"Error in display_report: {e}", exc_info=True)
-        flash(f"Error loading report for {ticker.upper()}. Please try again.", "error")
+        session['notification_message'] = f"Error loading report for {ticker.upper()}. Please try again."
+        session['notification_type'] = "error"
         return redirect(url_for('analyzer_input_page'))
 
 @app.route('/view-report/<ticker>/<path:filename>')
@@ -2669,7 +2747,8 @@ def view_generated_report(ticker, filename):
         
         user_uid = session.get('firebase_user_uid')
         if not user_uid:
-            flash("Please log in to view reports.", "error")
+            session['notification_message'] = "Please log in to view reports."
+            session['notification_type'] = "error"
             return redirect(url_for('login'))
         
         # Try to find the report in Firestore database
@@ -2716,12 +2795,14 @@ def view_generated_report(ticker, filename):
         
         # If we get here, the report was not found anywhere
         app.logger.error(f"Report file not found in database or locally: {clean_filename}")
-        flash(f"Report file for {ticker.upper()} not found. It may have been deleted or moved.", "error")
+        session['notification_message'] = f"Report file for {ticker.upper()} not found. It may have been deleted or moved."
+        session['notification_type'] = "error"
         return redirect(url_for('analyzer_input_page'))
             
     except Exception as e:
         app.logger.error(f"Error in view_generated_report: {e}", exc_info=True)
-        flash(f"Error loading report for {ticker.upper()}. Please try again.", "error")
+        session['notification_message'] = f"Error loading report for {ticker.upper()}. Please try again."
+        session['notification_type'] = "error"
         return redirect(url_for('analyzer_input_page'))
 
 
@@ -2935,7 +3016,9 @@ def logout():
     if user_uid:
         app.logger.info(f"User {user_uid} logging out. Client {request.sid if hasattr(request, 'sid') else '(no socket SID in HTTP context)'} should handle disconnect.")
     session.clear()
-    flash("You have been successfully logged out.", "info")
+    # Store message in session for JavaScript to display
+    session['notification_message'] = "You have been successfully logged out."
+    session['notification_type'] = "info"
     return redirect(url_for('stock_analysis_homepage_route'))
 
 @app.route('/auth/action')
@@ -2963,7 +3046,8 @@ def firebase_auth_action():
                                  lang=lang,
                                  firebase_config=get_firebase_client_config())
         
-        flash("Invalid authentication action request. Please use the link from your email.", "danger")
+        session['notification_message'] = "Invalid authentication action request. Please use the link from your email."
+        session['notification_type'] = "danger"
         return redirect(url_for('stock_analysis_homepage_route'))
     
     try:
@@ -2994,12 +3078,14 @@ def firebase_auth_action():
                                  lang=lang,
                                  firebase_config=firebase_config)
         else:
-            flash(f"Unsupported authentication action: {mode}", "warning")
+            session['notification_message'] = f"Unsupported authentication action: {mode}"
+            session['notification_type'] = "warning"
             return redirect(url_for('stock_analysis_homepage_route'))
             
     except Exception as e:
         app.logger.error(f"Error handling Firebase auth action: {e}", exc_info=True)
-        flash("An error occurred while processing your request. Please try again.", "danger")
+        session['notification_message'] = "An error occurred while processing your request. Please try again."
+        session['notification_type'] = "danger"
         return redirect(url_for('stock_analysis_homepage_route'))
 
 # --- TEST ROUTE FOR DEBUGGING RESET PASSWORD ---
@@ -3081,6 +3167,22 @@ def user_profile_page():
                          user_created_at=user_profile_data['created_at'],
                          total_automations=user_profile_data['total_automations'],
                          active_profiles=user_profile_data['active_profiles'])
+
+
+@app.route('/admin/quota-management')
+@login_required
+def admin_quota_management():
+    """Admin page for managing user quotas"""
+    from config.admin_config import is_admin_user
+    
+    # Check if user is admin
+    user_email = session.get('firebase_user_email', '')
+    if not is_admin_user(user_email):
+        flash('Admin access required', 'error')
+        return redirect(url_for('stock_analysis_homepage'))
+    
+    return render_template('admin/quota_management.html', title="Admin - Quota Management")
+
 
 @app.route('/site-profiles')
 @login_required
@@ -3240,7 +3342,8 @@ def add_site_profile():
         }
         session['errors_add_repopulate'] = errors
         session['show_add_form_on_load_flag'] = True
-        flash("Please correct the errors in the 'Add New Publishing Profile' form.", "danger")
+        session['notification_message'] = "Please correct the errors in the 'Add New Publishing Profile' form."
+        session['notification_type'] = "danger"
         return redirect(url_for('manage_site_profiles'))
 
     # Build internal linking config with extracted settings
@@ -3292,9 +3395,11 @@ def add_site_profile():
     
     # Fallback for non-AJAX requests
     if profile_id:
-        flash(f"Publishing Profile '{new_profile_data['profile_name']}' added successfully!", "success")
+        session['notification_message'] = f"Publishing Profile '{new_profile_data['profile_name']}' added successfully!"
+        session['notification_type'] = "success"
     else:
-        flash(f"Failed to add publishing profile '{new_profile_data['profile_name']}'. An unexpected error occurred.", "danger")
+        session['notification_message'] = f"Failed to add publishing profile '{new_profile_data['profile_name']}'. An unexpected error occurred."
+        session['notification_type'] = "danger"
     return redirect(url_for('manage_site_profiles'))
 
 
@@ -3304,14 +3409,16 @@ def edit_site_profile(profile_id_from_firestore):
     user_uid = session['firebase_user_uid']
     db = get_firestore_client()
     if not db:
-        flash("Database service is currently unavailable. Please try again later.", "danger")
+        session['notification_message'] = "Database service is currently unavailable. Please try again later."
+        session['notification_type'] = "danger"
         return redirect(url_for('manage_site_profiles'))
 
     profile_doc_ref = db.collection(u'userSiteProfiles').document(user_uid).collection(u'profiles').document(profile_id_from_firestore)
     profile_snap = profile_doc_ref.get()
 
     if not profile_snap.exists:
-        flash(f"Publishing Profile ID '{profile_id_from_firestore}' not found.", "error")
+        session['notification_message'] = f"Publishing Profile ID '{profile_id_from_firestore}' not found."
+        session['notification_type'] = "error"
         return redirect(url_for('manage_site_profiles'))
 
     profile_data_original = profile_snap.to_dict()
@@ -3495,7 +3602,8 @@ def edit_site_profile(profile_id_from_firestore):
                     'errors': errors
                 }), 400
             
-            flash("Please correct the errors in the form.", "danger")
+            session['notification_message'] = "Please correct the errors in the form."
+            session['notification_type'] = "danger"
             profile_data_repopulate = {
                 "profile_id": profile_id_from_firestore,
                 "profile_name": profile_name, "site_url": site_url, "sheet_name": sheet_name,
@@ -3560,14 +3668,16 @@ def edit_site_profile(profile_id_from_firestore):
                     'profile_name': profile_data_to_save['profile_name'],
                     'profile_id': profile_id_from_firestore
                 }), 200
-            flash(f"Publishing Profile '{profile_data_to_save['profile_name']}' updated successfully!", "success")
+            session['notification_message'] = f"Publishing Profile '{profile_data_to_save['profile_name']}' updated successfully!"
+            session['notification_type'] = "success"
         else:
             if is_ajax or accepts_json:
                 return jsonify({
                     'success': False,
                     'message': f"Failed to update publishing profile '{profile_data_to_save['profile_name']}'."
                 }), 500
-            flash(f"Failed to update publishing profile '{profile_data_to_save['profile_name']}'.", "danger")
+            session['notification_message'] = f"Failed to update publishing profile '{profile_data_to_save['profile_name']}'."
+            session['notification_type'] = "danger"
         return redirect(url_for('manage_site_profiles'))
 
     return render_template('edit_profile.html',
@@ -4094,12 +4204,14 @@ def run_automation_now(): # Modified
     db = get_firestore_client()
 
     if not AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY:
-        flash("Automation service is currently unavailable. Please try again later.", "danger")
+        session['notification_message'] = "Automation service is currently unavailable. Please try again later."
+        session['notification_type'] = "danger"
         return redirect(url_for('automation_runner_page'))
 
     profile_ids_to_run = request.form.getlist('run_profile_ids[]')
     if not profile_ids_to_run:
-        flash("No profiles selected to run automation.", "info")
+        session['notification_message'] = "No profiles selected to run automation."
+        session['notification_type'] = "info"
         return redirect(url_for('automation_runner_page'))
 
     all_user_profiles_from_db = get_user_site_profiles_from_firestore(user_uid)
@@ -4113,7 +4225,8 @@ def run_automation_now(): # Modified
     for profile_id_from_form in profile_ids_to_run:
         profile_data_from_db = profiles_db_map.get(profile_id_from_form)
         if not profile_data_from_db:
-            flash(f"Profile ID {profile_id_from_form} not found for user. Skipping.", "warning")
+            session['notification_message'] = f"Profile ID {profile_id_from_form} not found for user. Skipping."
+            session['notification_type'] = "warning"
             continue
         selected_profiles_data_for_run.append(profile_data_from_db)
 
@@ -4122,7 +4235,8 @@ def run_automation_now(): # Modified
             articles_map[pid] = max(0, int(request.form.get(f'posts_for_profile_{pid}', 0)))
         except ValueError:
             articles_map[pid] = 0
-            flash(f"Invalid number of posts for '{profile_data_from_db.get('profile_name', pid)}', defaulting to 0.", "warning")
+            session['notification_message'] = f"Invalid number of posts for '{profile_data_from_db.get('profile_name', pid)}', defaulting to 0."
+            session['notification_type'] = "warning"
 
         ticker_source_method = request.form.get(f'ticker_source_{pid}', 'file')
 
@@ -4146,7 +4260,8 @@ def run_automation_now(): # Modified
                     save_user_site_profile_to_firestore(user_uid, profile_update_for_manual)
                     app.logger.info(f"Cleared persisted file metadata for profile {pid} from Firestore due to manual ticker entry.")
             else:
-                 flash(f"Manual ticker entry selected for '{profile_data_from_db.get('profile_name', pid)}' but no tickers provided. Will attempt to use existing ticker source if available or default.", "warning")
+                 session['notification_message'] = f"Manual ticker entry selected for '{profile_data_from_db.get('profile_name', pid)}' but no tickers provided. Will attempt to use existing ticker source if available or default."
+                 session['notification_type'] = "warning"
                  if profile_data_from_db.get('ticker_file_storage_path'):
                      automation_input_source_map[pid] = {
                         "source_type": "persisted_file",
@@ -4193,9 +4308,11 @@ def run_automation_now(): # Modified
                         "storage_path": uploaded_storage_path,
                         "original_filename": file_obj.filename
                     }
-                    flash(f"File '{file_obj.filename}' uploaded and saved for profile '{profile_data_from_db.get('profile_name', pid)}'. {ticker_meta.get('count', 0)} tickers found.", "success")
+                    session['notification_message'] = f"File '{file_obj.filename}' uploaded and saved for profile '{profile_data_from_db.get('profile_name', pid)}'. {ticker_meta.get('count', 0)} tickers found."
+                    session['notification_type'] = "success"
                 else:
-                    flash(f"Error uploading new file for '{profile_data_from_db.get('profile_name', pid)}'. Check logs. Will use previous file if any, or Excel/State.", "danger")
+                    session['notification_message'] = f"Error uploading new file for '{profile_data_from_db.get('profile_name', pid)}'. Check logs. Will use previous file if any, or Excel/State."
+                    session['notification_type'] = "danger"
                     app.logger.error(f"Upload failed for profile {pid}, file '{file_obj.filename}'. Fallback logic will apply.")
                     if profile_data_from_db.get('ticker_file_storage_path'):
                          automation_input_source_map[pid] = {
@@ -4209,7 +4326,8 @@ def run_automation_now(): # Modified
                          app.logger.info(f"No new or persisted file for profile {pid} after upload failure. Defaulting to Excel/State.")
 
             elif file_obj and file_obj.filename:
-                flash(f"File type of '{file_obj.filename}' not allowed for profile '{profile_data_from_db.get('profile_name', pid)}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}. Using existing file or Excel/State.", "warning")
+                session['notification_message'] = f"File type of '{file_obj.filename}' not allowed for profile '{profile_data_from_db.get('profile_name', pid)}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}. Using existing file or Excel/State."
+                session['notification_type'] = "warning"
                 app.logger.warning(f"File type not allowed for '{file_obj.filename}' (profile {pid}). Using fallback.")
                 if profile_data_from_db.get('ticker_file_storage_path'):
                     automation_input_source_map[pid] = {
@@ -4289,12 +4407,15 @@ def run_automation_now(): # Modified
                 flash_message = f"Profile '{pname}': {summary}"
                 if errors_list:
                     flash_message += f" Details: {'; '.join(errors_list[:2])}{'...' if len(errors_list) > 2 else ''}"
-                flash(flash_message, log_category)
+                session['notification_message'] = flash_message
+                session['notification_type'] = log_category
         else:
-            flash("Automation run initiated. No immediate summary returned (might be fully asynchronous). Check logs for updates.", "info")
+            session['notification_message'] = "Automation run initiated. No immediate summary returned (might be fully asynchronous). Check logs for updates."
+            session['notification_type'] = "info"
     except Exception as e_auto_run:
         app.logger.error(f"Error triggering automation run for user {user_uid}: {e_auto_run}", exc_info=True)
-        flash("An unexpected error occurred while starting the automation run. Please check system logs or contact support.", "danger")
+        session['notification_message'] = "An unexpected error occurred while starting the automation run. Please check system logs or contact support."
+        session['notification_type'] = "danger"
         socketio.emit('automation_status', {'message': f'Failed to start automation: {str(e_auto_run)[:100]}...', 'status': 'error'}, room=user_uid)
 
     return redirect(url_for('automation_runner_page'))
@@ -4368,7 +4489,6 @@ def refresh_earnings_calendar():
         
         if calendar_data:
             message = f"Earnings calendar refreshed successfully! Found earnings data for {len(calendar_data.get('calendar', {}))} days."
-            flash(message, "success")
             app.logger.info(f"Earnings calendar refreshed successfully by user {user_uid}")
             
             # Return JSON for AJAX requests
@@ -4380,7 +4500,6 @@ def refresh_earnings_calendar():
                 })
         else:
             message = "Failed to refresh earnings calendar. No data received from API."
-            flash(message, "warning")
             app.logger.warning(f"Earnings calendar refresh returned no data for user {user_uid}")
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -4397,7 +4516,6 @@ def refresh_earnings_calendar():
             message = f"Error refreshing earnings calendar: {error_msg[:100]}"
             
         app.logger.error(f"Error refreshing earnings calendar for user {user_uid}: {e}", exc_info=True)
-        flash(message, "danger")
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({
@@ -4419,7 +4537,8 @@ def run_earnings_automation():
 
     if not AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY:
         app.logger.error(f"AUTO_PUBLISHER not imported successfully for user {user_uid}")
-        flash("Automation service is currently unavailable. Please try again later.", "danger")
+        session['notification_message'] = "Automation service is currently unavailable. Please try again later."
+        session['notification_type'] = "danger"
         return redirect(url_for('automation.earnings_automation.run'))
 
     # Get selected profile IDs
@@ -4427,14 +4546,16 @@ def run_earnings_automation():
     app.logger.info(f"Profile IDs from form: {profile_ids_to_run}")
     
     if not profile_ids_to_run:
-        flash("No profiles selected to run earnings automation.", "info")
+        session['notification_message'] = "No profiles selected to run earnings automation."
+        session['notification_type'] = "info"
         return redirect(url_for('automation.earnings_automation.run'))
 
     # Get ticker(s) from form - can be comma-separated for multiple tickers
     ticker_input = request.form.get('ticker', '').strip().upper()
     app.logger.info(f"Ticker input from form: '{ticker_input}'")
     if not ticker_input:
-        flash("Please select at least one ticker symbol.", "danger")
+        session['notification_message'] = "Please select at least one ticker symbol."
+        session['notification_type'] = "danger"
         return redirect(url_for('automation.earnings_automation.run'))
     
     # Parse multiple tickers (comma-separated)
@@ -4443,11 +4564,13 @@ def run_earnings_automation():
     # Validate each ticker
     invalid_tickers = [t for t in tickers if len(t) < 1 or len(t) > 5 or not t.isalpha()]
     if invalid_tickers:
-        flash(f"Invalid ticker symbol(s): {', '.join(invalid_tickers)}. Each ticker must be 1-5 letters.", "danger")
+        session['notification_message'] = f"Invalid ticker symbol(s): {', '.join(invalid_tickers)}. Each ticker must be 1-5 letters."
+        session['notification_type'] = "danger"
         return redirect(url_for('automation.earnings_automation.run'))
     
     if len(tickers) == 0:
-        flash("Please select at least one valid ticker symbol.", "danger")
+        session['notification_message'] = "Please select at least one valid ticker symbol."
+        session['notification_type'] = "danger"
         return redirect(url_for('automation.earnings_automation.run'))
 
     # Get all user profiles and filter selected ones
@@ -4462,7 +4585,8 @@ def run_earnings_automation():
     for profile_id_from_form in profile_ids_to_run:
         profile_data_from_db = profiles_db_map.get(profile_id_from_form)
         if not profile_data_from_db:
-            flash(f"Profile ID {profile_id_from_form} not found for user. Skipping.", "warning")
+            session['notification_message'] = f"Profile ID {profile_id_from_form} not found for user. Skipping."
+            session['notification_type'] = "warning"
             continue
         selected_profiles_data_for_run.append(profile_data_from_db)
 
@@ -4471,7 +4595,8 @@ def run_earnings_automation():
             articles_map[pid] = max(0, int(request.form.get(f'posts_for_profile_{pid}', 1)))
         except ValueError:
             articles_map[pid] = 1
-            flash(f"Invalid number of posts for '{profile_data_from_db.get('profile_name', pid)}', defaulting to 1.", "warning")
+            session['notification_message'] = f"Invalid number of posts for '{profile_data_from_db.get('profile_name', pid)}', defaulting to 1."
+            session['notification_type'] = "warning"
         
         # Get category ID
         category_id = request.form.get(f'category_id_{pid}', '').strip()
@@ -4892,9 +5017,11 @@ def run_earnings_automation():
 
         # Flash summary message
         if total_published > 0:
-            flash(f"Successfully published {total_published} earnings article(s) for {len(tickers)} ticker(s)", "success")
+            session['notification_message'] = f"Successfully published {total_published} earnings article(s) for {len(tickers)} ticker(s)"
+            session['notification_type'] = "success"
         if failed_tickers:
-            flash(f"Failed to process: {', '.join(failed_tickers)}", "warning")
+            session['notification_message'] = f"Failed to process: {', '.join(failed_tickers)}"
+            session['notification_type'] = "warning"
 
     except Exception as e:
         error_msg = str(e)
@@ -4906,7 +5033,8 @@ def run_earnings_automation():
                 'message': f'Error: {error_msg}',
                 'level': 'error'
             }, room=user_uid)
-        flash(f"Earnings automation error: {error_msg}", "danger")
+        session['notification_message'] = f"Earnings automation error: {error_msg}"
+        session['notification_type'] = "danger"
 
     return redirect(url_for('automation.earnings_automation.run'))
 
@@ -5217,7 +5345,8 @@ def run_sports_automation():
     app.logger.info(f"Profile IDs from form: {profile_ids_to_run}")
     
     if not profile_ids_to_run:
-        flash("No profiles selected to run sports automation.", "info")
+        session['notification_message'] = "No profiles selected to run sports automation."
+        session['notification_type'] = "info"
         return redirect(url_for('automation.sports_automation.run'))
 
     # Get selected articles from form
@@ -5233,7 +5362,8 @@ def run_sports_automation():
     
     if not selected_articles:
         app.logger.warning(f"No articles selected - received: {selected_articles_json}")
-        flash("Please select at least one article to publish.", "warning")
+        session['notification_message'] = "Please select at least one article to publish."
+        session['notification_type'] = "warning"
         return redirect(url_for('automation.sports_automation.run'))
 
     # Get profile data from Firestore
@@ -5257,7 +5387,8 @@ def run_sports_automation():
     
     if not selected_profiles_data_for_run:
         app.logger.error("Failed to load any profile data - redirecting")
-        flash("Failed to load profile data.", "danger")
+        session['notification_message'] = "Failed to load profile data."
+        session['notification_type'] = "danger"
         return redirect(url_for('automation.sports_automation.run'))
 
     app.logger.info(f"Sports automation starting for {len(selected_articles)} article(s) across {len(selected_profiles_data_for_run)} profiles by user {user_uid}")
@@ -5839,7 +5970,8 @@ def run_sports_automation():
         # if total_published > 0:
         #     flash(f"Successfully published {total_published} sports article(s)", "success")
         if failed_articles:
-            flash(f"Failed to process: {', '.join(failed_articles[:3])}", "warning")
+            session['notification_message'] = f"Failed to process: {', '.join(failed_articles[:3])}"
+            session['notification_type'] = "warning"
 
         # Save final state to Firestore
         app.logger.info(f"[SPORTS_WRITER_ROTATION] Final state save - last_author_index_by_profile: {state.get('last_author_index_by_profile', {})}")
@@ -5854,7 +5986,8 @@ def run_sports_automation():
                 'message': f'Error: {error_msg}',
                 'level': 'error'
             }, room=user_uid)
-        flash(f"Sports automation error: {error_msg}", "danger")
+        session['notification_message'] = f"Sports automation error: {error_msg}"
+        session['notification_type'] = "danger"
 
     return redirect(url_for('automation.sports_automation.run'))
 
@@ -5882,18 +6015,23 @@ def refresh_sports_articles():
                 if db:
                     result = sports_loader.sync_articles_to_firebase(db, user_uid)
                     if result.get('success'):
-                        flash(f"Refreshed and synced {result.get('synced_count', 0)} sports articles to Firebase", "success")
+                        session['notification_message'] = f"Refreshed and synced {result.get('synced_count', 0)} sports articles to Firebase"
+                        session['notification_type'] = "success"
                     else:
-                        flash(f"Refreshed {len(articles)} articles (Firebase sync failed)", "warning")
+                        session['notification_message'] = f"Refreshed {len(articles)} articles (Firebase sync failed)"
+                        session['notification_type'] = "warning"
             except Exception as e:
                 app.logger.warning(f"Could not sync to Firebase: {e}")
-                flash(f"Refreshed {len(articles)} articles (Firebase sync failed)", "warning")
+                session['notification_message'] = f"Refreshed {len(articles)} articles (Firebase sync failed)"
+                session['notification_type'] = "warning"
         else:
-            flash(f"Refreshed {len(articles)} sports articles from file system", "success")
+            session['notification_message'] = f"Refreshed {len(articles)} sports articles from file system"
+            session['notification_type'] = "success"
     
     except Exception as e:
         app.logger.error(f"Error refreshing sports articles: {e}")
-        flash(f"Error refreshing articles: {str(e)}", "danger")
+        session['notification_message'] = f"Error refreshing articles: {str(e)}"
+        session['notification_type'] = "danger"
     
     return redirect(url_for('automation.sports_automation.run'))
 
@@ -7340,7 +7478,8 @@ def view_activity_log():
 
         except Exception as e:
             app.logger.error(f"Error fetching activity log: {str(e)}")
-            flash("Error loading activity log. Please try again later.", "error")
+            session['notification_message'] = "Error loading activity log. Please try again later."
+            session['notification_type'] = "error"
 
     return render_template('activity_log.html',
                          title="Activity Log - Tickzen",

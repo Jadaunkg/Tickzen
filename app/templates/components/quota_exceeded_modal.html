@@ -1,0 +1,362 @@
+<!-- Quota Exceeded Modal -->
+<div id="quota-exceeded-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="quotaExceededModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quotaExceededModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Quota Limit Reached
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="quota-exceeded-message mb-4">
+                    <p class="lead text-center">
+                        You've used all <strong><span id="modal-quota-limit">10</span></strong> 
+                        stock analysis reports for this month.
+                    </p>
+                </div>
+                
+                <div class="quota-exceeded-info card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <strong>Current Plan:</strong>
+                                <span id="modal-current-plan" class="badge bg-secondary ms-2">Free</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Quota Resets:</strong>
+                                <span id="modal-reset-date" class="ms-2">Feb 1, 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h5 class="text-center mb-4">🚀 Upgrade for More Reports</h5>
+                
+                <div class="row upgrade-plans-container">
+                    <!-- Pro Plan -->
+                    <div class="col-md-4 mb-3">
+                        <div class="card plan-card h-100" data-plan="pro">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Pro Plan</h5>
+                                <div class="plan-price mb-3">
+                                    <span class="h2">$29</span>
+                                    <span class="text-muted">/month</span>
+                                </div>
+                                <div class="plan-quota mb-3">
+                                    <strong>45 reports/month</strong>
+                                </div>
+                                <ul class="list-unstyled text-start small mb-3">
+                                    <li><i class="fas fa-check text-success me-2"></i>45 stock analysis reports</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Priority support</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Advanced analytics</li>
+                                </ul>
+                                <button class="btn btn-outline-primary w-100 upgrade-btn" onclick="upgradeToPlan('pro')">
+                                    Choose Pro
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pro+ Plan (Featured) -->
+                    <div class="col-md-4 mb-3">
+                        <div class="card plan-card featured h-100 border-primary" data-plan="pro_plus">
+                            <div class="card-header bg-primary text-white text-center">
+                                <small><i class="fas fa-star me-1"></i>Most Popular</small>
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-primary">Pro+ Plan</h5>
+                                <div class="plan-price mb-3">
+                                    <span class="h2">$79</span>
+                                    <span class="text-muted">/month</span>
+                                </div>
+                                <div class="plan-quota mb-3">
+                                    <strong>100 reports/month</strong>
+                                </div>
+                                <ul class="list-unstyled text-start small mb-3">
+                                    <li><i class="fas fa-check text-success me-2"></i>100 stock analysis reports</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Premium support</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>All Pro features</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Custom alerts</li>
+                                </ul>
+                                <button class="btn btn-primary w-100 upgrade-btn" onclick="upgradeToPlan('pro_plus')">
+                                    Choose Pro+
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Enterprise Plan -->
+                    <div class="col-md-4 mb-3">
+                        <div class="card plan-card h-100" data-plan="enterprise">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Enterprise</h5>
+                                <div class="plan-price mb-3">
+                                    <span class="h2">$299</span>
+                                    <span class="text-muted">/month</span>
+                                </div>
+                                <div class="plan-quota mb-3">
+                                    <strong>Unlimited reports</strong>
+                                </div>
+                                <ul class="list-unstyled text-start small mb-3">
+                                    <li><i class="fas fa-check text-success me-2"></i>Unlimited stock reports</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Dedicated support</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>API access</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Team features</li>
+                                </ul>
+                                <button class="btn btn-outline-dark w-100 upgrade-btn" onclick="upgradeToPlan('enterprise')">
+                                    Go Enterprise
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Maybe Later
+                </button>
+                <a href="/pricing" class="btn btn-primary">
+                    View All Plans
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Ensure modal appears above everything */
+#quota-exceeded-modal {
+    z-index: 9999 !important;
+}
+
+#quota-exceeded-modal .modal-backdrop {
+    z-index: 9998 !important;
+}
+
+#quota-exceeded-modal .modal-dialog {
+    z-index: 10000 !important;
+}
+
+#quota-exceeded-modal .modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+#quota-exceeded-modal .modal-header {
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+    color: white;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    padding: 20px 24px;
+}
+
+#quota-exceeded-modal .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+}
+
+#quota-exceeded-modal .modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+#quota-exceeded-modal .modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+#quota-exceeded-modal .plan-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+#quota-exceeded-modal .plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+#quota-exceeded-modal .plan-card.featured {
+    border-width: 2px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+}
+
+#quota-exceeded-modal .plan-price {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+#quota-exceeded-modal .plan-quota {
+    font-size: 1.1rem;
+    color: #3498db;
+    font-weight: 600;
+}
+
+#quota-exceeded-modal .upgrade-btn {
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+#quota-exceeded-modal .upgrade-btn:hover {
+    transform: scale(1.05);
+}
+
+#quota-exceeded-modal .quota-exceeded-info {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: none;
+    border-radius: 12px;
+}
+
+#quota-exceeded-modal .list-unstyled li {
+    padding: 4px 0;
+    font-size: 0.9rem;
+}
+
+#quota-exceeded-modal .quota-exceeded-message {
+    padding: 12px;
+    background: #fff3cd;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+}
+</style>
+</style>
+
+<script>
+// Show quota exceeded modal - ONLY when quota is actually exceeded
+function showQuotaExceededModal(quotaInfo) {
+    // Validate that quota is actually exceeded before showing
+    if (!quotaInfo) {
+        console.warn('No quota info provided to modal');
+        return;
+    }
+    
+    // Check if quota is actually exceeded
+    const isExceeded = quotaInfo.exceeded === true || 
+                       (quotaInfo.used >= quotaInfo.limit && quotaInfo.limit > 0 && !quotaInfo.unlimited);
+    
+    if (!isExceeded) {
+        console.log('Quota not exceeded, skipping modal display');
+        return;
+    }
+    
+    console.log('Showing quota exceeded modal:', quotaInfo);
+    
+    // Update modal content
+    const limitEl = document.getElementById('modal-quota-limit');
+    if (limitEl) limitEl.textContent = quotaInfo.limit || 10;
+    
+    const planEl = document.getElementById('modal-current-plan');
+    if (planEl) {
+        planEl.textContent = formatPlanName(quotaInfo.plan_type || 'free');
+        planEl.className = `badge bg-secondary ms-2 ${quotaInfo.plan_type}`;
+    }
+    
+    const resetEl = document.getElementById('modal-reset-date');
+    if (resetEl && quotaInfo.period_end) {
+        const resetDate = new Date(quotaInfo.period_end);
+        resetEl.textContent = resetDate.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    }
+    
+    // Show modal with proper z-index
+    const modalElement = document.getElementById('quota-exceeded-modal');
+    const modal = new bootstrap.Modal(modalElement, {
+        backdrop: 'static',
+        keyboard: false
+    });
+    
+    // Ensure modal appears on top
+    modalElement.style.zIndex = '9999';
+    
+    // Show the modal
+    modal.show();
+    
+    // Ensure backdrop has correct z-index
+    setTimeout(() => {
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.style.zIndex = '9998';
+        }
+    }, 100);
+    
+    // Track analytics
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'quota_exceeded_modal_shown', {
+            'event_category': 'quota',
+            'event_label': quotaInfo.plan_type || 'unknown',
+            'value': quotaInfo.used
+        });
+    }
+}
+
+// Close modal
+function closeQuotaModal() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('quota-exceeded-modal'));
+    if (modal) {
+        modal.hide();
+    }
+}
+
+// Upgrade to plan
+function upgradeToPlan(planId) {
+    console.log('Upgrading to plan:', planId);
+    
+    // Track analytics
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'upgrade_plan_clicked', {
+            'event_category': 'conversion',
+            'event_label': planId
+        });
+    }
+    
+    // Close modal first
+    closeQuotaModal();
+    
+    // Redirect to pricing page with plan pre-selected
+    setTimeout(() => {
+        window.location.href = `/pricing?plan=${planId}`;
+    }, 300);
+}
+
+// Format plan name helper
+function formatPlanName(planType) {
+    const names = {
+        'free': 'Free',
+        'pro': 'Pro',
+        'pro_plus': 'Pro+',
+        'enterprise': 'Enterprise'
+    };
+    return names[planType] || planType.toUpperCase();
+}
+
+// Listen for quota exceeded events from Socket.IO
+if (typeof socket !== 'undefined') {
+    socket.on('quota_exceeded', function(data) {
+        console.log('Quota exceeded event received via Socket.IO:', data);
+        if (data && data.quota_info) {
+            showQuotaExceededModal(data.quota_info);
+        }
+    });
+}
+
+// Prevent modal from auto-showing on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Hide modal by default
+    const modalElement = document.getElementById('quota-exceeded-modal');
+    if (modalElement) {
+        modalElement.classList.remove('show');
+        modalElement.style.display = 'none';
+        modalElement.setAttribute('aria-hidden', 'true');
+    }
+});
+</script>
+</script>

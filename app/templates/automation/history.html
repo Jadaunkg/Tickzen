@@ -610,10 +610,12 @@
                 <i class="fas fa-history"></i>
                 {% if filter_article_type == 'sports' %}Sports Publishing History
                 {% elif filter_article_type == 'earnings' %}Earnings Publishing History
+                {% elif filter_article_type == 'stock' %}Stock Analysis Publishing History
                 {% else %}Publishing History{% endif %}
             </h1>
             <p>{% if filter_article_type == 'sports' %}View all published sports articles with complete metadata
                 {% elif filter_article_type == 'earnings' %}View all published earnings reports with complete metadata
+                {% elif filter_article_type == 'stock' %}View all published stock analysis reports with complete metadata
                 {% else %}View all published articles, scheduled posts, and drafts with complete metadata{% endif %}</p>
         </div>
 
@@ -751,21 +753,10 @@
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function () {
+        console.log('History page loaded. Filter type from URL:', '{{ filter_article_type }}');
+        console.log('Filter type is set:', {{ 'true' if filter_article_type else 'false' }});
         loadPublishingHistory();
-
-        // Auto-filter to specific article type if this is a filtered history page
-        {% if filter_article_type %}
-        const categoryFilter = document.getElementById('categoryFilter');
-        if (categoryFilter && ('{{ filter_article_type }}' === 'sports' || '{{ filter_article_type }}' === 'earnings')) {
-            categoryFilter.value = '{{ filter_article_type }}';
-            // Apply filter after articles are loaded (handled in loadPublishingHistory callback)
-            setTimeout(() => {
-                if (allArticles.length > 0) {
-                    applyFilters();
-                }
-            }, 500);
-        }
-        {% endif %}
+        // Auto-filtering is handled in loadPublishingHistory success callback
     });
 
     function loadPublishingHistory() {
@@ -789,20 +780,24 @@
                     // Auto-filter if filter_article_type is set
                     {% if filter_article_type %}
                     const categoryFilter = document.getElementById('categoryFilter');
-                    if (categoryFilter && ('{{ filter_article_type }}' === 'sports' || '{{ filter_article_type }}' === 'earnings')) {
+                    console.log('Auto-filtering for type: {{ filter_article_type }}');
+                    console.log('Category filter element found:', categoryFilter);
+                    if (categoryFilter && ('{{ filter_article_type }}' === 'sports' || '{{ filter_article_type }}' === 'earnings' || '{{ filter_article_type }}' === 'stock')) {
                         categoryFilter.value = '{{ filter_article_type }}';
-                        applyFilters();
+                        console.log('Filter value set to:', categoryFilter.value);
+                        console.log('Total articles before filtering:', allArticles.length);
+                        applyFilters(); // This will call updateStats() and renderTable() internally
+                        console.log('Filtered articles after filtering:', filteredArticles.length);
                     } else {
-                        // Update stats
+                        console.log('No valid filter type or element not found');
+                        // Update stats and render if no valid filter type
                         updateStats();
-                        // Render initial data
                         currentPage = 1;
                         renderTable();
                     }
                     {% else %}
-                    // Update stats
+                    // Update stats and render for unfiltered view
                     updateStats();
-                    // Render initial data
                     currentPage = 1;
                     renderTable();
                     {% endif %}
@@ -835,6 +830,9 @@
         const categoryFilter = document.getElementById('categoryFilter').value;
         const statusFilter = document.getElementById('statusFilter').value;
 
+        console.log('Applying filters - Category:', categoryFilter, 'Status:', statusFilter, 'Search:', searchTerm);
+        console.log('Total articles before filtering:', allArticles.length);
+
         filteredArticles = allArticles.filter(article => {
             const matchSearch = article.title.toLowerCase().includes(searchTerm) ||
                 article.author.toLowerCase().includes(searchTerm) ||
@@ -846,9 +844,11 @@
                 // If filter is a known article type (stock, earnings, sports)
                 if (['stock', 'earnings', 'sports'].includes(categoryFilter)) {
                     matchCategory = article.article_type === categoryFilter;
+                    console.log(`Article "${article.title}" has type "${article.article_type}", filter is "${categoryFilter}", match: ${matchCategory}`);
                 } else {
                     // Otherwise match category (for sports subcategories like Football, Cricket, etc)
                     matchCategory = article.category === categoryFilter;
+                    console.log(`Article "${article.title}" has category "${article.category}", filter is "${categoryFilter}", match: ${matchCategory}`);
                 }
             }
 
@@ -856,6 +856,8 @@
 
             return matchSearch && matchCategory && matchStatus;
         });
+
+        console.log('Filtered articles count:', filteredArticles.length);
 
         currentPage = 1;
         updateStats(); // Update stats based on filtered articles

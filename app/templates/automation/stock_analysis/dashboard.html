@@ -418,34 +418,35 @@
             <p>Monitor stock analysis automation, recent reports, and publishing statistics</p>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-box">
+        <!-- Stats Grid with Skeleton Loading -->
+        <div class="stats-grid" id="statsGrid">
+            <!-- Skeleton Loading -->
+            <div class="stat-box skeleton-loading">
                 <div class="stat-icon">
                     <i data-lucide="file-check"></i>
                 </div>
-                <div class="stat-value">{{ stock_published|default(0) }}</div>
+                <div class="stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
                 <div class="stat-label">Reports Published</div>
             </div>
-            <div class="stat-box">
+            <div class="stat-box skeleton-loading">
                 <div class="stat-icon">
                     <i data-lucide="bar-chart-3"></i>
                 </div>
-                <div class="stat-value">{{ total_tickers|default(0) }}</div>
+                <div class="stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
                 <div class="stat-label">Tickers Analyzed</div>
             </div>
-            <div class="stat-box">
+            <div class="stat-box skeleton-loading">
                 <div class="stat-icon">
                     <i data-lucide="check-circle"></i>
                 </div>
-                <div class="stat-value">{{ success_rate|default('0%') }}</div>
+                <div class="stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
                 <div class="stat-label">Success Rate</div>
             </div>
-            <div class="stat-box">
+            <div class="stat-box skeleton-loading">
                 <div class="stat-icon">
                     <i data-lucide="globe"></i>
                 </div>
-                <div class="stat-value">{{ connected_sites|default(0) }}</div>
+                <div class="stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
                 <div class="stat-label">Connected Sites</div>
             </div>
         </div>
@@ -517,7 +518,7 @@
                             <i data-lucide="settings"></i>
                             Manage Site Profiles
                         </a>
-                        <a href="{{ url_for('automation.history') }}" class="quick-action-link">
+                        <a href="{{ url_for('automation.history', type='stock') }}" class="quick-action-link">
                             <i data-lucide="history"></i>
                             View Publishing History
                         </a>
@@ -534,28 +535,24 @@
         <div class="content-card" style="margin-top: 1.5rem;">
             <div class="content-card-header">
                 <h3><i data-lucide="file-text"></i> Recent Reports</h3>
-                <a href="{{ url_for('automation.history') }}"
+                <a href="{{ url_for('automation.history', type='stock') }}"
                     style="font-size: 0.813rem; color: var(--green-600); text-decoration: none;">View All →</a>
             </div>
             <div class="content-card-body">
-                {% if recent_reports and recent_reports|length > 0 %}
-                {% for report in recent_reports[:5] %}
-                <div class="report-item">
-                    <div class="report-ticker">{{ report.ticker[:4]|default('N/A') }}</div>
-                    <div class="report-info">
-                        <div class="report-title">{{ report.title|default('Stock Analysis Report') }}</div>
-                        <div class="report-meta">{{ report.site|default('Site') }} • {{ report.date|default('Recently')
-                            }}</div>
+                <div id="recentReportsContent">
+                    <!-- Skeleton loading -->
+                    <div class="report-list">
+                        {% for i in range(3) %}
+                        <div class="report-item" style="opacity: 0.6;">
+                            <div class="report-meta">
+                                <div style="height: 16px; width: 70%; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 6px;"></div>
+                                <div style="height: 12px; width: 40%; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
+                            </div>
+                            <div style="height: 20px; width: 70px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px;"></div>
+                        </div>
+                        {% endfor %}
                     </div>
-                    <span class="report-status">{{ report.status|default('Published')|title }}</span>
                 </div>
-                {% endfor %}
-                {% else %}
-                <div class="empty-state">
-                    <i data-lucide="file-plus"></i>
-                    <p>No reports generated yet.<br>Run automation to generate stock analysis reports.</p>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -567,11 +564,85 @@
 </div>
 
 <script>
-    // Initialize Lucide icons
+    // Initialize Lucide icons and fetch dashboard data
     document.addEventListener('DOMContentLoaded', function () {
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
+        
+        // Fetch dashboard stats via AJAX
+        fetch("{{ url_for('automation.stock_automation.api_dashboard_stats') }}")
+            .then(response => response.json())
+            .then(data => {
+                // Update stats with real data
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <i data-lucide="file-check"></i>
+                        </div>
+                        <div class="stat-value">${data.stock_reports_published || 0}</div>
+                        <div class="stat-label">Reports Published</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <i data-lucide="bar-chart-3"></i>
+                        </div>
+                        <div class="stat-value">${data.total_tickers_analyzed || 0}</div>
+                        <div class="stat-label">Tickers Analyzed</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <i data-lucide="check-circle"></i>
+                        </div>
+                        <div class="stat-value">${data.success_rate || '0%'}</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <i data-lucide="globe"></i>
+                        </div>
+                        <div class="stat-value">${data.connected_sites || 0}</div>
+                        <div class="stat-label">Connected Sites</div>
+                    </div>
+                `;
+                
+                // Update recent reports section
+                const recentReportsContent = document.getElementById('recentReportsContent');
+                if (data.recent_reports && data.recent_reports.length > 0) {
+                    const reportsHtml = data.recent_reports.slice(0, 5).map(report => {
+                        const statusClass = report.status || 'draft';
+                        return `
+                            <div class="report-item">
+                                <div class="report-ticker">${(report.ticker || 'N/A').substring(0, 4)}</div>
+                                <div class="report-info">
+                                    <div class="report-title">${report.title || 'Stock Analysis Report'}</div>
+                                    <div class="report-meta">${report.site || 'Site'} • ${report.published_at ? new Date(report.published_at).toLocaleDateString() : 'Recently'}</div>
+                                </div>
+                                <span class="report-status">${(report.status || 'Draft').charAt(0).toUpperCase() + (report.status || 'Draft').slice(1)}</span>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    recentReportsContent.innerHTML = `<div class="report-list">${reportsHtml}</div>`;
+                } else {
+                    recentReportsContent.innerHTML = `
+                        <div class="empty-state">
+                            <i data-lucide="file-plus"></i>
+                            <p>No reports generated yet.<br>Run automation to generate stock analysis reports.</p>
+                        </div>
+                    `;
+                }
+                
+                // Re-initialize Lucide icons for new content
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching dashboard stats:', error);
+                // Keep skeleton on error - user can refresh
+            });
     });
 </script>
 {% endblock %}

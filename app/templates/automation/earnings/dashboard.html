@@ -312,7 +312,70 @@
         width: 20px;
         text-align: center;
     }
+    /* Quick Actions Styles */
+    .action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
 
+    .action-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: hsl(var(--muted)/0.3);
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+    }
+
+    .action-item:hover {
+        background: hsl(var(--muted)/0.5);
+    }
+
+    .action-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--purple-100);
+        color: var(--purple-600);
+        font-size: 0.875rem;
+    }
+
+    .action-info {
+        flex: 1;
+    }
+
+    .action-title {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: hsl(var(--foreground));
+        margin-bottom: 0.125rem;
+    }
+
+    .action-subtitle {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .action-button {
+        padding: 0.375rem 0.75rem;
+        background: var(--purple-600);
+        color: white;
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: background-color 0.2s ease;
+    }
+
+    .action-button:hover {
+        background: var(--purple-700);
+        color: white;
+    }
     /* Empty State */
     .empty-state {
         text-align: center;
@@ -373,34 +436,35 @@
             <p>Monitor earnings reports automation, upcoming earnings, and publishing statistics</p>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-box">
+        <!-- Stats Grid with Skeleton Loading -->
+        <div class="stats-grid" id="statsGrid">
+            <!-- Skeleton Loading -->
+            <div class="stat-box skeleton-loading">
                 <div class="stat-icon">
                     <i class="fas fa-file-alt"></i>
                 </div>
-                <div class="stat-value">{{ earnings_published|default(0) }}</div>
+                <div class="stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
                 <div class="stat-label">Reports Published</div>
             </div>
-            <div class="stat-box">
+            <div class="stat-box skeleton-loading">
                 <div class="stat-icon">
                     <i class="fas fa-calendar-week"></i>
                 </div>
-                <div class="stat-value">{{ upcoming_count|default(0) }}</div>
+                <div class="stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
                 <div class="stat-label">Upcoming This Week</div>
             </div>
-            <div class="stat-box">
+            <div class="stat-box skeleton-loading">
                 <div class="stat-icon">
                     <i class="fas fa-check-circle"></i>
                 </div>
-                <div class="stat-value">{{ success_rate|default('0%') }}</div>
+                <div class="stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
                 <div class="stat-label">Success Rate</div>
             </div>
-            <div class="stat-box">
+            <div class="stat-box skeleton-loading">
                 <div class="stat-icon">
                     <i class="fas fa-globe"></i>
                 </div>
-                <div class="stat-value">{{ connected_sites|default(0) }}</div>
+                <div class="stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
                 <div class="stat-label">Connected Sites</div>
             </div>
         </div>
@@ -416,25 +480,23 @@
                         →</a>
                 </div>
                 <div class="content-card-body">
-                    {% if upcoming_earnings and upcoming_earnings|length > 0 %}
-                    {% for item in upcoming_earnings[:5] %}
-                    <div class="calendar-item">
-                        <div class="calendar-date">
-                            <span class="day">{{ item.day[:3]|default('--') }}</span>
+                    <div id="upcomingEarningsContent">
+                        <!-- Skeleton loading -->
+                        <div class="calendar-list">
+                            {% for i in range(3) %}
+                            <div class="calendar-item" style="opacity: 0.6;">
+                                <div class="calendar-date">
+                                    <span style="width: 30px; height: 16px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; display: block;"></span>
+                                </div>
+                                <div class="calendar-info" style="flex: 1;">
+                                    <div style="height: 16px; width: 60%; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 6px;"></div>
+                                    <div style="height: 12px; width: 80%; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px;"></div>
+                                </div>
+                                <div style="height: 20px; width: 50px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px;"></div>
+                            </div>
+                            {% endfor %}
                         </div>
-                        <div class="calendar-info">
-                            <div class="calendar-ticker">{{ item.ticker|default('N/A') }}</div>
-                            <div class="calendar-company">{{ item.company|default('Company Name') }}</div>
-                        </div>
-                        <span class="calendar-time">{{ item.time|default('TBD') }}</span>
                     </div>
-                    {% endfor %}
-                    {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-calendar-times"></i>
-                        <p>No upcoming earnings scheduled.<br>Refresh the calendar to load data.</p>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
 
@@ -444,23 +506,50 @@
                     <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
                 </div>
                 <div class="content-card-body">
-                    <div class="quick-action-list">
-                        <a href="{{ url_for('automation.earnings_automation.run') }}" class="quick-action-link">
-                            <i class="fas fa-play-circle"></i>
-                            Run Earnings Automation
-                        </a>
-                        <a href="{{ url_for('automation.earnings_automation.calendar') }}" class="quick-action-link">
-                            <i class="fas fa-sync"></i>
-                            Refresh Calendar
-                        </a>
-                        <a href="{{ url_for('manage_site_profiles') }}" class="quick-action-link">
-                            <i class="fas fa-cog"></i>
-                            Manage Site Profiles
-                        </a>
-                        <a href="{{ url_for('automation.history') }}" class="quick-action-link">
-                            <i class="fas fa-history"></i>
-                            View History
-                        </a>
+                    <div id="quickActionsContent">
+                        <!-- Quick Actions List -->
+                        <div class="action-list">
+                            <div class="action-item">
+                                <div class="action-icon">
+                                    <i class="fas fa-play-circle"></i>
+                                </div>
+                                <div class="action-info">
+                                    <div class="action-title">Run Analysis</div>
+                                    <div class="action-subtitle">Generate earnings reports</div>
+                                </div>
+                                <a href="{{ url_for('automation.earnings_automation.run') }}" class="action-button">Run</a>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="action-info">
+                                    <div class="action-title">View Calendar</div>
+                                    <div class="action-subtitle">Browse schedule</div>
+                                </div>
+                                <a href="{{ url_for('automation.earnings_automation.calendar') }}" class="action-button">View</a>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-icon">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <div class="action-info">
+                                    <div class="action-title">Recent Reports</div>
+                                    <div class="action-subtitle">View all reports</div>
+                                </div>
+                                <a href="{{ url_for('automation.history', type='earnings') }}" class="action-button">View</a>
+                            </div>
+                            <div class="action-item">
+                                <div class="action-icon">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <div class="action-info">
+                                    <div class="action-title">Settings</div>
+                                    <div class="action-subtitle">Configure automation</div>
+                                </div>
+                                <a href="{{ url_for('manage_site_profiles') }}" class="action-button">Config</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -472,4 +561,133 @@
         <i class="fas fa-bars"></i>
     </button>
 </div>
+
+<script>
+    // Initialize and fetch dashboard data
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fetch earnings dashboard stats via AJAX (with cache busting for debugging)
+        const apiUrl = "{{ url_for('automation.earnings_automation.api_dashboard_stats') }}" + "?cache_bust=1";
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                // Debug: Log the received data
+                console.log('Earnings Dashboard Data:', data);
+                console.log('Recent Reports:', data.recent_reports);
+                
+                // Update stats with real data
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-value">${data.earnings_reports_published || 0}</div>
+                        <div class="stat-label">Reports Published</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                        <div class="stat-value">${data.upcoming_count || 0}</div>
+                        <div class="stat-label">Upcoming This Week</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value">${data.success_rate || '0%'}</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="stat-value">${data.connected_sites || 0}</div>
+                        <div class="stat-label">Connected Sites</div>
+                    </div>
+                `;
+                
+                // Update upcoming earnings section
+                const upcomingEarningsContent = document.getElementById('upcomingEarningsContent');
+                if (data.upcoming_earnings && data.upcoming_earnings.length > 0) {
+                    const earningsHtml = data.upcoming_earnings.slice(0, 5).map(item => {
+                        return `
+                            <div class="calendar-item">
+                                <div class="calendar-date">
+                                    <span class="day">${(item.day || '--').substring(0, 3)}</span>
+                                </div>
+                                <div class="calendar-info">
+                                    <div class="calendar-ticker">${item.ticker || 'N/A'}</div>
+                                    <div class="calendar-company">${item.company || 'Company Name'}</div>
+                                </div>
+                                <span class="calendar-time">${item.time || 'TBD'}</span>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    upcomingEarningsContent.innerHTML = `<div class="calendar-list">${earningsHtml}</div>`;
+                } else {
+                    upcomingEarningsContent.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>No upcoming earnings scheduled.<br>Refresh the calendar to load data.</p>
+                        </div>
+                    `;
+                }
+                
+                // Update quick actions section
+                const quickActionsContent = document.getElementById('quickActionsContent');
+                const quickActionsHtml = `
+                    <div class="action-list">
+                        <div class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <div class="action-info">
+                                <div class="action-title">Run Earnings Analysis</div>
+                                <div class="action-subtitle">Generate new earnings reports</div>
+                            </div>
+                            <a href="{{ url_for('automation.earnings_automation.run') }}" class="action-button">Run</a>
+                        </div>
+                        <div class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="action-info">
+                                <div class="action-title">View Calendar</div>
+                                <div class="action-subtitle">Browse earnings schedule</div>
+                            </div>
+                            <a href="{{ url_for('automation.earnings_automation.calendar') }}" class="action-button">View</a>
+                        </div>
+                        <div class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="action-info">
+                                <div class="action-title">Recent Reports</div>
+                                <div class="action-subtitle">View all earnings reports</div>
+                            </div>
+                            <a href="{{ url_for('automation.history', type='earnings') }}" class="action-button">View</a>
+                        </div>
+                        <div class="action-item">
+                            <div class="action-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="action-info">
+                                <div class="action-title">Settings</div>
+                                <div class="action-subtitle">Configure automation</div>
+                            </div>
+                            <a href="#" class="action-button">Config</a>
+                        </div>
+                    </div>
+                `;
+                
+                quickActionsContent.innerHTML = quickActionsHtml;
+            })
+            .catch(error => {
+                console.error('Error fetching earnings dashboard stats:', error);
+                // Keep skeleton on error - user can refresh
+            });
+    });
+</script>
 {% endblock %}

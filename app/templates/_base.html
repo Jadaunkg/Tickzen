@@ -1053,6 +1053,68 @@
             font-weight: 500;
         }
 
+        /* Toast Notification Styles */
+        .toast-notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            z-index: 10000;
+            max-width: 400px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            animation: slideInNotification 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toast-notification.success {
+            background: #16a34a;
+            color: white;
+            border-left: 4px solid #15803d;
+        }
+
+        .toast-notification.error,
+        .toast-notification.danger {
+            background: #ef4444;
+            color: white;
+            border-left: 4px solid #dc2626;
+        }
+
+        .toast-notification.warning {
+            background: #f59e0b;
+            color: white;
+            border-left: 4px solid #d97706;
+        }
+
+        .toast-notification.info {
+            background: #3b82f6;
+            color: white;
+            border-left: 4px solid #2563eb;
+        }
+
+        @keyframes slideInNotification {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .toast-notification {
+                top: 1rem;
+                right: 1rem;
+                left: 1rem;
+                max-width: none;
+            }
+        }
+
     </style>
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -1214,6 +1276,11 @@
                                                 <circle cx="7" cy="9" r="1"/>
                                                 <circle cx="7" cy="13" r="1"/>
                                             </svg>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link {% if request.endpoint == 'admin_quota_management' %}active{% endif %}" href="{{ url_for('admin_quota_management') }}">
+                                            <i class="fas fa-shield-alt"></i> Quota Management
                                         </a>
                                     </li>
                                     {% endif %}
@@ -1424,6 +1491,11 @@
                                         <circle cx="7" cy="9" r="1"/>
                                         <circle cx="7" cy="13" r="1"/>
                                     </svg>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link {% if request.endpoint == 'admin_quota_management' %}active{% endif %}" href="{{ url_for('admin_quota_management') }}">
+                                    <i class="fas fa-shield-alt"></i> Quota Management
                                 </a>
                             </li>
                             {% endif %}
@@ -1955,7 +2027,44 @@
                 checkIfInView(); 
             }
         });
+
+        // Global Toast Notification Function
+        window.showNotification = function(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `toast-notification ${type}`;
+            
+            // Add icon based on type
+            const icon = document.createElement('i');
+            icon.className = 'fas ' + (
+                type === 'success' ? 'fa-check-circle' :
+                type === 'error' || type === 'danger' ? 'fa-exclamation-circle' :
+                type === 'warning' ? 'fa-exclamation-triangle' :
+                'fa-info-circle'
+            );
+            
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = message;
+            
+            notification.appendChild(icon);
+            notification.appendChild(messageSpan);
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideInNotification 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        };
+
+        // Check for notification messages from server on page load
+        {% if session.get('notification_message') %}
+        document.addEventListener('DOMContentLoaded', function() {
+            showNotification('{{ session.pop("notification_message") }}', '{{ session.pop("notification_type", "info") }}');
+        });
+        {% endif %}
     </script>
     {% endblock %}
+    
+    <!-- Quota Exceeded Modal (Global) -->
+    {% include 'components/quota_exceeded_modal.html' %}
 </body>
 </html>

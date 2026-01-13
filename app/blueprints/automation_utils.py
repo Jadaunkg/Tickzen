@@ -93,11 +93,13 @@ def login_required(f):
         
         if not firebase_initialized:
             current_app.logger.error("Login attempt failed: Firebase Admin SDK not initialized.")
-            flash("Authentication service is currently unavailable. Please try again later.", "danger")
+            session['notification_message'] = "Authentication service is currently unavailable. Please try again later."
+            session['notification_type'] = "danger"
             return redirect(url_for('stock_analysis_homepage_route'))
         
         if 'firebase_user_uid' not in session:
-            flash("Please login to access this page.", "warning")
+            session['notification_message'] = "Please login to access this page."
+            session['notification_type'] = "warning"
             return redirect(url_for('login', next=request.full_path))
         
         return f(*args, **kwargs)
@@ -188,20 +190,20 @@ def get_automation_shared_context(user_uid, profiles_list, ticker_status_limit=5
         db = get_firestore_client()
         
         # Calculate publishing stats from userPublishedArticles collection
-        total_published_count = 0
+        total_articles_count = 0  # Changed name to reflect that it includes all statuses
         this_week_count = 0
         pending_count = 0
         recent_activity = []
         
         if db:
             try:
-                # Get all published articles for this user (without order_by to avoid index requirement)
+                # Get ALL articles for this user (removed limit to get accurate count)
+                # This includes published, draft, scheduled, and pending articles
                 articles_query = db.collection('userPublishedArticles')\
-                    .where('user_uid', '==', user_uid)\
-                    .limit(100)
+                    .where('user_uid', '==', user_uid)
                 
                 articles = list(articles_query.stream())
-                total_published_count = len(articles)
+                total_articles_count = len(articles)  # This now includes ALL articles (published + draft + scheduled + pending)
                 
                 # Calculate this week's count
                 now = datetime.now(timezone.utc)
@@ -229,10 +231,10 @@ def get_automation_shared_context(user_uid, profiles_list, ticker_status_limit=5
                 # Sort by published_at descending
                 articles_with_dates.sort(key=lambda x: x[0], reverse=True)
                 
-                # Count this week from all articles and get recent activity (last 10)
+                # Count this week from published articles only and get recent activity (last 10)
                 for published_at, article_data, article_doc in articles_with_dates:
-                    # Check if published this week
-                    if published_at >= week_start:
+                    # Check if published this week (only count published articles for weekly stats)
+                    if published_at >= week_start and article_data.get('status') == 'published':
                         this_week_count += 1
                     
                     # Build recent activity item (only for first 10)
@@ -246,33 +248,27 @@ def get_automation_shared_context(user_uid, profiles_list, ticker_status_limit=5
                             time_display = 'Recently'
                         
                         activity_item = {
-                            'title': article_data.get('title', 'Published article'),
+                            'title': article_data.get('title', 'Article'),
                             'site': article_data.get('site', article_data.get('profile_name', 'Site')),
-                            'status': article_data.get('status', 'published'),
+                            'status': article_data.get('status', 'draft'),
                             'time': time_display,
                             'type': article_data.get('article_type', 'stock')
                         }
                         recent_activity.append(activity_item)
                 
-                # Count pending articles (status is 'pending' or 'scheduled')
-                # Use separate queries to avoid 'in' operator which requires index
-                pending_query1 = db.collection('userPublishedArticles')\
-                    .where('user_uid', '==', user_uid)\
-                    .where('status', '==', 'pending')\
-                    .limit(50)
-                pending_query2 = db.collection('userPublishedArticles')\
-                    .where('user_uid', '==', user_uid)\
-                    .where('status', '==', 'scheduled')\
-                    .limit(50)
-                
-                pending_articles1 = list(pending_query1.stream())
-                pending_articles2 = list(pending_query2.stream())
-                pending_count = len(pending_articles1) + len(pending_articles2)
+                # Count pending + scheduled + draft articles for "Pending/Drafts" stat
+                # Instead of separate queries, count from the articles we already fetched
+                pending_count = 0
+                for published_at, article_data, article_doc in articles_with_dates:
+                    status = article_data.get('status', 'draft')
+                    if status in ['pending', 'scheduled', 'draft']:
+                        pending_count += 1
                 
             except Exception as e:
                 current_app.logger.error(f"Error fetching publishing stats for user {user_uid}: {e}", exc_info=True)
         
-        context['total_published_count'] = total_published_count
+        # Use the new variable name that represents total count (published + draft + scheduled + pending)
+        context['total_published_count'] = total_articles_count  
         context['this_week_count'] = this_week_count
         context['pending_count'] = pending_count
         context['recent_activity'] = recent_activity
@@ -330,7 +326,7 @@ def get_automation_shared_context(user_uid, profiles_list, ticker_status_limit=5
             'absolute_max_posts_cap': 10,
             'persisted_file_info': {}, 
             'persisted_ticker_statuses_map': {},
-            'total_published_count': 0,
+            'total_published_count': 0,  # This represents total articles (all statuses)
             'this_week_count': 0,
             'pending_count': 0,
             'recent_activity': []

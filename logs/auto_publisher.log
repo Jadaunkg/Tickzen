@@ -3254,3 +3254,244 @@ Exception: Pipeline error for GOOGL: 429 You exceeded your current quota, please
 2026-01-12 22:15:30 - AutoPublisherLogger - INFO - [LOOP_DEBUG] End of iteration 1. Status: Scheduled, Published count: 1, Target: 1
 2026-01-12 22:15:32 - AutoPublisherLogger - INFO - Saved state to Firestore for user iROXMDJiuebQl9Jg4vvXohKea0C2
 2026-01-12 22:15:32 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 17:13:51 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 17:25:03 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 17:25:12 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 17:25:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 17:25:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 17:26:01 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 17:26:16 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 19:33:58 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 19:34:50 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 19:35:18 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 19:37:15 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 19:37:51 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 19:37:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 19:38:05 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 19:38:21 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:24:28 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:41:28 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:48:21 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:48:23 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:49:13 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:49:22 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:51:51 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:53:37 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:54:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:59:00 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:59:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:59:36 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 20:59:48 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:00:09 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:04:00 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:05:05 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:12:31 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:16:23 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:18:06 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:18:55 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:27:13 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:27:26 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:27:49 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:28:18 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:28:28 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:31:44 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:31:59 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:33:30 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:35:09 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:39:00 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:39:10 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:39:21 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:39:35 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:41:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:41:45 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:46:48 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:47:01 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:49:29 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:55:09 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:55:26 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Soureesh Datta (ID: 10)
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'MI London Transfer Buzz Unconfirmed Despite Curran, Jacks Form' (62 chars)
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4023 chars
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-13 21:56:47 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 442 articles with 1755 keywords
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: MI London Transfer Buzz Unconfirmed Despite Curran, Jacks Form
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: MI London Transfer Buzz Unconfirmed Despite Curran, Jacks Form
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'mi london transfer buzz unconfirmed despite curran jacks form' (61 chars)
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'mi-london-transfer-buzz-unconfirmed-despite-curran-jacks-form' (61 chars)
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'mi-london-transfer-buzz-unconfirmed-despite-curran-jacks-form' (61 chars)
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'MI London Transfer Buzz Unconfirmed Despite Curran...' → 'mi-london-transfer-buzz-unconfirmed-despite-curran-jacks-form' (61/74 chars) ✅
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'MI London Transfer Buzz Unconfirmed Despite Curran, Jacks Form' (62 chars)
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'mi-london-transfer-buzz-unconfirmed-despite-curran-jacks-form' (61 chars)
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Soureesh Datta (ID: 10)
+2026-01-13 21:56:52 - AutoPublisherLogger - INFO - Post 'MI London Transfer Buzz Unconfirmed Despite Curran, Jacks Form' draft on https://sportspediazone.com/. ID: 4144, Link: https://sportspediazone.com/?p=4144
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Tanya Singh (ID: 8)
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Lanning Battles Former Team as Delhi, Warriorz Seek First WPL 2026 Win' (70 chars)
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4328 chars
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Lanning Battles Former Team as Delhi, Warriorz Seek First WPL 2026 Win
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Lanning Battles Former Team as Delhi, Warriorz Seek First WPL 2026 Win
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'lanning battles former team as delhi warriorz seek first wpl 2026 win' (69 chars)
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'lanning-battles-former-team-as-delhi-warriorz-seek-first-wpl-2026-win' (69 chars)
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'lanning-battles-former-team-as-delhi-warriorz-seek-first-wpl-2026-win' (69 chars)
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Lanning Battles Former Team as Delhi, Warriorz See...' → 'lanning-battles-former-team-as-delhi-warriorz-seek-first-wpl-2026-win' (69/74 chars) ✅
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Lanning Battles Former Team as Delhi, Warriorz Seek First WPL 2026 Win' (70 chars)
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'lanning-battles-former-team-as-delhi-warriorz-seek-first-wpl-2026-win' (69 chars)
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Tanya Singh (ID: 8)
+2026-01-13 21:57:38 - AutoPublisherLogger - INFO - Post 'Lanning Battles Former Team as Delhi, Warriorz Seek First WPL 2026 Win' draft on https://sportspediazone.com/. ID: 4145, Link: https://sportspediazone.com/?p=4145
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Annsly Raena (ID: 5)
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'England Ashes Review Faces Broad's Drinking Culture Denial' (58 chars)
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5188 chars
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-13 21:58:27 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: England Ashes Review Faces Broad's Drinking Culture Denial
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: England Ashes Review Faces Broad's Drinking Culture Denial
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'england ashes review faces broads drinking culture denial' (57 chars)
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'england-ashes-review-faces-broads-drinking-culture-denial' (57 chars)
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'england-ashes-review-faces-broads-drinking-culture-denial' (57 chars)
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'England Ashes Review Faces Broad's Drinking Cultur...' → 'england-ashes-review-faces-broads-drinking-culture-denial' (57/74 chars) ✅
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'England Ashes Review Faces Broad's Drinking Culture Denial' (58 chars)
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'england-ashes-review-faces-broads-drinking-culture-denial' (57 chars)
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Annsly Raena (ID: 5)
+2026-01-13 21:58:28 - AutoPublisherLogger - INFO - Post 'England Ashes Review Faces Broad's Drinking Culture Denial' draft on https://sportspediazone.com/. ID: 4147, Link: https://sportspediazone.com/?p=4147
+2026-01-13 21:58:32 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 22:12:35 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Man Utd Nears Carrick Return, £20M Neves Deal Emerges' (53 chars)
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4002 chars
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Man Utd Nears Carrick Return, £20M Neves Deal Emerges
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Man Utd Nears Carrick Return, £20M Neves Deal Emerges
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'man utd nears carrick return 20m neves deal emerges' (51 chars)
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'man-utd-nears-carrick-return-20m-neves-deal-emerges' (51 chars)
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'man-utd-nears-carrick-return-20m-neves-deal-emerges' (51 chars)
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Man Utd Nears Carrick Return, £20M Neves Deal Emer...' → 'man-utd-nears-carrick-return-20m-neves-deal-emerges' (51/74 chars) ✅
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Man Utd Nears Carrick Return, £20M Neves Deal Emerges' (53 chars)
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'man-utd-nears-carrick-return-20m-neves-deal-emerges' (51 chars)
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-01-13 22:14:59 - AutoPublisherLogger - INFO - Post 'Man Utd Nears Carrick Return, £20M Neves Deal Emerges' draft on https://sportspediazone.com/. ID: 4161, Link: https://sportspediazone.com/?p=4161
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Govind Singh (ID: 14)
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Salah Eyes AFCON Glory vs Mane's Senegal in High-Stakes Semifinal' (65 chars)
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4824 chars
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Salah Eyes AFCON Glory vs Mane's Senegal in High-Stakes Semifinal
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Salah Eyes AFCON Glory vs Mane's Senegal in High-Stakes Semifinal
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'salah eyes afcon glory vs manes senegal in highstakes semifinal' (63 chars)
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'salah-eyes-afcon-glory-vs-manes-senegal-in-highstakes-semifinal' (63 chars)
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'salah-eyes-afcon-glory-vs-manes-senegal-in-highstakes-semifinal' (63 chars)
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Salah Eyes AFCON Glory vs Mane's Senegal in High-S...' → 'salah-eyes-afcon-glory-vs-manes-senegal-in-highstakes-semifinal' (63/74 chars) ✅
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Salah Eyes AFCON Glory vs Mane's Senegal in High-Stakes Semifinal' (65 chars)
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'salah-eyes-afcon-glory-vs-manes-senegal-in-highstakes-semifinal' (63 chars)
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Govind Singh (ID: 14)
+2026-01-13 22:15:53 - AutoPublisherLogger - INFO - Post 'Salah Eyes AFCON Glory vs Mane's Senegal in High-Stakes Semifinal' draft on https://sportspediazone.com/. ID: 4162, Link: https://sportspediazone.com/?p=4162
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ishaan singh (ID: 9)
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Rooney: Joining Carrick at Man Utd a No-Brainer After Amorim Sacking' (68 chars)
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5171 chars
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-13 22:16:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Rooney: Joining Carrick at Man Utd a No-Brainer After Amorim Sacking
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Rooney: Joining Carrick at Man Utd a No-Brainer After Amorim Sacking
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'rooney joining carrick at man utd a nobrainer after amorim sacking' (66 chars)
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'rooney-joining-carrick-at-man-utd-a-nobrainer-after-amorim-sacking' (66 chars)
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'rooney-joining-carrick-at-man-utd-a-nobrainer-after-amorim-sacking' (66 chars)
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Rooney: Joining Carrick at Man Utd a No-Brainer Af...' → 'rooney-joining-carrick-at-man-utd-a-nobrainer-after-amorim-sacking' (66/74 chars) ✅
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Rooney: Joining Carrick at Man Utd a No-Brainer After Amorim Sacking' (68 chars)
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'rooney-joining-carrick-at-man-utd-a-nobrainer-after-amorim-sacking' (66 chars)
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ishaan singh (ID: 9)
+2026-01-13 22:16:43 - AutoPublisherLogger - INFO - Post 'Rooney: Joining Carrick at Man Utd a No-Brainer After Amorim Sacking' draft on https://sportspediazone.com/. ID: 4163, Link: https://sportspediazone.com/?p=4163
+2026-01-13 22:16:47 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2

@@ -52,6 +52,9 @@ def dashboard():
 @login_required
 def api_dashboard_stats():
     """API endpoint to fetch dashboard stats with caching."""
+    from app.blueprints.automation_utils import get_firestore_client
+    from datetime import datetime, timezone, timedelta
+    
     cache = get_cache()
     user_uid = session['firebase_user_uid']
     
@@ -68,14 +71,69 @@ def api_dashboard_stats():
     shared_context = get_automation_shared_context(user_uid, user_site_profiles)
     connected_sites = len(user_site_profiles) if user_site_profiles else 0
     
+    # Initialize stats
+    stock_reports_published = 0
+    total_tickers_analyzed = 0
+    success_rate = "100%"
+    recent_reports = []
+    
+    # Fetch real stock analysis data from Firestore
+    db = get_firestore_client()
+    if db:
+        try:
+            # Get stock analysis articles from userPublishedArticles
+            stock_articles_query = db.collection('userPublishedArticles')\
+                .where('user_uid', '==', user_uid)\
+                .where('article_type', '==', 'stock')
+            
+            stock_articles = list(stock_articles_query.stream())
+            stock_reports_published = len([article for article in stock_articles 
+                                         if article.to_dict().get('status') == 'published'])
+            
+            # Get total unique tickers analyzed
+            unique_tickers = set()
+            recent_reports_data = []
+            
+            for article_doc in stock_articles:
+                article_data = article_doc.to_dict()
+                ticker = article_data.get('ticker', '')
+                if ticker:
+                    unique_tickers.add(ticker.upper())
+                
+                # Build recent reports (last 10)
+                if len(recent_reports_data) < 10:
+                    published_at_str = article_data.get('published_at', '')
+                    recent_reports_data.append({
+                        'title': article_data.get('title', 'Stock Analysis Report'),
+                        'ticker': ticker.upper() if ticker else 'N/A',
+                        'site': article_data.get('site', article_data.get('profile_name', 'Site')),
+                        'status': article_data.get('status', 'draft'),
+                        'published_at': published_at_str,
+                        'word_count': article_data.get('word_count', 0)
+                    })
+            
+            total_tickers_analyzed = len(unique_tickers)
+            
+            # Sort recent reports by published_at descending
+            recent_reports_data.sort(key=lambda x: x.get('published_at', ''), reverse=True)
+            recent_reports = recent_reports_data[:10]
+            
+            # Calculate success rate (published / total)
+            if stock_articles:
+                success_count = sum(1 for article in stock_articles 
+                                  if article.to_dict().get('status') == 'published')
+                success_rate = f"{int((success_count / len(stock_articles)) * 100)}%"
+            
+        except Exception as e:
+            current_app.logger.error(f"Error fetching stock dashboard stats for user {user_uid}: {e}", exc_info=True)
+    
     response_data = {
         'connected_sites': connected_sites,
-        'stock_published': 0,  # TODO: Fetch from Firestore
-        'total_tickers': 0,    # TODO: Fetch from Firestore
-        'success_rate': "100%",
-        'recent_reports': [],  # TODO: Fetch recent reports
-        'has_profiles': shared_context.get('has_profiles', False),
-        **shared_context
+        'stock_reports_published': stock_reports_published,
+        'total_tickers_analyzed': total_tickers_analyzed,
+        'success_rate': success_rate,
+        'recent_reports': recent_reports,
+        'has_profiles': shared_context.get('has_profiles', False)
     }
     
     # Cache for 5 minutes

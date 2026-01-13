@@ -13,7 +13,7 @@ Routes:
 /automation/history - Shared publishing history for all automation types
 """
 
-from flask import Blueprint, render_template, redirect, url_for, session, jsonify
+from flask import Blueprint, render_template, redirect, url_for, session, jsonify, request
 import sys
 import os
 
@@ -92,6 +92,14 @@ def history():
     """Shared publishing history for all automation types."""
     user_uid = session['firebase_user_uid']
     
+    # Get article type filter from URL parameter
+    filter_article_type = request.args.get('type', None)
+    
+    # Debug logging
+    print(f"DEBUG: URL args: {request.args}")
+    print(f"DEBUG: filter_article_type: '{filter_article_type}'")
+    print(f"DEBUG: Full URL: {request.url}")
+    
     # Get user site profiles for context
     user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
     
@@ -101,4 +109,5 @@ def history():
     return render_template('automation/history.html',
                          title="Publishing History - Tickzen",
                          user_site_profiles=user_site_profiles,
+                         filter_article_type=filter_article_type,
                          **shared_context)

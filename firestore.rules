@@ -1,6 +1,25 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // User Quotas - Users can only read their own
+    match /userQuotas/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false;  // Only server (Admin SDK) can write
+    }
+    
+    // Usage History - Users can only read their own
+    match /userQuotas/{userId}/usage_history/{document=**} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false;  // Only server (Admin SDK) can write
+    }
+    
+    // Quota Plans - All authenticated users can read
+    match /quotaPlans/{planId} {
+      allow read: if request.auth != null;
+      allow write: if false;  // Only admin
+    }
+    
     // Default rule - adjust based on your security requirements
     match /{document=**} {
       allow read, write: if request.auth != null;
