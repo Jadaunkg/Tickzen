@@ -1,0 +1,393 @@
+{% extends "_base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="pricing-page">
+    <section class="pricing-hero">
+        <div class="container">
+            <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+                <div class="section-badge">
+                    <span class="badge badge-green">Stock Analysis Plans</span>
+                </div>
+                <h2 class="section-title" style="font-size: 2.5rem; margin: 1rem 0;">Choose Your Stock Analysis Plan</h2>
+                <p class="section-description" style="max-width: 700px; margin: 0 auto; font-size: 1.1rem;">
+                    AI-powered stock analysis with Prophet forecasting, technical indicators, and WordPress automation.
+                    {% if is_logged_in %}
+                    You're currently on the <strong style="color: var(--green-600);">{{ user_current_plan|title|replace('_', ' ') }} Plan</strong>.
+                    {% else %}
+                    Start with our Free Plan and upgrade anytime.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="plan-grid-section">
+        <div class="container">
+            <div class="pricing-grid">
+                {% for plan in plans %}
+                <div class="pricing-card {% if plan.is_current %}current-plan{% endif %}{% if plan.id == recommended_plan %} featured{% endif %}" data-plan-id="{{ plan.id }}">
+                    {% if plan.is_current %}
+                    <div class="pricing-badge" style="background: var(--green-600); color: white;">Current Plan</div>
+                    {% elif plan.id == recommended_plan %}
+                    <div class="pricing-badge" style="background: var(--blue-600); color: white;">Recommended</div>
+                    {% endif %}
+                    
+                    <div class="pricing-header">
+                        <div class="pricing-title">{{ plan.display_name }}</div>
+                        <div class="pricing-price-wrapper">
+                            {% if plan.price_monthly == 0 %}
+                            <span class="pricing-price" style="color: var(--green-600);">FREE</span>
+                            {% else %}
+                            <span class="pricing-price">${{ plan.price_monthly }}</span>
+                            <span class="pricing-period">/month</span>
+                            {% endif %}
+                        </div>
+                        <div class="pricing-description" style="min-height: 48px;">
+                            {{ 'Unlimited' if plan.is_unlimited else plan.stock_reports_monthly }} stock reports per month
+                        </div>
+                    </div>
+                    
+                    <div class="pricing-features">
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            {% for feature in plan.features %}
+                            <li style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; font-size: 0.95rem;">
+                                <i data-lucide="check-circle" style="color: var(--green-600); width: 1.25rem; height: 1.25rem; flex-shrink: 0;"></i>
+                                <span>{{ feature }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: auto; padding-top: 1.5rem;">
+                        {% if plan.is_current %}
+                        <button class="btn btn-outline" style="width: 100%; cursor: default;" disabled>
+                            <i data-lucide="check"></i>
+                            Your Current Plan
+                        </button>
+                        {% elif plan.id == 'enterprise' %}
+                        <a href="mailto:sales@tickzen.com?subject=Tickzen%20Enterprise%20Stock%20Analysis" class="btn btn-outline" style="width: 100%;">
+                            <i data-lucide="mail"></i>
+                            Contact Sales
+                        </a>
+                        {% elif is_logged_in %}
+                        <a href="#" class="btn btn-primary" style="width: 100%;" onclick="upgradePlan('{{ plan.id }}'); return false;">
+                            <i data-lucide="arrow-up-circle"></i>
+                            Upgrade to {{ plan.display_name }}
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('register') }}?plan={{ plan.id }}" class="btn btn-primary" style="width: 100%;">
+                            <i data-lucide="play"></i>
+                            Get Started
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="plan-features-section bg-gray-50" style="padding: 4rem 0;">
+        <div class="container">
+            <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+                <h3 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 1rem;">What's Included in Every Plan</h3>
+                <p style="color: hsl(var(--muted-foreground)); max-width: 600px; margin: 0 auto;">
+                    All plans include access to our core stock analysis features with varying limits.
+                </p>
+            </div>
+            
+            <div class="grid grid-3" style="max-width: 1000px; margin: 0 auto;">
+                <div class="card">
+                    <div class="card-icon" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16,185,129,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <i data-lucide="brain" style="color: var(--green-600); width: 24px; height: 24px;"></i>
+                    </div>
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem;">AI-Powered Analysis</h4>
+                    <p style="color: hsl(var(--muted-foreground)); font-size: 0.95rem; margin: 0;">
+                        Prophet ML forecasting, 32 comprehensive sections, technical & fundamental analysis.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16,185,129,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <i data-lucide="globe" style="color: var(--green-600); width: 24px; height: 24px;"></i>
+                    </div>
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem;">WordPress Integration</h4>
+                    <p style="color: hsl(var(--muted-foreground)); font-size: 0.95rem; margin: 0;">
+                        Auto-publish to WordPress with SEO optimization, feature images, and permalink generation.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon" style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16,185,129,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <i data-lucide="headphones" style="color: var(--green-600); width: 24px; height: 24px;"></i>
+                    </div>
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem;">Support & Updates</h4>
+                    <p style="color: hsl(var(--muted-foreground)); font-size: 0.95rem; margin: 0;">
+                        Varying support levels from standard to dedicated success teams, all with regular updates.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+.pricing-page {
+    min-height: 100vh;
+    background: hsl(var(--background));
+}
+
+.pricing-hero {
+    padding: 3rem 0 2rem;
+    background: linear-gradient(180deg, rgba(16,185,129,0.03) 0%, transparent 100%);
+}
+
+.section-badge {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    gap: 0.5rem;
+}
+
+.badge-green {
+    background: rgba(16,185,129,0.1);
+    color: var(--green-600);
+}
+
+.plan-grid-section {
+    padding: 2rem 0 3rem;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.pricing-card {
+    position: relative;
+    background: white;
+    border: 2px solid hsl(var(--border));
+    border-radius: 1rem;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.pricing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+}
+
+.pricing-card.featured {
+    border-color: var(--blue-600);
+    box-shadow: 0 8px 16px rgba(37,99,235,0.1);
+}
+
+.pricing-card.current-plan {
+    border-color: var(--green-600);
+    box-shadow: 0 8px 16px rgba(16,185,129,0.15);
+    background: linear-gradient(180deg, rgba(16,185,129,0.02) 0%, white 100%);
+}
+
+.pricing-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.pricing-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.pricing-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: hsl(var(--foreground));
+}
+
+.pricing-price-wrapper {
+    margin: 1rem 0;
+}
+
+.pricing-price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+}
+
+.pricing-period {
+    color: hsl(var(--muted-foreground));
+    font-size: 1rem;
+    margin-left: 0.25rem;
+}
+
+.pricing-description {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.pricing-features {
+    flex: 1;
+    margin-bottom: 1.5rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--green-600);
+    color: white;
+    border-color: var(--green-600);
+}
+
+.btn-primary:hover {
+    background: var(--green-700);
+    border-color: var(--green-700);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+}
+
+.btn-outline {
+    background: transparent;
+    color: hsl(var(--foreground));
+    border-color: hsl(var(--border));
+}
+
+.btn-outline:hover:not(:disabled) {
+    background: hsl(var(--muted));
+    border-color: var(--green-600);
+}
+
+.btn-outline:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.bg-gray-50 {
+    background-color: hsl(var(--muted));
+}
+
+.grid {
+    display: grid;
+}
+
+.grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background: white;
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .pricing-card {
+        padding: 1.5rem;
+    }
+    
+    .pricing-title {
+        font-size: 1.25rem;
+    }
+    
+    .pricing-price {
+        font-size: 2rem;
+    }
+    
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Handle plan upgrade for logged-in users
+function upgradePlan(planId) {
+    console.log('Upgrade to plan:', planId);
+    
+    // Track analytics
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'upgrade_plan_clicked', {
+            'event_category': 'conversion',
+            'event_label': planId
+        });
+    }
+    
+    // Show notification that upgrade is coming soon
+    alert('Upgrade functionality coming soon! You\'ll be able to upgrade your plan directly from this page.');
+    
+    // In production, this would redirect to checkout or upgrade flow:
+    // window.location.href = `/pricing/checkout?plan=${planId}`;
+}
+
+// Auto-scroll to selected plan on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const selectedPlan = "{{ selected_plan }}";
+    if (selectedPlan) {
+        const card = document.querySelector(`[data-plan-id="${selectedPlan}"]`);
+        if (card && !card.classList.contains('current-plan')) {
+            setTimeout(() => {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Add temporary highlight effect
+                card.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.3)';
+                setTimeout(() => {
+                    card.style.boxShadow = '';
+                }, 2000);
+            }, 300);
+        }
+    }
+});
+</script>
+{% endblock %}

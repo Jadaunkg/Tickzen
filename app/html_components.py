@@ -191,8 +191,15 @@ def generate_introduction_html(ticker, rdata):
         analyst_target_val = _safe_float(analyst_data.get('Mean Target Price')) # Use _safe_float for calculations
         analyst_target_fmt = format_html_value(analyst_target_val, 'currency', ticker=ticker)
         
-        upside_pct_val = rdata.get('overall_pct_change', 0.0)
-        upside_pct_fmt = f"{upside_pct_val:+.1f}%"
+        # CRITICAL FIX: Calculate analyst target percentage correctly
+        # overall_pct_change is the FORECAST model percentage, NOT analyst target percentage!
+        forecast_pct_val = rdata.get('overall_pct_change', 0.0)  # This is forecast vs current price
+        
+        # Calculate actual analyst target percentage
+        analyst_upside_pct_val = 0.0
+        if analyst_target_val is not None and current_price_val is not None and current_price_val != 0:
+            analyst_upside_pct_val = ((analyst_target_val - current_price_val) / current_price_val) * 100
+        analyst_upside_pct_fmt = f"{analyst_upside_pct_val:+.1f}%"
         
         volatility_val = rdata.get('volatility')
         volatility_fmt = format_html_value(volatility_val, 'percent_direct', 1)
@@ -223,15 +230,15 @@ def generate_introduction_html(ticker, rdata):
         else:
             momentum_text = "exhibiting a complex technical picture"
 
-        # Dynamic Analyst Outlook Text
+        # Dynamic Analyst Outlook Text - FIXED: Use correct analyst percentage
         analyst_outlook_text = ""
         if analyst_target_val:
-            if upside_pct_val > 5:
-                analyst_outlook_text = f"Analysts appear optimistic, with a 1-year price target of <strong>{analyst_target_fmt}</strong> (a potential {upside_pct_fmt} upside)"
-            elif upside_pct_val < -5:
-                analyst_outlook_text = f"Analysts are cautious, with a 1-year price target of <strong>{analyst_target_fmt}</strong> (a potential {upside_pct_fmt} downside)"
+            if analyst_upside_pct_val > 5:
+                analyst_outlook_text = f"Analysts appear optimistic, with a 1-year price target of <strong>{analyst_target_fmt}</strong> (a potential {analyst_upside_pct_fmt} upside)"
+            elif analyst_upside_pct_val < -5:
+                analyst_outlook_text = f"Analysts are cautious, with a 1-year price target of <strong>{analyst_target_fmt}</strong> (a potential {analyst_upside_pct_fmt} downside)"
             else:
-                analyst_outlook_text = f"Analysts project a relatively stable outlook, with a 1-year price target of <strong>{analyst_target_fmt}</strong> (a potential {upside_pct_fmt} change)"
+                analyst_outlook_text = f"Analysts project a relatively stable outlook, with a 1-year price target of <strong>{analyst_target_fmt}</strong> (a potential {analyst_upside_pct_fmt} change)"
         else:
             analyst_outlook_text = "Analyst price targets are currently unavailable"
         
@@ -831,7 +838,7 @@ def generate_metrics_summary_html(ticker, rdata):
         </div>
 
         <div class="metrics-narrative">
-            <p>Right now, {ticker}'s stock is trading at <strong>{current_price_fmt}</strong>. The technical indicators are showing a <strong>{technical_pattern_text}</strong> because the price is holding relative to both the 50-day ({sma50_fmt}) and 200-day ({sma200_fmt}) moving averages. This suggests the stock has been gaining momentum recently. However, the Relative Strength Index (RSI) at <strong>{rsi_fmt}</strong> is {rsi_condition_text}—neither overbought nor oversold—while the MACD indicator shows a {macd_trend_text}, meaning there could be some minor pullbacks before the next upward move.</p>
+            <p>Right now, {ticker}'s stock is trading at <strong>{current_price_fmt}</strong>. Looking at the moving averages, the price is {'above' if current_price_val and sma50_val and current_price_val > sma50_val else 'below'} the 50-day SMA ({sma50_fmt}) and {'above' if current_price_val and sma200_val and current_price_val > sma200_val else 'below'} the 200-day SMA ({sma200_fmt}), showing a <strong>{technical_pattern_text}</strong> trend. The Relative Strength Index (RSI) at <strong>{rsi_fmt}</strong> is {rsi_condition_text}—neither overbought nor oversold—while the MACD indicator shows a {macd_trend_text}, meaning there could be some minor pullbacks before the next upward move.</p>
             <p>Over the past year, {ticker}'s stock has traded between <strong>{format_html_value(low_52wk_val, 'currency', ticker=ticker)} and {format_html_value(high_52wk_val, 'currency', ticker=ticker)}</strong>, which tells us two things: First, {recovery_status_text}. Second, {range_position_text}, meaning big swings are less likely unless something major happens. Analysts expect modest growth ahead, with a <strong>1-year target of {format_html_value(forecast_1y_val, 'currency', ticker=ticker)} ({forecast_1y_pct:+.1f}%)</strong> and an average consensus target of <strong>{format_html_value(analyst_target_val, 'currency', ticker=ticker)} ({analyst_target_pct:+.1f}%)</strong>. Plus, with <strong>{inst_own_fmt} institutional ownership</strong> and very low short interest ({short_float_fmt}), it seems {investor_bets_text}.</p>
         </div>
         """
@@ -892,6 +899,7 @@ def generate_total_valuation_html(ticker, rdata):
         profile_data = rdata.get('profile_data', {})
         valuation_data = rdata.get('total_valuation_data', {})
         dividend_data = rdata.get('dividends_data', {})
+        health_data = rdata.get('financial_health_data', {})  # For actual cash and debt values
 
         # Helper to parse formatted numbers like '$204.76B' back to a float
         def _parse_formatted_value(value_str):
@@ -953,7 +961,24 @@ def generate_total_valuation_html(ticker, rdata):
         # Part 1: Market Cap vs. Enterprise Value (First Paragraph)
         narrative_part1 = ""
         if market_cap_raw is not None and enterprise_value_raw is not None:
-            net_debt = enterprise_value_raw - market_cap_raw
+            # FIXED: Use actual cash and debt values from balance sheet for accurate net cash calculation
+            total_cash_raw = _parse_formatted_value(health_data.get('Total Cash (MRQ)', 'N/A'))
+            total_debt_raw = _parse_formatted_value(health_data.get('Total Debt (MRQ)', 'N/A'))
+            
+            # Calculate net debt using EV - Market Cap as primary method
+            net_debt_from_ev = enterprise_value_raw - market_cap_raw
+            
+            # But use actual cash - debt for more accurate net cash display when available
+            if total_cash_raw is not None and total_debt_raw is not None:
+                net_cash_actual = total_cash_raw - total_debt_raw
+                # Use actual calculation if it shows net cash position
+                if net_cash_actual > 0:
+                    net_debt = -net_cash_actual  # Negative means net cash
+                else:
+                    net_debt = net_debt_from_ev  # Use EV calculation
+            else:
+                net_debt = net_debt_from_ev  # Fallback to EV calculation
+            
             if net_debt > 0.01 * market_cap_raw: # Check if debt is more than 1% of market cap
                 net_debt_fmt = format_html_value(net_debt, 'large_number')
                 narrative_part1 = (
@@ -1313,7 +1338,24 @@ def generate_detailed_forecast_table_html(ticker, rdata):
                 last_range_str = f"{format_html_value(last_row['Low'], 'currency', ticker=ticker)} – {format_html_value(last_row['High'], 'currency', ticker=ticker)}"
                 
                 width_change_ratio = last_range_width / first_range_width if first_range_width and first_range_width != 0 else 1
+                
+                # CRITICAL FIX: Also check if the price LEVELS change significantly, not just the range width
+                # Calculate the midpoint change to detect if entire range shifts up/down
+                first_midpoint = (first_row['Low'] + first_row['High']) / 2
+                last_midpoint = (last_row['Low'] + last_row['High']) / 2
+                midpoint_change_pct = ((last_midpoint - first_midpoint) / first_midpoint * 100) if first_midpoint != 0 else 0
+                
+                # Check if min/max prices drop significantly across the forecast horizon
+                min_price_in_range = forecast_df['Low'].min()
+                price_drop_from_start = ((min_price_in_range - first_row['Low']) / first_row['Low'] * 100) if first_row['Low'] != 0 else 0
+                
                 range_trend_options = {
+                    'significant_decline': [
+                        f"Importantly, the forecast shows a substantial potential decline, with projected lows dropping to {format_html_value(min_price_in_range, 'currency', ticker=ticker)} (a {abs(price_drop_from_start):.1f}% decrease from the initial forecast low), suggesting significant downside risk over the horizon.",
+                        f"The forecast range shifts notably lower over time (from {first_range_str} to {last_range_str}), with the minimum projected price declining {abs(price_drop_from_start):.1f}% to {format_html_value(min_price_in_range, 'currency', ticker=ticker)}, indicating considerable downside potential."],
+                    'significant_increase': [
+                        f"The forecast shows substantial upside potential, with the price range moving higher from {first_range_str} to {last_range_str}, reflecting a {abs(midpoint_change_pct):.1f}% increase in the forecast midpoint.",
+                        f"Projected prices trend significantly upward across the horizon (from {first_range_str} to {last_range_str}), suggesting strong growth potential with a {abs(midpoint_change_pct):.1f}% increase."],
                     'widening': [
                         f"Note the significant widening in the projected price range (from {first_range_str} to {last_range_str}), suggesting increasing forecast uncertainty over time.",
                         f"Observe how the forecast range expands considerably (from {first_range_str} to {last_range_str}), indicating greater potential price variability further out." ],
@@ -1324,9 +1366,18 @@ def generate_detailed_forecast_table_html(ticker, rdata):
                         f"The projected price range remains relatively consistent (from {first_range_str} to {last_range_str}), implying stable forecast uncertainty.",
                         f"Forecast uncertainty appears steady, with the price range ({first_range_str} to {last_range_str}) showing little change over the horizon."]
                 }
-                if width_change_ratio > 1.2: range_trend_comment = random.choice(range_trend_options['widening'])
-                elif width_change_ratio < 0.8: range_trend_comment = random.choice(range_trend_options['narrowing'])
-                else: range_trend_comment = random.choice(range_trend_options['stable'])
+                
+                # Prioritize significant price level changes over range width changes
+                if price_drop_from_start < -25:  # Significant decline (>25% drop in low)
+                    range_trend_comment = random.choice(range_trend_options['significant_decline'])
+                elif midpoint_change_pct > 25:  # Significant increase (>25% rise in midpoint)
+                    range_trend_comment = random.choice(range_trend_options['significant_increase'])
+                elif width_change_ratio > 1.2:  # Range widening
+                    range_trend_comment = random.choice(range_trend_options['widening'])
+                elif width_change_ratio < 0.8:  # Range narrowing
+                    range_trend_comment = random.choice(range_trend_options['narrowing'])
+                else:  # Stable
+                    range_trend_comment = random.choice(range_trend_options['stable'])
 
                 if 'Average' not in forecast_df.columns:
                      forecast_df['Average'] = (forecast_df['Low'] + forecast_df['High']) / 2
@@ -2608,10 +2659,26 @@ def generate_technical_analysis_summary_html(ticker, rdata):
         # --- 2. Build Enhanced Dynamic Narrative Components ---
 
         # Headline (Updated to be bold text instead of h4)
-        trend_status = "Bullish" if price and sma200 and price > sma200 else "Bearish"
+        # FIXED: Determine trend based on multiple moving averages for accuracy
+        above_20 = price and sma20 and price > sma20
+        above_50 = price and sma50 and price > sma50
+        above_200 = price and sma200 and price > sma200
+        
+        # Determine overall trend status
+        if above_20 and above_50 and above_200:
+            trend_status = "Bullish"
+        elif not above_20 and not above_50 and not above_200:
+            trend_status = "Bearish"
+        elif above_200 and not above_20:  # Mixed: above long-term, below short-term
+            trend_status = "Mixed"
+        else:
+            trend_status = "Mixed"
+        
         qualitative_assessment = "but Overheated" if rsi and rsi > 75 else "but shows signs of slowing" if macd_hist is not None and macd_hist < 0 else ""
         if trend_status == "Bearish":
             qualitative_assessment = "but looks Oversold" if rsi and rsi < 30 else "and continues to weaken"
+        elif trend_status == "Mixed":
+            qualitative_assessment = "with Mixed Signals"
         headline = f"<p><strong>CURRENT PRICE: {format_html_value(price, 'currency', ticker=ticker).upper()}&nbsp;|&nbsp;TREND: {trend_status.upper()} {qualitative_assessment.upper()}</strong></p>"
 
         # UPDATED: Context-Aware Intro Paragraph
@@ -2623,13 +2690,33 @@ def generate_technical_analysis_summary_html(ticker, rdata):
             intro_para = f"The stock has been trading sideways recently. Let's dive into the technical indicators to identify the next potential move and key trading levels."
 
         # Section 1: Trend Strength (with UPDATED trader takeaway)
-        trend_narrative = f"{ticker} is trading above its key moving averages, which confirms the uptrend remains intact." if trend_status == "Bullish" else f"{ticker} is in a bearish trend, trading below its key moving averages, which signals caution."
-        support_20sma = f"The <strong>20-day SMA at {format_html_value(sma20, 'currency', ticker=ticker)}</strong> is acting as immediate dynamic support."
-        floor_200sma = f"The <strong>200-day SMA at {format_html_value(sma200, 'currency', ticker=ticker)}</strong> serves as a major long-term floor for the bullish trend."
+        # FIXED: Accurate trend narrative based on actual price position relative to moving averages
+        if trend_status == "Bullish":
+            trend_narrative = f"{ticker} is trading above its key moving averages, which confirms the uptrend remains intact."
+        elif trend_status == "Mixed":
+            if above_200:
+                trend_narrative = f"{ticker} is in a mixed technical state, holding above the long-term 200-day average but trading below shorter-term averages, signaling a potential pullback within an uptrend."
+            else:
+                trend_narrative = f"{ticker} shows mixed technical signals with the price navigating between key moving averages, creating uncertainty about near-term direction."
+        else:  # Bearish
+            trend_narrative = f"{ticker} is in a bearish trend, trading below its key moving averages, which signals caution."
+        
+        # FIXED: Correctly identify if 20-day SMA is support (price above) or resistance (price below)
+        if above_20:
+            support_20sma = f"The <strong>20-day SMA at {format_html_value(sma20, 'currency', ticker=ticker)}</strong> is acting as immediate dynamic support."
+        else:
+            support_20sma = f"The <strong>20-day SMA at {format_html_value(sma20, 'currency', ticker=ticker)}</strong> is acting as immediate overhead resistance."
+        
+        floor_200sma = f"The <strong>200-day SMA at {format_html_value(sma200, 'currency', ticker=ticker)}</strong> serves as a major long-term floor for the bullish trend." if above_200 else f"The <strong>200-day SMA at {format_html_value(sma200, 'currency', ticker=ticker)}</strong> represents a key resistance level."
         
         # --- THIS IS THE NEW DYNAMIC LOGIC ---
         if trend_status == "Bullish":
             trader_takeaway_trend = f"As long as {ticker} holds above the <strong>20-day SMA ({format_html_value(sma20, 'currency', ticker=ticker)})</strong>, the bullish momentum could continue. However, a rapid rise can push the stock far from its averages, increasing the risk of a pullback."
+        elif trend_status == "Mixed":
+            if above_20:
+                trader_takeaway_trend = f"While {ticker} holds above the <strong>20-day SMA ({format_html_value(sma20, 'currency', ticker=ticker)})</strong>, watch for a break above the 50-day average to confirm renewed bullish momentum."
+            else:
+                trader_takeaway_trend = f"The <strong>20-day SMA ({format_html_value(sma20, 'currency', ticker=ticker)})</strong> is acting as resistance. A break above this level would signal short-term strength, while failure could lead to further consolidation or decline."
         else: # Bearish
             trader_takeaway_trend = f"The <strong>20-day SMA ({format_html_value(sma20, 'currency', ticker=ticker)})</strong> is now acting as overhead resistance. As long as the price stays below this level, the bearish trend is likely to continue. A rejection from this average could lead to a test of recent lows."
         # --- END OF NEW DYNAMIC LOGIC ---

@@ -1,0 +1,502 @@
+<!-- Stock Analysis Sidebar -->
+{# 
+    Usage: include 'stock_analysis/_sidebar.html'
+    Required variables: None (uses request.endpoint for active state)
+    Uses Lucide icons for modern look
+#}
+
+<aside class="stock-sidebar">
+    <!-- Compact Header -->
+    <div class="stock-sidebar-header">
+        <a href="{{ url_for('stock_analysis.dashboard') }}" class="stock-brand">
+            <div class="stock-brand-icon">
+                <i data-lucide="trending-up"></i>
+            </div>
+            <span class="stock-brand-text">Stock Analysis</span>
+        </a>
+    </div>
+    
+    <nav class="stock-nav">
+        <!-- Dashboard -->
+        <a href="{{ url_for('stock_analysis.dashboard') }}" class="stock-nav-item {% if request.endpoint == 'stock_analysis.dashboard' %}active{% endif %}">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Dashboard</span>
+        </a>
+        
+        <!-- Analyzer (Comprehensive) -->
+        <a href="{{ url_for('stock_analysis.analyzer') }}" class="stock-nav-item {% if request.endpoint == 'stock_analysis.analyzer' %}active{% endif %}">
+            <i data-lucide="brain"></i>
+            <span>Analyzer</span>
+            <span class="stock-nav-badge">Comprehensive</span>
+        </a>
+        
+        <!-- Analytics -->
+        <a href="{{ url_for('stock_analysis.analytics') }}" class="stock-nav-item {% if request.endpoint == 'stock_analysis.analytics' %}active{% endif %}">
+            <i data-lucide="bar-chart-3"></i>
+            <span>Analytics</span>
+        </a>
+        
+        <!-- Market News -->
+        <a href="{{ url_for('market_news.market_news_page') }}" class="stock-nav-item {% if request.endpoint == 'market_news.market_news_page' %}active{% endif %}">
+            <i data-lucide="newspaper"></i>
+            <span>Market News</span>
+        </a>
+        
+        <!-- AI Assistant -->
+        <a href="{{ url_for('stock_analysis.ai_assistant') }}" class="stock-nav-item {% if request.endpoint == 'stock_analysis.ai_assistant' %}active{% endif %}">
+            <i data-lucide="sparkles"></i>
+            <span>AI Assistant</span>
+        </a>
+    </nav>
+    
+    <!-- Footer -->
+    <div class="stock-sidebar-footer">
+        <a href="{{ url_for('info.faq') }}" class="stock-footer-help" title="Help & Documentation">
+            <i data-lucide="help-circle"></i>
+            <span>Help & Support</span>
+        </a>
+        <div class="stock-powered-badge">
+            <i data-lucide="zap"></i>
+            <span>Powered by AI</span>
+        </div>
+    </div>
+</aside>
+
+<style>
+/* ============================================
+   Stock Analysis Sidebar - Modern & Clean
+   ============================================ */
+
+.stock-sidebar {
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 64px);
+    position: sticky;
+    top: 64px;
+    align-self: flex-start;
+    z-index: 500;
+    font-size: 14px;
+    overflow: hidden;
+    border-right: 1px solid #e5e7eb;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+}
+
+.stock-sidebar:hover {
+    overflow-y: auto;
+}
+
+/* Scrollbar */
+.stock-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+.stock-sidebar::-webkit-scrollbar-track {
+    background: #f9fafb;
+}
+.stock-sidebar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+.stock-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Stock Analysis Page Layout */
+.stock-analysis-page-layout {
+    display: flex;
+    min-height: calc(100vh - 56px);
+    background: #f5f6fa;
+}
+
+.stock-analysis-page-content {
+    flex: 1;
+    min-width: 0;
+    overflow-x: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Header */
+.stock-sidebar-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.stock-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #166534;
+}
+
+.stock-brand-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(34,197,94,0.3);
+}
+
+.stock-brand-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: white;
+    stroke-width: 2;
+}
+
+.stock-brand-text {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #15803d;
+}
+
+/* Navigation */
+.stock-nav {
+    flex: 1;
+    padding: 10px 0;
+    overflow-y: auto;
+}
+
+/* Nav Item */
+.stock-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    margin: 2px 8px;
+    border-radius: 8px;
+    color: #4b5563;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.stock-nav-item svg {
+    width: 17px;
+    height: 17px;
+    stroke-width: 2;
+    flex-shrink: 0;
+    stroke: #6b7280;
+}
+
+.stock-nav-item:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.stock-nav-item:hover svg {
+    stroke: #374151;
+}
+
+.stock-nav-item.active {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #166534;
+}
+
+.stock-nav-item.active svg {
+    stroke: #16a34a;
+}
+
+/* Badge for Comprehensive */
+.stock-nav-badge {
+    margin-left: auto;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+.stock-nav-item.active .stock-nav-badge {
+    background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
+    color: #064e3b;
+    border-color: #10b981;
+}
+
+/* Section Header */
+.stock-nav-section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+    margin: 8px 16px;
+}
+
+.stock-nav-section-header {
+    padding: 8px 16px 6px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9ca3af;
+}
+
+/* NEW Badge */
+.stock-nav-badge-new {
+    margin-left: auto;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 6px;
+    border-radius: 3px;
+    background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+    color: #7f1d1d;
+    border: 1px solid #fca5a5;
+}
+
+.stock-nav-item.active .stock-nav-badge-new {
+    background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+    color: #7f1d1d;
+    border-color: #fca5a5;
+}
+
+/* Footer */
+.stock-sidebar-footer {
+    padding: 12px 16px 18px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stock-footer-help {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.stock-footer-help svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+}
+
+.stock-footer-help:hover {
+    background: #f0fdf4;
+    border-color: #16a34a;
+    color: #16a34a;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.15);
+}
+
+.stock-footer-help:hover svg {
+    stroke: #16a34a;
+}
+
+/* Powered by AI Badge */
+.stock-powered-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border: 1px solid #86efac;
+    color: #15803d;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+    animation: gentleGlow 3s ease-in-out infinite;
+}
+
+.stock-powered-badge::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 70%
+    );
+    animation: shimmer 3s infinite;
+}
+
+.stock-powered-badge svg {
+    width: 14px;
+    height: 14px;
+    stroke: #16a34a;
+    stroke-width: 2.5;
+    filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.4));
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes gentleGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.2),
+                    0 0 10px rgba(34, 197, 94, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(34, 197, 94, 0.3),
+                    0 0 15px rgba(34, 197, 94, 0.2),
+                    inset 0 0 10px rgba(34, 197, 94, 0.1);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%);
+    }
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1) rotate(5deg);
+        opacity: 0.8;
+    }
+}
+
+/* Mobile */
+@media (max-width: 1024px) {
+    .stock-sidebar {
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
+        top: 64px;
+        height: calc(100vh - 64px);
+    }
+}
+
+@media (max-width: 768px) {
+    .stock-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+        width: 260px;
+        min-width: 260px;
+        max-width: 260px;
+    }
+    
+    .stock-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    
+    /* Remove left margin on mobile - sidebar is hidden */
+    .stock-analysis-page-layout {
+        margin-left: 0;
+    }
+}
+
+/* Overlay for mobile */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+@media (max-width: 768px) {
+    .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+}
+
+/* Mobile Toggle Button */
+.mobile-sidebar-toggle {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    cursor: pointer;
+    z-index: 998;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.mobile-sidebar-toggle svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    stroke-width: 2;
+}
+
+.mobile-sidebar-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.5);
+}
+
+@media (max-width: 768px) {
+    .mobile-sidebar-toggle {
+        display: flex;
+    }
+}
+</style>
+
+<script>
+// Stock Analysis Sidebar interactions
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile toggle
+    window.toggleStockSidebar = function() {
+        const sidebar = document.querySelector('.stock-sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (sidebar) {
+            sidebar.classList.toggle('mobile-open');
+            if (overlay) overlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
+        }
+    };
+    
+    // Re-initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>

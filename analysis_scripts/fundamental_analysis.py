@@ -265,9 +265,11 @@ def format_value(value, value_type="number", precision=2, ticker=None):
              try:
                  # Check if it's already a datetime object
                  if isinstance(num, datetime):
-                     return num.strftime('%Y-%m-%d')
+                     return num.strftime('%B %d, %Y')
                  # Otherwise, assume it's a timestamp (integer or float)
-                 return pd.to_datetime(num, unit='s').strftime('%Y-%m-%d')
+                 # FIXED: Use local time conversion to avoid timezone shifts for earnings dates
+                 # Earnings are typically announced in Eastern Time, and we want the calendar date
+                 return datetime.fromtimestamp(num).strftime('%B %d, %Y')
              except (ValueError, TypeError, OverflowError):
                  return str(value) # Fallback if conversion fails
         elif value_type == "factor": # For split factors like '2:1'
@@ -448,6 +450,7 @@ def extract_analyst_info(fundamentals: dict):
     metrics = {
         "Recommendation": recommendation_summary,
         "Mean Target Price": format_value(safe_get(info, 'targetMeanPrice'), 'currency'),
+        "Median Target Price": format_value(safe_get(info, 'targetMedianPrice'), 'currency'),  # Added for transparency
         "High Target Price": format_value(safe_get(info, 'targetHighPrice'), 'currency'),
         "Low Target Price": format_value(safe_get(info, 'targetLowPrice'), 'currency'),
         "Number of Analyst Opinions": format_value(safe_get(info, 'numberOfAnalystOpinions'), 'integer'),
@@ -1063,15 +1066,17 @@ def extract_quarterly_earnings_data(fundamentals: dict, ticker=None):
         next_earnings = info.get('earningsTimestamp')
         if next_earnings:
             from datetime import datetime, timezone
+            # FIXED: Use local time to get correct calendar date for earnings (market time)
             earnings_date = datetime.fromtimestamp(next_earnings)
             today = datetime.now(timezone.utc)
             
-            # Only set if earnings date is in the future
+            # Only set if earnings date is in the future (compare dates, not times)
             if earnings_date.date() >= today.date():
                 growth_metrics['Next Earnings Date'] = earnings_date.strftime('%B %d, %Y')
                 
                 earnings_call_start = info.get('earningsCallTimestampStart')
                 if earnings_call_start:
+                    # Use local time for call time display
                     call_time = datetime.fromtimestamp(earnings_call_start)
                     growth_metrics['Earnings Call Time'] = call_time.strftime('%B %d, %Y at %I:%M %p ET')
         

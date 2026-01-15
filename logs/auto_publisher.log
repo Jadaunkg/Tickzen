@@ -3495,3 +3495,127 @@ Exception: Pipeline error for GOOGL: 429 You exceeded your current quota, please
 2026-01-13 22:16:43 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ishaan singh (ID: 9)
 2026-01-13 22:16:43 - AutoPublisherLogger - INFO - Post 'Rooney: Joining Carrick at Man Utd a No-Brainer After Amorim Sacking' draft on https://sportspediazone.com/. ID: 4163, Link: https://sportspediazone.com/?p=4163
 2026-01-13 22:16:47 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 14:54:30 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 14:55:05 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 14:55:16 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:06:40 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:08:47 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:09:10 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Priyanjan Paul (ID: 19)
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Yorkshire's T20 Quest: No Tye Signing, But Head's Impact Endures' (64 chars)
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4209 chars
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-14 15:11:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 448 articles with 1779 keywords
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Yorkshire's T20 Quest: No Tye Signing, But Head's Impact Endures
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Yorkshire's T20 Quest: No Tye Signing, But Head's Impact Endures
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'yorkshires t20 quest no tye signing but heads impact endures' (60 chars)
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'yorkshires-t20-quest-no-tye-signing-but-heads-impact-endures' (60 chars)
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'yorkshires-t20-quest-no-tye-signing-but-heads-impact-endures' (60 chars)
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Yorkshire's T20 Quest: No Tye Signing, But Head's ...' → 'yorkshires-t20-quest-no-tye-signing-but-heads-impact-endures' (60/74 chars) ✅
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Yorkshire's T20 Quest: No Tye Signing, But Head's Impact Endures' (64 chars)
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'yorkshires-t20-quest-no-tye-signing-but-heads-impact-endures' (60 chars)
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-14 15:11:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Priyanjan Paul (ID: 19)
+2026-01-14 15:11:11 - AutoPublisherLogger - INFO - Post 'Yorkshire's T20 Quest: No Tye Signing, But Head's Impact Endures' draft on https://sportspediazone.com/. ID: 4177, Link: https://sportspediazone.com/?p=4177
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Sagnik Banerjee (ID: 20)
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Kohli Reclaims ICC ODI Top Spot After Five-Year Wait' (52 chars)
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3564 chars
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Kohli Reclaims ICC ODI Top Spot After Five-Year Wait
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Kohli Reclaims ICC ODI Top Spot After Five-Year Wait
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'kohli reclaims icc odi top spot after fiveyear wait' (51 chars)
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'kohli-reclaims-icc-odi-top-spot-after-fiveyear-wait' (51 chars)
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'kohli-reclaims-icc-odi-top-spot-after-fiveyear-wait' (51 chars)
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Kohli Reclaims ICC ODI Top Spot After Five-Year Wa...' → 'kohli-reclaims-icc-odi-top-spot-after-fiveyear-wait' (51/74 chars) ✅
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Kohli Reclaims ICC ODI Top Spot After Five-Year Wait' (52 chars)
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'kohli-reclaims-icc-odi-top-spot-after-fiveyear-wait' (51 chars)
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Sagnik Banerjee (ID: 20)
+2026-01-14 15:11:58 - AutoPublisherLogger - INFO - Post 'Kohli Reclaims ICC ODI Top Spot After Five-Year Wait' draft on https://sportspediazone.com/. ID: 4178, Link: https://sportspediazone.com/?p=4178
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Soureesh Datta (ID: 10)
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Bengaluru's RCB Could Shift IPL 2026 Home To Navi Mumbai, Raipur' (64 chars)
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3357 chars
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Bengaluru's RCB Could Shift IPL 2026 Home To Navi Mumbai, Raipur
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Bengaluru's RCB Could Shift IPL 2026 Home To Navi Mumbai, Raipur
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'bengalurus rcb could shift ipl 2026 home to navi mumbai raipur' (62 chars)
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'bengalurus-rcb-could-shift-ipl-2026-home-to-navi-mumbai-raipur' (62 chars)
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'bengalurus-rcb-could-shift-ipl-2026-home-to-navi-mumbai-raipur' (62 chars)
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Bengaluru's RCB Could Shift IPL 2026 Home To Navi ...' → 'bengalurus-rcb-could-shift-ipl-2026-home-to-navi-mumbai-raipur' (62/74 chars) ✅
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Bengaluru's RCB Could Shift IPL 2026 Home To Navi Mumbai, Raipur' (64 chars)
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'bengalurus-rcb-could-shift-ipl-2026-home-to-navi-mumbai-raipur' (62 chars)
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Soureesh Datta (ID: 10)
+2026-01-14 15:12:23 - AutoPublisherLogger - INFO - Post 'Bengaluru's RCB Could Shift IPL 2026 Home To Navi Mumbai, Raipur' draft on https://sportspediazone.com/. ID: 4180, Link: https://sportspediazone.com/?p=4180
+2026-01-14 15:12:27 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:21:22 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:21:30 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:21:39 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:21:46 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:30:27 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:30:28 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:32:54 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:33:03 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:33:55 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:34:03 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:34:18 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:34:27 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:34:39 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 15:47:18 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 16:00:09 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 16:00:34 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 16:03:53 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 16:51:10 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 17:39:35 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 17:39:47 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 17:40:02 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 17:49:13 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 17:49:26 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-14 18:31:33 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2

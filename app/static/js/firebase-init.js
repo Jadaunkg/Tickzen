@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 if (response.ok) {
                     // Don't display message here, redirect is immediate
-                    const nextUrl = data.next_url || new URLSearchParams(window.location.search).get('next') || '/features/stock-analysis-hub';
+                    const nextUrl = data.next_url || new URLSearchParams(window.location.search).get('next') || '/stock-analysis/dashboard';
                     window.location.href = nextUrl;
                 } else {
                     const errorMessage = data.email_not_verified 

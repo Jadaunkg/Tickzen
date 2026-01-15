@@ -39,8 +39,8 @@
         },
         "featureList": [
             "AI Stock Price Predictions",
-            "Technical Analysis with Indicators",
             "Fundamental Analysis",
+            "Technical Analysis with Indicators",
             "Risk Assessment",
             "Investment Recommendations"
         ]
@@ -54,11 +54,11 @@
         background-color: var(--light, #f5f6fa);
         font-family: var(--font-main, 'Poppins', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif);
         color: var(--dark, #2d3436);
-        min-height: 100vh;
+        min-height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding-top: 2rem;
+        padding-top: 1rem;
         padding-bottom: 2rem;
     }
 
@@ -350,14 +350,28 @@
 {% endblock %}
 
 {% block content %}
-<div class="analyzer-page-body">
-    <div class="flash-messages-container">
+<!-- Stock Analysis Page Layout with Sidebar -->
+<div class="stock-analysis-page-layout">
+    {% include 'stock_analysis/_sidebar.html' %}
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" onclick="toggleStockSidebar()"></div>
+    
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-sidebar-toggle" onclick="toggleStockSidebar()" aria-label="Toggle sidebar">
+        <i data-lucide="menu"></i>
+    </button>
+    
+    <!-- Main Content Area -->
+    <div class="stock-analysis-page-content">
+        <div class="analyzer-page-body">
+            <div class="flash-messages-container" id="notificationContainer">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <div class="alert alert-{{ category }}" role="alert">
+                        <span>{{ message }}</span>
+                        <button type="button" class="close-btn" aria-label="Close">&times;</button>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -1067,4 +1081,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 });
 </script>
+
+<!-- Close main content wrapper divs -->
+    </div>
+    </div>
+</div>
+
 {% endblock %}

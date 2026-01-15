@@ -10,8 +10,23 @@
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="news-hero">
+<!-- Stock Analysis Page Layout with Sidebar -->
+<div class="stock-analysis-page-layout">
+    <!-- Include Stock Analysis Sidebar -->
+    {% include 'stock_analysis/_sidebar.html' %}
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" onclick="toggleStockSidebar()"></div>
+    
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-sidebar-toggle" onclick="toggleStockSidebar()" aria-label="Toggle sidebar">
+        <i data-lucide="menu"></i>
+    </button>
+    
+    <!-- Main Content Area -->
+    <div class="stock-analysis-page-content">
+        <!-- Hero Section -->
+        <section class="news-hero">
     <div class="hero-overlay">
         <div class="container">
             <div class="hero-content">
@@ -136,16 +151,6 @@
                     <p class="stats-label">Negative Sentiment</p>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-
-<!-- Featured News Section -->
-<section class="featured-news-section">
-    <div class="container">
-        <h2 class="section-title">Featured <span>Stories</span></h2>
-        <div class="featured-news-grid" id="featuredNewsGrid">
-            <!-- Featured news items will be inserted here dynamically -->
         </div>
     </div>
 </section>
@@ -288,7 +293,7 @@
     </button>
 </div>
 
-<!-- Loading Overlay -->
+<!-- Loading Overlay (scoped to news content) -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="news-loading-spinner">
         <div class="spinner-container">
@@ -345,26 +350,6 @@
         </div>
     </template>
 
-    <!-- Featured news template -->
-    <template id="featuredNewsTemplate">
-        <div class="featured-news-card" data-id="" data-category="">
-            <div class="featured-news-image">
-                <img src="" alt="Featured news image" loading="lazy">
-            </div>
-            <div class="featured-news-content">
-                <div class="featured-news-category"></div>
-                <h3 class="featured-news-title"></h3>
-                <p class="featured-news-summary"></p>
-                <div class="featured-news-meta">
-                    <span class="featured-news-source"><i class="fas fa-newspaper"></i> <span></span></span>
-                    <span class="featured-news-time"><i class="far fa-clock"></i> <span></span></span>
-                    <span class="featured-news-sentiment"></span>
-                </div>
-                <button class="featured-news-button">Read Full Story</button>
-            </div>
-        </div>
-    </template>
-
     <!-- Source item template -->
     <template id="sourceItemTemplate">
         <div class="source-item">
@@ -382,7 +367,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Constants
-    const API_URL = '/api/market-news';
+    const API_URL = '/stock-analysis/api/market-news';
     const ITEMS_PER_PAGE = 12;
     const DEFAULT_TICKERS = localStorage.getItem('tz_watchlist') || '';
     
@@ -395,7 +380,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let allNewsData = [];
     let filteredNews = [];
     let totalPages = 1;
-    let featuredNews = [];
     let sourceStats = {};
     let sentimentStats = {
         positive: 0,
@@ -415,7 +399,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
     const newsGrid = document.getElementById('newsGrid');
     const newsList = document.getElementById('newsList');
-    const featuredNewsGrid = document.getElementById('featuredNewsGrid');
     const sourcesGrid = document.getElementById('sourcesGrid');
     const paginationControls = document.getElementById('paginationControls');
     const prevPageBtn = document.getElementById('prevPage');
@@ -452,7 +435,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Templates
     const newsCardTemplate = document.getElementById('newsCardTemplate');
     const newsListItemTemplate = document.getElementById('newsListItemTemplate');
-    const featuredNewsTemplate = document.getElementById('featuredNewsTemplate');
     const sourceItemTemplate = document.getElementById('sourceItemTemplate');
     
     // Check if critical elements exist
@@ -579,7 +561,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try { localStorage.setItem('tz_watchlist', val); } catch (e) {}
         // Persist to session-backed endpoint (best-effort)
         try {
-            await fetch('/api/watchlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tickers: val ? val.split(',') : [] }) });
+            await fetch('/stock-analysis/api/watchlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tickers: val ? val.split(',') : [] }) });
         } catch (e) { console.warn('Watchlist save error', e); }
         watchlistModal.classList.remove('active');
         document.body.style.overflow = '';
@@ -688,7 +670,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function processNewsData() {
         // Prepare data
-        featuredNews = [];
         sourceStats = {};
         
         // Count sources from all news data
@@ -699,13 +680,8 @@ document.addEventListener('DOMContentLoaded', function() {
             sourceStats[item.source]++;
         });
         
-        // Select featured news (top 3 with images)
-        const newsWithImages = allNewsData.filter(item => item.image);
-        featuredNews = newsWithImages.slice(0, 3);
-        
         // Update all views
         sortNewsData();
-        updateFeaturedNews();
         updateSourcesList();
         updateNewsList();
         updatePaginationControls();
@@ -731,53 +707,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 filteredNews.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
                 break;
         }
-    }
-    
-    function updateFeaturedNews() {
-        featuredNewsGrid.innerHTML = '';
-        
-        if (featuredNews.length === 0) {
-            featuredNewsGrid.innerHTML = '<div class="no-featured-news">No featured news available</div>';
-            return;
-        }
-        
-        featuredNews.forEach(news => {
-            const template = document.importNode(featuredNewsTemplate.content, true);
-            const newsCard = template.querySelector('.featured-news-card');
-            
-            // Set data attributes
-            newsCard.setAttribute('data-id', news.id);
-            newsCard.setAttribute('data-category', news.category);
-            
-            // Set content
-            newsCard.querySelector('.featured-news-category').textContent = capitalizeFirstLetter(news.category);
-            newsCard.querySelector('.featured-news-title').textContent = news.title;
-            newsCard.querySelector('.featured-news-summary').textContent = news.summary;
-            newsCard.querySelector('.featured-news-source span').textContent = news.source;
-            newsCard.querySelector('.featured-news-time span').textContent = formatDate(news.published_at);
-            
-            const sentimentEl = newsCard.querySelector('.featured-news-sentiment');
-            sentimentEl.textContent = capitalizeFirstLetter(news.sentiment);
-            sentimentEl.className = `featured-news-sentiment ${news.sentiment}`;
-            
-            // Set image with fallback
-            const imageEl = newsCard.querySelector('.featured-news-image img');
-            if (news.image) {
-                imageEl.src = news.image;
-                imageEl.alt = news.title;
-            } else {
-                // Use a default image based on category
-                imageEl.src = getCategoryDefaultImage(news.category);
-                imageEl.alt = capitalizeFirstLetter(news.category) + " news";
-            }
-            
-            // Add event listener for the card
-            newsCard.querySelector('.featured-news-button').addEventListener('click', () => {
-                showNewsDetail(news);
-            });
-            
-            featuredNewsGrid.appendChild(template);
-        });
     }
     
     function updatePaginationControls() {
@@ -1013,7 +942,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (filter === 'for_you') {
             // Prefer session; fall back to localStorage
             try {
-                fetch('/api/watchlist').then(r => r.json()).then(j => {
+                fetch('/stock-analysis/api/watchlist').then(r => r.json()).then(j => {
                     const sess = (j && Array.isArray(j.tickers)) ? j.tickers.join(',') : '';
                     const local = localStorage.getItem('tz_watchlist') || '';
                     currentTickers = sess || local;
@@ -1124,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function hydrateWatchlist() {
         try {
-            const r = await fetch('/api/watchlist');
+            const r = await fetch('/stock-analysis/api/watchlist');
             if (r.ok) {
                 const j = await r.json();
                 const sess = (j && Array.isArray(j.tickers)) ? j.tickers.join(',') : '';
@@ -1367,4 +1296,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- Close main content wrapper divs -->
+</div>
+</div>
+
 {% endblock scripts_extra %}

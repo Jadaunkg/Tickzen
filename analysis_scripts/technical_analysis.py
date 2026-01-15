@@ -155,6 +155,11 @@ def calculate_sma(data: pd.Series, window: int) -> pd.Series:
     if data.isnull().all() or len(data) < window: return pd.Series(index=data.index, dtype=float)
     return data.rolling(window=window).mean()
 
+def calculate_ema(data: pd.Series, window: int) -> pd.Series:
+    """Calculate Exponential Moving Average"""
+    if data.isnull().all() or len(data) < window: return pd.Series(index=data.index, dtype=float)
+    return data.ewm(span=window, adjust=False).mean()
+
 def calculate_volume_sma(data: pd.DataFrame, window: int) -> pd.Series: # Changed input to DataFrame
     if 'Volume' not in data.columns or data['Volume'].isnull().all() or len(data) < window: return pd.Series(index=data.index, dtype=float)
     return data['Volume'].rolling(window=window).mean()
@@ -162,8 +167,8 @@ def calculate_volume_sma(data: pd.DataFrame, window: int) -> pd.Series: # Change
 # --- Conclusion Generation Functions (Keep as before) ---
 def get_rsi_conclusion(rsi_value):
     if pd.isna(rsi_value): return "RSI data not available."
-    if rsi_value > 70: return f"RSI ({rsi_value:.1f}) is above 70, suggesting potential overbought conditions. This could indicate a higher chance of a price pullback or consolidation."
-    elif rsi_value < 30: return f"RSI ({rsi_value:.1f}) is below 30, suggesting potential oversold conditions. This could indicate a higher chance of a price rebound."
+    if rsi_value >= 70: return f"RSI ({rsi_value:.1f}) is at or above 70, suggesting potential overbought conditions. This could indicate a higher chance of a price pullback or consolidation."
+    elif rsi_value <= 30: return f"RSI ({rsi_value:.1f}) is at or below 30, suggesting potential oversold conditions. This could indicate a higher chance of a price rebound."
     else: return f"RSI ({rsi_value:.1f}) is in the neutral zone (30-70), indicating balanced momentum."
 
 def get_macd_conclusion(macd_line_now, signal_line_now, histogram_now, histogram_prev):

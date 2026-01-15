@@ -1604,11 +1604,11 @@
             
             <!-- Call-to-action buttons -->
             <div class="hero-actions">
-                <a href="{{ url_for('stock_analysis_homepage_route') }}" class="btn btn-primary btn-lg" aria-describedby="demo-description">
+                <a href="{{ url_for('stock_analysis.analyzer') }}" class="btn btn-primary btn-lg" aria-describedby="demo-description">
                     <i class="fas fa-play" aria-hidden="true"></i>
                     Try Free Stock Analysis
                 </a>
-                <a href="{{ url_for('automation_runner_page') }}" class="btn btn-outline btn-lg" aria-describedby="features-description">
+                <a href="{{ url_for('automation.overview') }}" class="btn btn-outline btn-lg" aria-describedby="features-description">
                     <i class="fas fa-robot" aria-hidden="true"></i>
                     Try Content Automation
                 </a>
@@ -3331,7 +3331,7 @@
                     </div>
                 </div>
 
-                <a href="{{ url_for('automation_runner_page') }}" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--blue-600); font-size: 1rem; padding: 1rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                <a href="{{ url_for('automation.stock_automation.dashboard') }}" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--blue-600); font-size: 1rem; padding: 1rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                     <i data-lucide="play"></i>
                     Run Automation
                 </a>
@@ -3568,7 +3568,7 @@
                             </div>
                         </div>
                         
-                        <a href="{{ url_for('stock_analysis_homepage_route') }}" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--green-600); font-size: 1.1rem; padding: 1rem;">
+                        <a href="{{ url_for('stock_analysis.analyzer') }}" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--green-600); font-size: 1.1rem; padding: 1rem;">
                             <i data-lucide="play"></i>
                             Start Free Analysis
                         </a>
@@ -3646,7 +3646,7 @@
                             </div>
                         </div>
                         
-                        <a href="{{ url_for('stock_analysis_homepage_route') }}" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--green-600); font-size: 1rem; padding: 0.8rem;">
+                        <a href="{{ url_for('stock_analysis.analyzer') }}" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--green-600); font-size: 1rem; padding: 0.8rem;">
                             <i data-lucide="play"></i>
                             Start Free Analysis
                         </a>
@@ -3973,7 +3973,6 @@
                 <label for="waitlistInterests" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: hsl(var(--foreground));">Interests (Optional)</label>
                 <select id="waitlistInterests" name="interests" style="width: 100%; padding: 0.75rem; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; font-size: 1rem;">
                     <option value="">Select your primary interest</option>
-                    <option value="technical-analysis">Advanced Technical Analysis</option>
                     <option value="wordpress-automation">WordPress Automation</option>
                     <option value="premium-features">Premium Features</option>
                     <option value="enterprise">Enterprise Solutions</option>

@@ -8,7 +8,7 @@ import json
 from datetime import datetime, timedelta
 from collections import Counter, defaultdict
 import glob
-from flask import jsonify, request, current_app
+from flask import jsonify, request, current_app, session
 import pandas as pd
 import threading
 import time
@@ -432,14 +432,27 @@ class FirestoreDashboardAnalytics:
 # Initialize analytics
 firestore_analytics = FirestoreDashboardAnalytics()
 
-def register_firestore_dashboard_routes(app):
+def register_firestore_dashboard_routes(app, cache_instance=None):
     """Register Firestore dashboard API routes"""
+    cache = cache_instance
     
     @app.route('/api/dashboard/stats')
     def api_dashboard_stats():
         """Get dashboard statistics from Firestore"""
         try:
+            user_uid = session.get('firebase_user_uid', 'anonymous')
+            cache_key = f"analytics_stats_{user_uid}"
+
+            if cache:
+                cached = cache.get(cache_key)
+                if cached:
+                    return jsonify(cached)
+
             stats = firestore_analytics.get_dashboard_stats()
+
+            if cache:
+                cache.set(cache_key, stats, timeout=300)
+
             return jsonify(stats)
         except Exception as e:
             app.logger.error(f"Error in dashboard stats API: {e}")
@@ -461,8 +474,20 @@ def register_firestore_dashboard_routes(app):
             # Validate period parameter
             if period not in ['week', 'month', 'quarter', 'year']:
                 period = 'week'  # Default to week if invalid
-                
+            
+            user_uid = session.get('firebase_user_uid', 'anonymous')
+            cache_key = f"analytics_reports_over_time_{user_uid}_{period}"
+
+            if cache:
+                cached = cache.get(cache_key)
+                if cached:
+                    return jsonify(cached)
+            
             data = firestore_analytics.get_reports_over_time(period)
+
+            if cache:
+                cache.set(cache_key, data, timeout=300)
+
             return jsonify(data)
         except Exception as e:
             app.logger.error(f"Error in reports over time API: {e}")
@@ -488,7 +513,19 @@ def register_firestore_dashboard_routes(app):
             except (ValueError, TypeError):
                 limit = 5  # Default if invalid
                 
+            user_uid = session.get('firebase_user_uid', 'anonymous')
+            cache_key = f"analytics_most_analyzed_{user_uid}_{limit}"
+
+            if cache:
+                cached = cache.get(cache_key)
+                if cached:
+                    return jsonify(cached)
+
             data = firestore_analytics.get_most_analyzed_tickers(limit)
+
+            if cache:
+                cache.set(cache_key, data, timeout=300)
+
             return jsonify(data)
         except Exception as e:
             app.logger.error(f"Error in most analyzed tickers API: {e}")
@@ -504,7 +541,19 @@ def register_firestore_dashboard_routes(app):
     def api_publishing_status():
         """Get publishing status data"""
         try:
+            user_uid = session.get('firebase_user_uid', 'anonymous')
+            cache_key = f"analytics_publishing_status_{user_uid}"
+
+            if cache:
+                cached = cache.get(cache_key)
+                if cached:
+                    return jsonify(cached)
+
             data = firestore_analytics.get_publishing_status()
+
+            if cache:
+                cache.set(cache_key, data, timeout=300)
+
             return jsonify(data)
         except Exception as e:
             app.logger.error(f"Error in publishing status API: {e}")
@@ -516,7 +565,19 @@ def register_firestore_dashboard_routes(app):
         try:
             year = request.args.get('year')
             year = int(year) if year else None
+            user_uid = session.get('firebase_user_uid', 'anonymous')
+            cache_key = f"analytics_activity_heatmap_{user_uid}_{year if year else 'all'}"
+
+            if cache:
+                cached = cache.get(cache_key)
+                if cached:
+                    return jsonify(cached)
+
             data = firestore_analytics.get_activity_heatmap(year)
+
+            if cache:
+                cache.set(cache_key, data, timeout=300)
+
             return jsonify(data)
         except Exception as e:
             app.logger.error(f"Error in activity heatmap API: {e}")
@@ -526,7 +587,19 @@ def register_firestore_dashboard_routes(app):
     def api_failed_analyses():
         """Get statistics about failed analyses"""
         try:
+            user_uid = session.get('firebase_user_uid', 'anonymous')
+            cache_key = f"analytics_failed_analyses_{user_uid}"
+
+            if cache:
+                cached = cache.get(cache_key)
+                if cached:
+                    return jsonify(cached)
+
             data = firestore_analytics.get_failed_analyses_stats()
+
+            if cache:
+                cache.set(cache_key, data, timeout=300)
+
             return jsonify(data)
         except Exception as e:
             app.logger.error(f"Error in failed analyses API: {e}")

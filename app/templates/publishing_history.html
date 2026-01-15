@@ -797,6 +797,130 @@
                 <p style="margin-top: 1rem;">Loading publishing history...</p>
             </div>
 
+            <!-- Skeleton Loading State -->
+            <div id="skeletonState" class="table-wrapper" style="display: block;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Article Title & Site</th>
+                            <th style="width: 12%;">Category</th>
+                            <th style="width: 15%;">Author/Writer</th>
+                            <th style="width: 12%;">Status</th>
+                            <th style="width: 15%;">Published Date</th>
+                            <th style="width: 10%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Skeleton rows -->
+                        <tr class="skeleton-row">
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-subtitle"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-badge"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-text"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-badge"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-date"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-actions"></div>
+                            </td>
+                        </tr>
+                        <tr class="skeleton-row">
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-subtitle"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-badge"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-text"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-badge"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-date"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-actions"></div>
+                            </td>
+                        </tr>
+                        <tr class="skeleton-row">
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-subtitle"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-badge"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-text"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-badge"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-date"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-actions"></div>
+                            </td>
+                        </tr>
+                        <tr class="skeleton-row">
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-subtitle"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-badge"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-text"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-badge"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-date"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-actions"></div>
+                            </td>
+                        </tr>
+                        <tr class="skeleton-row">
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-subtitle"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-badge"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-text"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-badge"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-date"></div>
+                            </td>
+                            <td class="skeleton-cell">
+                                <div class="skeleton skeleton-actions"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <div id="emptyState" class="empty-state" style="display: none;">
                 <i class="fas fa-inbox"></i>
                 <p><strong>No articles found</strong></p>
@@ -823,9 +947,9 @@
 
             <!-- Pagination -->
             <div class="pagination" id="paginationContainer" style="display: none;">
-                <button onclick="previousPage()">&laquo; Previous</button>
+                <button id="prevBtn" onclick="previousPage()">&laquo; Previous</button>
                 <div id="pageNumbers"></div>
-                <button onclick="nextPage()">Next &raquo;</button>
+                <button id="nextBtn" onclick="nextPage()">Next &raquo;</button>
             </div>
         </div>
     </div>
@@ -836,46 +960,102 @@
     let allArticles = [];
     let filteredArticles = [];
     let currentPage = 1;
-    const articlesPerPage = 15;
+    let totalPages = 0;
+    let totalCount = 0;
+    const articlesPerPage = 20;
+    let currentFilters = {
+        search: '',
+        type: '',
+        status: ''
+    };
+    let isLoading = false;
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         loadPublishingHistory();
     });
 
-    function loadPublishingHistory() {
-        const loadingState = document.getElementById('loadingState');
-        loadingState.style.display = 'block';
+    function showSkeleton() {
+        document.getElementById('skeletonState').style.display = 'block';
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('tableWrapper').style.display = 'none';
+        document.getElementById('paginationContainer').style.display = 'none';
+    }
 
-        fetch('/api/publishing-history', {
+    function hideSkeleton() {
+        document.getElementById('skeletonState').style.display = 'none';
+    }
+
+    function loadPublishingHistory(page = 1, useCache = true) {
+        if (isLoading) return;
+        
+        isLoading = true;
+        
+        if (page === 1) {
+            showSkeleton();
+        }
+        
+        // Build query parameters
+        const params = new URLSearchParams({
+            page: page,
+            per_page: articlesPerPage
+        });
+        
+        if (currentFilters.search) params.append('search', currentFilters.search);
+        if (currentFilters.type) params.append('type', currentFilters.type);
+        if (currentFilters.status) params.append('status', currentFilters.status);
+        
+        // Add cache busting parameter if not using cache
+        if (!useCache) params.append('_t', Date.now());
+
+        fetch(`/api/publishing-history?${params}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            loadingState.style.display = 'none';
+            isLoading = false;
+            hideSkeleton();
             
             if (data.status === 'success') {
                 allArticles = data.articles || [];
                 filteredArticles = [...allArticles];
+                currentPage = data.pagination?.current_page || 1;
+                totalPages = data.pagination?.total_pages || 0;
+                totalCount = data.pagination?.total_count || 0;
                 
-                // Update stats
-                updateStats();
+                // Update stats with total count
+                updateStatsFromTotal(totalCount);
                 
-                // Render initial data
-                currentPage = 1;
+                // Render table and pagination
                 renderTable();
+                renderPagination();
             } else {
-                showError('Failed to load publishing history');
+                showError(data.message || 'Failed to load publishing history');
             }
         })
         .catch(error => {
+            isLoading = false;
+            hideSkeleton();
             console.error('Error loading history:', error);
-            loadingState.style.display = 'none';
             showError('Error loading publishing history. Please try again.');
         });
+    }
+
+    function updateStatsFromTotal(total) {
+        // For now, just show the total count
+        // In a real implementation, you might want separate counts for each status
+        document.getElementById('publishedCount').textContent = total;
+        document.getElementById('scheduledCount').textContent = 0;
+        document.getElementById('draftCount').textContent = 0;
     }
 
     function updateStats() {
@@ -889,34 +1069,20 @@
     }
 
     function applyFilters() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
         const categoryFilter = document.getElementById('categoryFilter').value;
         const statusFilter = document.getElementById('statusFilter').value;
 
-        filteredArticles = allArticles.filter(article => {
-            const matchSearch = article.title.toLowerCase().includes(searchTerm) ||
-                              article.author.toLowerCase().includes(searchTerm) ||
-                              article.site.toLowerCase().includes(searchTerm);
-            
-            // Check both article type and category
-            let matchCategory = true;
-            if (categoryFilter) {
-                // If filter is a known article type (stock, earnings, sports)
-                if (['stock', 'earnings', 'sports'].includes(categoryFilter)) {
-                    matchCategory = article.article_type === categoryFilter;
-                } else {
-                    // Otherwise match category (for sports subcategories like Football, Cricket, etc)
-                    matchCategory = article.category === categoryFilter;
-                }
-            }
-            
-            const matchStatus = !statusFilter || article.status === statusFilter;
+        // Update current filters
+        currentFilters = {
+            search: searchTerm,
+            type: categoryFilter,
+            status: statusFilter
+        };
 
-            return matchSearch && matchCategory && matchStatus;
-        });
-
+        // Reload data with filters
         currentPage = 1;
-        renderTable();
+        loadPublishingHistory(1, false); // Don't use cache for filtered results
     }
 
     function resetFilters() {
@@ -924,9 +1090,14 @@
         document.getElementById('categoryFilter').value = '';
         document.getElementById('statusFilter').value = '';
         
-        filteredArticles = [...allArticles];
+        currentFilters = {
+            search: '',
+            type: '',
+            status: ''
+        };
+        
         currentPage = 1;
-        renderTable();
+        loadPublishingHistory(1, false);
     }
 
     function renderTable() {

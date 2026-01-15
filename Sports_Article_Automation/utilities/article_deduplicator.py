@@ -158,7 +158,7 @@ class ArticleDeduplicator:
         return score
     
     def deduplicate_articles(self, similarity_threshold: float = 0.75, url_threshold: float = 0.85, backup: bool = True) -> Dict:
-        """Remove duplicate articles across sources
+        """Remove duplicate articles across sources with optimized performance
         
         Args:
             similarity_threshold: Similarity score needed to consider articles duplicates (0.0-1.0)
@@ -187,6 +187,8 @@ class ArticleDeduplicator:
             initial_count = len(self.database)
             articles_by_type = {}
             
+            logger.info(f"Starting deduplication of {initial_count} articles...")
+            
             # Group articles by type (cricket, football, basketball, etc.)
             for article_id, article in self.database.items():
                 article_type = article.get('category', 'general')
@@ -197,10 +199,13 @@ class ArticleDeduplicator:
             # Deduplicate within each category
             for category, articles in articles_by_type.items():
                 article_list = list(articles.items())
+                logger.info(f"Deduplicating {len(article_list)} articles in category: {category}")
                 
                 # Build lookup for URLs (normalized)
                 url_lookup = {}
+                articles_dict = {}  # Quick lookup by article_id
                 for article_id, article in article_list:
+                    articles_dict[article_id] = article
                     url = article.get('link', '') or article.get('url', '')
                     if url:
                         norm_url = self._normalize_url(url)
@@ -208,52 +213,87 @@ class ArticleDeduplicator:
                             url_lookup[norm_url] = []
                         url_lookup[norm_url].append(article_id)
                 
-                # Mark URL-exact duplicates (same URL = same article)
+                # Mark URL-exact duplicates (same URL = same article) - O(n) complexity
+                url_duplicates_removed = 0
                 for norm_url, id_list in url_lookup.items():
                     if len(id_list) > 1:
                         # Keep article with best quality score, remove others
-                        best_id = max(id_list, key=lambda aid: self._get_article_quality_score(article_list[next(i for i, (aid2, _) in enumerate(article_list) if aid2 == aid)][1]))
+                        best_id = max(id_list, key=lambda aid: self._get_article_quality_score(articles_dict[aid]))
                         
                         for aid in id_list:
                             if aid != best_id:
                                 self.removed_ids.add(aid)
+                                url_duplicates_removed += 1
                                 logger.debug(f"Removed URL duplicate: {aid} (kept: {best_id})")
                 
-                # Compare articles for title/content similarity
-                for i in range(len(article_list)):
-                    article_id1, article1 = article_list[i]
-                    
-                    if article_id1 in self.removed_ids:
+                logger.info(f"  Removed {url_duplicates_removed} URL duplicates")
+                
+                # OPTIMIZATION: Use content hashing for fast pre-filtering
+                # Group articles by content hash to reduce comparisons
+                hash_lookup = {}
+                for article_id, article in article_list:
+                    if article_id in self.removed_ids:
+                        continue
+                    title = article.get('title', '')
+                    summary = article.get('summary', '')
+                    content_hash = self._generate_content_hash(title, summary)
+                    if content_hash not in hash_lookup:
+                        hash_lookup[content_hash] = []
+                    hash_lookup[content_hash].append((article_id, article))
+                
+                # Only compare articles within the same hash bucket (much faster!)
+                content_duplicates_removed = 0
+                processed_buckets = 0
+                total_buckets = len([bucket for bucket in hash_lookup.values() if len(bucket) > 1])
+                
+                for content_hash, bucket_articles in hash_lookup.items():
+                    # Skip buckets with single article (no duplicates possible)
+                    if len(bucket_articles) <= 1:
                         continue
                     
-                    title1 = article1.get('title', '')
-                    summary1 = article1.get('summary', '')
+                    processed_buckets += 1
+                    if processed_buckets % 10 == 0:
+                        logger.debug(f"  Processing duplicate bucket {processed_buckets}/{total_buckets}...")
                     
-                    # Compare with subsequent articles
-                    for j in range(i + 1, len(article_list)):
-                        article_id2, article2 = article_list[j]
+                    # Compare only within this bucket (already filtered by content hash)
+                    for i in range(len(bucket_articles)):
+                        article_id1, article1 = bucket_articles[i]
                         
-                        if article_id2 in self.removed_ids:
+                        if article_id1 in self.removed_ids:
                             continue
                         
-                        title2 = article2.get('title', '')
-                        summary2 = article2.get('summary', '')
+                        title1 = article1.get('title', '')
+                        summary1 = article1.get('summary', '')
                         
-                        # Calculate similarity
-                        similarity = self._calculate_similarity(title1, title2, summary1, summary2)
-                        
-                        # If similar enough, mark lower quality one as duplicate
-                        if similarity >= similarity_threshold:
-                            score1 = self._get_article_quality_score(article1)
-                            score2 = self._get_article_quality_score(article2)
+                        # Compare with subsequent articles in THIS BUCKET ONLY
+                        for j in range(i + 1, len(bucket_articles)):
+                            article_id2, article2 = bucket_articles[j]
                             
-                            if score1 >= score2:
-                                self.removed_ids.add(article_id2)
-                                logger.debug(f"Removed content duplicate: {article_id2} (similarity: {similarity:.2f}, kept: {article_id1})")
-                            else:
-                                self.removed_ids.add(article_id1)
-                                logger.debug(f"Removed content duplicate: {article_id1} (similarity: {similarity:.2f}, kept: {article_id2})")
-                                break  # Move to next article1
+                            if article_id2 in self.removed_ids:
+                                continue
+                            
+                            title2 = article2.get('title', '')
+                            summary2 = article2.get('summary', '')
+                            
+                            # Calculate similarity
+                            similarity = self._calculate_similarity(title1, title2, summary1, summary2)
+                            
+                            # If similar enough, mark lower quality one as duplicate
+                            if similarity >= similarity_threshold:
+                                score1 = self._get_article_quality_score(article1)
+                                score2 = self._get_article_quality_score(article2)
+                                
+                                if score1 >= score2:
+                                    self.removed_ids.add(article_id2)
+                                    content_duplicates_removed += 1
+                                    logger.debug(f"Removed content duplicate: {article_id2} (similarity: {similarity:.2f}, kept: {article_id1})")
+                                else:
+                                    self.removed_ids.add(article_id1)
+                                    content_duplicates_removed += 1
+                                    logger.debug(f"Removed content duplicate: {article_id1} (similarity: {similarity:.2f}, kept: {article_id2})")
+                                    break  # Move to next article1
+                
+                logger.info(f"  Removed {content_duplicates_removed} content duplicates from {total_buckets} duplicate buckets")
             
             # Remove duplicate articles from database
             for removed_id in self.removed_ids:

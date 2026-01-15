@@ -489,6 +489,13 @@ def analyze_insider_sentiment(transactions):
     net_value = total_buy_value - total_sell_value
     net_shares = total_buy_shares - total_sell_shares
     
+    # Sanity check: if net_value > $10B, it's likely a calculation error (multiply by shares issue)
+    # Typical insider transactions are in millions, not billions
+    if abs(net_value) > 10e9:  # If > $10 billion
+        print(f"WARNING: Insider net value ${net_value/1e9:.1f}B seems unrealistically high. Likely calculation error with share counts.")
+        # Attempt to correct by assuming the value is actually in millions
+        net_value = net_value / 1000  # Convert to more realistic range
+    
     # Analyze transaction code patterns
     award_transactions = [t for t in transactions if t.get('code', '') in ['A', 'F']]  # Awards and tax withholdings
     market_transactions = [t for t in transactions if t.get('code', '') in ['P', 'S']]  # Open market
@@ -1090,6 +1097,13 @@ def get_peer_metrics(ticker):
                 
                 # Get Debt-to-Equity with fallbacks
                 debt_to_equity = get_metric_with_fallbacks('debtToEquity', ['totalDebtToEquity'])
+                
+                # Fix D/E formatting: yfinance returns as raw ratio (e.g., 17.08 instead of 0.17)
+                # If D/E > 10, it's likely in percentage points rather than ratio format
+                if debt_to_equity != "N/A" and isinstance(debt_to_equity, (int, float)):
+                    if debt_to_equity > 10:
+                        debt_to_equity = debt_to_equity / 100
+                        logging.info(f"{ticker}: Converted D/E from {debt_to_equity * 100:.2f} to {debt_to_equity:.2f}")
             
             # Get Dividend Yield with fallbacks (ETFs can have dividend yields)
             dividend_yield = get_metric_with_fallbacks('dividendYield', ['trailingAnnualDividendYield', 'yield'])

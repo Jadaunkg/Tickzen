@@ -79,6 +79,9 @@ def get_report_history_for_user(user_uid, display_limit=10):
 # Create blueprint
 stock_analysis_bp = Blueprint('stock_analysis', __name__, url_prefix='/stock-analysis')
 
+# Shared caching helpers from automation utilities
+from app.blueprints.automation_utils import get_cache
+
 
 @stock_analysis_bp.route('/dashboard')
 @login_required
@@ -110,6 +113,15 @@ def api_reports():
                 'reports': [],
                 'total_reports': 0
             }), 401
+
+        cache = get_cache()
+        cache_key = f'stock_reports_{user_uid}'
+
+        # Fast path: return cached response when available
+        if cache:
+            cached = cache.get(cache_key)
+            if cached:
+                return jsonify(cached), 200
         
         # Fetch report history
         report_history, total_reports = get_report_history_for_user(user_uid, display_limit=10)
@@ -154,12 +166,18 @@ def api_reports():
             f"returned {len(reports_data)} reports"
         )
         
-        return jsonify({
+        response_payload = {
             'reports': reports_data,
             'total_reports': total_reports,
             'count': len(reports_data),
             'load_time': round(elapsed, 3)
-        }), 200
+        }
+
+        # Cache for 5 minutes to match automation dashboards
+        if cache:
+            cache.set(cache_key, response_payload, timeout=300)
+
+        return jsonify(response_payload), 200
         
     except Exception as e:
         current_app.logger.error(f"Error in /stock-analysis/api/reports: {e}", exc_info=True)
@@ -186,9 +204,3 @@ def analyzer():
 def ai_assistant():
     """Tickzen AI Assistant chatbot page."""
     return render_template('stock_analysis/ai_assistant.html', title="Tickzen AI Assistant")
-
-
-@stock_analysis_bp.route('/market-news')
-def market_news():
-    """Market news page - redirects to market_news blueprint."""
-    return redirect(url_for('market_news.market_news_page'))

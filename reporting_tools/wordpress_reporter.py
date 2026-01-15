@@ -178,8 +178,15 @@ def generate_wordpress_introduction_html(ticker, rdata, content_library=None):
         analyst_target_val = hc._safe_float(analyst_data.get('Mean Target Price'))
         analyst_target_fmt = hc.format_html_value(analyst_target_val, 'currency', ticker=ticker)
         
-        upside_pct_val = rdata.get('overall_pct_change', 0.0)
-        upside_pct_fmt = f"{upside_pct_val:+.1f}%"
+        # CRITICAL FIX: Calculate analyst target percentage correctly
+        # overall_pct_change is the FORECAST model percentage, NOT analyst target percentage!
+        forecast_pct_val = rdata.get('overall_pct_change', 0.0)  # This is forecast vs current price
+        
+        # Calculate actual analyst target percentage
+        analyst_upside_pct_val = 0.0
+        if analyst_target_val is not None and current_price_val is not None and current_price_val != 0:
+            analyst_upside_pct_val = ((analyst_target_val - current_price_val) / current_price_val) * 100
+        analyst_upside_pct_fmt = f"{analyst_upside_pct_val:+.1f}%"
         
         volatility_val = rdata.get('volatility')
         volatility_fmt = hc.format_html_value(volatility_val, 'percent_direct', 1)
@@ -216,17 +223,17 @@ def generate_wordpress_introduction_html(ticker, rdata, content_library=None):
             momentum_phrase = get_variation(content_library, 'introduction.momentum.phrases.complex',
                 ['exhibiting a complex technical picture'])
 
-        # Dynamic Analyst Outlook Text using content library
+        # Dynamic Analyst Outlook Text using content library - FIXED: Use correct analyst percentage
         analyst_outlook_text = ""
         if analyst_target_val:
             source = get_variation(content_library, 'introduction.analyst_outlook.sources', ['Analysts'])
-            sentiment_key = 'optimistic' if upside_pct_val > 5 else 'cautious' if upside_pct_val < -5 else 'stable'
+            sentiment_key = 'optimistic' if analyst_upside_pct_val > 5 else 'cautious' if analyst_upside_pct_val < -5 else 'stable'
             sentiment = get_variation(content_library, f'introduction.analyst_outlook.sentiments.{sentiment_key}', ['are positive'])
             connector = get_variation(content_library, 'introduction.analyst_outlook.connectors', ['with a 1-year price target of'])
             result = get_variation(content_library, f'introduction.analyst_outlook.results.{sentiment_key}', 
-                [f'implying a potential {upside_pct_fmt} change'])
+                [f'implying a potential {analyst_upside_pct_fmt} change'])
             
-            result_text = result.format(upside_pct_fmt=upside_pct_fmt) if '{upside_pct_fmt}' in result else result
+            result_text = result.format(analyst_upside_pct_fmt=analyst_upside_pct_fmt) if '{analyst_upside_pct_fmt}' in result else result.format(upside_pct_fmt=analyst_upside_pct_fmt) if '{upside_pct_fmt}' in result else result
             analyst_outlook_text = f"{source} {sentiment}, {connector} <strong>{analyst_target_fmt}</strong>, {result_text}"
         else:
             analyst_outlook_text = get_variation(content_library, 'introduction.analyst_outlook.unavailable',
@@ -878,6 +885,7 @@ def generate_wordpress_total_valuation_html(ticker, rdata, content_library=None)
         profile_data = rdata.get('profile_data', {})
         valuation_data = rdata.get('total_valuation_data', {})
         dividend_data = rdata.get('dividends_data', {})
+        health_data = rdata.get('financial_health_data', {})  # For actual cash and debt values
 
         # Helper to parse formatted numbers like '$204.76B' back to a float
         def _parse_formatted_value(value_str):
@@ -939,7 +947,24 @@ def generate_wordpress_total_valuation_html(ticker, rdata, content_library=None)
         # Part 1: Market Cap vs. Enterprise Value (First Paragraph)
         narrative_part1 = ""
         if market_cap_raw is not None and enterprise_value_raw is not None:
-            net_debt = enterprise_value_raw - market_cap_raw
+            # FIXED: Use actual cash and debt values from balance sheet for accurate net cash calculation
+            total_cash_raw = _parse_formatted_value(health_data.get('Total Cash (MRQ)', 'N/A'))
+            total_debt_raw = _parse_formatted_value(health_data.get('Total Debt (MRQ)', 'N/A'))
+            
+            # Calculate net debt using EV - Market Cap as primary method
+            net_debt_from_ev = enterprise_value_raw - market_cap_raw
+            
+            # But use actual cash - debt for more accurate net cash display when available
+            if total_cash_raw is not None and total_debt_raw is not None:
+                net_cash_actual = total_cash_raw - total_debt_raw
+                # Use actual calculation if it shows net cash position
+                if net_cash_actual > 0:
+                    net_debt = -net_cash_actual  # Negative means net cash
+                else:
+                    net_debt = net_debt_from_ev  # Use EV calculation
+            else:
+                net_debt = net_debt_from_ev  # Fallback to EV calculation
+            
             if net_debt > 0.01 * market_cap_raw: # Check if debt is more than 1% of market cap
                 net_debt_fmt = hc.format_html_value(net_debt, 'large_number')
                 
@@ -4488,20 +4513,27 @@ def generate_wordpress_technical_analysis_summary_html(ticker, rdata, content_li
         change_15d = rdata.get('change_15d', 0)
         change_15d_fmt = hc.format_html_value(change_15d, 'percent_direct', ticker=ticker)
         
-        # Determine trend status
+        # Determine trend status - FIXED: Check multiple moving averages
         trend_status = "SIDEWAYS"
         trend_desc = "BUT SHOWS MIXED SIGNALS"
         
-        if current_price and sma20 and sma200:
-            if current_price > sma20 and current_price > sma200:
+        if current_price and sma20 and sma50 and sma200:
+            above_20 = current_price > sma20
+            above_50 = current_price > sma50
+            above_200 = current_price > sma200
+            
+            if above_20 and above_50 and above_200:
                 trend_status = "BULLISH"
                 if rsi and rsi > 70:
                     trend_desc = "BUT SHOWS SIGNS OF SLOWING"
                 else:
                     trend_desc = "WITH STRONG MOMENTUM"
-            elif current_price < sma20 and current_price < sma200:
+            elif not above_20 and not above_50 and not above_200:
                 trend_status = "BEARISH"
                 trend_desc = "UNDER PRESSURE"
+            elif above_200 and not above_20:
+                trend_status = "MIXED"
+                trend_desc = "WITH CONFLICTING SIGNALS"
         
         # Determine RSI state
         rsi_state = "neutral"
@@ -4562,21 +4594,45 @@ def generate_wordpress_technical_analysis_summary_html(ticker, rdata, content_li
         
         html_parts.append(f"<p>{intro_text}</p>")
         
-        # Section 1: Trend Strength
-        html_parts.append("<p><strong>Trend Strength – Still Bullish</strong></p>")
+        # Section 1: Trend Strength - FIXED: Dynamic section title and accurate narratives
+        # Determine if price is above 20-day SMA for support/resistance identification
+        above_20_sma = current_price and sma20 and current_price > sma20
+        
+        if trend_status == "BULLISH":
+            section_title = "Trend Strength – Still Bullish"
+        elif trend_status == "BEARISH":
+            section_title = "Trend Strength – Bearish Pressure"
+        else:
+            section_title = "Trend Strength – Mixed Signals"
+        
+        html_parts.append(f"<p><strong>{section_title}</strong></p>")
+        
         if trend_status == "BULLISH":
             trend_text = get_variation(content_library, 'technical_analysis_summary.trend_analysis.bullish',
                 [f"{ticker} is trading above its key moving averages, which confirms the uptrend remains intact."])
+        elif trend_status == "MIXED":
+            trend_text = get_variation(content_library, 'technical_analysis_summary.trend_analysis.mixed',
+                [f"{ticker} is in a mixed technical state, holding above the long-term 200-day average but trading below shorter-term averages, signaling a potential pullback within an uptrend."])
         else:
             trend_text = get_variation(content_library, 'technical_analysis_summary.trend_analysis.bearish',
                 [f"{ticker} is in a bearish trend, trading below its key moving averages, which signals caution."])
-        html_parts.append(f"<p>{trend_text} The 20-day SMA at {sma20_fmt} is acting as immediate dynamic support.</p>")
+        
+        # FIXED: Correctly identify support vs resistance based on price position
+        sma_role = "acting as immediate dynamic support" if above_20_sma else "acting as immediate overhead resistance"
+        html_parts.append(f"<p>{trend_text} The 20-day SMA at {sma20_fmt} is {sma_role}.</p>")
         
         # What This Means for Traders
         html_parts.append("<p><strong>What This Means for Traders?</strong></p>")
         if trend_status == "BULLISH":
             trader_text = get_variation(content_library, 'technical_analysis_summary.trader_takeaways.bullish',
                 [f"As long as {ticker} holds above the 20-day SMA ({sma20_fmt}), the bullish momentum could continue. However, a rapid rise can push the stock far from its averages, increasing the risk of a pullback."])
+        elif trend_status == "MIXED":
+            if above_20_sma:
+                trader_text = get_variation(content_library, 'technical_analysis_summary.trader_takeaways.mixed_above',
+                    [f"While {ticker} holds above the 20-day SMA ({sma20_fmt}), watch for a break above the 50-day average to confirm renewed bullish momentum."])
+            else:
+                trader_text = get_variation(content_library, 'technical_analysis_summary.trader_takeaways.mixed_below',
+                    [f"The 20-day SMA ({sma20_fmt}) is acting as resistance. A break above this level would signal short-term strength, while failure could lead to further consolidation or decline."])
         else:
             trader_text = get_variation(content_library, 'technical_analysis_summary.trader_takeaways.bearish',
                 [f"The 20-day SMA ({sma20_fmt}) is now acting as overhead resistance. As long as the price stays below this level, the bearish trend is likely to continue."])

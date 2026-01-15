@@ -262,11 +262,29 @@ body.dark-mode {
 {% endblock %}
 
 {% block content %}
-<div class="page-content">
-    <div class="page-header">
-        <h1>Dashboard Analytics</h1>
-        <p class="lead">Analytics and insights about your stock reports</p>
-    </div>
+<!-- Stock Analysis Page Layout with Sidebar -->
+<div class="stock-analysis-page-layout">
+    <!-- Include Stock Analysis Sidebar -->
+    {% include 'stock_analysis/_sidebar.html' %}
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" onclick="toggleStockSidebar()"></div>
+    
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-sidebar-toggle" onclick="toggleStockSidebar()" aria-label="Toggle sidebar">
+        <i data-lucide="menu"></i>
+    </button>
+    
+    <!-- Main Content Area -->
+    <div class="stock-analysis-page-content">
+        <div class="page-content">
+        <div class="page-header">
+            <h1>Dashboard Analytics</h1>
+            <p class="lead">Analytics and insights about your stock reports</p>
+            <p class="chart-description" style="margin-top: 0.35rem;">
+                These charts summarize the stock analyses you have generated in Tickzen—counts, activity, and publishing outcomes tied to your account.
+            </p>
+        </div>
 
     <div class="quick-info">
         If charts appear empty, reports may need to be generated first.
@@ -1048,4 +1066,10 @@ body.dark-mode {
         });
     });
 </script>
+
+<!-- Close main content wrapper divs -->
+    </div>
+    </div>
+</div>
+
 {% endblock %}

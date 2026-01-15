@@ -73,6 +73,7 @@ Last Updated: January 2026
 
 import sys
 import os
+import asyncio
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
@@ -102,6 +103,7 @@ from werkzeug.utils import secure_filename
 import firebase_admin
 from firebase_admin import firestore, auth as firebase_auth
 from config.firebase_admin_setup import get_firestore_client
+from config.quota_plans import QUOTA_PLANS
 from app.market_news import market_news_bp
 
 # Import cache utilities for performance optimization
@@ -395,7 +397,7 @@ app.logger.info("Flask-Caching initialized with SimpleCache (5-minute default ti
 # Register blueprints (basic ones that don't need login_required)
 from app.info_routes import info_bp
 app.register_blueprint(info_bp, url_prefix='/info')
-app.register_blueprint(market_news_bp)
+app.register_blueprint(market_news_bp, url_prefix='/stock-analysis')
 
 # Register Quota API blueprint
 from app.blueprints.quota_api import quota_bp
@@ -1437,10 +1439,65 @@ def is_valid_url(url_string):
 def stock_analysis_homepage_route():
     return render_template('stock-analysis-homepage.html', title="AI Stock Predictions & Analysis")
 
-@app.route('/analyzer', methods=['GET'])
-def analyzer_input_page():
-    """Stock analyzer input page - direct route for navigation compatibility."""
-    return render_template('stock_analysis/analyzer.html', title="Stock Analyzer Input")
+
+@app.route('/pricing')
+def pricing_page():
+    """Public pricing page for stock analysis plans."""
+    plan_order = ['free', 'pro', 'pro_plus', 'enterprise']
+    requested_plan = request.args.get('plan', None)
+    
+    # Get user's current plan if logged in
+    user_current_plan = 'free'  # Default for non-logged users
+    is_logged_in = 'firebase_user_uid' in session
+    
+    if is_logged_in:
+        try:
+            from config.firebase_admin_setup import get_firestore_client
+            db = get_firestore_client()
+            user_uid = session['firebase_user_uid']
+            user_doc = db.collection('users').document(user_uid).get()
+            if user_doc.exists:
+                user_data = user_doc.to_dict()
+                user_current_plan = user_data.get('plan_id', 'free')
+        except Exception as e:
+            app.logger.error(f"Error fetching user plan: {e}")
+    
+    # Normalize requested plan
+    normalized_plan = requested_plan.lower().replace('+', '_plus').replace(' ', '_') if requested_plan else None
+
+    # Build plan list in display order and filter inactive plans
+    plans = []
+    for plan_id in plan_order:
+        plan_cfg = QUOTA_PLANS.get(plan_id)
+        if not plan_cfg or not plan_cfg.get('is_active', True):
+            continue
+
+        limits = plan_cfg.get('limits', {})
+        stock_reports_limit = limits.get('stock_reports_monthly', 0)
+
+        plans.append({
+            'id': plan_id,
+            'display_name': plan_cfg.get('display_name', plan_id.title()),
+            'price_monthly': plan_cfg.get('price_monthly', 0),
+            'features': plan_cfg.get('features', []),
+            'stock_reports_monthly': stock_reports_limit,
+            'is_unlimited': stock_reports_limit == -1,
+            'is_current': plan_id == user_current_plan,
+        })
+
+    recommended_plan = 'pro_plus' if any(p['id'] == 'pro_plus' for p in plans) else (plans[0]['id'] if plans else 'free')
+    # Use normalized requested plan if provided, otherwise use current plan
+    selected_plan = normalized_plan if normalized_plan and any(p['id'] == normalized_plan for p in plans) else user_current_plan
+
+    return render_template(
+        'pricing/stock_analysis_pricing.html',
+        title="Stock Analysis Plans - Tickzen",
+        plans=plans,
+        selected_plan=selected_plan,
+        recommended_plan=recommended_plan,
+        user_current_plan=user_current_plan,
+        is_logged_in=is_logged_in,
+    )
 
 # NOTE: Old route handlers removed - these routes now redirect via backward compatibility redirects
 # See backward compatibility section (around line 790) for redirect definitions
@@ -1448,7 +1505,7 @@ def analyzer_input_page():
 # - /dashboard -> /stock-analysis/dashboard
 # - /api/dashboard/reports -> /stock-analysis/api/reports  
 # - /dashboard-analytics -> /stock-analysis/analytics
-# - /analyzer -> /stock-analysis/analyzer (also has direct route above)
+# - /analyzer -> /stock-analysis/analyzer (blueprint route)
 # - /ai-assistant -> /stock-analysis/ai-assistant
 
 # Feature Pages Routes - Use existing templates or redirect to appropriate pages
@@ -1456,11 +1513,6 @@ def analyzer_input_page():
 def live_demo_page():
     """Live interactive demo - redirects to stock analysis homepage"""
     return redirect(url_for('stock_analysis_homepage_route'))
-
-@app.route('/features/stock-analysis-hub')
-def stock_analysis_hub_page():
-    """Stock analysis hub - renders stock analysis dashboard"""
-    return render_template('stock_analysis/dashboard.html', title="AI-Powered Stock Analysis Hub - 32 Sections & Prophet ML")
 
 @app.route('/features/content-automation')
 def content_automation_page():
@@ -1479,28 +1531,8 @@ def how_it_works_page():
 
 @app.route('/features/sample-content')
 def sample_content_page():
-    """Sample content gallery - redirects to publishing history"""
-    return redirect(url_for('publishing_history'))
-
-@app.route('/features/documentation')
-def documentation_page():
-    """Documentation and support - renders FAQ page"""
-    return render_template('info/faq.html', title="Documentation & Support")
-
-@app.route('/features/getting-started')
-def getting_started_page():
-    """Getting started guide - renders how it works page"""
-    return render_template('how-it-works.html', title="Getting Started Guide")
-
-@app.route('/features/user-dashboard')
-def user_dashboard_page():
-    """User dashboard and settings"""
-    return render_template('stock_analysis/dashboard.html', title="User Dashboard & Settings")
-
-@app.route('/features/about')
-def about_page():
-    """About us and legal information"""
-    return render_template('info/about.html', title="About Us & Legal Information")
+    """Sample content gallery - redirects to dashboard"""
+    return redirect(url_for('stock_analysis.dashboard'))
 
 @app.route('/health')
 def simple_health_check():
@@ -2164,6 +2196,14 @@ def api_dashboard_reports():
     
     try:
         display_limit = request.args.get('limit', 10, type=int)
+        cache_key = f"dashboard_reports_{user_uid}_limit_{display_limit}"
+
+        # Return cached payload when present
+        if cache:
+            cached_payload = cache.get(cache_key)
+            if cached_payload:
+                return jsonify(cached_payload)
+
         reports, total_reports = get_report_history_for_user(user_uid, display_limit=display_limit)
         
         # Format reports for JSON response
@@ -2180,11 +2220,17 @@ def api_dashboard_reports():
             }
             formatted_reports.append(formatted_report)
         
-        return jsonify({
+        response_payload = {
             'status': 'success',
             'reports': formatted_reports,
             'total_reports': total_reports
-        })
+        }
+
+        # Cache for 5 minutes to align with other dashboards
+        if cache:
+            cache.set(cache_key, response_payload, timeout=300)
+
+        return jsonify(response_payload)
         
     except Exception as e:
         app.logger.error(f"Error fetching dashboard reports for user {user_uid}: {e}", exc_info=True)
@@ -2527,7 +2573,7 @@ def start_stock_analysis():
         session['notification_message'] = f"Invalid ticker format: '{ticker}'. Please use standard stock symbols (e.g., AAPL, MSFT, GOOGL, GC=F)."
         session['notification_type'] = "danger"
         socketio.emit('analysis_error', {'message': f"Invalid ticker format: '{ticker}'. Please use standard stock symbols.", 'ticker': ticker}, room=room_id)
-        return redirect(url_for('analyzer_input_page'))
+        return redirect(url_for('stock_analysis.analyzer'))
 
     if not PIPELINE_IMPORTED_SUCCESSFULLY:
         reason = PIPELINE_IMPORT_ERROR or "pipeline not loaded"
@@ -2535,7 +2581,7 @@ def start_stock_analysis():
         session['notification_message'] = "The Stock Analysis service is temporarily unavailable. Please try again later."
         session['notification_type'] = "danger"
         socketio.emit('analysis_error', {'message': 'Stock Analysis service is temporarily unavailable. Check server logs for details.', 'ticker': ticker}, room=room_id)
-        return redirect(url_for('analyzer_input_page'))
+        return redirect(url_for('stock_analysis.analyzer'))
 
     try:
         request_timestamp_for_report = int(time.time())
@@ -2730,7 +2776,7 @@ def display_report(ticker, filename):
         app.logger.error(f"Error in display_report: {e}", exc_info=True)
         session['notification_message'] = f"Error loading report for {ticker.upper()}. Please try again."
         session['notification_type'] = "error"
-        return redirect(url_for('analyzer_input_page'))
+        return redirect(url_for('stock_analysis.analyzer'))
 
 @app.route('/view-report/<ticker>/<path:filename>')
 @login_required
@@ -2797,13 +2843,13 @@ def view_generated_report(ticker, filename):
         app.logger.error(f"Report file not found in database or locally: {clean_filename}")
         session['notification_message'] = f"Report file for {ticker.upper()} not found. It may have been deleted or moved."
         session['notification_type'] = "error"
-        return redirect(url_for('analyzer_input_page'))
+        return redirect(url_for('stock_analysis.analyzer'))
             
     except Exception as e:
         app.logger.error(f"Error in view_generated_report: {e}", exc_info=True)
         session['notification_message'] = f"Error loading report for {ticker.upper()}. Please try again."
         session['notification_type'] = "error"
-        return redirect(url_for('analyzer_input_page'))
+        return redirect(url_for('stock_analysis.analyzer'))
 
 
 @app.route('/generated_reports/<path:filename>')
@@ -3005,7 +3051,7 @@ def verify_token_route():
         except Exception as e_firestore:
             app.logger.error(f"Error ensuring user profile in Firestore for {decoded_token.get('uid')}: {e_firestore}", exc_info=True)
 
-        return jsonify({"status": "success", "uid": decoded_token['uid'], "next_url": url_for('stock_analysis_hub_page')}), 200
+        return jsonify({"status": "success", "uid": decoded_token['uid'], "next_url": url_for('stock_analysis_homepage_route')}), 200
     else:
         app.logger.warning(f"[DEBUG] Token verification failed. Decoded token: {decoded_token}")
         return jsonify({"error": "Invalid or expired token."}), 401
@@ -4171,11 +4217,6 @@ def cleanup_orphaned_reports(user_uid=None, dry_run=True):
 
 
 # --- WORDPRESS AUTOMATION SPECIFIC ROUTES ---
-@app.route('/wordpress-automation-portal')
-@login_required
-def wordpress_automation_portal_route():
-    return render_template('automation/stock_analysis/dashboard.html', title="WordPress Automation - Tickzen")
-
 @app.route('/automation-runner')
 @login_required
 def automation_runner_page():
@@ -5043,24 +5084,6 @@ def run_earnings_automation():
 # PUBLISHING HISTORY ROUTES
 # ============================================================================
 
-@app.route('/publishing-history')
-@login_required
-def publishing_history():
-    """Display publishing history page"""
-    user_uid = session['firebase_user_uid']
-    
-    # Get user site profiles for context
-    user_site_profiles = get_user_site_profiles_from_firestore(user_uid)
-    
-    # Get shared context for automation
-    shared_context = get_automation_shared_context(user_uid, user_site_profiles)
-    
-    return render_template('publishing_history.html',
-                         title="Publishing History - Tickzen",
-                         user_site_profiles=user_site_profiles,
-                         **shared_context)
-
-
 @app.route('/api/publishing-history', methods=['GET'])
 @login_required
 def get_publishing_history():
@@ -5297,39 +5320,6 @@ def get_publishing_history():
 # ============================================================================
 # GOOGLE TRENDS DASHBOARD ROUTE
 # ============================================================================
-
-@app.route('/trends-dashboard')
-@login_required
-def trends_dashboard():
-    """Display Google Trends monitoring and collection dashboard"""
-    user_uid = session['firebase_user_uid']
-    
-    try:
-        app.logger.info(f"Trends dashboard accessed by user {user_uid}")
-        
-        # Get or create trends collector instance
-        from Sports_Article_Automation.google_trends.google_trends_collector import GoogleTrendsCollector
-        collector = GoogleTrendsCollector()
-        
-        # Get latest trends
-        latest_trends = collector.get_all_trends(limit=20)
-        
-        context = {
-            'title': 'Google Trends Dashboard - Tickzen',
-            'page_description': 'Monitor and analyze Google Trends data with real-time trending queries',
-            'user_uid': user_uid,
-            'latest_trends': latest_trends,
-            'trends_count': len(collector.trends_data),
-            'last_updated': collector.last_collection_time,
-            'collection_count': collector.collection_count
-        }
-        
-        return render_template('automation/sports/trends.html', **context)
-        
-    except Exception as e:
-        app.logger.error(f"Error loading trends dashboard: {e}", exc_info=True)
-        return render_template('error.html', error=str(e), title="Error - Tickzen"), 500
-
 
 @app.route('/run-sports-automation', methods=['POST'])
 @login_required
@@ -6169,73 +6159,56 @@ def api_sports_collect_rss():
             # Get the last article if any were added
             last_article = collector.news_database['articles'][-1] if collector.news_database['articles'] else None
             
-            # Emit async completion update
+            # Emit async completion update with error stats
+            failed_sources = len(sources) - successful_sources
+            status_message = f'⚡ ASYNC collection completed in {collection_time:.2f}s! {successful_sources}/{total_sources} sources successful'
+            if failed_sources > 0:
+                status_message += f' ({failed_sources} failed/timeout)'
+            status_message += f', {total_new_articles} new articles'
+            
             socketio.emit('sports_automation_update', {
                 'stage': 'rss_collection',
-                'message': f'⚡ ASYNC collection completed in {collection_time:.2f}s! {successful_sources}/{total_sources} sources successful, {total_new_articles} new articles',
-                'level': 'success',
+                'message': status_message,
+                'level': 'success' if successful_sources > 0 else 'warning',
                 'progress': 70,
                 'timestamp': datetime.now(timezone.utc).isoformat()
             }, room=user_uid)
             
-        except Exception as e:
-            app.logger.error(f"Error in async RSS collection: {e}")
-            # Fallback to sequential if async fails
+        except asyncio.TimeoutError:
+            app.logger.error("RSS collection timed out after 5 minutes")
             socketio.emit('sports_automation_update', {
                 'stage': 'rss_collection',
-                'message': f'⚠️ Async failed, falling back to sequential collection...',
-                'level': 'warning',
-                'progress': 15,
+                'message': f'⏱️ Collection timed out after 5 minutes. Some sources may be very slow. Try again or check your internet connection.',
+                'level': 'error',
+                'progress': 50,
                 'timestamp': datetime.now(timezone.utc).isoformat()
             }, room=user_uid)
             
-            # Sequential fallback (original code)
-            collection_results = {}
-            total_new_articles = 0
-            successful_sources = 0
-            last_article = None
+            return jsonify({
+                'success': False,
+                'error': 'RSS collection timed out after 5 minutes',
+                'timestamp': datetime.now(timezone.utc).isoformat()
+            }), 408
             
-            for idx, source in enumerate(sources, 1):
-                # Calculate progress (15% to 70%)
-                progress = 15 + int((idx / total_sources) * 55)
-                
-                # Emit progress for this source
-                socketio.emit('sports_automation_update', {
-                    'stage': 'rss_collection',
-                    'message': f'📥 [{idx}/{total_sources}] Collecting from {source["name"]}...',
-                    'level': 'info',
-                    'progress': progress,
-                    'timestamp': datetime.now(timezone.utc).isoformat()
-                }, room=user_uid)
-                
-                # Collect from this source
-                result = collector.collect_news_from_feed(source)
-                collection_results[source['name']] = result
-                total_new_articles += result['new_articles_added']
-                
-                # Track last article if any were added
-                if result['new_articles_added'] > 0:
-                    # Get the last added article
-                    last_article = collector.news_database['articles'][-1] if collector.news_database['articles'] else None
-                
-                # Emit result for this source
-                if result['status'] == 'success':
-                    successful_sources += 1
-                    socketio.emit('sports_automation_update', {
-                        'stage': 'rss_collection',
-                        'message': f'✅ [{idx}/{total_sources}] {source["name"]}: {result["articles_found"]} found, {result["new_articles_added"]} new',
-                        'level': 'success',
-                        'progress': progress,
-                        'timestamp': datetime.now(timezone.utc).isoformat()
-                    }, room=user_uid)
-                else:
-                    socketio.emit('sports_automation_update', {
-                        'stage': 'rss_collection',
-                        'message': f'❌ [{idx}/{total_sources}] {source["name"]}: Failed - {result.get("error", "Unknown error")}',
-                        'level': 'error',
-                        'progress': progress,
-                        'timestamp': datetime.now(timezone.utc).isoformat()
-                    }, room=user_uid)
+        except Exception as e:
+            app.logger.error(f"Error in async RSS collection: {e}")
+            import traceback
+            app.logger.error(traceback.format_exc())
+            
+            # Emit detailed error message
+            socketio.emit('sports_automation_update', {
+                'stage': 'rss_collection',
+                'message': f'❌ RSS collection failed: {str(e)}',
+                'level': 'error',
+                'progress': 50,
+                'timestamp': datetime.now(timezone.utc).isoformat()
+            }, room=user_uid)
+            
+            return jsonify({
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.now(timezone.utc).isoformat()
+            }), 500
         
         # Update metadata
         collector.news_database['metadata']['last_updated'] = datetime.now().isoformat()
@@ -6277,29 +6250,44 @@ def api_sports_collect_rss():
         collector.cleanup_old_articles(hours_threshold=24)
         
         # Remove duplicates
+        articles_before_dedup = len(collector.news_database.get('articles', []))
         socketio.emit('sports_automation_update', {
             'stage': 'rss_collection',
-            'message': f'🔄 Removing duplicate articles...',
+            'message': f'🔄 Removing duplicate articles from {articles_before_dedup} collected articles...',
             'level': 'info',
-            'progress': 85,
+            'progress': 82,
             'timestamp': datetime.now(timezone.utc).isoformat()
         }, room=user_uid)
         
+        dedup_start = time.time()
         collector.deduplicate_articles()
+        dedup_time = time.time() - dedup_start
+        articles_after_dedup = len(collector.news_database.get('articles', []))
+        duplicates_removed = articles_before_dedup - articles_after_dedup
+        
+        socketio.emit('sports_automation_update', {
+            'stage': 'rss_collection',
+            'message': f'✅ Deduplication complete: Removed {duplicates_removed} duplicates in {dedup_time:.1f}s, {articles_after_dedup} unique articles',
+            'level': 'success',
+            'progress': 87,
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        }, room=user_uid)
         
         # Save updated database
         collector.save_database()
         
         socketio.emit('sports_automation_update', {
             'stage': 'rss_collection',
-            'message': f'🏷️  Categorizing articles into sports categories...',
+            'message': f'🏷️  Categorizing {articles_after_dedup} articles into sports categories...',
             'level': 'info',
             'progress': 90,
             'timestamp': datetime.now(timezone.utc).isoformat()
         }, room=user_uid)
         
         # Categorize articles
+        categorization_start = time.time()
         categorization_result = categorizer.categorize_all_articles(save_individual_files=True)
+        categorization_time = time.time() - categorization_start
         categorized_data = categorization_result.get('categorized_data', {})
         categorization_stats = categorization_result.get('stats', {})
         
@@ -6331,7 +6319,7 @@ def api_sports_collect_rss():
         
         socketio.emit('sports_automation_update', {
             'stage': 'rss_collection',
-            'message': f'✅ Collection Complete! {total_count} articles collected from {successful_sources} sources',
+            'message': f'✅ Collection Complete! {total_count} articles categorized from {successful_sources} sources (Dedup: {dedup_time:.1f}s, Categorization: {categorization_time:.1f}s)',
             'level': 'success',
             'progress': 100,
             'completion_score': completion_score,
@@ -7539,7 +7527,7 @@ def count_words_in_html(html_content):
 # Register dashboard analytics routes if available
 if FIRESTORE_DASHBOARD_ANALYTICS_AVAILABLE:
     try:
-        register_firestore_dashboard_routes(app)
+        register_firestore_dashboard_routes(app, cache_instance=cache)
         app.logger.info("Dashboard analytics routes registered successfully")
     except Exception as e:
         app.logger.error(f"Failed to register dashboard analytics routes: {e}")
@@ -8321,7 +8309,6 @@ Disallow: /static/stock_reports/*/private/
 Crawl-delay: 1
 
 # Allow search engines to discover key pages
-Allow: /analyzer
 Allow: /login
 Allow: /register
 """
@@ -8380,7 +8367,6 @@ def sitemap_xml():
     static_pages = [
         # Main public pages
         ('/', '1.0', 'daily', 'Main homepage with AI stock analysis platform'),
-        ('/analyzer', '0.9', 'daily', 'Stock analysis tool and demo'),
         
         # Authentication pages (public access)
         ('/login', '0.5', 'monthly', 'User login'),
@@ -8397,7 +8383,7 @@ def sitemap_xml():
         ET.SubElement(url, 'priority').text = priority
         
         # Add images for main pages
-        if path in ['/', '/analyzer']:
+        if path == '/':
             image = ET.SubElement(url, 'image:image')
             ET.SubElement(image, 'image:loc').text = f"{base_url}/static/images/Report.png"
             ET.SubElement(image, 'image:caption').text = f"Tickzen {description}"
@@ -8414,7 +8400,7 @@ def sitemap_xml():
                 '/favicon.ico', '/robots.txt', '/sitemap', '/humans.txt',
                 '/google-business-profile.json', '/start-analysis', '/check-user-exists',
                 '/verify-token', '/test/', '/debug/', '/wp-asset-generator',
-                '/wordpress-automation-portal', '/dashboard-analytics', '/health', '<'
+                '/dashboard-analytics', '/analyzer', '/publishing-history', '/trends-dashboard', '/health', '<'
             ]
             
             # Skip if route contains any skip pattern

@@ -338,11 +338,24 @@ class RSSNewsCollector:
         
         logging.info(f"Starting ASYNC news collection from {len(sources)} RSS sources...")
         
-        # Run async collection
+        # Run async collection with overall timeout protection (5 minutes max)
         start_time = time.time()
-        collection_results, total_new_articles = asyncio.run(
-            self._collect_all_feeds_async(sources)
-        )
+        try:
+            collection_results, total_new_articles = asyncio.run(
+                asyncio.wait_for(
+                    self._collect_all_feeds_async(sources),
+                    timeout=300  # 5 minute overall timeout
+                )
+            )
+        except asyncio.TimeoutError:
+            logging.error("RSS collection timed out after 5 minutes")
+            # Return partial results if available
+            collection_results = {}
+            total_new_articles = len(self.news_database.get('articles', []))
+        except Exception as e:
+            logging.error(f"RSS collection failed: {e}")
+            raise
+        
         end_time = time.time()
         
         logging.info(f"⚡ Async collection completed in {end_time - start_time:.2f} seconds")
@@ -362,10 +375,15 @@ class RSSNewsCollector:
         self.cleanup_old_articles(hours_threshold=24)
         
         # Deduplicate articles to remove duplicates across sources
-        logging.info("Removing duplicate articles across sources...")
+        articles_before_dedup = len(self.news_database['articles'])
+        logging.info(f"Removing duplicate articles across sources... ({articles_before_dedup} articles)")
         self.deduplicate_articles()
+        articles_after_dedup = len(self.news_database['articles'])
+        duplicates_removed = articles_before_dedup - articles_after_dedup
+        logging.info(f"Deduplication complete: Removed {duplicates_removed} duplicates, {articles_after_dedup} unique articles remain")
         
         # Save updated database
+        logging.info("Saving updated database...")
         self.save_database()
         
         # Generate summary
@@ -376,6 +394,7 @@ class RSSNewsCollector:
             'successful_sources': len([r for r in collection_results.values() if r['status'] == 'success']),
             'total_articles_in_database': len(self.news_database['articles']),
             'new_articles_added': total_new_articles,
+            'duplicates_removed': duplicates_removed,
             'source_results': collection_results,
             'performance_improvement': f"~{5*60/(end_time - start_time):.1f}x faster than sequential"
         }
@@ -386,15 +405,19 @@ class RSSNewsCollector:
         """Async method to collect from all RSS feeds in parallel"""
         # Create aiohttp session with connection pooling
         connector = aiohttp.TCPConnector(
-            limit=20,  # Total connection pool size
-            limit_per_host=3,  # Max connections per host (be respectful)
+            limit=25,  # Total connection pool size (increased)
+            limit_per_host=5,  # Max connections per host
             ttl_dns_cache=300,  # DNS cache TTL
             use_dns_cache=True,
+            force_close=False,  # Reuse connections
+            enable_cleanup_closed=True
         )
         
+        # Increased timeouts to handle slow RSS feeds
         timeout = aiohttp.ClientTimeout(
-            total=30,  # Total timeout per request
-            connect=10  # Connection timeout
+            total=60,  # 60 seconds total timeout per request (increased from 30)
+            connect=15,  # 15 seconds connection timeout (increased from 10)
+            sock_read=30  # 30 seconds socket read timeout
         )
         
         async with aiohttp.ClientSession(
@@ -411,27 +434,45 @@ class RSSNewsCollector:
                 for source in sources
             ]
             
-            # Execute all tasks concurrently
+            # Execute all tasks concurrently with timeout per task
             logging.info(f"🚀 Starting parallel collection from {len(sources)} sources...")
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            # Wrap each task with individual timeout (90 seconds per source)
+            timeout_tasks = [
+                asyncio.wait_for(task, timeout=90)
+                for task in tasks
+            ]
+            
+            results = await asyncio.gather(*timeout_tasks, return_exceptions=True)
             
             # Process results
             collection_results = {}
             total_new_articles = 0
+            timeout_count = 0
+            error_count = 0
             
             for i, result in enumerate(results):
                 source = sources[i]
                 source_name = source['name']
                 
                 if isinstance(result, Exception):
-                    logging.error(f"❌ Exception for {source_name}: {str(result)}")
+                    error_type = 'timeout' if isinstance(result, asyncio.TimeoutError) else 'exception'
+                    error_msg = 'Request timed out (>90s)' if isinstance(result, asyncio.TimeoutError) else str(result)
+                    
+                    if isinstance(result, asyncio.TimeoutError):
+                        timeout_count += 1
+                        logging.warning(f"⏱️ {source_name}: Timeout (>90s)")
+                    else:
+                        error_count += 1
+                        logging.error(f"❌ {source_name}: {error_msg}")
+                    
                     collection_results[source_name] = {
                         'source_name': source_name,
                         'source_url': source['url'],
-                        'status': 'exception',
+                        'status': error_type,
                         'articles_found': 0,
                         'new_articles_added': 0,
-                        'error': str(result)
+                        'error': error_msg
                     }
                 else:
                     collection_results[source_name] = result
@@ -441,7 +482,12 @@ class RSSNewsCollector:
                     if result['status'] == 'success':
                         logging.info(f"✅ {source_name}: {result['articles_found']} found, {result['new_articles_added']} new")
                     else:
+                        error_count += 1
                         logging.warning(f"⚠️ {source_name}: {result['error']}")
+            
+            # Log summary of failures
+            if timeout_count > 0 or error_count > 0:
+                logging.warning(f"⚠️ Collection completed with {timeout_count} timeouts and {error_count} other errors out of {len(sources)} sources")
             
             return collection_results, total_new_articles
 

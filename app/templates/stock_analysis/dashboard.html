@@ -18,14 +18,28 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/skeleton-loader.css') }}">
     
 <style>
+    /* Stock Analysis Page Layout */
+    .stock-analysis-page-layout {
+        display: flex;
+        min-height: calc(100vh - 56px);
+        background: #f5f6fa;
+    }
+
+    .stock-analysis-page-content {
+        flex: 1;
+        overflow-x: hidden;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
     .dashboard-container {
         max-width: 1200px;
-        margin: 2rem auto;
-        padding: 0 1rem;
+        margin: 0 auto;
+        padding: 2rem 1rem;
     }
 
     .dashboard-header {
-        padding: 2rem 0;
+        padding: 0;
         text-align: center;
         border-bottom: 1px solid #eee;
         margin-bottom: 2rem;
@@ -220,14 +234,28 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <header class="dashboard-header">
-        <h1>Welcome to Your Tickzen Dashboard, {{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'User') }}!</h1>
-        <p>Access your powerful AI-driven tools for stock analysis and WordPress automation, all in one place.</p>
-    </header>
+<!-- Stock Analysis Page Layout with Sidebar -->
+<div class="stock-analysis-page-layout">
+    {% include 'stock_analysis/_sidebar.html' %}
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" onclick="toggleStockSidebar()"></div>
+    
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-sidebar-toggle" onclick="toggleStockSidebar()" aria-label="Toggle sidebar">
+        <i data-lucide="menu"></i>
+    </button>
+    
+    <!-- Main Content Area -->
+    <div class="stock-analysis-page-content">
+        <div class="dashboard-container">
+            <header class="dashboard-header">
+                <h1>Welcome to Your Tickzen Dashboard, {{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'User') }}!</h1>
+                <p>Access your powerful AI-driven tools for stock analysis and WordPress automation, all in one place.</p>
+            </header>
 
-    <section class="dashboard-section" id="recent-reports">
-        <h2>
+            <section class="dashboard-section" id="recent-reports">
+                <h2>
             <i class="fas fa-history"></i> Recent Reports
             <span class="badge" id="total-reports-badge" style="display: none;">0 Total</span>
         </h2>
@@ -337,13 +365,6 @@
             </div>
             
             <div class="tool-card">
-                <div class="tool-card-icon"><i class="fas fa-robot"></i></div>
-                <h3>WP Automation Portal</h3>
-                <p class="tool-description">Access the main portal for WordPress automation tasks, including an overview of automation capabilities (content for this page TBD).</p>
-                <a href="{{ url_for('wordpress_automation_portal_route') }}" class="btn btn-primary btn-launch-tool">Go to WP Automation</a>
-            </div>
-
-            <div class="tool-card">
                 <div class="tool-card-icon"><i class="fas fa-sitemap"></i></div>
                 <h3>Manage Site Profiles</h3>
                 <p class="tool-description">Configure and manage your WordPress site profiles for automated content posting, including authors and scheduling preferences.</p>
@@ -361,7 +382,7 @@
                 <div class="tool-card-icon"><i class="fas fa-chart-line"></i></div>
                 <h3>Dashboard Analytics</h3>
                 <p class="tool-description">View interactive charts and analytics for your reports, including trends over time, most analyzed tickers, and publishing status.</p>
-                <a href="{{ url_for('stock_analysis_hub_page') }}" class="btn btn-primary btn-launch-tool">View Analytics</a>
+                <a href="{{ url_for('stock_analysis_homepage_route') }}" class="btn btn-primary btn-launch-tool">View Analytics</a>
             </div>
             
             <div class="tool-card">
@@ -492,4 +513,11 @@
         }
     });
 </script>
+
+<!-- Close main content wrapper divs -->
+        </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

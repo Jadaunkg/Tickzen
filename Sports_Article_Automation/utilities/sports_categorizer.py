@@ -396,7 +396,10 @@ class SportsNewsCategorizer:
         
         self.logger.info(f"Categorizing {len(articles)} articles...")
         
-        for article in articles:
+        # Track progress
+        last_progress_log = 0
+        
+        for idx, article in enumerate(articles, 1):
             category = self.categorize_article(article)
             
             # Add category info to article (create copy to avoid mutation)
@@ -412,6 +415,12 @@ class SportsNewsCategorizer:
                 categorization_stats['categorized'][category] += 1
             else:
                 categorization_stats['uncategorized'] += 1
+            
+            # Log progress every 10% of articles
+            progress_percent = int((idx / len(articles)) * 100)
+            if progress_percent >= last_progress_log + 10:
+                last_progress_log = progress_percent
+                self.logger.info(f"  Categorization progress: {progress_percent}% ({idx}/{len(articles)} articles)")
         
         # Update metadata for each category
         for category, data in categorized_data.items():
@@ -430,10 +439,14 @@ class SportsNewsCategorizer:
         
         # Save individual category files (ONLY cricket, football, basketball)
         if save_individual_files:
+            self.logger.info("Saving categorized articles to individual sport databases...")
             for category in self.categories.keys():
-                filename = self.categories[category]['filename']
-                self.save_category_database(categorized_data[category], filename)
-                # Remove duplicate logging - save_category_database already logs
+                article_count = len(categorized_data[category]['articles'])
+                if article_count > 0:
+                    filename = self.categories[category]['filename']
+                    self.save_category_database(categorized_data[category], filename)
+                else:
+                    self.logger.info(f"Skipping {category} - no articles to save")
         
         # DO NOT save uncategorized articles - they are filtered out
         # Uncategorized = other sports we don't support (tennis, hockey, etc.)

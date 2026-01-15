@@ -648,6 +648,14 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
             raise ValueError(f"Historical data 'Date' column error: {e}")
 
     historical_data = historical_data.sort_values('Date').reset_index(drop=True)
+    
+    # Remove duplicate rows - critical for data quality
+    # yfinance can return duplicates due to API issues, timezone handling, or data source problems
+    initial_row_count = len(historical_data)
+    historical_data = historical_data.drop_duplicates(subset=['Date'], keep='last').reset_index(drop=True)
+    if len(historical_data) < initial_row_count:
+        print(f"WARNING: Removed {initial_row_count - len(historical_data)} duplicate date rows from historical data for {ticker}")
+    
     data_out['historical_data'] = historical_data
     hist_data_for_ta = historical_data.copy()
 
@@ -689,14 +697,20 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
     last_date = historical_data['Date'].iloc[-1] if not historical_data.empty else datetime.now(pytz.utc)
     volatility = None; green_days = None; total_days = 0
     if len(historical_data) > 1:
+        # Use exactly 30 trading days for accurate 30-day volatility calculation
         last_30_days_df = historical_data.iloc[-min(30, len(historical_data)):]
+        actual_days_used = len(last_30_days_df)
+        
         if len(last_30_days_df) > 1:
             daily_returns = last_30_days_df['Close'].pct_change().dropna()
             if not daily_returns.empty:
                 volatility_std_dev = daily_returns.std()
                 # Ensure volatility_std_dev is not NaN before calculation
                 if not pd.isna(volatility_std_dev):
+                    # Annualize volatility: daily std dev * sqrt(252 trading days/year) * 100 for percentage
+                    # This converts 30-day volatility to annual equivalent
                     volatility = volatility_std_dev * np.sqrt(252) * 100
+                    print(f"DEBUG: {ticker}: Calculated annualized volatility {volatility:.2f}% from {actual_days_used} days (std dev: {volatility_std_dev:.6f})")
                 else:
                     volatility = 0.0 # Or handle as None if preferred
             else: volatility = 0.0
@@ -714,12 +728,22 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
         periods_in_year = 12 if period_label == "Month" else 52 if period_label == "Week" else 252 if period_label == "Day" else len(forecast_data)
         periods_in_month = 4 if period_label == "Week" else 21 if period_label == "Day" else 1 if period_label == "Month" else 1
 
+        # FIXED: Ensure idx_1m and idx_1y select different rows
+        # For monthly data with periods_in_month=1, we want first month (idx 0) and 12th month (idx 11)
         idx_1m = min(periods_in_month - 1, len(forecast_data)-1)
         idx_1y = min(periods_in_year - 1, len(forecast_data)-1)
+        
+        # Safety check: ensure 1-month and 1-year are different
+        if idx_1m == idx_1y and len(forecast_data) > 1:
+            # If they're the same, use first available for 1m and last available for 1y
+            idx_1m = 0
+            idx_1y = len(forecast_data) - 1
+            print(f"DEBUG: Adjusted forecast indices to prevent 1m and 1y from being identical: idx_1m={idx_1m}, idx_1y={idx_1y}")
 
         if len(forecast_data) > 0:
              forecast_1m = forecast_data['Average'].iloc[idx_1m]
              final_forecast_average = forecast_data['Average'].iloc[idx_1y]
+             print(f"DEBUG: Forecast values - 1m: ${forecast_1m:.2f} (idx {idx_1m}), 1y: ${final_forecast_average:.2f} (idx {idx_1y})")
 
         # Show up to 24 months, 52 weeks, or ~252 days in the table
         max_table_periods = 24 if period_label=="Month" else 52 if period_label=="Week" else 252 if period_label=="Day" else len(forecast_data)
@@ -779,6 +803,20 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
     data_out['share_statistics_data'] = extract_share_statistics_data(fundamentals, current_price)
     data_out['financial_efficiency_data'] = extract_financial_efficiency_data(fundamentals)
     data_out['stock_price_stats_data'] = extract_stock_price_stats_data(fundamentals)
+    
+    # --- CRITICAL FIX: Override moving averages with calculated values for consistency ---
+    # Replace yfinance API moving averages with our calculated values to ensure consistency
+    # across all report sections (introduction, metrics summary, and stock price statistics)
+    from analysis_scripts.fundamental_analysis import format_value
+    if sma50 is not None:
+        old_sma50 = data_out['stock_price_stats_data'].get('50 Day MA', 'N/A')
+        data_out['stock_price_stats_data']['50 Day MA'] = format_value(sma50, 'currency')
+        print(f"[Consistency Fix] Overriding 50-day SMA: {old_sma50} → {data_out['stock_price_stats_data']['50 Day MA']}")
+    if sma200 is not None:
+        old_sma200 = data_out['stock_price_stats_data'].get('200 Day MA', 'N/A')
+        data_out['stock_price_stats_data']['200 Day MA'] = format_value(sma200, 'currency')
+        print(f"[Consistency Fix] Overriding 200-day SMA: {old_sma200} → {data_out['stock_price_stats_data']['200 Day MA']}")
+    
     data_out['short_selling_data'] = extract_short_selling_data(fundamentals)
     data_out['peer_comparison_data'] = extract_peer_comparison_data(ticker)
     
