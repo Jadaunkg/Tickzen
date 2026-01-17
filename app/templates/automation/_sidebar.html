@@ -99,6 +99,25 @@
                 </a>
             </div>
         </div>
+
+        <!-- Government Jobs -->
+        <div class="auto-nav-group {% if 'jobs_automation' in (request.endpoint or '') %}expanded{% endif %}">
+            <button class="auto-nav-toggle" type="button" data-target="jobs-menu">
+                <div class="auto-nav-toggle-left">
+                    <i data-lucide="briefcase" class="icon-jobs"></i>
+                    <span>Government Jobs</span>
+                </div>
+                <i data-lucide="chevron-right" class="toggle-arrow"></i>
+            </button>
+            <div class="auto-submenu" id="jobs-menu">
+                <a href="{{ url_for('automation.jobs_automation.dashboard') }}" class="auto-submenu-item {% if request.endpoint == 'automation.jobs_automation.dashboard' %}active{% endif %}">
+                    <i data-lucide="gauge"></i>Dashboard
+                </a>
+                <a href="{{ url_for('automation.jobs_automation.run') }}" class="auto-submenu-item {% if request.endpoint == 'automation.jobs_automation.run' %}active{% endif %}">
+                    <i data-lucide="play"></i>Run Automation
+                </a>
+            </div>
+        </div>
     </nav>
     
     <!-- Footer -->
@@ -285,6 +304,7 @@
 .icon-stock { stroke: #16a34a; }
 .icon-earnings { stroke: #7c3aed; }
 .icon-sports { stroke: #ea580c; }
+.icon-jobs { stroke: #f59e0b; }
 
 .toggle-arrow {
     width: 14px !important;

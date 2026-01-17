@@ -1,5 +1,21 @@
 [
   {
+    "profile_id": "profile1",
+    "profile_name": "Test Profile 1",
+    "site_url": "https://test1.example.com",
+    "author": {
+      "wp_username": "test_user",
+      "app_password": "xxxx xxxx xxxx xxxx xxxx xxxx"
+    },
+    "stockforecast_category_id": 1,
+    "internal_linking": {
+      "enabled": true,
+      "same_category_only": true,
+      "max_links_per_article": 5,
+      "cache_expiry_hours": 24
+    }
+  },
+  {
     "profile_id": "profile_1",
     "profile_name": "Sports Site Profile",
     "site_url": "https://yoursportssite.com",
@@ -16,4 +32,3 @@
     }
   }
 ]
-

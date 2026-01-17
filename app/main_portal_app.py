@@ -7189,6 +7189,104 @@ def error_handler(e):
     except:
         pass  # Don't let error handler cause more errors
 
+# ======================== Job Portal Automation WebSocket Handlers ========================
+
+@socketio.on('join_job_portal_run')
+def handle_join_job_portal_run(data, *args, **kwargs):
+    """Join a job portal automation run room for progress updates"""
+    run_id = data.get('run_id')
+    client_sid = request.sid
+    user_uid = session.get('firebase_user_uid')
+    
+    try:
+        if not run_id:
+            emit('error', {'message': 'Run ID is required'}, room=client_sid)
+            return
+        
+        # Room name: job_portal_run_{run_id}
+        room_name = f"job_portal_run_{run_id}"
+        join_room(room_name)
+        
+        app.logger.info(f"Client {client_sid} (user {user_uid}) joined job portal run room: {room_name}")
+        
+        # Send confirmation to client
+        emit('job_portal_joined', {
+            'run_id': run_id,
+            'message': f'Successfully joined job portal run {run_id}'
+        }, room=client_sid)
+        
+        # Notify other clients in the room
+        emit('job_portal_client_joined', {
+            'run_id': run_id,
+            'clients_in_room': f'Client {client_sid} joined'
+        }, room=room_name, skip_sid=client_sid)
+        
+    except Exception as e:
+        app.logger.error(f"Error in handle_join_job_portal_run: {e}")
+        emit('error', {'message': f'Failed to join run room: {str(e)}'}, room=client_sid)
+
+
+@socketio.on('leave_job_portal_run')
+def handle_leave_job_portal_run(data, *args, **kwargs):
+    """Leave a job portal automation run room"""
+    run_id = data.get('run_id')
+    client_sid = request.sid
+    user_uid = session.get('firebase_user_uid')
+    
+    try:
+        if not run_id:
+            emit('error', {'message': 'Run ID is required'}, room=client_sid)
+            return
+        
+        room_name = f"job_portal_run_{run_id}"
+        leave_room(room_name)
+        
+        app.logger.info(f"Client {client_sid} (user {user_uid}) left job portal run room: {room_name}")
+        
+        # Send confirmation to client
+        emit('job_portal_left', {
+            'run_id': run_id,
+            'message': f'Left job portal run {run_id}'
+        }, room=client_sid)
+        
+    except Exception as e:
+        app.logger.error(f"Error in handle_leave_job_portal_run: {e}")
+        emit('error', {'message': f'Failed to leave run room: {str(e)}'}, room=client_sid)
+
+
+@socketio.on('get_job_portal_progress')
+def handle_get_job_portal_progress(data, *args, **kwargs):
+    """Get current progress of a job portal automation run"""
+    run_id = data.get('run_id')
+    client_sid = request.sid
+    
+    try:
+        if not run_id:
+            emit('error', {'message': 'Run ID is required'}, room=client_sid)
+            return
+        
+        from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
+        
+        with JobAutomationManager() as manager:
+            run_status = manager.get_run_status(run_id)
+        
+        # Send progress to requesting client
+        emit('job_portal_progress', {
+            'run_id': run_id,
+            'status': run_status.get('status'),
+            'progress': run_status.get('progress'),
+            'results': run_status.get('results', []),
+            'errors': run_status.get('errors', [])
+        }, room=client_sid)
+        
+        app.logger.info(f"Sent progress for run {run_id} to client {client_sid}")
+        
+    except Exception as e:
+        app.logger.error(f"Error in handle_get_job_portal_progress: {e}")
+        emit('error', {'message': f'Failed to get progress: {str(e)}'}, room=client_sid)
+
+# ======================== End Job Portal WebSocket Handlers ========================
+
 @app.route('/update-user-profile', methods=['POST'])
 @login_required
 def update_user_profile():
@@ -8656,15 +8754,209 @@ def _register_automation():
                              user_site_profiles=user_site_profiles,
                              **shared_context)
     
+        # ======================== Job Portal Automation Routes ========================
+    
+        @automation_bp.route('/job-portal', methods=['GET', 'POST'])
+        @bp_login_required
+        def job_portal_automation():
+            """Job Portal Automation dashboard"""
+            try:
+                from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
+                user_uid = session.get('firebase_user_uid')
+            
+                if request.method == 'POST':
+                    # Initiate new automation run
+                    content_type = request.json.get('content_type')
+                    selected_items = request.json.get('selected_items', [])
+                    target_profiles = request.json.get('target_profiles', [])
+                    config = request.json.get('config', {})
+                
+                    with JobAutomationManager() as manager:
+                        success, run_id, message = manager.initiate_automation_run(
+                            user_uid=user_uid,
+                            content_type=content_type,
+                            selected_items=selected_items,
+                            target_profiles=target_profiles,
+                            config=config
+                        )
+                
+                    return jsonify({
+                        'success': success,
+                        'run_id': run_id if success else None,
+                        'message': message
+                    })
+            
+                return render_template('automation/job_portal.html',
+                                     title="Job Portal Automation - Tickzen")
+        
+            except Exception as e:
+                app.logger.error(f"Error in job portal automation: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+    
+        @automation_bp.route('/job-portal/run/<run_id>', methods=['GET'])
+        @bp_login_required
+        def job_portal_run_status(run_id):
+            """Get status of a job portal automation run"""
+            try:
+                from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
+            
+                with JobAutomationManager() as manager:
+                    status = manager.get_run_status(run_id)
+            
+                return jsonify(status)
+        
+            except Exception as e:
+                app.logger.error(f"Error getting run status: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+    
+        @automation_bp.route('/job-portal/history', methods=['GET'])
+        @bp_login_required
+        def job_portal_history():
+            """Get automation history for user"""
+            try:
+                from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
+                user_uid = session.get('firebase_user_uid')
+                limit = request.args.get('limit', 50, type=int)
+            
+                with JobAutomationManager() as manager:
+                    history = manager.get_user_history(user_uid, limit)
+            
+                return jsonify(history)
+        
+            except Exception as e:
+                app.logger.error(f"Error getting history: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+    
+        @automation_bp.route('/job-portal/stats', methods=['GET'])
+        @bp_login_required
+        def job_portal_statistics():
+            """Get automation statistics for user"""
+            try:
+                from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
+                user_uid = session.get('firebase_user_uid')
+            
+                with JobAutomationManager() as manager:
+                    stats = manager.get_user_statistics(user_uid)
+            
+                return jsonify(stats)
+        
+            except Exception as e:
+                app.logger.error(f"Error getting statistics: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+    
+        @automation_bp.route('/job-portal/data/<content_type>', methods=['GET'])
+        @bp_login_required
+        def job_portal_fetch_data(content_type):
+            """Fetch jobs, results, or admit cards"""
+            try:
+                from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
+            
+                page = request.args.get('page', 1, type=int)
+                limit = request.args.get('limit', 50, type=int)
+                search = request.args.get('search', None, type=str)
+                portal = request.args.get('portal', None, type=str)
+                date_from = request.args.get('date_from', None, type=str)
+                date_to = request.args.get('date_to', None, type=str)
+            
+                with JobAutomationManager() as manager:
+                    if content_type == 'jobs':
+                        result = manager.fetch_jobs_list(
+                            page=page, limit=limit, search=search,
+                            portal=portal, date_from=date_from, date_to=date_to
+                        )
+                    elif content_type == 'results':
+                        result = manager.fetch_results_list(
+                            page=page, limit=limit, search=search,
+                            portal=portal, date_from=date_from, date_to=date_to
+                        )
+                    elif content_type == 'admit_cards':
+                        result = manager.fetch_admit_cards_list(
+                            page=page, limit=limit, search=search,
+                            portal=portal, date_from=date_from, date_to=date_to
+                        )
+                    else:
+                        return jsonify({'success': False, 'error': 'Invalid content type'}), 400
+            
+                return jsonify(result)
+        
+            except Exception as e:
+                app.logger.error(f"Error fetching {content_type}: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+    
+        @automation_bp.route('/job-portal/details', methods=['POST'])
+        @bp_login_required
+        def job_portal_fetch_details():
+            """Fetch detailed information for an item"""
+            try:
+                from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
+            
+                url = request.json.get('url')
+                content_type = request.json.get('content_type', 'auto')
+            
+                if not url:
+                    return jsonify({'success': False, 'error': 'URL is required'}), 400
+            
+                with JobAutomationManager() as manager:
+                    details = manager.fetch_item_details(url, content_type)
+            
+                return jsonify(details)
+        
+            except Exception as e:
+                app.logger.error(f"Error fetching item details: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+    
+        @automation_bp.route('/job-portal/control/<run_id>/<action>', methods=['POST'])
+        @bp_login_required
+        def job_portal_run_control(run_id, action):
+            """Control a running job portal automation (pause, resume, cancel)"""
+            try:
+                from Job_Portal_Automation.job_automation_processor import JobAutomationProcessor
+                from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
+            
+                if action not in ['pause', 'resume', 'cancel']:
+                    return jsonify({'success': False, 'error': 'Invalid action'}), 400
+            
+                # Get or create global processor (in production, use a proper singleton)
+                if not hasattr(app, 'job_processor'):
+                    manager = JobAutomationManager()
+                    app.job_processor = JobAutomationProcessor(
+                        automation_manager=manager,
+                        state_manager=manager.state_manager
+                    )
+            
+                processor = app.job_processor
+                success = False
+                message = ""
+            
+                if action == 'pause':
+                    success = processor.pause_run()
+                    message = "Run paused"
+                elif action == 'resume':
+                    success = processor.resume_run()
+                    message = "Run resumed"
+                elif action == 'cancel':
+                    success = processor.stop_run()
+                    message = "Run cancelled"
+            
+                return jsonify({'success': success, 'message': message})
+        
+            except Exception as e:
+                app.logger.error(f"Error controlling run: {e}")
+                return jsonify({'success': False, 'error': str(e)}), 500
+    
+        # ======================== End Job Portal Routes ========================
+    
     # Import and create fresh sub-blueprints
     from app.blueprints.automation_stock import stock_automation_bp
     from app.blueprints.automation_earnings import earnings_automation_bp
     from app.blueprints.automation_sports import sports_automation_bp
+    from app.blueprints.automation_jobs import jobs_automation_bp
     
     # Register sub-blueprints on the fresh parent
     automation_bp.register_blueprint(stock_automation_bp)
     automation_bp.register_blueprint(earnings_automation_bp)
     automation_bp.register_blueprint(sports_automation_bp)
+    automation_bp.register_blueprint(jobs_automation_bp)
     
     # Register parent with app
     app.register_blueprint(automation_bp)

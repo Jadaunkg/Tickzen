@@ -1,0 +1,1877 @@
+{% extends "_base.html" %}
+
+{% block title %}Government Jobs Automation | Run | Tickzen{% endblock %}
+
+{% block head_extra %}
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Automate government jobs, exam results, and admit card article generation and publishing to WordPress with AI-powered content creation">
+    <link rel="canonical" href="https://tickzen.app/automation/jobs/run">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 0 0% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 0 0% 3.9%;
+            --border: 0 0% 89.8%;
+            --muted: 0 0% 96.1%;
+            --muted-foreground: 0 0% 45.1%;
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --green-800: #166534;
+            --blue-50: #eff6ff;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --orange-50: #fff7ed;
+            --orange-600: #ea580c;
+            --orange-700: #c2410c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: hsl(var(--foreground));
+            background: hsl(var(--background));
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .alert.alert-warning {
+            background: #fef3c7;
+            border-left-color: #f59e0b;
+        }
+
+        .alert.alert-danger,
+        .alert.alert-error {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+        }
+
+        .alert.alert-success {
+            background: #d1fae5;
+            border-left-color: #10b981;
+        }
+
+        /* Page Layout - uses imported sidebar */
+        .automation-page-layout {
+            display: flex;
+            min-height: calc(100vh - 56px);
+            background: #f8fafc;
+        }
+
+        .automation-page-content {
+            flex: 1;
+            min-width: 0;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 56px - 3rem);
+        }
+        
+        /* Mobile sidebar toggle */
+        .mobile-sidebar-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(234,88,12,0.4);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-sidebar-toggle svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-sidebar-toggle {
+                display: flex;
+            }
+            
+            .automation-page-content {
+                padding: 1rem;
+            }
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--orange-600) 0%, var(--orange-700) 100%);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .page-header h1 {
+            font-size: 1.375rem;
+            font-weight: 600;
+            margin-bottom: 0.375rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+
+        .page-header h1 i {
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .page-header p {
+            font-size: 0.8125rem;
+            opacity: 0.92;
+            margin: 0;
+        }
+
+        /* Content wrapper for proper sticky behavior */
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 1rem;
+        }
+
+        /* Sticky Bottom Action Panel */
+        .action-panel {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-top: 2px solid var(--orange-600);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+            padding: 1rem 1.5rem;
+            min-height: 68px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .action-panel-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .action-panel-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .action-panel-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-left: auto;
+        }
+
+        .action-btn-compact {
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            min-height: 40px;
+        }
+
+        .action-btn-compact.primary {
+            background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
+            color: white;
+        }
+
+        .action-btn-compact.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+
+        .action-btn-compact.primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-btn-compact.secondary {
+            background: var(--green-700);
+            color: white;
+        }
+
+        .action-btn-compact.secondary:hover {
+            background: var(--green-800);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(21, 128, 61, 0.3);
+        }
+
+        .action-btn-compact.tertiary {
+            background: white;
+            color: hsl(var(--foreground));
+            border: 1px solid hsl(var(--border));
+        }
+
+        .action-btn-compact.tertiary:hover {
+            background: var(--green-50);
+            border-color: var(--green-600);
+            color: var(--green-700);
+        }
+
+        .action-status {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+            padding: 0.375rem 0.75rem;
+            background: hsl(var(--muted));
+            border-radius: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .action-panel {
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        /* Category Section - Compact */
+        .category-section {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-section h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: hsl(var(--foreground));
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-section h3 i {
+            color: var(--orange-600);
+            font-size: 0.875rem;
+        }
+
+        .category-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 0.5rem 1rem;
+            border: 1.5px solid hsl(var(--border));
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: hsl(var(--foreground));
+        }
+
+        .category-btn:hover {
+            border-color: var(--orange-600);
+            background: var(--orange-50);
+            color: var(--orange-700);
+        }
+
+        .category-btn.active {
+            background: var(--orange-600);
+            color: white;
+            border-color: var(--orange-600);
+        }
+
+        .category-btn i {
+            font-size: 0.875rem;
+        }
+
+        .category-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: hsl(var(--muted));
+            color: hsl(var(--foreground));
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            min-width: 24px;
+        }
+
+        .category-btn.active .category-count {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 0.625rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background-color: white;
+            transition: all 0.2s ease;
+            outline: none;
+            color: hsl(var(--foreground));
+        }
+        
+        .filter-input:hover {
+            border-color: #94a3b8;
+        }
+        
+        .filter-input:focus {
+            border-color: var(--green-600);
+            box-shadow: 0 0 0 3px var(--green-100);
+        }
+
+        /* Items Grid - Card Based Display */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* Card View (Default) */
+        .item-card {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .item-card:hover {
+            border-color: var(--orange-600);
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .item-card.selected {
+            border-color: var(--green-600);
+            background: var(--green-50);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+        }
+
+        .item-card .select-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 24px;
+            height: 24px;
+            border: 2px solid hsl(var(--border));
+            border-radius: 4px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-card.selected .select-indicator {
+            background: var(--green-600);
+            border-color: var(--green-600);
+            color: white;
+        }
+
+        .item-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+            padding-right: 2.5rem;
+            color: hsl(var(--foreground));
+        }
+
+        .item-description {
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .item-meta {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .item-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-critical { background: #fee2e2; color: #991b1b; }
+        .badge-high { background: #fef3c7; color: #92400e; }
+        .badge-medium { background: #dbeafe; color: #1e40af; }
+        .badge-low { background: #e0e7ff; color: #3730a3; }
+        .badge-minimal { background: #f3f4f6; color: #374151; }
+        .badge-category { background: var(--green-100); color: var(--green-800); }
+        .badge-source { background: hsl(var(--muted)); color: hsl(var(--foreground)); }
+
+        /* Items Section Header */
+        .items-section {
+            margin-bottom: 1rem;
+        }
+
+        .items-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.875rem;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 10px;
+            padding: 0.875rem 1.125rem;
+        }
+
+        .items-section-header h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+        }
+
+        .items-section-header i {
+            color: var(--orange-600);
+            font-size: 0.875rem;
+        }
+
+        .items-count {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: hsl(var(--muted-foreground));
+            background: hsl(var(--muted));
+            padding: 0.25rem 0.625rem;
+            border-radius: 6px;
+            margin-left: 0.875rem;
+        }
+
+        /* Configuration Panel */
+        .config-panel {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .config-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .config-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .config-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: hsl(var(--foreground));
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .config-label i {
+            color: var(--orange-600);
+            font-size: 0.875rem;
+        }
+
+        .config-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .config-select:hover {
+            border-color: var(--orange-600);
+        }
+
+        .config-select:focus {
+            outline: none;
+            border-color: var(--orange-600);
+            box-shadow: 0 0 0 3px var(--orange-100);
+        }
+
+        /* Profiles Section */
+        .profiles-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1rem;
+        }
+
+        .profile-card {
+            border: 1px solid hsl(var(--border));
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--orange-700) 0%, var(--orange-600) 100%);
+            padding: 0.75rem 1rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+
+        .profile-header input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: white;
+        }
+
+        .profile-header label {
+            font-size: 0.875rem;
+        }
+
+        .profile-body {
+            padding: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 0.875rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--foreground));
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.5rem 0.625rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-family: inherit;
+            color: hsl(var(--foreground));
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--orange-600);
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+        }
+
+        .schedule-interval-section {
+            background: var(--orange-50);
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            border-left: 3px solid var(--orange-600);
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-bar-container {
+            background: hsl(var(--muted));
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--green-600) 0%, var(--green-700) 100%);
+            height: 100%;
+            width: 0%;
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-logs {
+            background: #1a1a1a;
+            color: #00ff00;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+        }
+
+        .log-time {
+            color: #888;
+            margin-right: 0.5rem;
+        }
+
+        .log-success {
+            color: #4ade80;
+        }
+
+        .log-error {
+            color: #f87171;
+        }
+
+        .log-warning {
+            color: #facc15;
+        }
+
+        /* No Items Message */
+        .no-items-message {
+            text-align: center;
+            padding: 3rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .no-items-message i {
+            font-size: 3rem;
+            color: var(--orange-600);
+            margin-bottom: 1rem;
+        }
+
+        .no-items-message p {
+            margin: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .items-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 1.125rem;
+            }
+
+            .page-header p {
+                font-size: 0.75rem;
+            }
+
+            .action-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-btn-compact {
+                width: 100%;
+            }
+
+            .config-panel {
+                padding: 1rem;
+            }
+
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* View Switcher */
+        .view-switcher {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid hsl(var(--border));
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: hsl(var(--foreground));
+        }
+
+        .view-btn:hover {
+            background: var(--orange-50);
+            border-color: var(--orange-600);
+            color: var(--orange-700);
+        }
+
+        .view-btn.active {
+            background: var(--orange-600);
+            color: white;
+            border-color: var(--orange-600);
+        }
+
+        /* Tile View */
+        .items-grid.tile-view {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+
+        .items-grid.tile-view .item-card {
+            padding: 1rem;
+        }
+
+        .items-grid.tile-view .item-title {
+            font-size: 0.9rem;
+        }
+
+        .items-grid.tile-view .item-description {
+            -webkit-line-clamp: 3;
+        }
+
+        /* List View */
+        .items-grid.list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .items-grid.list-view .item-card {
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .items-grid.list-view .select-indicator {
+            position: static;
+            flex-shrink: 0;
+            margin-top: 0.25rem;
+        }
+
+        .items-grid.list-view .item-title {
+            font-size: 0.95rem;
+            padding-right: 0;
+        }
+
+        .items-grid.list-view .item-description {
+            -webkit-line-clamp: 1;
+        }
+
+        /* Dropdown View */
+        .items-grid.dropdown-view {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .items-grid.dropdown-view .item-card {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .item-dropdown-header {
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            transition: background 0.2s;
+            display: none;
+        }
+
+        .items-grid.dropdown-view .item-dropdown-header {
+            display: flex;
+        }
+
+        .items-grid.dropdown-view .item-card > h4,
+        .items-grid.dropdown-view .item-card > p,
+        .items-grid.dropdown-view .item-card > .item-meta,
+        .items-grid.dropdown-view .item-card > .item-badges {
+            display: none;
+        }
+
+        .item-dropdown-header:hover {
+            background: var(--orange-50);
+        }
+
+        .item-dropdown-header-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .item-dropdown-toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: hsl(var(--muted-foreground));
+            transition: transform 0.2s;
+        }
+
+        .item-card.expanded .item-dropdown-toggle {
+            transform: rotate(180deg);
+        }
+
+        .item-dropdown-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: hsl(var(--muted));
+        }
+
+        .item-card.expanded .item-dropdown-body {
+            max-height: 1000px;
+        }
+
+        .item-dropdown-content {
+            padding: 1.25rem;
+        }
+
+        /* Pagination Controls */
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+        }
+
+        .pagination-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .pagination-buttons button {
+            padding: 0.5rem 1rem;
+            border: 1px solid hsl(var(--border));
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .pagination-buttons button:hover:not(:disabled) {
+            background: var(--orange-50);
+            border-color: var(--orange-600);
+        }
+
+        .pagination-buttons button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .items-per-page select {
+            padding: 0.5rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        /* Pagination Hidden */
+        .item-card.pagination-hidden {
+            display: none !important;
+        }
+
+        /* Category Hidden */
+        .item-card.category-hidden {
+            display: none !important;
+        }
+    </style>
+{% endblock %}
+
+{% block body_class %}automation-wrapper{% endblock %}
+
+{% block content %}
+<div class="automation-page-layout">
+    {% include 'automation/_sidebar.html' %}
+    
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" onclick="toggleAutomationSidebar()"></div>
+
+    <div class="automation-page-content">
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1><i class="fas fa-briefcase"></i> Government Jobs Automation</h1>
+                <p>Select jobs, exam results, or admit cards and automatically generate and publish articles to your WordPress sites</p>
+            </div>
+
+            <!-- Flash Messages -->
+            <div class="flash-messages-container" id="notificationContainer">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                <span>{{ message }}</span>
+                                <button type="button" class="close-btn" aria-label="Close">&times;</button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <!-- Category Selection -->
+            <div class="category-section">
+                <h3><i class="fas fa-filter"></i> Select Content Type</h3>
+                <div class="category-buttons">
+                    <button type="button" class="category-btn active" data-content-type="jobs">
+                        <i class="fas fa-briefcase"></i> Jobs
+                        <span class="category-count" id="jobs-count">{{ jobs_items|length }}</span>
+                    </button>
+                    <button type="button" class="category-btn" data-content-type="results">
+                        <i class="fas fa-chart-line"></i> Results
+                        <span class="category-count" id="results-count">{{ results_items|length }}</span>
+                    </button>
+                    <button type="button" class="category-btn" data-content-type="admit_cards">
+                        <i class="fas fa-id-card"></i> Admit Cards
+                        <span class="category-count" id="admit-cards-count">{{ admit_cards_items|length }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Items Section Header -->
+            <div class="items-section-header">
+                <h3>
+                    <i class="fas fa-list"></i> Available Items
+                    <span class="items-count">
+                        <span id="selectedCount">0</span> selected / <span id="totalCount">{{ jobs_items|length + results_items|length + admit_cards_items|length }}</span> total
+                    </span>
+                </h3>
+                
+                <div class="view-switcher">
+                    <button class="view-btn active" data-view="card" onclick="switchView('card')">
+                        <i class="fas fa-th-large"></i> Cards
+                    </button>
+                    <button class="view-btn" data-view="tile" onclick="switchView('tile')">
+                        <i class="fas fa-th"></i> Tiles
+                    </button>
+                    <button class="view-btn" data-view="list" onclick="switchView('list')">
+                        <i class="fas fa-list"></i> List
+                    </button>
+                    <button class="view-btn" data-view="dropdown" onclick="switchView('dropdown')">
+                        <i class="fas fa-bars"></i> Dropdown
+                    </button>
+                </div>
+            </div>
+
+            <!-- Items Grid Display -->
+            <div class="items-grid" id="itemsGrid" data-current-view="card">
+                <!-- Jobs Items -->
+                {% if jobs_items and jobs_items|length > 0 %}
+                    {% for item in jobs_items %}
+                    <div class="item-card" 
+                         data-item-id="{{ item.id or item.job_id }}" 
+                         data-content-type="jobs"
+                         data-title="{{ item.title }}"
+                         data-item-url="{{ item.url|default('#') }}"
+                         onclick="toggleItemSelection(this)">
+                        
+                        <div class="select-indicator" onclick="event.stopPropagation(); toggleItemSelection(this.parentElement)">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        
+                        <!-- Dropdown Header (for dropdown view) -->
+                        <div class="item-dropdown-header" onclick="toggleDropdown(this.parentElement); event.stopPropagation();">
+                            <div class="item-dropdown-header-content">
+                                <div class="select-indicator" onclick="event.stopPropagation(); toggleItemSelection(this.closest('.item-card'))">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <h4 class="item-title" style="margin: 0;">{{ item.title }}</h4>
+                                    <div class="item-meta" style="margin-top: 0.25rem;">
+                                        <span class="item-meta-item">
+                                            <i class="fas fa-tag"></i> JOBS
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="item-dropdown-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        
+                        <h4 class="item-title">{{ item.title }}</h4>
+                        
+                        <p class="item-description">{{ item.description|default('No description available')|truncate(150) }}</p>
+                        
+                        <div class="item-meta">
+                            <span class="item-meta-item">
+                                <i class="fas fa-clock"></i>
+                                {{ item.posted_date|default(item.published_date|default('Unknown Date')) }}
+                            </span>
+                            <span class="item-meta-item">
+                                <i class="fas fa-link"></i>
+                                {{ item.source|default('Government Portal') }}
+                            </span>
+                        </div>
+                        
+                        <div class="item-badges">
+                            <span class="badge badge-{{ item.priority|default('medium')|lower }}">
+                                <i class="fas fa-star"></i> {{ item.priority|default('Medium') }}
+                            </span>
+                            <span class="badge badge-source">
+                                <i class="fas fa-tag"></i> JOBS
+                            </span>
+                        </div>
+                        
+                        <!-- Dropdown Body (for dropdown view) -->
+                        <div class="item-dropdown-body">
+                            <div class="item-dropdown-content">
+                                <p style="font-size: 0.875rem; line-height: 1.6; color: hsl(var(--foreground)); margin-bottom: 1rem;">
+                                    {{ item.description|default('No description available') }}
+                                </p>
+                                <div class="item-meta">
+                                    <span class="item-meta-item">
+                                        <i class="fas fa-clock"></i>
+                                        {{ item.posted_date|default(item.published_date|default('Unknown Date')) }}
+                                    </span>
+                                    <span class="item-meta-item">
+                                        <i class="fas fa-link"></i>
+                                        {{ item.source|default('Government Portal') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <!-- Results Items -->
+                {% if results_items and results_items|length > 0 %}
+                    {% for item in results_items %}
+                    <div class="item-card" 
+                         data-item-id="{{ item.id or item.result_id }}" 
+                         data-content-type="results"
+                         data-title="{{ item.title }}"
+                         data-item-url="{{ item.url|default('#') }}"
+                         onclick="toggleItemSelection(this)">
+                        
+                        <div class="select-indicator" onclick="event.stopPropagation(); toggleItemSelection(this.parentElement)">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        
+                        <h4 class="item-title">{{ item.title }}</h4>
+                        
+                        <p class="item-description">{{ item.description|default('No description available')|truncate(150) }}</p>
+                        
+                        <div class="item-meta">
+                            <span class="item-meta-item">
+                                <i class="fas fa-clock"></i>
+                                {{ item.announced_date|default(item.published_date|default('Unknown Date')) }}
+                            </span>
+                            <span class="item-meta-item">
+                                <i class="fas fa-link"></i>
+                                {{ item.source|default('Official Portal') }}
+                            </span>
+                        </div>
+                        
+                        <div class="item-badges">
+                            <span class="badge badge-{{ item.priority|default('high')|lower }}">
+                                <i class="fas fa-star"></i> {{ item.priority|default('High') }}
+                            </span>
+                            <span class="badge badge-source">
+                                <i class="fas fa-tag"></i> RESULTS
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <!-- Admit Cards Items -->
+                {% if admit_cards_items and admit_cards_items|length > 0 %}
+                    {% for item in admit_cards_items %}
+                    <div class="item-card" 
+                         data-item-id="{{ item.id or item.admit_id }}" 
+                         data-content-type="admit_cards"
+                         data-title="{{ item.title }}"
+                         data-item-url="{{ item.url|default('#') }}"
+                         onclick="toggleItemSelection(this)">
+                        
+                        <div class="select-indicator" onclick="event.stopPropagation(); toggleItemSelection(this.parentElement)">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        
+                        <h4 class="item-title">{{ item.title }}</h4>
+                        
+                        <p class="item-description">{{ item.description|default('No description available')|truncate(150) }}</p>
+                        
+                        <div class="item-meta">
+                            <span class="item-meta-item">
+                                <i class="fas fa-clock"></i>
+                                {{ item.released_date|default(item.published_date|default('Unknown Date')) }}
+                            </span>
+                            <span class="item-meta-item">
+                                <i class="fas fa-link"></i>
+                                {{ item.source|default('Official Website') }}
+                            </span>
+                        </div>
+                        
+                        <div class="item-badges">
+                            <span class="badge badge-critical">
+                                <i class="fas fa-star"></i> Critical
+                            </span>
+                            <span class="badge badge-source">
+                                <i class="fas fa-tag"></i> ADMIT CARDS
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <!-- No Items Message (shown if all are empty) -->
+                {% if (not jobs_items or jobs_items|length == 0) and (not results_items or results_items|length == 0) and (not admit_cards_items or admit_cards_items|length == 0) %}
+                    <div class="no-items-message" style="grid-column: 1 / -1;">
+                        <i class="fas fa-inbox"></i>
+                        <p style="font-weight: 600; margin-top: 1rem; color: hsl(var(--foreground));">No items available</p>
+                        <p style="margin-top: 0.5rem;">No jobs, results, or admit cards data loaded</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="pagination-controls">
+                <div class="items-per-page">
+                    <label for="itemsPerPage" style="font-size: 0.875rem; color: hsl(var(--muted-foreground)); margin-right: 0.5rem;">Items per page:</label>
+                    <select id="itemsPerPage" onchange="changeItemsPerPage(this.value)">
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="pagination-info" style="font-size: 0.875rem; color: hsl(var(--muted-foreground));">
+                    Page <span id="currentPageNum">1</span> of <span id="totalPagesNum">1</span>
+                </div>
+                <div class="pagination-buttons">
+                    <button onclick="changePage(1)" id="firstPageBtn" title="First page">
+                        <i class="fas fa-angle-double-left"></i>
+                    </button>
+                    <button onclick="changePage(currentPage - 1)" id="prevPageBtn" title="Previous page">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button onclick="changePage(currentPage + 1)" id="nextPageBtn" title="Next page">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button onclick="changePage(totalPages)" id="lastPageBtn" title="Last page">
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- WordPress Profile Selection -->
+            {% if user_site_profiles and user_site_profiles|length > 0 %}
+            <div class="profiles-section">
+                <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.75rem; color: hsl(var(--foreground)); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-bullseye" style="color: var(--orange-600); font-size: 0.875rem;"></i>
+                    Select WordPress Sites & Configuration
+                </h3>
+                <div class="profiles-grid">
+                    {% for profile in user_site_profiles %}
+                    <div class="profile-card" data-profile-id="{{ profile.profile_id }}">
+                        <div class="profile-header">
+                            <input type="checkbox" id="profile_{{ profile.profile_id }}" class="profile-checkbox" value="{{ profile.profile_id }}">
+                            <label for="profile_{{ profile.profile_id }}" style="flex: 1; cursor: pointer; font-weight: 600; margin: 0;">
+                                {{ profile.profile_name }}
+                            </label>
+                        </div>
+                        <div class="profile-body">
+                            <p style="font-size: 0.75rem; margin-bottom: 0.625rem; color: hsl(var(--muted-foreground));">
+                                <a href="{{ profile.site_url }}" target="_blank" style="color: var(--blue-600); text-decoration: none;">{{ profile.site_url }}</a>
+                            </p>
+                            
+                            <div class="form-group">
+                                <label for="category_id_{{ profile.profile_id }}">
+                                    <i class="fas fa-folder-open"></i> WordPress Category ID
+                                </label>
+                                <input type="number" class="form-control" id="category_id_{{ profile.profile_id }}" name="category_id_{{ profile.profile_id }}" placeholder="e.g., 8" min="1">
+                                <small class="form-text" style="font-size: 0.6875rem; color: hsl(var(--muted-foreground)); display: block; margin-top: 0.25rem;">
+                                    Enter the category ID where articles will be posted. Leave blank for default.
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="publish_status_{{ profile.profile_id }}">
+                                    <i class="fas fa-toggle-on"></i> Publish Status
+                                </label>
+                                <select class="form-control publish-status-select" id="publish_status_{{ profile.profile_id }}" name="publish_status_{{ profile.profile_id }}" onchange="toggleScheduleFields('{{ profile.profile_id }}')">
+                                    <option value="publish">Publish Immediately</option>
+                                    <option value="draft">Save as Draft</option>
+                                    <option value="schedule">Schedule for Later</option>
+                                </select>
+                            </div>
+
+                            <!-- Schedule Time Interval (hidden by default) -->
+                            <div class="schedule-interval-section" id="schedule_section_{{ profile.profile_id }}" style="display: none;">
+                                <div class="form-group">
+                                    <label for="min_interval_{{ profile.profile_id }}">
+                                        <i class="fas fa-clock"></i> Minimum Interval (minutes)
+                                    </label>
+                                    <input type="number" class="form-control" id="min_interval_{{ profile.profile_id }}" name="min_interval_{{ profile.profile_id }}" placeholder="e.g., 30" min="1" value="30">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="max_interval_{{ profile.profile_id }}">
+                                        <i class="fas fa-clock"></i> Maximum Interval (minutes)
+                                    </label>
+                                    <input type="number" class="form-control" id="max_interval_{{ profile.profile_id }}" name="max_interval_{{ profile.profile_id }}" placeholder="e.g., 120" min="1" value="120">
+                                </div>
+                                
+                                <small class="form-text" style="font-size: 0.6875rem; color: hsl(var(--muted-foreground)); display: block; margin-top: 0.25rem;">
+                                    <i class="fas fa-info-circle"></i> Articles will be scheduled randomly between min and max interval
+                                </small>
+                            </div>
+
+                            {% if profile.authors and profile.authors|length > 0 %}
+                            <div style="background: hsl(var(--muted)); padding: 0.625rem; border-radius: 6px; font-size: 0.75rem; margin-top: 0.625rem;">
+                                <p style="margin: 0 0 0.375rem 0; font-weight: 600; color: hsl(var(--foreground)); font-size: 0.75rem;">
+                                    <i class="fas fa-users" style="font-size: 0.6875rem;"></i> {{ profile.authors|length }} Author{{ 's' if profile.authors|length > 1 else '' }}
+                                </p>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                    {% for author in profile.authors[:3] %}
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; color: hsl(var(--muted-foreground));">
+                                        <i class="fas fa-user-circle" style="color: var(--blue-600);"></i>
+                                        <span>{{ author.wp_username or author.wp_user_id }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <p style="color: var(--orange-600); font-size: 0.75rem; font-weight: 500; margin-top: 0.625rem;">
+                                <i class="fas fa-exclamation-triangle"></i> No authors configured
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div style="background: white; border: 1px solid hsl(var(--border)); border-radius: 12px; padding: 3rem; text-align: center;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--orange-600);"></i>
+                <p style="font-weight: 600; margin-top: 1rem; color: hsl(var(--foreground));">No WordPress Profiles Configured</p>
+                <p style="margin-top: 0.5rem; color: hsl(var(--muted-foreground));">Please configure at least one WordPress profile to use automation</p>
+                <a href="{{ url_for('manage_site_profiles') }}" style="display: inline-flex; align-items: center; gap: 0.75rem; margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: var(--orange-600); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                    <i class="fas fa-plus-circle"></i>
+                    Add Profile
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Progress Section (hidden by default) -->
+            <div class="progress-section" id="progress-section" style="display: none;">
+                <h3 style="margin-bottom: 1rem; color: var(--foreground); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-hourglass-end" style="color: var(--orange-600);"></i> Progress
+                </h3>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-logs" id="progress-logs">
+                    <div class="log-entry log-success">
+                        <span class="log-time">[00:00:00]</span> Automation started
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Panel at Bottom - Sticky Footer -->
+        <div class="action-panel">
+            <div class="action-panel-left">
+                <button type="button" class="action-btn-compact secondary" id="refresh-data-btn" title="Refresh data from API">
+                    <i class="fas fa-sync-alt"></i> Refresh Data
+                </button>
+                <span class="action-status" id="selection-status">0 items selected</span>
+            </div>
+            <div class="action-panel-right">
+                <button type="button" class="action-btn-compact tertiary" id="clear-btn">
+                    <i class="fas fa-times"></i> Clear Selection
+                </button>
+                <button type="button" class="action-btn-compact primary" id="start-btn" disabled>
+                    <i class="fas fa-play"></i> Start Automation
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Sidebar Toggle -->
+<button class="mobile-sidebar-toggle" onclick="toggleAutomationSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
+<div class="sidebar-overlay" onclick="toggleAutomationSidebar()"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+<script>
+    // State management
+    let currentContentType = 'jobs';
+    let selectedItems = new Set();
+    let allItemCards = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        // Store all item cards from the DOM for filtering
+        allItemCards = Array.from(document.querySelectorAll('.item-card'));
+        updateItemsCount();
+
+        // Refresh data button handler
+        const refreshBtn = document.getElementById('refresh-data-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', async () => {
+                const originalHtml = refreshBtn.innerHTML;
+                
+                try {
+                    // Show loading state
+                    refreshBtn.disabled = true;
+                    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+                    
+                    // Call refresh API
+                    const response = await fetch('/automation/jobs/api/refresh-data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Show success message
+                        showNotification('Data refresh triggered successfully. Reloading page...', 'success');
+                        
+                        // Wait 2 seconds then reload the page
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        throw new Error(result.message || 'Failed to refresh data');
+                    }
+                } catch (error) {
+                    console.error('Refresh error:', error);
+                    showNotification('Failed to refresh data: ' + error.message, 'error');
+                    
+                    // Restore button state
+                    refreshBtn.disabled = false;
+                    refreshBtn.innerHTML = originalHtml;
+                }
+            });
+        }
+
+        // Helper function to show notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 16px 24px;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                font-size: 0.875rem;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        // Category selection with filtering
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentContentType = this.dataset.contentType;
+                filterItemsByContentType(currentContentType);
+                updateItemsCount();
+            });
+        });
+
+        // Initial filter to show only jobs on page load
+        filterItemsByContentType('jobs');
+
+        // Selection status helpers
+        const selectionStatusEl = document.getElementById('selection-status');
+        const clearBtn = document.getElementById('clear-btn');
+        const startBtn = document.getElementById('start-btn');
+
+        function updateSelectionStatus() {
+            const selectedCount = selectedItems.size;
+            if (selectionStatusEl) {
+                selectionStatusEl.textContent = `${selectedCount} item${selectedCount === 1 ? '' : 's'} selected`;
+            }
+            if (startBtn) {
+                startBtn.disabled = selectedCount === 0;
+            }
+        }
+
+        // Initialize status on load
+        updateSelectionStatus();
+
+        // Clear all selections
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                selectedItems.clear();
+                document.querySelectorAll('.item-card.selected').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                updateSelectionStatus();
+            });
+        }
+
+        // Start automation action
+        if (startBtn) {
+            startBtn.addEventListener('click', async function() {
+                if (selectedItems.size === 0) {
+                    alert('Please select at least one item');
+                    return;
+                }
+                
+                // Get selected profiles
+                const selectedProfiles = Array.from(document.querySelectorAll('.profile-checkbox:checked'));
+                if (selectedProfiles.length === 0) {
+                    alert('Please select at least one WordPress profile');
+                    return;
+                }
+                
+                // Collect profile configurations
+                const profileConfigs = selectedProfiles.map(checkbox => {
+                    const profileId = checkbox.value;
+                    const categoryId = document.getElementById(`category_id_${profileId}`)?.value || null;
+                    const publishStatus = document.getElementById(`publish_status_${profileId}`)?.value || 'draft';
+                    const minInterval = document.getElementById(`min_interval_${profileId}`)?.value || null;
+                    const maxInterval = document.getElementById(`max_interval_${profileId}`)?.value || null;
+                    
+                    return {
+                        profile_id: profileId,
+                        category_id: categoryId ? parseInt(categoryId) : null,
+                        publish_status: publishStatus,
+                        min_interval: minInterval ? parseInt(minInterval) : null,
+                        max_interval: maxInterval ? parseInt(maxInterval) : null
+                    };
+                });
+                
+                // Collect selected items with their data
+                const itemsData = Array.from(selectedItems).map(itemId => {
+                    const card = document.querySelector(`.item-card[data-item-id="${itemId}"]`);
+                    const url = card?.dataset.itemUrl || '';
+                    
+                    // Validate URL
+                    if (!url || url === '#') {
+                        console.warn(`Item ${itemId} has invalid URL`);
+                    }
+                    
+                    return {
+                        id: itemId,
+                        title: card?.dataset.title || card?.querySelector('.item-title')?.textContent || '',
+                        url: url,
+                        content_type: card?.dataset.contentType || 'jobs'
+                    };
+                });
+                
+                // Determine content type from first item
+                const contentType = itemsData[0]?.content_type || 'jobs';
+                
+                // Show progress section
+                const progressSection = document.getElementById('progress-section');
+                if (progressSection) {
+                    progressSection.style.display = 'block';
+                }
+                
+                // Disable start button
+                startBtn.disabled = true;
+                startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+                
+                try {
+                    // Send automation request
+                    const response = await fetch('/automation/jobs/api/start-automation', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            selected_items: itemsData,
+                            content_type: contentType,
+                            target_profiles: profileConfigs,
+                            article_length: 'medium' // Could be made configurable
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        console.log('Automation started successfully:', result.run_id);
+                        alert(`Automation started successfully! Run ID: ${result.run_id}`);
+                        
+                        // Poll for status updates
+                        if (result.run_id) {
+                            pollRunStatus(result.run_id);
+                        }
+                    } else {
+                        console.error('Automation failed:', result.error);
+                        alert(`Failed to start automation: ${result.error}`);
+                        startBtn.disabled = false;
+                        startBtn.innerHTML = '<i class="fas fa-play"></i> Start Automation';
+                    }
+                } catch (error) {
+                    console.error('Error starting automation:', error);
+                    alert(`Error starting automation: ${error.message}`);
+                    startBtn.disabled = false;
+                    startBtn.innerHTML = '<i class="fas fa-play"></i> Start Automation';
+                }
+            });
+        }
+        
+        // Poll run status
+        async function pollRunStatus(runId) {
+            const progressSection = document.getElementById('progress-section');
+            let pollCount = 0;
+            const maxPolls = 100; // Poll for ~10 minutes max
+            
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/automation/jobs/api/run-status/${runId}`);
+                    const status = await response.json();
+                    
+                    console.log('Run status:', status);
+                    
+                    // Update progress UI if you have one
+                    if (status.status === 'completed' || status.status === 'failed') {
+                        clearInterval(interval);
+                        
+                        if (status.status === 'completed') {
+                            alert('Automation completed successfully!');
+                        } else {
+                            alert('Automation failed. Check logs for details.');
+                        }
+                        
+                        // Re-enable start button
+                        const startBtn = document.getElementById('start-btn');
+                        if (startBtn) {
+                            startBtn.disabled = false;
+                            startBtn.innerHTML = '<i class="fas fa-play"></i> Start Automation';
+                        }
+                    }
+                    
+                    pollCount++;
+                    if (pollCount >= maxPolls) {
+                        clearInterval(interval);
+                        alert('Status polling timeout. Check dashboard for run status.');
+                    }
+                } catch (error) {
+                    console.error('Error polling status:', error);
+                }
+            }, 6000); // Poll every 6 seconds
+        }
+    });
+
+    // Toggle schedule fields based on publish status
+    function toggleScheduleFields(profileId) {
+        const publishStatus = document.getElementById(`publish_status_${profileId}`).value;
+        const scheduleSection = document.getElementById(`schedule_section_${profileId}`);
+        
+        if (publishStatus === 'schedule') {
+            scheduleSection.style.display = 'block';
+        } else {
+            scheduleSection.style.display = 'none';
+        }
+    }
+
+
+    function filterItemsByContentType(contentType) {
+        const itemsGrid = document.getElementById('itemsGrid');
+        
+        // Use class-based filtering instead of style.display
+        allItemCards.forEach(card => {
+            if (contentType === 'all' || card.dataset.contentType === contentType) {
+                card.classList.remove('category-hidden');
+            } else {
+                card.classList.add('category-hidden');
+            }
+        });
+
+        // Update count
+        updateItemsCount();
+        
+        // Re-initialize pagination with filtered results
+        initPagination();
+
+        const visibleCards = allItemCards.filter(card => !card.classList.contains('category-hidden'));
+        if (visibleCards.length === 0) {
+            const noItemsMsg = itemsGrid.querySelector('.no-items-message');
+            if (!noItemsMsg) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'no-items-message';
+                msgDiv.style.gridColumn = '1 / -1';
+                msgDiv.innerHTML = `
+                    <i class="fas fa-inbox"></i>
+                    <p style="font-weight: 600; margin-top: 1rem; color: hsl(var(--foreground));">No ${contentType} available</p>
+                    <p style="margin-top: 0.5rem;">Items will appear here when available</p>
+                `;
+                itemsGrid.appendChild(msgDiv);
+            }
+        } else {
+            const noItemsMsg = itemsGrid.querySelector('.no-items-message');
+            if (noItemsMsg) {
+                noItemsMsg.remove();
+            }
+        }
+    }
+
+    function updateItemsCount() {
+        const visibleCount = allItemCards.filter(card => !card.classList.contains('category-hidden')).length;
+        const selectedCountEl = document.getElementById('selectedCount');
+        const totalCountEl = document.getElementById('totalCount');
+        
+        if (selectedCountEl) {
+            selectedCountEl.textContent = selectedItems.size;
+        }
+        if (totalCountEl) {
+            totalCountEl.textContent = visibleCount;
+        }
+    }
+
+    function toggleItemSelection(cardElement) {
+        const itemId = cardElement.dataset.itemId;
+        const selectedCountEl = document.getElementById('selectedCount');
+        const selectionStatusEl = document.getElementById('selection-status');
+        const startBtn = document.getElementById('start-btn');
+
+        if (selectedItems.has(itemId)) {
+            selectedItems.delete(itemId);
+            cardElement.classList.remove('selected');
+        } else {
+            selectedItems.add(itemId);
+            cardElement.classList.add('selected');
+        }
+
+        const selectedCount = selectedItems.size;
+        if (selectedCountEl) {
+            selectedCountEl.textContent = selectedCount;
+        }
+        if (selectionStatusEl) {
+            selectionStatusEl.textContent = `${selectedCount} item${selectedCount === 1 ? '' : 's'} selected`;
+        }
+        if (startBtn) {
+            startBtn.disabled = selectedCount === 0;
+        }
+    }
+
+    // View Switching
+    function switchView(viewMode) {
+        const grid = document.getElementById('itemsGrid');
+        const currentView = grid.dataset.currentView;
+        
+        if (currentView === viewMode) return;
+        
+        // Update grid class
+        grid.classList.remove('card-view', 'tile-view', 'list-view', 'dropdown-view');
+        grid.classList.add(viewMode + '-view');
+        grid.dataset.currentView = viewMode;
+        
+        // Update button states
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            if (btn.dataset.view === viewMode) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    // Toggle dropdown in dropdown view
+    function toggleDropdown(card) {
+        if (card.classList.contains('expanded')) {
+            card.classList.remove('expanded');
+        } else {
+            card.classList.add('expanded');
+        }
+    }
+
+    // Pagination State
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    let filteredItemCards = [];
+    let totalPages = 1;
+
+    // Pagination Functions
+    function initPagination() {
+        // Get currently visible cards (respecting category filter)
+        filteredItemCards = allItemCards.filter(card => {
+            return !card.classList.contains('category-hidden');
+        });
+        renderPage(1);
+    }
+
+    function changeItemsPerPage(val) {
+        itemsPerPage = parseInt(val);
+        currentPage = 1; // Reset to first page when changing items per page
+        renderPage(1);
+    }
+
+    function changePage(page) {
+        // Get currently visible cards (respecting category filter)
+        filteredItemCards = allItemCards.filter(card => {
+            return !card.classList.contains('category-hidden');
+        });
+        totalPages = Math.ceil(filteredItemCards.length / itemsPerPage) || 1;
+        if (page < 1 || page > totalPages) return;
+        renderPage(page);
+    }
+
+    function renderPage(page) {
+        currentPage = page;
+        
+        // Get currently visible cards (respecting category filter)
+        filteredItemCards = allItemCards.filter(card => {
+            return !card.classList.contains('category-hidden');
+        });
+        
+        totalPages = Math.ceil(filteredItemCards.length / itemsPerPage) || 1;
+        
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        
+        // First, hide all filtered cards with pagination-hidden class
+        filteredItemCards.forEach((card, index) => {
+            if (index < startIndex || index >= endIndex) {
+                card.classList.add('pagination-hidden');
+            } else {
+                card.classList.remove('pagination-hidden');
+            }
+        });
+        
+        updatePaginationControls();
+    }
+
+    function updatePaginationControls() {
+        document.getElementById('currentPageNum').textContent = currentPage;
+        document.getElementById('totalPagesNum').textContent = totalPages;
+        
+        const firstBtn = document.getElementById('firstPageBtn');
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        const lastBtn = document.getElementById('lastPageBtn');
+        
+        if (firstBtn && prevBtn && nextBtn && lastBtn) {
+            firstBtn.disabled = currentPage === 1;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+            lastBtn.disabled = currentPage === totalPages;
+        }
+    }
+
+    // Initialize pagination on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initPagination, 100);
+    });
+</script>
+{% endblock %}

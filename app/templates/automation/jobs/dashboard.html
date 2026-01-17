@@ -1,0 +1,643 @@
+{% extends "_base.html" %}
+
+{% block title %}Government Jobs Automation Dashboard | Tickzen{% endblock %}
+
+{% block head_extra %}
+<meta name="robots" content="noindex, nofollow">
+<meta name="description"
+    content="Government Jobs Automation Dashboard - Monitor and manage your jobs content automation">
+<link rel="canonical" href="https://tickzen.app/automation/jobs/dashboard">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 3.9%;
+        --border: 0 0% 89.8%;
+        --muted: 0 0% 96.1%;
+        --muted-foreground: 0 0% 45.1%;
+        --green-50: #f0fdf4;
+        --green-100: #dcfce7;
+        --green-600: #16a34a;
+        --green-700: #15803d;
+        --amber-50: #fffbeb;
+        --amber-100: #fef3c7;
+        --amber-600: #f59e0b;
+        --amber-700: #d97706;
+        --amber-800: #b45309;
+        --blue-50: #eff6ff;
+        --blue-600: #2563eb;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.5;
+        color: hsl(var(--foreground));
+        background: hsl(var(--background));
+        font-size: 14px;
+    }
+
+    /* Page Layout */
+    .automation-page-layout {
+        display: flex;
+        min-height: calc(100vh - 60px);
+    }
+
+    .automation-page-content {
+        flex: 1;
+        overflow-x: hidden;
+        padding: 1.5rem;
+    }
+
+    /* Mobile sidebar toggle button */
+    .mobile-sidebar-toggle {
+        display: none;
+        position: fixed;
+        bottom: 1.5rem;
+        left: 1.5rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--amber-600) 0%, var(--amber-700) 100%);
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+        z-index: 999;
+        font-size: 1.25rem;
+        transition: transform 0.2s ease;
+    }
+
+    .mobile-sidebar-toggle:hover {
+        transform: scale(1.1);
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .mobile-sidebar-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .automation-page-content {
+            padding: 1rem;
+        }
+    }
+
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--amber-600) 0%, var(--amber-700) 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        color: white;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-header p {
+        opacity: 0.9;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-box {
+        background: white;
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-box .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        font-size: 1.125rem;
+        background: var(--amber-100);
+        color: var(--amber-700);
+    }
+
+    .stat-box .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+    }
+
+    .stat-box .stat-label {
+        font-size: 0.813rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    /* Content Cards */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .content-card {
+        background: white;
+        border: 1px solid hsl(var(--border));
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .content-card-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid hsl(var(--border));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .content-card-header h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .content-card-header i {
+        color: var(--amber-600);
+        font-size: 1rem;
+    }
+
+    .content-card-body {
+        padding: 1.25rem;
+    }
+
+    /* Recent Runs Table */
+    .recent-runs-table {
+        width: 100%;
+        font-size: 0.875rem;
+    }
+
+    .recent-runs-table thead {
+        background: hsl(var(--muted));
+    }
+
+    .recent-runs-table th {
+        padding: 0.75rem 0.625rem;
+        text-align: left;
+        font-weight: 600;
+        color: hsl(var(--foreground));
+        border: 0;
+    }
+
+    .recent-runs-table td {
+        padding: 0.75rem 0.625rem;
+        border-bottom: 1px solid hsl(var(--border));
+    }
+
+    .recent-runs-table tbody tr:hover {
+        background: var(--amber-50);
+    }
+
+    .run-id {
+        font-family: 'Courier New', monospace;
+        color: var(--amber-700);
+        font-weight: 500;
+    }
+
+    .run-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .run-status.completed {
+        background: var(--green-100);
+        color: var(--green-700);
+    }
+
+    .run-status.running {
+        background: var(--blue-50);
+        color: var(--blue-600);
+    }
+
+    .run-status.pending {
+        background: var(--amber-100);
+        color: var(--amber-700);
+    }
+
+    .run-status.failed {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .run-status.completed .status-dot {
+        background: var(--green-600);
+    }
+
+    .run-status.running .status-dot {
+        background: var(--blue-600);
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    .run-status.pending .status-dot {
+        background: var(--amber-600);
+    }
+
+    .run-status.failed .status-dot {
+        background: #dc2626;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Content Type Breakdown */
+    .content-type-breakdown {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .breakdown-item {
+        padding: 1rem;
+        background: var(--amber-50);
+        border: 1px solid var(--amber-100);
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .breakdown-item .type-label {
+        font-size: 0.813rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 0.375rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+    }
+
+    .breakdown-item .type-count {
+        font-size: 1.375rem;
+        font-weight: 700;
+        color: var(--amber-700);
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        flex: 1;
+        min-width: 150px;
+        padding: 0.75rem 1.25rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .action-btn.primary {
+        background: linear-gradient(135deg, var(--amber-600) 0%, var(--amber-700) 100%);
+        color: white;
+    }
+
+    .action-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .action-btn.secondary {
+        background: white;
+        color: var(--amber-700);
+        border: 1.5px solid var(--amber-600);
+    }
+
+    .action-btn.secondary:hover {
+        background: var(--amber-50);
+        border-color: var(--amber-700);
+        transform: translateY(-1px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        color: var(--amber-200);
+        opacity: 0.6;
+    }
+
+    .empty-state h4 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 0.375rem;
+        color: hsl(var(--foreground));
+    }
+
+    .empty-state p {
+        font-size: 0.813rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .content-type-breakdown {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 1.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.375rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .stat-box {
+            padding: 1rem;
+        }
+
+        .content-type-breakdown {
+            grid-template-columns: 1fr;
+        }
+
+        .action-btn {
+            min-width: auto;
+        }
+
+        .recent-runs-table {
+            font-size: 0.75rem;
+        }
+
+        .recent-runs-table th,
+        .recent-runs-table td {
+            padding: 0.5rem 0.375rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body_class %}automation-wrapper{% endblock %}
+
+{% block content %}
+<div class="automation-page-layout">
+    {% include 'automation/_sidebar.html' %}
+    
+    <div class="automation-page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1><i class="fas fa-briefcase"></i> Government Jobs Dashboard</h1>
+            <p>Monitor and manage your automated government jobs, exam results, and admit card articles</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-icon"><i class="fas fa-list"></i></div>
+                <div class="stat-value">0</div>
+                <div class="stat-label">Total Runs</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-value">0</div>
+                <div class="stat-label">Published</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
+                <div class="stat-value">0</div>
+                <div class="stat-label">This Week</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon"><i class="fas fa-link"></i></div>
+                <div class="stat-value">{{ user_site_profiles|length if user_site_profiles else 0 }}</div>
+                <div class="stat-label">Connected Sites</div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Recent Runs Card -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <h3><i class="fas fa-history"></i> Recent Runs</h3>
+                    <a href="{{ url_for('automation.jobs_automation.run') }}" class="action-btn secondary" style="flex: 0; min-width: auto; padding: 0.5rem 0.75rem; font-size: 0.75rem;">
+                        <i class="fas fa-arrow-right"></i> View
+                    </a>
+                </div>
+                <div class="content-card-body">
+                    <div id="recent-runs-container">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h4>No Runs Yet</h4>
+                            <p>Start your first automation run to see activity here</p>
+                            <a href="{{ url_for('automation.jobs_automation.run') }}" class="action-btn primary" style="margin-top: 0.75rem; width: 100%;">
+                                <i class="fas fa-rocket"></i> Start Automation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Type Breakdown Card -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <h3><i class="fas fa-chart-pie"></i> Content Breakdown</h3>
+                </div>
+                <div class="content-card-body">
+                    <div class="content-type-breakdown">
+                        <div class="breakdown-item">
+                            <div class="type-label">Jobs</div>
+                            <div class="type-count">0</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="type-label">Results</div>
+                            <div class="type-count">0</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="type-label">Admit Cards</div>
+                            <div class="type-count">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="content-card" style="margin-top: 1.5rem;">
+            <div class="content-card-header">
+                <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+            </div>
+            <div class="content-card-body">
+                <div class="quick-actions">
+                    <a href="{{ url_for('automation.jobs_automation.run') }}" class="action-btn primary">
+                        <i class="fas fa-play"></i> Run Automation
+                    </a>
+                    <a href="{{ url_for('automation.history') }}?type=government_jobs" class="action-btn secondary">
+                        <i class="fas fa-history"></i> View History
+                    </a>
+                    {% if user_site_profiles and user_site_profiles|length > 0 %}
+                        <a href="{{ url_for('manage_site_profiles') }}" class="action-btn secondary">
+                            <i class="fas fa-cogs"></i> Manage Profiles
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('manage_site_profiles') }}" class="action-btn secondary">
+                            <i class="fas fa-plus"></i> Connect Sites
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Sidebar Toggle -->
+<button class="mobile-sidebar-toggle" onclick="toggleAutomationSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
+<div class="sidebar-overlay" onclick="toggleAutomationSidebar()"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        // Load dashboard data via AJAX
+        fetch('/automation/jobs/api/dashboard-stats')
+            .then(response => response.json())
+            .then(data => {
+                // Update stats
+                document.querySelectorAll('.stat-box')[0].querySelector('.stat-value').textContent = data.total_runs || 0;
+                document.querySelectorAll('.stat-box')[1].querySelector('.stat-value').textContent = data.published_count || 0;
+                document.querySelectorAll('.stat-box')[2].querySelector('.stat-value').textContent = data.this_week_count || 0;
+
+                // Update content breakdown
+                const breakdown = document.querySelectorAll('.breakdown-item');
+                if (breakdown.length >= 3) {
+                    breakdown[0].querySelector('.type-count').textContent = data.jobs_count || 0;
+                    breakdown[1].querySelector('.type-count').textContent = data.results_count || 0;
+                    breakdown[2].querySelector('.type-count').textContent = data.admit_cards_count || 0;
+                }
+
+                // Update recent runs
+                if (data.recent_runs && data.recent_runs.length > 0) {
+                    const runsHtml = `
+                        <table class="recent-runs-table">
+                            <thead>
+                                <tr>
+                                    <th>Run ID</th>
+                                    <th>Items</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.recent_runs.map(run => `
+                                    <tr>
+                                        <td><span class="run-id">${run.id.substring(0, 8)}...</span></td>
+                                        <td>${run.item_count}</td>
+                                        <td><span class="run-status ${run.status}"><span class="status-dot"></span>${run.status}</span></td>
+                                        <td>${new Date(run.created_at).toLocaleDateString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    document.getElementById('recent-runs-container').innerHTML = runsHtml;
+                }
+            })
+            .catch(error => console.error('Error loading dashboard stats:', error));
+    });
+</script>
+{% endblock %}

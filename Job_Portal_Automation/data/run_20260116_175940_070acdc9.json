@@ -1,0 +1,123 @@
+{
+  "target_profiles": [
+    "biwviBocglq6uyie07NV"
+  ],
+  "timestamp": "2026-01-16T17:59:40.100405",
+  "updated_at": "2026-01-16T18:00:16.910306",
+  "progress": {
+    "completed": 1,
+    "total": 1,
+    "current_item": "Failed: all 1 items encountered errors",
+    "failed": 0
+  },
+  "created_at": "2026-01-16T17:59:40.100405",
+  "errors": [
+    {
+      "error_message": "Failed to fetch details: Connection error after 3 attempts",
+      "item_title": "UP Police Constable Online Form 2026 (32,679 Post) – Start",
+      "timestamp": "2026-01-16T18:00:13.507636",
+      "item_id": "0c60757268c926553497ae93aa10be8c",
+      "step": "detail_fetching"
+    }
+  ],
+  "run_id": "run_20260116_175940_070acdc9",
+  "user_uid": "iROXMDJiuebQl9Jg4vvXohKea0C2",
+  "status": "failed",
+  "content_type": "jobs",
+  "results": [],
+  "config": {
+    "article_length": "medium",
+    "profiles": [
+      {
+        "created_at": "2025-11-24T02:57:35.617412+00:00",
+        "site_url": "https://berninicapital.com/",
+        "min_interval": 30,
+        "max_interval": 120,
+        "stockforecast_category_id": "5",
+        "uploaded_ticker_file_name": null,
+        "internal_linking": {
+          "enabled": true,
+          "cache_expiry_hours": 24,
+          "same_category_only": true,
+          "max_links_per_article": 5
+        },
+        "report_sections_to_include": [
+          "introduction",
+          "metrics_summary",
+          "detailed_forecast_table",
+          "company_profile",
+          "valuation_metrics",
+          "total_valuation",
+          "profitability_growth",
+          "analyst_insights",
+          "financial_health",
+          "financial_efficiency",
+          "historical_performance",
+          "technical_analysis_summary",
+          "short_selling_info",
+          "stock_price_statistics",
+          "share_statistics",
+          "dividends_shareholder_returns",
+          "peer_comparison",
+          "conclusion_outlook",
+          "risk_factors",
+          "faq"
+        ],
+        "all_tickers_from_file": [],
+        "ticker_count_from_file": null,
+        "ticker_file_storage_path": null,
+        "category_id": 5,
+        "profile_name": "Bernini Capital",
+        "sheet_name": "1",
+        "last_updated_at": "2026-01-12T06:45:13.193036+00:00",
+        "authors": [
+          {
+            "id": "newauthor_1768200313_0",
+            "wp_username": "Jordan Reeves",
+            "app_password": "2hHF IBGR lGms OUgA 2LOn Qs1d",
+            "wp_user_id": "4"
+          },
+          {
+            "id": "newauthor_1768200313_1",
+            "wp_username": "Laura Benton",
+            "app_password": "H2m1 z2Fx d0Tq csfT Rkd7 smuK",
+            "wp_user_id": "5"
+          },
+          {
+            "id": "newauthor_1768200313_2",
+            "wp_username": "Michael Turner",
+            "app_password": "49QH ToEw FGfg 3sbT azYW cSGs",
+            "wp_user_id": "2"
+          },
+          {
+            "id": "newauthor_1768200313_3",
+            "wp_username": "Samuel Hartley",
+            "app_password": "2DKJ UbQH V9ma fJuI 46e0 4oB6",
+            "wp_user_id": "6"
+          },
+          {
+            "id": "newauthor_1768200313_4",
+            "wp_username": "Sarah Lindholm",
+            "app_password": "bBNR ftew LIWV rLx1 m8Ub DYow",
+            "wp_user_id": "3"
+          }
+        ],
+        "min_scheduling_gap_minutes": 80,
+        "profile_id": "biwviBocglq6uyie07NV",
+        "env_prefix_for_feature_image_colors": "",
+        "max_scheduling_gap_minutes": 130,
+        "ticker_preview_from_file": [],
+        "publish_status": "draft",
+        "ticker_file_uploaded_at": null
+      }
+    ]
+  },
+  "selected_items": [
+    {
+      "title": "UP Police Constable Online Form 2026 (32,679 Post) – Start",
+      "id": "0c60757268c926553497ae93aa10be8c",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/up-police-constable-recruitment-2026-apply/"
+    }
+  ]
+}

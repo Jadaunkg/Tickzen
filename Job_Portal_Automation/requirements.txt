@@ -1,0 +1,35 @@
+# Job Portal Automation - Phase 1 Requirements
+# Core dependencies for API integration, research collection, and state management
+
+# HTTP and API Communication
+requests>=2.31.0
+urllib3>=2.0.0
+
+# Environment and Configuration
+python-dotenv>=1.0.0
+
+# Firebase Integration
+firebase-admin>=6.2.0
+google-cloud-firestore>=2.14.0
+
+# Logging and Monitoring
+python-logging-loki>=0.3.2
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Type Hints and Validation
+pydantic>=2.0.0
+
+# Development and Testing (optional)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.4.0

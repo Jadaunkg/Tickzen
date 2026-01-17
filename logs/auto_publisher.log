@@ -3619,3 +3619,310 @@ Exception: Pipeline error for GOOGL: 429 You exceeded your current quota, please
 2026-01-14 17:49:13 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
 2026-01-14 17:49:26 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
 2026-01-14 18:31:33 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 15:24:58 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 15:25:01 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 15:25:25 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 15:26:15 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Tanya Singh (ID: 8)
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Leeds U21s Ride High; Future Previews Face Data Gaps' (52 chars)
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4095 chars
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-15 15:28:09 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 451 articles with 1784 keywords
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Leeds U21s Ride High; Future Previews Face Data Gaps
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Leeds U21s Ride High; Future Previews Face Data Gaps
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'leeds u21s ride high future previews face data gaps' (51 chars)
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'leeds-u21s-ride-high-future-previews-face-data-gaps' (51 chars)
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'leeds-u21s-ride-high-future-previews-face-data-gaps' (51 chars)
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Leeds U21s Ride High; Future Previews Face Data Ga...' → 'leeds-u21s-ride-high-future-previews-face-data-gaps' (51/74 chars) ✅
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Leeds U21s Ride High; Future Previews Face Data Gaps' (52 chars)
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'leeds-u21s-ride-high-future-previews-face-data-gaps' (51 chars)
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Tanya Singh (ID: 8)
+2026-01-15 15:28:15 - AutoPublisherLogger - INFO - Post 'Leeds U21s Ride High; Future Previews Face Data Gaps' draft on https://sportspediazone.com/. ID: 4194, Link: https://sportspediazone.com/?p=4194
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Annsly Raena (ID: 5)
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Tyszak Departs West Ham for Union Berlin in €2M to €3M Move' (59 chars)
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4596 chars
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Tyszak Departs West Ham for Union Berlin in €2M to €3M Move
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Tyszak Departs West Ham for Union Berlin in €2M to €3M Move
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'tyszak departs west ham for union berlin in 2m to 3m move' (57 chars)
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'tyszak-departs-west-ham-for-union-berlin-in-2m-to-3m-move' (57 chars)
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'tyszak-departs-west-ham-for-union-berlin-in-2m-to-3m-move' (57 chars)
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Tyszak Departs West Ham for Union Berlin in €2M to...' → 'tyszak-departs-west-ham-for-union-berlin-in-2m-to-3m-move' (57/74 chars) ✅
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Tyszak Departs West Ham for Union Berlin in €2M to €3M Move' (59 chars)
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'tyszak-departs-west-ham-for-union-berlin-in-2m-to-3m-move' (57 chars)
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Annsly Raena (ID: 5)
+2026-01-15 15:29:08 - AutoPublisherLogger - INFO - Post 'Tyszak Departs West Ham for Union Berlin in €2M to €3M Move' draft on https://sportspediazone.com/. ID: 4195, Link: https://sportspediazone.com/?p=4195
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Europe's Mid-Window Scramble: Seven Rising Stars on Radar' (57 chars)
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4542 chars
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Europe's Mid-Window Scramble: Seven Rising Stars on Radar
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Europe's Mid-Window Scramble: Seven Rising Stars on Radar
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'europes midwindow scramble seven rising stars on radar' (54 chars)
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'europes-midwindow-scramble-seven-rising-stars-on-radar' (54 chars)
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'europes-midwindow-scramble-seven-rising-stars-on-radar' (54 chars)
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Europe's Mid-Window Scramble: Seven Rising Stars o...' → 'europes-midwindow-scramble-seven-rising-stars-on-radar' (54/74 chars) ✅
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Europe's Mid-Window Scramble: Seven Rising Stars on Radar' (57 chars)
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'europes-midwindow-scramble-seven-rising-stars-on-radar' (54 chars)
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-01-15 15:30:10 - AutoPublisherLogger - INFO - Post 'Europe's Mid-Window Scramble: Seven Rising Stars on Radar' draft on https://sportspediazone.com/. ID: 4196, Link: https://sportspediazone.com/?p=4196
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Govind Singh (ID: 14)
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Arsenal Take 3-2 Carabao Cup Semifinal Lead, Eyeing Six-Year Trophy Drought End' (79 chars)
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4054 chars
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Arsenal Take 3-2 Carabao Cup Semifinal Lead, Eyeing Six-Year Trophy Drought End
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 2 internal links
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Arsenal Take 3-2 Carabao Cup Semifinal Lead, Eyeing Six-Year Trophy Drought End
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'arsenal take 32 carabao cup semifinal lead eyeing sixyear trophy drought end' (76 chars)
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'arsenal-take-32-carabao-cup-semifinal-lead-eyeing-sixyear-trophy-drought-end' (76 chars)
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Slug too long (76), truncating to max 74 chars
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After truncation: 'arsenal-take-32-carabao-cup-semifinal-lead-eyeing-sixyear-trophy-drought' (72 chars)
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'arsenal-take-32-carabao-cup-semifinal-lead-eyeing-sixyear-trophy-drought' (72 chars)
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Arsenal Take 3-2 Carabao Cup Semifinal Lead, Eyein...' → 'arsenal-take-32-carabao-cup-semifinal-lead-eyeing-sixyear-trophy-drought' (72/74 chars) ✅
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Arsenal Take 3-2 Carabao Cup Semifinal Lead, Eyeing Six-Year Trophy Drought End' (79 chars)
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'arsenal-take-32-carabao-cup-semifinal-lead-eyeing-sixyear-trophy-drought' (72 chars)
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Govind Singh (ID: 14)
+2026-01-15 15:30:50 - AutoPublisherLogger - INFO - Post 'Arsenal Take 3-2 Carabao Cup Semifinal Lead, Eyeing Six-Year Trophy Drought End' draft on https://sportspediazone.com/. ID: 4197, Link: https://sportspediazone.com/?p=4197
+2026-01-15 15:30:54 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:01:24 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:01:41 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:01:55 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:19:37 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:19:48 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:20:02 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:24:14 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:28:11 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:30:19 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:30:43 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:30:54 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:31:08 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:31:15 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:33:49 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:37:20 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:39:04 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:39:15 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:40:56 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:41:07 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:42:59 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:44:37 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:48:06 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:48:45 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:49:05 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 21:50:36 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:04:54 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:08:13 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:11:32 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:12:16 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:18:45 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:19:15 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:23:20 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:23:58 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:27:14 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:33:28 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:35:22 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:36:50 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:38:25 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:46:53 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 22:49:48 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-15 23:02:08 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 15:41:44 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 15:41:47 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 15:41:58 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 15:43:06 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 15:43:33 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 16:04:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 16:13:43 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 16:45:19 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 16:51:29 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 16:51:55 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ishaan singh (ID: 9)
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'David Warner Passes Kohli for 10 T20 Centuries in BBL 2025-26 Season' (68 chars)
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4121 chars
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-16 16:53:53 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 455 articles with 1794 keywords
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: David Warner Passes Kohli for 10 T20 Centuries in BBL 2025-26 Season
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: David Warner Passes Kohli for 10 T20 Centuries in BBL 2025-26 Season
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'david warner passes kohli for 10 t20 centuries in bbl 202526 season' (67 chars)
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'david-warner-passes-kohli-for-10-t20-centuries-in-bbl-202526-season' (67 chars)
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'david-warner-passes-kohli-for-10-t20-centuries-in-bbl-202526-season' (67 chars)
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'David Warner Passes Kohli for 10 T20 Centuries in ...' → 'david-warner-passes-kohli-for-10-t20-centuries-in-bbl-202526-season' (67/74 chars) ✅
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'David Warner Passes Kohli for 10 T20 Centuries in BBL 2025-26 Season' (68 chars)
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'david-warner-passes-kohli-for-10-t20-centuries-in-bbl-202526-season' (67 chars)
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ishaan singh (ID: 9)
+2026-01-16 16:54:00 - AutoPublisherLogger - INFO - Post 'David Warner Passes Kohli for 10 T20 Centuries in BBL 2025-26 Season' draft on https://sportspediazone.com/. ID: 4211, Link: https://sportspediazone.com/?p=4211
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Priyanjan Paul (ID: 19)
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'RCB Pushes AI Surveillance for Chinnaswamy Ahead of IPL 2026' (60 chars)
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3893 chars
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: RCB Pushes AI Surveillance for Chinnaswamy Ahead of IPL 2026
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 1 internal links
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: RCB Pushes AI Surveillance for Chinnaswamy Ahead of IPL 2026
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'rcb pushes ai surveillance for chinnaswamy ahead of ipl 2026' (60 chars)
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'rcb-pushes-ai-surveillance-for-chinnaswamy-ahead-of-ipl-2026' (60 chars)
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'rcb-pushes-ai-surveillance-for-chinnaswamy-ahead-of-ipl-2026' (60 chars)
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'RCB Pushes AI Surveillance for Chinnaswamy Ahead o...' → 'rcb-pushes-ai-surveillance-for-chinnaswamy-ahead-of-ipl-2026' (60/74 chars) ✅
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'RCB Pushes AI Surveillance for Chinnaswamy Ahead of IPL 2026' (60 chars)
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'rcb-pushes-ai-surveillance-for-chinnaswamy-ahead-of-ipl-2026' (60 chars)
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Priyanjan Paul (ID: 19)
+2026-01-16 16:54:38 - AutoPublisherLogger - INFO - Post 'RCB Pushes AI Surveillance for Chinnaswamy Ahead of IPL 2026' draft on https://sportspediazone.com/. ID: 4212, Link: https://sportspediazone.com/?p=4212
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Sagnik Banerjee (ID: 20)
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Lyth Extends Headingley Stay as Yorkshire Target Division One Impact' (68 chars)
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3503 chars
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Lyth Extends Headingley Stay as Yorkshire Target Division One Impact
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Lyth Extends Headingley Stay as Yorkshire Target Division One Impact
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'lyth extends headingley stay as yorkshire target division one impact' (68 chars)
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'lyth-extends-headingley-stay-as-yorkshire-target-division-one-impact' (68 chars)
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'lyth-extends-headingley-stay-as-yorkshire-target-division-one-impact' (68 chars)
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Lyth Extends Headingley Stay as Yorkshire Target D...' → 'lyth-extends-headingley-stay-as-yorkshire-target-division-one-impact' (68/74 chars) ✅
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Lyth Extends Headingley Stay as Yorkshire Target Division One Impact' (68 chars)
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'lyth-extends-headingley-stay-as-yorkshire-target-division-one-impact' (68 chars)
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-16 16:55:38 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Sagnik Banerjee (ID: 20)
+2026-01-16 16:55:39 - AutoPublisherLogger - INFO - Post 'Lyth Extends Headingley Stay as Yorkshire Target Division One Impact' draft on https://sportspediazone.com/. ID: 4213, Link: https://sportspediazone.com/?p=4213
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Soureesh Datta (ID: 10)
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Kohli Back At No 1 ICC Fixes Ranking Blunder After Fan Outcry' (61 chars)
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4801 chars
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Kohli Back At No 1 ICC Fixes Ranking Blunder After Fan Outcry
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Kohli Back At No 1 ICC Fixes Ranking Blunder After Fan Outcry
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After cleaning: 'kohli back at no 1 icc fixes ranking blunder after fan outcry' (61 chars)
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After hyphenation: 'kohli-back-at-no-1-icc-fixes-ranking-blunder-after-fan-outcry' (61 chars)
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - After final cleanup: 'kohli-back-at-no-1-icc-fixes-ranking-blunder-after-fan-outcry' (61 chars)
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Kohli Back At No 1 ICC Fixes Ranking Blunder After...' → 'kohli-back-at-no-1-icc-fixes-ranking-blunder-after-fan-outcry' (61/74 chars) ✅
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Kohli Back At No 1 ICC Fixes Ranking Blunder After Fan Outcry' (61 chars)
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'kohli-back-at-no-1-icc-fixes-ranking-blunder-after-fan-outcry' (61 chars)
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Soureesh Datta (ID: 10)
+2026-01-16 16:56:30 - AutoPublisherLogger - INFO - Post 'Kohli Back At No 1 ICC Fixes Ranking Blunder After Fan Outcry' draft on https://sportspediazone.com/. ID: 4214, Link: https://sportspediazone.com/?p=4214
+2026-01-16 16:56:34 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 17:10:08 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-16 18:16:42 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
