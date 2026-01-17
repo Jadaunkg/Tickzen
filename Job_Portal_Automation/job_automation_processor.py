@@ -18,6 +18,8 @@ from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
 from Job_Portal_Automation.state_management.job_publishing_state_manager import JobPublishingStateManager, RunStatus
 from Job_Portal_Automation.job_article_pipeline import JobArticlePipeline, GeminiArticleGenerator
 from Job_Portal_Automation.publishers.wp_job_publisher import publish_job_article, WPJobPublishingError
+from Job_Portal_Automation.utilities.feature_image_generator import FeatureImageGenerator
+from Job_Portal_Automation.utilities.internal_linking import JobPortalInternalLinker
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +72,12 @@ class JobAutomationProcessor:
             perplexity_client=self.automation_manager.research_client,
             gemini_client=GeminiArticleGenerator()
         )
+        
+        # Feature image generator
+        self.feature_image_generator = FeatureImageGenerator()
+        
+        # Internal linking system
+        self.internal_linker = JobPortalInternalLinker()
     
     # ===================== LIFECYCLE METHODS =====================
     
@@ -383,11 +391,15 @@ class JobAutomationProcessor:
                 self.logger.warning(f"Failed to add internal links: {e}. Continuing with original content.")
                 # Continue with original content if internal linking fails
             
-            # Step 4: Publish to target profiles
+            # Step 4: Publish to target profiles (with feature image generation per profile)
+            article_slug = article_data.get('slug')
+            self.logger.info(f"📝 Publishing with slug: '{article_slug}' (type: {type(article_slug).__name__})")
             published_urls = self._publish_to_profiles(
                 item_id=item_id,
                 title=article_data.get('title', item_title),
+                slug=article_slug,  # Pass SEO-optimized slug
                 content=article_content,
+                content_type=content_type,  # Pass content type for feature image generation
                 target_profiles=target_profiles,
                 config=config
             )
@@ -452,44 +464,148 @@ class JobAutomationProcessor:
             self.logger.error(f"Error generating article: {e}")
             return None
     
-    def _add_internal_links(self, content: str, title: str, target_profiles: List[Dict[str, Any]], 
-                          config: Dict[str, Any]) -> str:
-        """Add internal links from existing website articles (optional enhancement).
+    def _generate_feature_image(self, title: str, content_type: str, website_name: str = "Stockdunia") -> Optional[str]:
+        """
+        Generate feature image for the article.
         
-        This integrates with the existing internal linking system used in sports automation.
-        For now, returns content as-is. Can be extended to fetch articles from WordPress sites
-        and suggest internal links based on keywords.
+        Args:
+            title: Article title
+            content_type: Content type (jobs, results, admit_cards)
+            website_name: Website name for watermark
+            
+        Returns:
+            Path to generated feature image, or None if generation failed
+        """
+        try:
+            self.logger.info(f"🎨 Generating feature image for: {title[:60]}...")
+            
+            # Normalize content_type (remove trailing 's' if present)
+            normalized_type = content_type.rstrip('s')
+            
+            # Generate the feature image
+            image_path = self.feature_image_generator.generate(
+                title=title,
+                content_type=normalized_type,
+                site_name=website_name,
+                site_url='',
+                template='professional'
+            )
+            
+            return str(image_path) if image_path else None
+            
+        except Exception as e:
+            self.logger.error(f"Feature image generation failed: {e}")
+            return None
+    
+    def _extract_website_name(self, profile_data: Dict[str, Any]) -> str:
+        """
+        Extract website name from profile data for watermarking.
+        
+        Args:
+            profile_data: Profile configuration dictionary
+            
+        Returns:
+            Website name string
+        """
+        import re
+        
+        # Try profile_name first (most explicit)
+        profile_name = profile_data.get('profile_name', '')
+        if profile_name:
+            return profile_name
+        
+        # Try to extract from site_url
+        site_url = profile_data.get('site_url', '')
+        if site_url:
+            # Extract domain name from URL (e.g., "https://stockdunia.com" -> "Stockdunia")
+            domain_match = re.search(r'https?://(?:www\.)?([^./]+)', site_url)
+            if domain_match:
+                domain = domain_match.group(1)
+                # Capitalize first letter
+                return domain.capitalize()
+        
+        # Fallback to profile_id
+        profile_id = profile_data.get('profile_id', 'Job Portal')
+        return profile_id.replace('_', ' ').title()
+    
+    def _add_internal_links(self, content: str, title: str, target_profiles: List[str], 
+                          config: Dict[str, Any]) -> str:
+        """Add internal links section at end of article from existing website articles.
+        
+        Fetches 4-5 random articles from each WordPress site and adds a 
+        'More from [Site]' section at the end of the article.
         
         Args:
             content: Article HTML content
             title: Article title
-            target_profiles: List of profile configurations
+            target_profiles: List of profile IDs (strings)
             config: Automation configuration
             
         Returns:
-            Content with internal links added (or original if internal linking unavailable)
+            Content with internal links section added (or original if linking fails)
         """
         try:
-            # Internal linking is optional and requires WordPress API access
-            # This would integrate with Sports_Article_Automation.utilities.wordpress_internal_linking
-            # For job automation, we keep it simple and rely on WordPress native linking
+            self.logger.info(f"🔗 Adding internal links section for: {title[:60]}...")
             
-            self.logger.debug(f"Internal linking processing for: {title}")
+            # Add internal links for the first profile (they all go to same content)
+            # If multiple profiles, each will get its own links during per-profile publishing
+            if not target_profiles:
+                self.logger.warning("No target profiles for internal linking")
+                return content
             
-            # Placeholder for future internal linking integration
-            # The sports automation has WordPressInternalLinkingSystem that:
-            # 1. Fetches existing articles from the WordPress site
-            # 2. Analyzes content for relevant links
-            # 3. Adds <a> tags to linking opportunities
-            # 4. Returns enhanced content
+            # Get first profile ID and fetch its configuration
+            first_profile_id = target_profiles[0]
+            profiles = config.get('profiles', [])
             
-            return content
+            # Find the profile configuration
+            profile = None
+            for p in profiles:
+                if p.get('profile_id') == first_profile_id:
+                    profile = p
+                    break
+            
+            if not profile:
+                self.logger.warning(f"Profile configuration not found for ID: {first_profile_id}")
+                return content
+            
+            # Use profile to get site details
+            site_url = profile.get('site_url')
+            
+            if not site_url:
+                self.logger.warning("No site_url in profile for internal linking")
+                return content
+            
+            # Extract website name from profile
+            site_name = self._extract_website_name(profile)
+            
+            # Get credentials for API access
+            authors = profile.get('authors', [])
+            username = None
+            app_password = None
+            
+            if authors and len(authors) > 0:
+                author = authors[0]
+                username = author.get('wp_username')
+                app_password = author.get('app_password')
+            
+            # Add internal links section
+            enhanced_content = self.internal_linker.add_internal_links_section(
+                content=content,
+                site_url=site_url,
+                site_name=site_name,
+                username=username,
+                app_password=app_password,
+                num_links=5  # Add 5 random articles
+            )
+            
+            return enhanced_content
             
         except Exception as e:
             self.logger.warning(f"Internal linking failed: {e}. Returning original content.")
             return content
     
-    def _publish_to_profiles(self, item_id: str, title: str, content: str,
+    def _publish_to_profiles(self, item_id: str, title: str, slug: Optional[str],
+                            content: str, content_type: str,
                             target_profiles: List[str],
                             config: Dict[str, Any]) -> List[str]:
         """Publish article to WordPress profiles using standalone publisher."""
@@ -504,14 +620,23 @@ class JobAutomationProcessor:
             default_category = getattr(self.automation_manager.config, 'WORDPRESS_DEFAULT_CATEGORY_ID', None)
             status = getattr(self.automation_manager.config, 'WORDPRESS_DEFAULT_STATUS', 'draft')
             
+            # Generate feature image with generic watermark for fallback
+            feature_image_path = self._generate_feature_image(
+                title=title,
+                content_type=content_type,
+                website_name="Job Portal"
+            )
+            
             for profile_id in target_profiles:
                 try:
                     url = publish_job_article(
                         profile_id=profile_id,
                         title=title,
+                        slug=slug,
                         content=content,
                         status=status,
                         category_id=default_category,
+                        feature_image_path=feature_image_path,
                         dry_run=dry_run
                     )
                     if url:
@@ -577,13 +702,28 @@ class JobAutomationProcessor:
                     )
                     continue
                 
+                # Generate feature image with THIS profile's website name
+                website_name = self._extract_website_name(profile_data)
+                self.logger.info(f"🏷️  Generating feature image with watermark: '{website_name}'")
+                
+                feature_image_path = self._generate_feature_image(
+                    title=title,
+                    content_type=content_type,
+                    website_name=website_name
+                )
+                
+                if not feature_image_path:
+                    self.logger.warning(f"⚠️  Feature image generation failed for profile {profile_id}")
+                
                 # Publish article using author credentials (same as sports automation)
                 url = publish_job_article(
                     profile_id=profile_id,
                     title=title,
+                    slug=slug,  # Pass SEO-optimized slug
                     content=content,
                     status=publish_status,
                     category_id=category_id,
+                    feature_image_path=feature_image_path,  # Pass profile-specific feature image
                     dry_run=False,
                     site_url=site_url,
                     author=author  # Pass author dict with wp_username and app_password

@@ -143,6 +143,7 @@ class GeminiArticleGenerator:
         bullets: List[str],
         details: Dict[str, Any],
         research_sources: List[str],
+        site_url: Optional[str] = None,
     ) -> str:
         """
         Build a human-focused prompt for natural, readable article generation.
@@ -226,12 +227,27 @@ class GeminiArticleGenerator:
             "✓ Write naturally - like explaining to a friend, not a robot",
             "✓ Use simple, clear language",
             "✓ Explain what, when, and how in a straightforward way",
+            "✓ Start IMMEDIATELY with key facts - no conversational greetings",
             "✓ No marketing language or robotic phrases",
             "✓ Use ONLY the information provided below",
             "✓ Organize with proper HTML headings and formatting",
             "✓ Make it ready for WordPress publishing",
             "",
-            "FORBIDDEN (Do NOT use these):",
+            "FORBIDDEN OPENING PHRASES (NEVER start with these):",
+            "✗ 'Hey there! If you're looking for...'",
+            "✗ 'Are you interested in...'",
+            "✗ 'Looking for job opportunities?'",
+            "✗ 'Great news for job seekers!'",
+            "✗ 'Attention candidates!'",
+            "✗ Any greeting or conversational opener",
+            "",
+            "INSTEAD, START DIRECTLY WITH:",
+            "✓ '[Organization name] has announced [number] openings for [position]...'",
+            "✓ 'Applications for [position] at [organization] open on [date]...'",
+            "✓ '[Exam/Result name] will be conducted on [date]...'",
+            "✓ State the main facts immediately in the first sentence",
+            "",
+            "OTHER FORBIDDEN PHRASES:",
             "✗ 'This represents a golden opportunity'",
             "✗ 'Significant recruitment drive' (just say what it is)",
             "✗ 'Understanding this...' or 'Candidates should know...'",
@@ -239,15 +255,21 @@ class GeminiArticleGenerator:
             "✗ Phrases like 'is sure to', 'can help you', 'best chance'",
             "",
             "HTML FORMATTING - MANDATORY:",
-            "- Use <h1> for the main title (top of article)",
             "- Use <h2> for section headings",
             "- Use <h3> for subsections",
-            "- Use <strong> for numbers, dates, amounts: <strong>₹500</strong>, <strong>32,679</strong>, <strong>Jan 30</strong>",
+            "- Use <strong> for bold text (numbers, dates, amounts): <strong>₹500</strong>, <strong>32,679</strong>, <strong>Jan 30</strong>",
+            "- NEVER use Markdown syntax (**text**) - ALWAYS use HTML tags (<strong>text</strong>)",
             "- Use <p> for paragraphs (keep them short - 2-3 sentences max)",
             "- Use <ul><li> for bullet point lists",
             "- Use <ol><li> for numbered steps (like application process)",
             "- Use <table> for all data with proper <thead>, <tbody>, <tr>, <td> structure",
             "- Use <a href=\"URL\" target=\"_blank\"> for links - embed them naturally in text",
+            "",
+            "FORMATTING EXAMPLES:",
+            "✓ CORRECT: The BCECEB has announced <strong>1445</strong> openings for Junior Resident positions.",
+            "✓ CORRECT: Applications started on <strong>January 16, 2026</strong>, and the last date is <strong>February 06, 2026</strong>.",
+            "✗ WRONG: The BCECEB has announced **1445** openings (DO NOT USE ** for bold)",
+            "✗ WRONG: Applications started on **January 16, 2026** (ONLY use <strong> tags)",
             "",
             "TABLE EXAMPLE:",
             "<table style=\"width: 100%; border-collapse: collapse;\">"
@@ -306,12 +328,34 @@ class GeminiArticleGenerator:
             "=" * 80,
             "WRITE THE ARTICLE NOW:",
             "=" * 80,
-            "Start with <h1>{title}</h1>",
-            "Then write clear, simple paragraphs and sections with proper HTML tags.",
+            "IMPORTANT - DO NOT REPEAT THE TITLE:",
+            "- The title will be handled separately by WordPress as the post heading",
+            "- Do NOT include <h1> tag or repeat the title text in the article body",
+            "- Start DIRECTLY with the main content using <h2> for first section if needed",
+            "",
+            "START YOUR ARTICLE WITH:",
+            "- A clear opening paragraph that immediately states the key facts",
+            "- DO NOT use conversational phrases like 'Hey there!', 'If you're looking for', 'Are you interested in', etc.",
+            "- Get straight to the point with factual information",
+            "- Example: 'The Bihar Combined Entrance Competitive Examination Board (BCECEB) has announced [number] openings for Junior Resident positions. Applications open on [date]...'",
+            "",
+            "Then continue with clear, organized sections using proper HTML tags:",
+            "- Use <h2> for major section headings",
+            "- Use <h3> for subsections",
+            "- Use <p> for paragraphs, <ul>/<ol> for lists, <table> for data",
             "Make it informative, easy to read, and properly formatted for WordPress.",
             "Target: 600-900 words",
             "",
         ])
+        
+        # Add closing message instruction if site_url is provided
+        if site_url:
+            prompt.extend([
+                "IMPORTANT - END YOUR ARTICLE WITH THIS:",
+                f"Add a final highlighted paragraph encouraging readers to bookmark {site_url} and visit regularly for more job updates, admit cards, and results.",
+                "Format it as: <p style=\"background-color: #fff3e0; padding: 15px; border-radius: 5px; margin: 20px 0;\"><strong>📢 Stay Updated!</strong> [Natural closing message mentioning {site_url}]</p>",
+                "",
+            ])
         
         return "\n".join(prompt)
     def _generate_with_gemini(
@@ -321,12 +365,13 @@ class GeminiArticleGenerator:
         details: Dict[str, Any],
         research: Dict[str, Any],
         config: Optional[Dict[str, Any]],
+        site_url: Optional[str] = None,
     ) -> Optional[str]:
         if not self.model:
             return None
 
         summary, bullets, sources = self._normalize_research(research)
-        prompt = self._build_prompt(content_type, title, summary, bullets, details, sources)
+        prompt = self._build_prompt(content_type, title, summary, bullets, details, sources, site_url)
 
         generation_config = {
             "temperature": config.get("temperature", self.temperature) if config else self.temperature,
@@ -368,6 +413,13 @@ class GeminiArticleGenerator:
         article_config = config or {}
         publish_status = article_config.get("publish_status", "draft")
         article_length = article_config.get("article_length", "medium")
+        
+        # Extract site_url from config profiles
+        site_url = None
+        profiles = article_config.get("profiles", [])
+        if profiles and len(profiles) > 0:
+            site_url = profiles[0].get("site_url")
+        logger.info(f"   Publishing site: {site_url or 'Not specified'}")
 
         summary, key_points, sources = self._normalize_research(research)
 
@@ -384,13 +436,12 @@ class GeminiArticleGenerator:
 
         # Attempt Gemini generation first
         logger.info("🤖 Attempting Gemini generation...")
-        html_content = self._generate_with_gemini(content_type, title, details, research, article_config)
+        html_content = self._generate_with_gemini(content_type, title, details, research, article_config, site_url)
 
         if not html_content:
             logger.warning("⚠️  Gemini generation returned empty, using template fallback")
-            # Fallback: structured template
+            # Fallback: structured template (no <h1> as title is handled separately)
             sections: List[str] = []
-            sections.append(f"<h1>{title}</h1>")
             sections.append(
                 "<p style=\"background-color: #f0f0f0; padding: 10px; border-left: 4px solid #ff9800; margin: 10px 0; display: none;\">"
             )
@@ -447,9 +498,14 @@ class GeminiArticleGenerator:
             sections.append(
                 "<p style=\"background-color: #fff3e0; padding: 15px; border-radius: 5px; margin: 20px 0;\">"
             )
-            sections.append(
-                "<strong>📢 Don't miss out!</strong> Make sure to apply before the deadline. For more details, visit the official website using the links provided above."
-            )
+            if site_url:
+                sections.append(
+                    f"<strong>📢 Don't miss out!</strong> Bookmark <a href=\"{site_url}\" target=\"_blank\">{site_url}</a> and visit regularly for the latest job updates, admit cards, and results."
+                )
+            else:
+                sections.append(
+                    "<strong>📢 Don't miss out!</strong> Make sure to apply before the deadline. For more details, visit the official website using the links provided above."
+                )
             sections.append("</p>")
             html_content = "\n".join(sections)
             logger.info(f"   📝 Template fallback generated {len(html_content)} characters")
@@ -474,6 +530,95 @@ class GeminiArticleGenerator:
             "summary": summary,
             "keywords": keywords,
         }
+
+    @staticmethod
+    def _generate_seo_slug(title: str, content_type: str, details: Dict[str, Any]) -> str:
+        """
+        Generate SEO-optimized slug for URL (60-70 characters).
+        
+        Focus on main information only:
+        - Job name and position
+        - Admit card and exam name
+        - Result and organization
+        
+        Args:
+            title: Article title
+            content_type: Type (jobs, admit_cards, results)
+            details: Dictionary with additional details
+            
+        Returns:
+            SEO slug (60-70 characters, lowercase, hyphenated)
+        """
+        import re
+        
+        # Helper to clean and slugify text
+        def slugify(text):
+            # Convert to lowercase
+            text = text.lower()
+            # Remove special characters except spaces and hyphens
+            text = re.sub(r'[^\w\s-]', '', text)
+            # Replace spaces with hyphens
+            text = re.sub(r'[\s_]+', '-', text)
+            # Remove multiple hyphens
+            text = re.sub(r'-+', '-', text)
+            return text.strip('-')
+        
+        # Remove common suffixes and redundant words
+        clean_title = title
+        for suffix in [" – Out", " - Out", " Out", " (Out)",
+                      " – Apply Online", " - Apply Online", " Apply Online",
+                      " – Apply Now", " - Apply Now", " Apply Now",
+                      " – Apply", " - Apply", " Apply",
+                      " – Download", " - Download", " Download",
+                      " – Check Result", " - Check Result",
+                      " – Start", " - Start", " Start",
+                      " Recruitment", " 2026", " 2025", " 2027",
+                      " Online Form", " Online", " Form"]:
+            clean_title = clean_title.replace(suffix, "")
+        
+        # Further reduce verbosity - remove common words that don't add SEO value
+        clean_title = clean_title.replace(" Enforcement", "")
+        clean_title = clean_title.replace(" Level 1", "")
+        clean_title = clean_title.replace(" Date", "")
+        clean_title = clean_title.replace(" Card", "")
+        clean_title = clean_title.replace(" Now", "")
+        
+        # Remove extra spaces caused by removals
+        clean_title = re.sub(r'\s+', ' ', clean_title).strip()
+        
+        # Add content type indicator
+        if content_type == "jobs":
+            type_suffix = "recruitment"
+        elif content_type == "admit_cards":
+            type_suffix = "admit-card"
+        elif content_type == "results":
+            type_suffix = "result"
+        else:
+            type_suffix = ""
+        
+        # Build slug
+        base_slug = slugify(clean_title)
+        
+        # Add type suffix if not already present
+        if type_suffix and type_suffix not in base_slug:
+            slug = f"{base_slug}-{type_suffix}"
+        else:
+            slug = base_slug
+        
+        # Add year if not present (important for SEO and uniqueness)
+        if "2026" not in slug and "2026" in title:
+            slug = f"{slug}-2026"
+        
+        # Trim to target length (60-70 characters)
+        if len(slug) > 70:
+            # Try to cut at last hyphen before 70 chars
+            truncate_at = slug[:70].rfind('-')
+            if truncate_at > 40:  # Ensure we keep meaningful content
+                slug = slug[:truncate_at]
+            else:
+                slug = slug[:70].rstrip('-')
+        
+        return slug
 
     @staticmethod
     def _derive_keywords(title: str, key_points: List[str], key_details: Dict[str, Any]) -> List[str]:
@@ -504,6 +649,205 @@ class GeminiArticleGenerator:
                 ordered.append(kw)
         
         return ordered[:10]
+
+    @staticmethod
+    def _enhance_headline(original_title: str, content_type: str, details: Dict[str, Any]) -> str:
+        """
+        Create SEO-optimized headline with dynamic details based on content type.
+        
+        SEO Optimizations:
+        - Keeps length under 60 characters for full Google display
+        - Uses power words (Out, Live, Latest) for higher CTR
+        - Front-loads important keywords
+        - Includes specific dates and numbers
+        - Adds compelling call-to-action
+        
+        Args:
+            original_title: Original scraped title from sarkariresult
+            content_type: Type of content (jobs, results, admit_cards)
+            details: Dictionary containing important dates, eligibility, etc.
+            
+        Returns:
+            SEO-optimized headline (50-60 characters ideal)
+        """
+        # Extract key information from details
+        important_dates = details.get("important_dates", {})
+        key_details = details.get("key_details", {})
+        
+        # Helper function to extract text from various formats
+        def extract_text(value):
+            if isinstance(value, dict) and "raw" in value:
+                return value.get("raw") or ""
+            return str(value) if value else ""
+        
+        # Helper to shorten date format (e.g., "31 January 2026" -> "Jan 31")
+        def shorten_date(date_str):
+            if not date_str:
+                return ""
+            # Extract date components
+            import re
+            # Match patterns like "31 January 2026", "31-01-2026", "2026-01-31"
+            months_map = {
+                'january': 'Jan', 'february': 'Feb', 'march': 'Mar', 'april': 'Apr',
+                'may': 'May', 'june': 'Jun', 'july': 'Jul', 'august': 'Aug',
+                'september': 'Sep', 'october': 'Oct', 'november': 'Nov', 'december': 'Dec'
+            }
+            
+            date_lower = date_str.lower().strip()
+            for full_month, short_month in months_map.items():
+                if full_month in date_lower:
+                    # Extract day
+                    day_match = re.search(r'\b(\d{1,2})\b', date_str)
+                    if day_match:
+                        return f"{short_month} {day_match.group(1)}"
+                    return short_month
+            
+            # If no month name, try to extract just day and month from numeric format
+            date_match = re.search(r'(\d{1,2})[-/](\d{1,2})', date_str)
+            if date_match:
+                return f"{date_match.group(1)}/{date_match.group(2)}"
+            
+            return date_str[:10]  # Fallback: just take first 10 chars
+        
+        # Extract clean title base (remove year, recruitment, etc. for brevity)
+        def extract_core_title(title):
+            # Remove common suffixes and year
+            clean = title
+            for suffix in [" – Out", " - Out", " Out", " (Out)", 
+                          " – Apply Online", " - Apply Online", " Apply Online",
+                          " – Apply", " - Apply", " Apply",
+                          " Recruitment", " 2026", " 2025", " 2027"]:
+                clean = clean.replace(suffix, "")
+            
+            # Further shorten if still too long
+            # Remove verbose words
+            clean = clean.replace(" Enforcement", "")
+            clean = clean.replace(" Date", "")
+            clean = clean.replace(" Level 1", "")
+            
+            return clean.strip()
+        
+        core_title = extract_core_title(original_title)
+        
+        # Build SEO-optimized headline based on content type
+        if content_type == "jobs":
+            # For jobs: [Org/Post]: [Vacancy], Apply by [Date]
+            # Target: "UP Police 2026: 5000 Posts, Apply by Jan 31"
+            
+            vacancy_info = None
+            for key in ["Total Posts", "Vacancies", "Posts", "total_posts", "vacancies", "Total Vacancy"]:
+                if key in key_details:
+                    vacancy_info = extract_text(key_details[key])
+                    break
+            
+            last_date = None
+            for key in ["Last Date", "Application End Date", "Closing Date", "last_date", "Last Date to Apply"]:
+                if key in important_dates:
+                    last_date = extract_text(important_dates[key])
+                    break
+            
+            # Build parts
+            parts = []
+            
+            # Add vacancy if available
+            if vacancy_info:
+                # Clean vacancy number (remove commas for brevity if needed)
+                vacancy_clean = vacancy_info.strip().replace(',', '')
+                parts.append(f"{vacancy_clean} Posts")
+            
+            # Add last date if available
+            if last_date:
+                short_date = shorten_date(last_date)
+                parts.append(f"Apply by {short_date}")
+            elif not parts:
+                # Fallback: add generic CTA
+                parts.append("Apply Now")
+            
+            # Construct headline: ensure 2026 is in title
+            if "2026" not in core_title and "2026" in original_title:
+                core_title += " 2026"
+            
+            if parts:
+                # Vary punctuation for natural look
+                if len(parts) == 1:
+                    # Single part - use dash for simplicity
+                    headline = f"{core_title} - {parts[0]}"
+                else:
+                    # Multiple parts - use colon with comma separator
+                    headline = f"{core_title}: {', '.join(parts)}"
+            else:
+                headline = f"{core_title} - Apply Online"
+            
+            return headline
+        
+        elif content_type == "admit_cards":
+            # For admit cards: [Org] Admit Card Out: Exam [Date] - Download
+            # Target: "SSC CGL Admit Card Out: Exam Jan 25 - Download"
+            
+            exam_date = None
+            for key in ["Exam Date", "Test Date", "exam_date", "Admit Card Available"]:
+                if key in important_dates:
+                    exam_date = extract_text(important_dates[key])
+                    break
+            
+            # Add power word "Out" if not already present
+            status = "Out" if "out" not in core_title.lower() else ""
+            
+            # Construct headline with varied punctuation
+            if exam_date:
+                short_date = shorten_date(exam_date)
+                if status:
+                    headline = f"{core_title} {status} - Exam {short_date}, Download"
+                else:
+                    headline = f"{core_title} - Exam {short_date}, Download"
+                
+                # If still too long, remove "Download" and use shorter format
+                if len(headline) > 60:
+                    if status:
+                        headline = f"{core_title} {status} - Exam on {short_date}"
+                    else:
+                        headline = f"{core_title} - Exam {short_date}"
+            else:
+                # Fallback
+                if status:
+                    headline = f"{core_title} {status} - Download Link"
+                else:
+                    headline = f"{core_title} - Download Active"
+            
+            return headline
+        
+        elif content_type == "results":
+            # For results: [Org] Result Out: Check Score & Cut-off
+            # Target: "RRB Group D Result Out: Check Score & Cut-off"
+            
+            result_date = None
+            for key in ["Result Date", "Declaration Date", "result_date", "Result Declared"]:
+                if key in important_dates:
+                    result_date = extract_text(important_dates[key])
+                    break
+            
+            # Add power word "Out" or "Declared"
+            status = ""
+            if "out" not in core_title.lower() and "declared" not in core_title.lower():
+                status = "Out"
+            
+            if result_date:
+                short_date = shorten_date(result_date)
+                if status:
+                    headline = f"{core_title} {status} - Declared {short_date}"
+                else:
+                    headline = f"{core_title} - Check Score & Cut-off"
+            else:
+                # Fallback - emphasize checking
+                if status:
+                    headline = f"{core_title} {status} - Check Score & Cut-off"
+                else:
+                    headline = f"{core_title} - Direct Link to Check Marks"
+            
+            return headline
+        
+        # Fallback: return original if content type not recognized
+        return original_title
 
 
 class JobArticlePipeline:
@@ -554,9 +898,18 @@ class JobArticlePipeline:
         
         Note: Perplexity research is currently disabled to use only API details.
         """
-        title = item.get("title") or details.get("title") or "Untitled"
+        # Get original title from item or details
+        original_title = item.get("title") or details.get("title") or "Untitled"
         
-        self.logger.info(f"Generating article for: {title}")
+        # Enhance the headline with dynamic information
+        enhanced_title = self.gemini_client._enhance_headline(
+            original_title=original_title,
+            content_type=content_type,
+            details=details
+        )
+        
+        self.logger.info(f"Generating article for: {enhanced_title}")
+        self.logger.info(f"Original title: {original_title}")
         
         # COMMENTED OUT: Perplexity research - using only API details now
         # research = self.collect_research(title, content_type)
@@ -571,19 +924,29 @@ class JobArticlePipeline:
         
         self.logger.info(f"Using only API details (Perplexity research disabled)")
         
-        # Generate article using API details only
+        # Generate article using API details and enhanced title
         article = self.gemini_client.generate(
             content_type=content_type,
-            title=title,
+            title=enhanced_title,  # Use enhanced title
             details=details or {},
             research=research,
             config=config
         )
         
+        # Generate SEO-optimized slug
+        seo_slug = self.gemini_client._generate_seo_slug(
+            title=enhanced_title,
+            content_type=content_type,
+            details=details
+        )
+        
         self.logger.info(f"Article generated - length: {len(article.get('content', ''))} chars, keywords: {len(article.get('keywords', []))}")
+        self.logger.info(f"✅ SEO SLUG GENERATED: '{seo_slug}' ({len(seo_slug)} chars)")
+        self.logger.info(f"   Enhanced title: '{enhanced_title}'")
         
         return {
-            "title": article.get("title", title),
+            "title": article.get("title", enhanced_title),  # Use enhanced title as fallback
+            "slug": seo_slug,  # Add SEO-optimized slug
             "content": article.get("content", ""),
             "meta": article.get("meta", {}),
             "summary": article.get("summary"),
