@@ -253,16 +253,22 @@ def history():
 @jobs_automation_bp.route('/api/dashboard-stats')
 @login_required
 def api_dashboard_stats():
-    """Get dashboard statistics."""
+    """Get dashboard statistics from job automation runs."""
     user_uid = session['firebase_user_uid']
     
     try:
-        from app.blueprints.automation_utils import get_firestore_client
-        db = get_firestore_client()
+        from Job_Portal_Automation.state_management.job_publishing_state_manager import JobPublishingStateManager
+        from datetime import datetime, timedelta
+        
+        # Initialize state manager to get stats
+        state_manager = JobPublishingStateManager()
+        
+        # Get run history - this fetches from job_automation_runs collection
+        run_history = state_manager.get_run_history(user_uid, limit=100)
         
         # Initialize stats
         stats = {
-            'total_runs': 0,
+            'total_runs': len(run_history),
             'published_count': 0,
             'this_week_count': 0,
             'jobs_count': 0,
@@ -271,51 +277,61 @@ def api_dashboard_stats():
             'recent_runs': []
         }
         
-        # Fetch published government jobs articles from Firestore
-        if db:
-            try:
-                from datetime import datetime, timedelta
+        # Process run history to calculate statistics
+        if run_history:
+            now = datetime.now()
+            week_ago = now - timedelta(days=7)
+            
+            for run in run_history:
+                # Get run data
+                timestamp_str = run.get('timestamp') or run.get('created_at', '')
+                content_type = run.get('content_type', 'jobs')
+                results = run.get('results', [])
                 
-                # Query userPublishedArticles for government jobs articles
-                jobs_articles_ref = db.collection('userPublishedArticles')\
-                    .where('user_uid', '==', user_uid)\
-                    .where('article_type', '==', 'government_jobs')
+                # Count by content type from run
+                if content_type == 'jobs':
+                    stats['jobs_count'] += len(results)
+                elif content_type == 'results':
+                    stats['results_count'] += len(results)
+                elif content_type == 'admit_cards':
+                    stats['admit_cards_count'] += len(results)
                 
-                jobs_docs = list(jobs_articles_ref.stream())
-                stats['published_count'] = len(jobs_docs)
+                # Total published articles in this run
+                stats['published_count'] += len(results)
                 
-                # Count articles by content type
-                for doc in jobs_docs:
-                    article_data = doc.to_dict()
-                    content_type = article_data.get('content_type', 'jobs')
-                    
-                    if content_type == 'jobs':
-                        stats['jobs_count'] += 1
-                    elif content_type == 'results':
-                        stats['results_count'] += 1
-                    elif content_type == 'admit_cards':
-                        stats['admit_cards_count'] += 1
-                    
-                    # Count this week
-                    created_at = article_data.get('created_at')
-                    if created_at:
-                        try:
-                            article_date = datetime.fromisoformat(str(created_at).replace('Z', '+00:00'))
-                            week_ago = datetime.now(article_date.tzinfo) - timedelta(days=7)
-                            if article_date >= week_ago:
-                                stats['this_week_count'] += 1
-                        except:
-                            pass
+                # Count this week
+                try:
+                    if timestamp_str:
+                        run_date = datetime.fromisoformat(str(timestamp_str).replace('Z', '+00:00'))
+                        # Handle timezone-naive datetime
+                        if run_date.tzinfo is None:
+                            run_date = run_date.replace(tzinfo=None)
+                            week_check = week_ago.replace(tzinfo=None)
+                        else:
+                            week_check = week_ago
+                        
+                        if run_date >= week_check:
+                            stats['this_week_count'] += len(results)
+                except Exception as e:
+                    current_app.logger.debug(f"Error parsing timestamp: {e}")
                 
-                current_app.logger.info(f"Found {stats['published_count']} published government jobs articles for user {user_uid}")
-                
-            except Exception as e:
-                current_app.logger.warning(f"Error fetching published government jobs articles: {e}")
+                # Build recent runs list (limit to 10 most recent)
+                if len(stats['recent_runs']) < 10:
+                    recent_run = {
+                        'id': run.get('run_id', 'unknown'),
+                        'item_count': len(results),
+                        'status': run.get('status', 'completed'),
+                        'created_at': run.get('timestamp') or run.get('created_at'),
+                        'content_type': content_type
+                    }
+                    stats['recent_runs'].append(recent_run)
+            
+            current_app.logger.info(f"Dashboard stats for user {user_uid}: {stats['total_runs']} runs, {stats['published_count']} published articles")
         
         return jsonify(stats)
         
     except Exception as e:
-        current_app.logger.error(f"Error getting dashboard stats: {e}")
+        current_app.logger.error(f"Error getting dashboard stats: {e}", exc_info=True)
         return jsonify({
             'error': 'Failed to load statistics',
             'total_runs': 0,

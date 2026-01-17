@@ -77,9 +77,11 @@ class JobPublishingStateManager:
             try:
                 self.db = firestore.client()
                 logger.info("✅ Firestore initialized (existing Firebase app)")
-            except ValueError:
+                self.use_firestore = True
+            except ValueError as e:
                 # Firebase not initialized, try to initialize
-                logger.warning("Firebase app not initialized, skipping Firestore integration")
+                logger.warning(f"Firebase app not initialized: {e}")
+                logger.warning("Skipping Firestore integration - will use local storage only")
                 self.db = None
                 self.use_firestore = False
         
@@ -87,6 +89,10 @@ class JobPublishingStateManager:
             logger.warning("Firebase admin SDK not installed. Using local state only.")
             self.use_firestore = False
             self.db = None
+        except Exception as e:
+            logger.error(f"Error initializing Firestore: {e}", exc_info=True)
+            self.db = None
+            self.use_firestore = False
     
     def create_run(self, user_uid: str, content_type: str,
                    selected_items: List[Dict],
@@ -128,14 +134,21 @@ class JobPublishingStateManager:
             'updated_at': datetime.now().isoformat()
         }
         
-        # Save locally
-        self._save_local_run(run_id, run_data)
+        # Save locally first (most reliable)
+        local_saved = self._save_local_run(run_id, run_data)
+        if not local_saved:
+            logger.warning(f"⚠️ Failed to save run {run_id} to local storage")
         
         # Save to Firestore if available
+        firestore_saved = False
         if self.db:
-            self._save_firestore_run(run_id, run_data)
+            firestore_saved = self._save_firestore_run(run_id, run_data)
         
-        logger.info(f"✅ Created run {run_id}")
+        if firestore_saved or local_saved:
+            logger.info(f"✅ Created run {run_id} (local: {local_saved}, firestore: {firestore_saved})")
+        else:
+            logger.error(f"❌ Failed to create run {run_id} - no storage available")
+        
         return run_id
     
     def get_run(self, run_id: str) -> Optional[Dict[str, Any]]:
@@ -347,11 +360,15 @@ class JobPublishingStateManager:
     def _save_firestore_run(self, run_id: str, run_data: Dict) -> bool:
         """Save run data to Firestore"""
         try:
+            if not self.db:
+                logger.warning(f"Firestore client not initialized. Cannot save run {run_id} to Firestore.")
+                return False
+            
             self.db.collection('job_automation_runs').document(run_id).set(run_data)
-            logger.debug(f"Saved run {run_id} to Firestore")
+            logger.info(f"✅ Saved run {run_id} to Firestore with {len(run_data.get('results', []))} results")
             return True
         except Exception as e:
-            logger.error(f"Failed to save run to Firestore {run_id}: {e}")
+            logger.error(f"❌ Failed to save run to Firestore {run_id}: {e}", exc_info=True)
             return False
     
     def _get_local_run_history(self, user_uid: str, limit: int) -> List[Dict[str, Any]]:
