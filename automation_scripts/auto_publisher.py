@@ -681,44 +681,32 @@ def create_wordpress_post(site_url, author, title, content, sched_time, cat_id=N
     else:
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         # SPORTS ARTICLES: headline-only format
-        # Example: "england-demands-dog-mentality", "nba-finals-game-7"
-        # NO category prefix, NO special filtering - just headline
+        # Example: "england-demands-dog-mentality"
+        # NO category prefix - strictly headline only
         # Permalink must be LESS than 75 characters (max 74 chars)
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         app_logger.info(f"[SLUG_DEBUG] SPORTS - Original title: {title}")
         
-        # Step 1: Clean special characters and normalize
-        slug = re.sub(r'[^\w\s]', '', title.lower()).strip()
-        app_logger.info(f"[SLUG_DEBUG] SPORTS - After cleaning: '{slug}' ({len(slug)} chars)")
+        # Step 1: Clean special characters and normalize title
+        clean_title = re.sub(r'[^\w\s]', '', title.lower()).strip()
+        slug = re.sub(r'[\s]+', '-', clean_title).strip('-')
         
-        # Step 2: Replace spaces with hyphens
-        slug = re.sub(r'[\s]+', '-', slug).strip('-')
-        app_logger.info(f"[SLUG_DEBUG] SPORTS - After hyphenation: '{slug}' ({len(slug)} chars)")
+        # Step 2: Enforce LESS THAN 75 character limit (max 74) with word boundary respect
+        # We strictly ignore any category/company_name prefix here
         
-        # Step 3: Enforce LESS THAN 75 character limit (max 74) with word boundary respect
-        if len(slug) >= 75:  # Changed to >= to catch exactly 75 as well
-            app_logger.info(f"[SLUG_DEBUG] SPORTS - Slug too long ({len(slug)}), truncating to max {MAX_SLUG_LENGTH} chars")
-            # Find the last hyphen within MAX_SLUG_LENGTH characters to break at word boundary
-            truncated = slug[:MAX_SLUG_LENGTH]
-            if '-' in truncated:
-                # Break at the last hyphen to preserve word boundaries
-                slug = truncated.rsplit('-', 1)[0]
-            else:
-                # No hyphens found - hard truncate to max length
-                slug = truncated[:MAX_SLUG_LENGTH]
-            app_logger.info(f"[SLUG_DEBUG] SPORTS - After truncation: '{slug}' ({len(slug)} chars)")
-        
-        # Step 4: Final cleanup - remove any trailing hyphens
+        if len(slug) > MAX_SLUG_LENGTH:
+             app_logger.info(f"[SLUG_DEBUG] SPORTS - Slug too long ({len(slug)}), truncating to max {MAX_SLUG_LENGTH} chars")
+             truncated = slug[:MAX_SLUG_LENGTH]
+             if '-' in truncated:
+                 slug = truncated.rsplit('-', 1)[0]
+             else:
+                 slug = truncated
+
         slug = slug.strip('-')
-        app_logger.info(f"[SLUG_DEBUG] SPORTS - After final cleanup: '{slug}' ({len(slug)} chars)")
         
-        # Step 5: Emergency validation - ensure it's always less than 75 characters
-        if len(slug) >= 75:
-            app_logger.warning(f"[SLUG_ERROR] SPORTS - Slug still too long after processing: '{slug}' ({len(slug)} chars) - forcing hard truncation")
-            slug = slug[:MAX_SLUG_LENGTH].rstrip('-')
-            app_logger.warning(f"[SLUG_ERROR] SPORTS - After emergency truncation: '{slug}' ({len(slug)} chars)")
+        app_logger.info(f"[SLUG_DEBUG] SPORTS - Final slug: '{slug}' ({len(slug)} chars)")
         
-        # Step 6: Final safety check - ensure we never exceed 74 characters
+        # Step 4: Final safety check - ensure we never exceed 74 characters
         if len(slug) > MAX_SLUG_LENGTH:
             app_logger.error(f"[SLUG_CRITICAL] SPORTS - Slug exceeds max length: '{slug}' ({len(slug)} chars) - hard truncating")
             slug = slug[:MAX_SLUG_LENGTH].rstrip('-')

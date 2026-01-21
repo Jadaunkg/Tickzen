@@ -191,8 +191,12 @@ class RiskAnalyzer:
         """Generate comprehensive risk analysis"""
         returns = price_data.pct_change().dropna()
         
+        # Calculate 30-day rolling volatility (annualized)
+        vol_30d = returns.tail(30).std() * np.sqrt(252) if len(returns) >= 30 else returns.std() * np.sqrt(252)
+
         risk_metrics = {
             'volatility_annualized': returns.std() * np.sqrt(252),
+            'volatility_30d_annualized': vol_30d,
             'var_5': self.calculate_var(returns, 0.05),
             'var_1': self.calculate_var(returns, 0.01),
             'sharpe_ratio': self.calculate_sharpe_ratio(returns),

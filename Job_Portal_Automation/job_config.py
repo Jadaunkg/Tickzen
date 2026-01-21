@@ -77,6 +77,10 @@ class Config:
     # Rate limiting
     RATE_LIMIT_JOBS_PER_HOUR = 100
     RATE_LIMIT_ARTICLES_PER_DAY = 50
+    
+    # Scheduling intervals for 'future' posts (matches sports article scheduling)
+    MIN_SCHEDULING_INTERVAL_MINUTES = int(os.getenv('JOB_MIN_INTERVAL', '45'))
+    MAX_SCHEDULING_INTERVAL_MINUTES = int(os.getenv('JOB_MAX_INTERVAL', '90'))
 
 
 class DevelopmentConfig(Config):

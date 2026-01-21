@@ -13,6 +13,7 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 from pathlib import Path
 from enum import Enum
+import pickle
 
 logger = logging.getLogger(__name__)
 
@@ -313,6 +314,123 @@ class JobPublishingStateManager:
         
         # Fallback to local storage
         return self._get_local_statistics(user_uid)
+    
+    # ===================== WRITER ROTATION STATE TRACKING =====================
+    
+    def load_writer_rotation_state(self, user_uid: str) -> Dict[str, Dict[str, int]]:
+        """
+        Load writer rotation state for a user.
+        Tracks last_author_index per profile to implement round-robin rotation.
+        
+        Returns:
+            Dict with structure: {profile_id: {last_author_index: int}}
+        """
+        try:
+            state_file = self.local_state_dir / f"writer_rotation_{user_uid}.pkl"
+            
+            # Try local file first
+            if state_file.exists():
+                try:
+                    with open(state_file, 'rb') as f:
+                        state = pickle.load(f)
+                        logger.info(f"✅ Loaded writer rotation state for user {user_uid}: {state}")
+                        return state
+                except Exception as e:
+                    logger.warning(f"Failed to load local writer rotation state: {e}")
+            
+            # Try Firestore
+            if self.db:
+                try:
+                    doc = self.db.collection('job_automation_writer_rotation').document(user_uid).get()
+                    if doc.exists:
+                        state = doc.to_dict()
+                        logger.info(f"✅ Loaded writer rotation state from Firestore for user {user_uid}: {state}")
+                        return state
+                except Exception as e:
+                    logger.warning(f"Failed to load writer rotation state from Firestore: {e}")
+            
+            # Return empty state if nothing found
+            logger.info(f"No existing writer rotation state for user {user_uid}, using empty state")
+            return {}
+        
+        except Exception as e:
+            logger.error(f"Error loading writer rotation state for user {user_uid}: {e}", exc_info=True)
+            return {}
+    
+    def save_writer_rotation_state(self, user_uid: str, state: Dict[str, Dict[str, int]]) -> bool:
+        """
+        Save writer rotation state for a user.
+        
+        Args:
+            user_uid: Firebase user ID
+            state: State dict with structure: {profile_id: {last_author_index: int}}
+            
+        Returns:
+            True if saved successfully
+        """
+        try:
+            # Save locally
+            state_file = self.local_state_dir / f"writer_rotation_{user_uid}.pkl"
+            try:
+                with open(state_file, 'wb') as f:
+                    pickle.dump(state, f)
+                    logger.info(f"✅ Saved writer rotation state to local storage for user {user_uid}: {state}")
+            except Exception as e:
+                logger.warning(f"Failed to save local writer rotation state: {e}")
+            
+            # Save to Firestore if available
+            if self.db:
+                try:
+                    self.db.collection('job_automation_writer_rotation').document(user_uid).set(state)
+                    logger.info(f"✅ Saved writer rotation state to Firestore for user {user_uid}")
+                    return True
+                except Exception as e:
+                    logger.warning(f"Failed to save writer rotation state to Firestore: {e}")
+            
+            return True
+        
+        except Exception as e:
+            logger.error(f"Error saving writer rotation state for user {user_uid}: {e}", exc_info=True)
+            return False
+    
+    def get_last_author_index(self, user_uid: str, profile_id: str) -> int:
+        """
+        Get the last author index for a specific profile.
+        
+        Args:
+            user_uid: Firebase user ID
+            profile_id: WordPress profile ID
+            
+        Returns:
+            Last author index (-1 if none found, meaning next will be 0)
+        """
+        state = self.load_writer_rotation_state(user_uid)
+        profile_state = state.get(str(profile_id), {})
+        last_index = profile_state.get('last_author_index', -1)
+        logger.debug(f"Last author index for user {user_uid}, profile {profile_id}: {last_index}")
+        return last_index
+    
+    def set_last_author_index(self, user_uid: str, profile_id: str, author_index: int) -> bool:
+        """
+        Set the last author index for a specific profile.
+        
+        Args:
+            user_uid: Firebase user ID
+            profile_id: WordPress profile ID
+            author_index: Index of the last used author
+            
+        Returns:
+            True if saved successfully
+        """
+        state = self.load_writer_rotation_state(user_uid)
+        
+        if str(profile_id) not in state:
+            state[str(profile_id)] = {}
+        
+        state[str(profile_id)]['last_author_index'] = author_index
+        logger.debug(f"Updated last author index for user {user_uid}, profile {profile_id}: {author_index}")
+        
+        return self.save_writer_rotation_state(user_uid, state)
     
     def _save_run(self, run_id: str, run_data: Dict) -> bool:
         """Save run data (both local and Firestore)"""

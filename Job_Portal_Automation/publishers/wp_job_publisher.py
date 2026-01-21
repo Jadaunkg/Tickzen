@@ -18,8 +18,10 @@ import json
 import logging
 import os
 import mimetypes
+import random
 from pathlib import Path
 from typing import Optional, Dict, Any
+from datetime import datetime, timedelta, timezone
 
 import requests
 
@@ -164,6 +166,7 @@ def publish_job_article(
     dry_run: bool = False,
     site_url: Optional[str] = None,
     author: Optional[Dict[str, Any]] = None,
+    schedule_time: Optional[datetime] = None,
 ) -> str:
     """Publish a job article to WordPress or simulate when dry_run.
 
@@ -171,13 +174,14 @@ def publish_job_article(
         profile_id: Profile ID for reference
         title: Post title
         content: HTML content
-        slug: URL slug (SEO-optimized, 60-70 chars recommended)
+        slug: URL slug (SEO-optimized, max 75 chars recommended)
         status: WordPress post status (publish, draft, future)
         category_id: Optional category id to assign
         feature_image_path: Path to feature image file (will be uploaded and set as featured media)
         dry_run: When True, do not call WordPress; return simulated URL
         site_url: WordPress site URL (if not provided, loads from config file)
         author: Author dict with wp_username and app_password (if not provided, loads from config file)
+        schedule_time: Datetime object for scheduled publishing
 
     Returns:
         The published (or simulated) URL string.
@@ -268,6 +272,19 @@ def publish_job_article(
     if category_id:
         payload["categories"] = [category_id]
 
+    # Handle scheduling for 'future' status
+    if status == 'future':
+        # exact logic from sports_wordpress_publisher.py
+        if not schedule_time:
+            schedule_time = datetime.now(timezone.utc) + timedelta(minutes=random.randint(5, 15))
+        
+        # Ensure schedule time is in the future
+        if schedule_time < datetime.now(timezone.utc):
+            schedule_time = datetime.now(timezone.utc) + timedelta(minutes=5)
+            
+        payload['date'] = schedule_time.strftime('%Y-%m-%dT%H:%M:%S')
+        logger.info(f"⏰ Scheduled for: {payload['date']}")
+
     # Log the complete payload for debugging
     logger.info(f"📤 WordPress API Payload:")
     logger.info(f"   - title: '{title[:60]}...' ({len(title)} chars)")
@@ -275,6 +292,8 @@ def publish_job_article(
     logger.info(f"   - status: '{status}'")
     logger.info(f"   - content length: {len(content)} chars")
     logger.info(f"   - categories: {payload.get('categories', 'None')}")
+    if status == 'future':
+        logger.info(f"   - date: '{payload.get('date')}'")
 
     url = f"{site_url.rstrip('/')}/wp-json/wp/v2/posts"
     try:

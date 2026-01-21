@@ -17,6 +17,9 @@ Routes:
 
 from flask import Blueprint, render_template, redirect, url_for, session, current_app, request, jsonify
 import requests
+import json
+from datetime import datetime
+from pathlib import Path
 
 # Create jobs automation blueprint
 jobs_automation_bp = Blueprint('jobs_automation', __name__, url_prefix='/jobs')
@@ -27,6 +30,88 @@ from app.blueprints.automation_utils import (
     get_user_site_profiles_from_firestore,
     get_automation_shared_context
 )
+
+# Data directory for caching API responses
+DATA_CACHE_DIR = Path(__file__).parent.parent.parent / 'Job_Portal_Automation' / 'data_cache'
+DATA_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+def save_api_data_to_json(jobs=None, results=None, admit_cards=None):
+    """Save API response data to JSON files for caching."""
+    timestamp = datetime.now().isoformat()
+    
+    if jobs is not None:
+        jobs_cache = {
+            'timestamp': timestamp,
+            'success': True,
+            'count': len(jobs),
+            'data': jobs
+        }
+        with open(DATA_CACHE_DIR / 'jobs_cache.json', 'w', encoding='utf-8') as f:
+            json.dump(jobs_cache, f, indent=2, ensure_ascii=False)
+        current_app.logger.info(f"Saved {len(jobs)} jobs to cache")
+    
+    if results is not None:
+        results_cache = {
+            'timestamp': timestamp,
+            'success': True,
+            'count': len(results),
+            'data': results
+        }
+        with open(DATA_CACHE_DIR / 'results_cache.json', 'w', encoding='utf-8') as f:
+            json.dump(results_cache, f, indent=2, ensure_ascii=False)
+        current_app.logger.info(f"Saved {len(results)} results to cache")
+    
+    if admit_cards is not None:
+        admit_cards_cache = {
+            'timestamp': timestamp,
+            'success': True,
+            'count': len(admit_cards),
+            'data': admit_cards
+        }
+        with open(DATA_CACHE_DIR / 'admit_cards_cache.json', 'w', encoding='utf-8') as f:
+            json.dump(admit_cards_cache, f, indent=2, ensure_ascii=False)
+        current_app.logger.info(f"Saved {len(admit_cards)} admit cards to cache")
+
+def load_cached_data():
+    """Load data from JSON cache files."""
+    jobs_items = []
+    results_items = []
+    admit_cards_items = []
+    
+    # Load jobs
+    jobs_cache_file = DATA_CACHE_DIR / 'jobs_cache.json'
+    if jobs_cache_file.exists():
+        try:
+            with open(jobs_cache_file, 'r', encoding='utf-8') as f:
+                jobs_cache = json.load(f)
+                jobs_items = jobs_cache.get('data', [])
+                current_app.logger.info(f"Loaded {len(jobs_items)} jobs from cache (updated: {jobs_cache.get('timestamp', 'unknown')})")
+        except Exception as e:
+            current_app.logger.warning(f"Failed to load jobs cache: {e}")
+    
+    # Load results
+    results_cache_file = DATA_CACHE_DIR / 'results_cache.json'
+    if results_cache_file.exists():
+        try:
+            with open(results_cache_file, 'r', encoding='utf-8') as f:
+                results_cache = json.load(f)
+                results_items = results_cache.get('data', [])
+                current_app.logger.info(f"Loaded {len(results_items)} results from cache (updated: {results_cache.get('timestamp', 'unknown')})")
+        except Exception as e:
+            current_app.logger.warning(f"Failed to load results cache: {e}")
+    
+    # Load admit cards
+    admit_cards_cache_file = DATA_CACHE_DIR / 'admit_cards_cache.json'
+    if admit_cards_cache_file.exists():
+        try:
+            with open(admit_cards_cache_file, 'r', encoding='utf-8') as f:
+                admit_cards_cache = json.load(f)
+                admit_cards_items = admit_cards_cache.get('data', [])
+                current_app.logger.info(f"Loaded {len(admit_cards_items)} admit cards from cache (updated: {admit_cards_cache.get('timestamp', 'unknown')})")
+        except Exception as e:
+            current_app.logger.warning(f"Failed to load admit cards cache: {e}")
+    
+    return jobs_items, results_items, admit_cards_items
 
 
 @jobs_automation_bp.route('/dashboard')
@@ -59,92 +144,97 @@ def run():
     # Get shared context for automation
     shared_context = get_automation_shared_context(user_uid, user_site_profiles)
     
-    # Initialize empty lists for items
-    jobs_items = []
-    results_items = []
-    admit_cards_items = []
+    # Try to load data from JSON cache first (unlimited data)
+    jobs_items, results_items, admit_cards_items = load_cached_data()
+    data_source = 'cache' if (jobs_items or results_items or admit_cards_items) else 'api'
     
-    # Try to load data from Job Portal API/Database
-    try:
-        from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
-        from Job_Portal_Automation.job_config import Config
-        
-        config = Config()
-        manager = JobAutomationManager(config)
-        
-        # Fetch jobs data
+    # If no cached data exists, try to load from Job Portal API/Database (limited)
+    if not jobs_items and not results_items and not admit_cards_items:
+        data_source = 'api'
+        current_app.logger.info("No cached data found, attempting to load from API (limited)")
         try:
-            jobs_response = manager.fetch_jobs_list(page=1, limit=100)
-            current_app.logger.info(f"Jobs response type: {type(jobs_response)}, data: {jobs_response}")
-            if isinstance(jobs_response, dict):
-                if jobs_response.get('success'):
-                    jobs_items = jobs_response.get('data', [])
-                    current_app.logger.info(f"Loaded {len(jobs_items)} jobs items")
-                    
-                    # If API returns empty data but shows total count, check if we need sample data
-                    if len(jobs_items) == 0 and jobs_response.get('pagination', {}).get('total', 0) > 0:
-                        current_app.logger.warning("API returned empty data despite having items. External API may be down. Using sample data.")
-                        # Continue to sample data fallback below
-                else:
-                    # Try alternate response formats
-                    if 'items' in jobs_response:
-                        jobs_items = jobs_response.get('items', [])
-                    elif isinstance(jobs_response.get('data'), list):
-                        jobs_items = jobs_response.get('data', [])
-                    current_app.logger.info(f"Loaded {len(jobs_items)} jobs items (alternate format)")
-            elif isinstance(jobs_response, list):
-                jobs_items = jobs_response
-                current_app.logger.info(f"Loaded {len(jobs_items)} jobs items (direct list)")
-        except Exception as e:
-            current_app.logger.warning(f"Could not fetch jobs: {e}")
-        
-        # Fetch results data
-        try:
-            results_response = manager.fetch_results_list(page=1, limit=100)
-            current_app.logger.info(f"Results response type: {type(results_response)}, keys: {results_response.keys() if isinstance(results_response, dict) else 'N/A'}")
-            if isinstance(results_response, dict):
-                if results_response.get('success'):
-                    results_items = results_response.get('data', [])
-                    current_app.logger.info(f"Loaded {len(results_items)} results items")
-                else:
-                    # Try alternate response formats
-                    if 'items' in results_response:
-                        results_items = results_response.get('items', [])
-                    elif isinstance(results_response.get('data'), list):
-                        results_items = results_response.get('data', [])
-                    current_app.logger.info(f"Loaded {len(results_items)} results items (alternate format)")
-            elif isinstance(results_response, list):
-                results_items = results_response
-                current_app.logger.info(f"Loaded {len(results_items)} results items (direct list)")
-        except Exception as e:
-            current_app.logger.warning(f"Could not fetch results: {e}")
-        
-        # Fetch admit cards data
-        try:
-            admit_cards_response = manager.fetch_admit_cards_list(page=1, limit=100)
-            current_app.logger.info(f"Admit cards response type: {type(admit_cards_response)}, keys: {admit_cards_response.keys() if isinstance(admit_cards_response, dict) else 'N/A'}")
-            if isinstance(admit_cards_response, dict):
-                if admit_cards_response.get('success'):
-                    admit_cards_items = admit_cards_response.get('data', [])
-                    current_app.logger.info(f"Loaded {len(admit_cards_items)} admit cards items")
-                else:
-                    # Try alternate response formats
-                    if 'items' in admit_cards_response:
-                        admit_cards_items = admit_cards_response.get('items', [])
-                    elif isinstance(admit_cards_response.get('data'), list):
-                        admit_cards_items = admit_cards_response.get('data', [])
-                    current_app.logger.info(f"Loaded {len(admit_cards_items)} admit cards items (alternate format)")
-            elif isinstance(admit_cards_response, list):
-                admit_cards_items = admit_cards_response
-                current_app.logger.info(f"Loaded {len(admit_cards_items)} admit cards items (direct list)")
-        except Exception as e:
-            current_app.logger.warning(f"Could not fetch admit cards: {e}")
+            from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
+            from Job_Portal_Automation.job_config import Config
             
-    except Exception as e:
-        current_app.logger.error(f"Error loading job portal data: {e}")
+            config = Config()
+            manager = JobAutomationManager(config)
+            
+            # Fetch jobs data
+            try:
+                jobs_response = manager.fetch_jobs_list(page=1, limit=100)
+                current_app.logger.info(f"Jobs response type: {type(jobs_response)}, data: {jobs_response}")
+                if isinstance(jobs_response, dict):
+                    if jobs_response.get('success'):
+                        jobs_items = jobs_response.get('data', [])
+                        current_app.logger.info(f"Loaded {len(jobs_items)} jobs items from API")
+                        
+                        # If API returns empty data but shows total count, check if we need sample data
+                        if len(jobs_items) == 0 and jobs_response.get('pagination', {}).get('total', 0) > 0:
+                            current_app.logger.warning("API returned empty data despite having items. External API may be down. Using sample data.")
+                            # Continue to sample data fallback below
+                    else:
+                        # Try alternate response formats
+                        if 'items' in jobs_response:
+                            jobs_items = jobs_response.get('items', [])
+                        elif isinstance(jobs_response.get('data'), list):
+                            jobs_items = jobs_response.get('data', [])
+                        current_app.logger.info(f"Loaded {len(jobs_items)} jobs items (alternate format)")
+                elif isinstance(jobs_response, list):
+                    jobs_items = jobs_response
+                    current_app.logger.info(f"Loaded {len(jobs_items)} jobs items (direct list)")
+            except Exception as e:
+                current_app.logger.warning(f"Could not fetch jobs: {e}")
+            
+            # Fetch results data
+            try:
+                results_response = manager.fetch_results_list(page=1, limit=100)
+                current_app.logger.info(f"Results response type: {type(results_response)}, keys: {results_response.keys() if isinstance(results_response, dict) else 'N/A'}")
+                if isinstance(results_response, dict):
+                    if results_response.get('success'):
+                        results_items = results_response.get('data', [])
+                        current_app.logger.info(f"Loaded {len(results_items)} results items from API")
+                    else:
+                        # Try alternate response formats
+                        if 'items' in results_response:
+                            results_items = results_response.get('items', [])
+                        elif isinstance(results_response.get('data'), list):
+                            results_items = results_response.get('data', [])
+                        current_app.logger.info(f"Loaded {len(results_items)} results items (alternate format)")
+                elif isinstance(results_response, list):
+                    results_items = results_response
+                    current_app.logger.info(f"Loaded {len(results_items)} results items (direct list)")
+            except Exception as e:
+                current_app.logger.warning(f"Could not fetch results: {e}")
+            
+            # Fetch admit cards data
+            try:
+                admit_cards_response = manager.fetch_admit_cards_list(page=1, limit=100)
+                current_app.logger.info(f"Admit cards response type: {type(admit_cards_response)}, keys: {admit_cards_response.keys() if isinstance(admit_cards_response, dict) else 'N/A'}")
+                if isinstance(admit_cards_response, dict):
+                    if admit_cards_response.get('success'):
+                        admit_cards_items = admit_cards_response.get('data', [])
+                        current_app.logger.info(f"Loaded {len(admit_cards_items)} admit cards items from API")
+                    else:
+                        # Try alternate response formats
+                        if 'items' in admit_cards_response:
+                            admit_cards_items = admit_cards_response.get('items', [])
+                        elif isinstance(admit_cards_response.get('data'), list):
+                            admit_cards_items = admit_cards_response.get('data', [])
+                        current_app.logger.info(f"Loaded {len(admit_cards_items)} admit cards items (alternate format)")
+                elif isinstance(admit_cards_response, list):
+                    admit_cards_items = admit_cards_response
+                    current_app.logger.info(f"Loaded {len(admit_cards_items)} admit cards items (direct list)")
+            except Exception as e:
+                current_app.logger.warning(f"Could not fetch admit cards: {e}")
+                
+        except Exception as e:
+            current_app.logger.error(f"Error loading job portal data: {e}")
+    else:
+        current_app.logger.info(f"Loaded data from cache: {len(jobs_items)} jobs, {len(results_items)} results, {len(admit_cards_items)} admit cards")
     
     # If no items loaded (API issue), use sample data for testing
     if len(jobs_items) == 0 and len(results_items) == 0 and len(admit_cards_items) == 0:
+        data_source = 'sample'
         current_app.logger.warning("No data from API - using sample data for UI testing")
         from datetime import datetime
         
@@ -230,7 +320,47 @@ def run():
             }
         ]
     
-    current_app.logger.info(f"Final counts - Jobs: {len(jobs_items)}, Results: {len(results_items)}, Admit Cards: {len(admit_cards_items)}")
+    # Combine all items into a single list sorted by collection order (most recent first)
+    from datetime import datetime
+    
+    all_items = []
+    
+    # Add jobs with content type metadata
+    for item in jobs_items:
+        item_copy = dict(item)
+        item_copy['content_type'] = 'jobs'
+        item_copy['content_label'] = 'JOBS'
+        item_copy['sort_date'] = item.get('posted_date') or item.get('published_date') or '2000-01-01'
+        all_items.append(item_copy)
+    
+    # Add results with content type metadata
+    for item in results_items:
+        item_copy = dict(item)
+        item_copy['content_type'] = 'results'
+        item_copy['content_label'] = 'RESULTS'
+        item_copy['sort_date'] = item.get('announced_date') or item.get('published_date') or '2000-01-01'
+        all_items.append(item_copy)
+    
+    # Add admit cards with content type metadata
+    for item in admit_cards_items:
+        item_copy = dict(item)
+        item_copy['content_type'] = 'admit_cards'
+        item_copy['content_label'] = 'ADMIT CARDS'
+        item_copy['sort_date'] = item.get('released_date') or item.get('published_date') or '2000-01-01'
+        all_items.append(item_copy)
+    
+    # Sort all items by new status first, then by date (new articles at top)
+    try:
+        all_items.sort(key=lambda x: (
+            not x.get('is_new', False),  # New articles first (False sorts before True)
+            -datetime.strptime(x['sort_date'][:10], '%Y-%m-%d').timestamp()  # Then by date (recent first)
+        ))
+    except ValueError:
+        # If date parsing fails, sort by new status only
+        all_items.sort(key=lambda x: not x.get('is_new', False))
+        current_app.logger.warning("Date parsing failed for sorting, sorting by new status only")
+    
+    current_app.logger.info(f"Final counts - Jobs: {len(jobs_items)}, Results: {len(results_items)}, Admit Cards: {len(admit_cards_items)}, Total combined: {len(all_items)}, Data source: {data_source}")
     
     return render_template('automation/jobs/run.html',
                          title="Government Jobs Automation - Tickzen",
@@ -238,6 +368,8 @@ def run():
                          jobs_items=jobs_items,
                          results_items=results_items,
                          admit_cards_items=admit_cards_items,
+                         all_items=all_items,
+                         data_source=data_source,
                          **shared_context)
 
 
@@ -348,10 +480,30 @@ def api_dashboard_stats():
 @login_required
 def refresh_data():
     """
-    Trigger data refresh from external job crawler API
+    Trigger data refresh from external job crawler API and fetch unlimited data with new article detection
     """
     try:
         import traceback
+        from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
+        from Job_Portal_Automation.job_config import Config
+        
+        # Get previous article IDs for comparison (optimized approach)
+        previous_jobs, previous_results, previous_admits = load_cached_data()
+        
+        # Create sets of existing IDs for efficient lookup
+        existing_job_ids = set()
+        existing_result_ids = set()
+        existing_admit_ids = set()
+        
+        if previous_jobs:
+            existing_job_ids = {item.get('id') or item.get('job_id') for item in previous_jobs if item.get('id') or item.get('job_id')}
+        if previous_results:
+            existing_result_ids = {item.get('id') or item.get('result_id') for item in previous_results if item.get('id') or item.get('result_id')}
+        if previous_admits:
+            existing_admit_ids = {item.get('id') or item.get('admit_id') for item in previous_admits if item.get('id') or item.get('admit_id')}
+        
+        current_app.logger.info(f"Previous article counts - Jobs: {len(existing_job_ids)}, Results: {len(existing_result_ids)}, Admits: {len(existing_admit_ids)}")
+        
         # External API endpoint
         api_url = 'https://job-crawler-api-0885.onrender.com/api/refresh/now'
         
@@ -363,10 +515,142 @@ def refresh_data():
         if response.status_code == 200:
             result = response.json()
             current_app.logger.info(f"Refresh triggered successfully: {result}")
+            
+            # Now fetch unlimited data and save to JSON cache
+            current_app.logger.info("Fetching unlimited data after refresh...")
+            
+            config = Config()
+            manager = JobAutomationManager(config)
+            
+            # Initialize lists for all data
+            all_jobs = []
+            all_results = []
+            all_admit_cards = []
+            
+            # Fetch all jobs (multiple pages, no limit)
+            page = 1
+            while True:
+                try:
+                    jobs_response = manager.fetch_jobs_list(page=page, limit=100)
+                    if isinstance(jobs_response, dict) and jobs_response.get('success'):
+                        page_jobs = jobs_response.get('data', [])
+                        if not page_jobs:
+                            break
+                        all_jobs.extend(page_jobs)
+                        current_app.logger.info(f"Fetched page {page}: {len(page_jobs)} jobs (total: {len(all_jobs)})")
+                        page += 1
+                        if len(page_jobs) < 100:  # Last page
+                            break
+                    else:
+                        break
+                except Exception as e:
+                    current_app.logger.warning(f"Error fetching jobs page {page}: {e}")
+                    break
+            
+            # Mark new articles in jobs (optimized with Set lookup)
+            new_jobs = []
+            for item in all_jobs:
+                item_id = item.get('id') or item.get('job_id')
+                if item_id and item_id not in existing_job_ids:
+                    item['is_new'] = True
+                    new_jobs.append(item)
+                else:
+                    item['is_new'] = False
+            
+            current_app.logger.info(f"Found {len(new_jobs)} new jobs")
+            
+            # Fetch all results (multiple pages, no limit)
+            page = 1
+            while True:
+                try:
+                    results_response = manager.fetch_results_list(page=page, limit=100)
+                    if isinstance(results_response, dict) and results_response.get('success'):
+                        page_results = results_response.get('data', [])
+                        if not page_results:
+                            break
+                        all_results.extend(page_results)
+                        current_app.logger.info(f"Fetched page {page}: {len(page_results)} results (total: {len(all_results)})")
+                        page += 1
+                        if len(page_results) < 100:  # Last page
+                            break
+                    else:
+                        break
+                except Exception as e:
+                    current_app.logger.warning(f"Error fetching results page {page}: {e}")
+                    break
+            
+            # Mark new articles in results (optimized with Set lookup)
+            new_results = []
+            for item in all_results:
+                item_id = item.get('id') or item.get('result_id')
+                if item_id and item_id not in existing_result_ids:
+                    item['is_new'] = True
+                    new_results.append(item)
+                else:
+                    item['is_new'] = False
+            
+            current_app.logger.info(f"Found {len(new_results)} new results")
+            
+            # Fetch all admit cards (multiple pages, no limit)
+            page = 1
+            while True:
+                try:
+                    admit_cards_response = manager.fetch_admit_cards_list(page=page, limit=100)
+                    if isinstance(admit_cards_response, dict) and admit_cards_response.get('success'):
+                        page_admit_cards = admit_cards_response.get('data', [])
+                        if not page_admit_cards:
+                            break
+                        all_admit_cards.extend(page_admit_cards)
+                        current_app.logger.info(f"Fetched page {page}: {len(page_admit_cards)} admit cards (total: {len(all_admit_cards)})")
+                        page += 1
+                        if len(page_admit_cards) < 100:  # Last page
+                            break
+                    else:
+                        break
+                except Exception as e:
+                    current_app.logger.warning(f"Error fetching admit cards page {page}: {e}")
+                    break
+            
+            # Mark new articles in admit cards (optimized with Set lookup)
+            new_admits = []
+            for item in all_admit_cards:
+                item_id = item.get('id') or item.get('admit_id')
+                if item_id and item_id not in existing_admit_ids:
+                    item['is_new'] = True
+                    new_admits.append(item)
+                else:
+                    item['is_new'] = False
+            
+            current_app.logger.info(f"Found {len(new_admits)} new admit cards")
+            
+            # Save all fetched data to JSON cache
+            save_api_data_to_json(
+                jobs=all_jobs,
+                results=all_results, 
+                admit_cards=all_admit_cards
+            )
+            
+            # Calculate total new articles
+            total_new = len(new_jobs) + len(new_results) + len(new_admits)
+            
+            current_app.logger.info(f"Data refresh completed: {len(all_jobs)} jobs, {len(all_results)} results, {len(all_admit_cards)} admit cards saved to cache. {total_new} new articles found.")
+            
             return jsonify({
                 'success': True,
-                'message': 'Data refresh triggered successfully',
-                'data': result
+                'message': f'Successfully refreshed and cached data. Found {total_new} new articles!',
+                'data': {
+                    'refresh_result': result,
+                    'cached_stats': {
+                        'jobs': len(all_jobs),
+                        'results': len(all_results),
+                        'admit_cards': len(all_admit_cards),
+                        'total': len(all_jobs) + len(all_results) + len(all_admit_cards),
+                        'new_jobs': len(new_jobs),
+                        'new_results': len(new_results),
+                        'new_admits': len(new_admits),
+                        'total_new': total_new
+                    }
+                }
             })
         else:
             current_app.logger.error(f"Refresh failed with status {response.status_code}: {response.text}")

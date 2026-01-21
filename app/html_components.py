@@ -3207,7 +3207,9 @@ def generate_risk_analysis_html(ticker, rdata):
             return _generate_error_html("Risk Analysis", "No risk analysis data available.")
 
         # Extract key risk metrics for narrative
-        volatility = risk_data.get('Volatility (Annualized)', 'N/A')
+        volatility_hist = risk_data.get('Volatility (Historical Ann.)', risk_data.get('Volatility (Annualized)', 'N/A'))
+        volatility_30d = risk_data.get('Volatility (30d Ann.)', 'N/A')
+        
         sharpe_ratio = risk_data.get('Sharpe Ratio', 'N/A')
         max_drawdown = risk_data.get('Maximum Drawdown', 'N/A')
         var_5 = risk_data.get('Value at Risk (5%)', 'N/A')
@@ -3217,17 +3219,28 @@ def generate_risk_analysis_html(ticker, rdata):
         risk_level = "moderate"
         volatility_desc = "moderate volatility"
         
-        # Parse volatility for risk assessment
+        # Parse volatility for risk assessment - prefer 30d for current state logic, but check historical for context
+        main_vol_val = 0
         try:
-            vol_val = float(str(volatility).replace('%', ''))
-            if vol_val > 30:
+            # Use 30d if available for current 'state', else historical
+            vol_to_use = volatility_30d if volatility_30d != 'N/A' else volatility_hist
+            main_vol_val = float(str(vol_to_use).replace('%', ''))
+            
+            if main_vol_val > 30:
                 risk_level = "high"
                 volatility_desc = "high volatility"
-            elif vol_val < 15:
+            elif main_vol_val < 15:
                 risk_level = "low"
                 volatility_desc = "low volatility"
         except:
             pass
+            
+        # Construct volatility narrative part
+        vol_narrative = ""
+        if volatility_30d != 'N/A' and volatility_hist != 'N/A' and volatility_30d != volatility_hist:
+             vol_narrative = f"current 30-day annualized volatility of <strong>{volatility_30d}</strong> (historical avg: {volatility_hist})"
+        else:
+             vol_narrative = f"annualized volatility of <strong>{volatility_hist}</strong>"
 
         # Parse Sharpe ratio for performance assessment
         performance_desc = "mixed risk-adjusted returns"
@@ -3254,7 +3267,7 @@ def generate_risk_analysis_html(ticker, rdata):
         # Generate narrative
         narrative_html = f"""
         <div class="narrative">
-            <p>{ticker}'s risk profile reveals {volatility_desc} with an annualized volatility of <strong>{volatility}</strong>, indicating {risk_level} investment risk. 
+            <p>{ticker}'s risk profile reveals {volatility_desc} with a {vol_narrative}, indicating {risk_level} investment risk. 
             The Sharpe ratio of <strong>{sharpe_ratio}</strong> suggests {performance_desc}, while the maximum drawdown of <strong>{max_drawdown}</strong> 
             indicates {drawdown_desc} during adverse market conditions.</p>
             

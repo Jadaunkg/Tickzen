@@ -239,12 +239,17 @@ class GeminiArticleRewriter:
         return article_html, metadata
     
     def _extract_text_from_html(self, html_content: str) -> str:
-        """Extract clean text from HTML report."""
+        """Extract clean text from HTML report while preserving links."""
         soup = BeautifulSoup(html_content, 'html.parser')
         
         # Remove script and style elements
         for element in soup(['script', 'style', 'meta', 'link']):
             element.decompose()
+            
+        # Transform links to text representation [Text](URL) so Gemini sees them
+        for a in soup.find_all('a', href=True):
+            if a.get_text().strip():
+                a.replace_with(f"[{a.get_text().strip()}]({a['href']})")
         
         # Get text with some structure preserved
         text = soup.get_text(separator='\n', strip=True)
@@ -323,8 +328,12 @@ class GeminiArticleRewriter:
    - Add CSS classes for tables: <table class="financial-data-table">
    - Use proper table headers: <th> for column/row headers
 
-   EXTERNAL LINKS REQUIREMENT (CRITICAL):
+   EXTERNAL LINKS REQUIREMENT:
    ✅ Include 3-4 high-quality external links throughout the article
+   ✅ IMPORTANT: PRESERVE RECENT NEWS LINKS
+      - If the original report contains specific news items with links (formatted like [News Title](URL)), YOU MUST INCLUDE THEM.
+      - Link to the original news source when discussing specific recent events.
+      - This increases credibility significantly.
    ✅ Link to reputable financial sources:
       - SEC Edgar filings: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK={ticker}
       - Yahoo Finance: https://finance.yahoo.com/quote/{ticker}
@@ -336,10 +345,21 @@ class GeminiArticleRewriter:
    ❌ Don't cluster all links in one section
    ❌ Don't use affiliate or promotional links
 
-3. WRITING STYLE & PARAGRAPH STRUCTURE (CRITICAL):
+3. WRITING STYLE & VOICE (CRITICAL FOR UNIQUENESS):
    - Write as a human financial analyst sharing insights, NOT as AI or a robot
    - Use NATURAL, conversational language like you're explaining to a friend
-   - ESPECIALLY in the introduction - make it engaging, personal, and welcoming
+   - ESPECIALLY in the introduction - make it engaging but professional
+   
+   ⚠️ FORBIDDEN OPENING PHRASES (STRICT):
+   - DO NOT start with "Let's talk about...", "Let's dive into...", "Today we are looking at...", "In this article...", "Welcome to...".
+   - Start DIRECTLY with the company name or the main news.
+   - Example CORRECT: "{{Company Name}} ({{Ticker}}) recently reported earnings..." or "{{Company Name}} shares are trading at..."
+   - Example WRONG: "Let's talk about {{Company Name}}..."
+   
+   ⚠️ AVOID PATTERNS & REPETITION (STRICT):
+   - STOP using repetitive phrases like "This suggests", "This indicates", "This highlights", "It is important to note", "Investors should monitor".
+   - DO NOT repeat the same sentence structure across sections.
+   - VARY your transitions. Use "Meanwhile," "Conversely," "On the flip side," "Looking closer at," etc.
    
    PARAGRAPH RULES (VERY IMPORTANT):
    - Maximum 4-5 sentences per paragraph
@@ -365,6 +385,12 @@ class GeminiArticleRewriter:
    - Address the reader directly ("you might wonder", "if you're looking at")
 
 4. DATA HANDLING (CRITICAL - READ CAREFULLY):
+   
+   ⚠️ NO DATA RESTATEMENT RULE (CRITICAL):
+   - If you present data in a table, DO NOT repeat the exact same numbers in the paragraph immediately following it.
+   - TEXT IS FOR INSIGHTS, TABLES ARE FOR DATA.
+   - Instead of writing "Revenue was $10B", write "Revenue exceeded expectations..." or "Revenue growth slowed compared to..."
+   - Provide ANALYSIS and CONTEXT for the numbers in the table, not just a verbal list of them.
    
    ⚠️ EXACT DATA PRESERVATION:
    - Preserve ALL numerical values EXACTLY as shown in the original report
@@ -448,6 +474,7 @@ class GeminiArticleRewriter:
    - Use <strong> tags (NOT **) for important metrics and values
    - Use <a href="url" target="_blank"> for external links
    - Break long paragraphs into shorter ones (4-5 sentences max)
+   - IMPORTANT: DO NOT START EVERY BULLET POINT WITH "This suggests..." or "This indicates..."
 
 7. COMPLETENESS (CRITICAL - READ THIS):
    - ⚠️ YOU MUST PROCESS THE ENTIRE REPORT - DO NOT STOP EARLY
@@ -459,10 +486,31 @@ class GeminiArticleRewriter:
    - Count the sections in the original report and ensure your output has the SAME number
    - End with a strong concluding paragraph
    - The article should be as comprehensive as the original report
-   - DO NOT include an FAQ (Frequently Asked Questions) section - it repeats information already covered
+   - ⚠️ ABSOLUTELY NO FAQ SECTIONS: Do NOT include a "Frequently Asked Questions" section. It repeats info and duplicates content. This is forbidden.
 
-8. SECTION MAPPING:
+8. SECTION MAPPING & SPECIAL INSTRUCTIONS:
    Look at the original report sections and map them directly:
+   
+   A. COMPANY OVERVIEW (High Risk for Duplication):
+   - DO NOT write a generic "About Us" profile like Yahoo Finance or Reuters.
+   - Focus on: What is the company's *current* strategic focus? What are the *recent* major developments?
+   - Avoid listing every single product/subsidiary unless critical to current news.
+   - Make it unique to THIS specific moment in the company's history.
+   
+   B. METHODOLOGY DISCLOSURE (REQUIRED ADDITION):
+   - Add a brief section at the end titled "Analysis Methodology".
+   - State that this analysis utilizes:
+     * Real-time market data
+     * Standard technical indicators (RSI, MACD, etc.)
+     * Recent SEC filings and earnings reports
+     * AI-driven sentiment analysis of recent news
+   - This improves trust and E-E-A-T.
+
+   C. FORECAST SECTIONS:
+   - VARY your language. Do not use the exact same disclaimer in every article.
+   - Contextualize the confidence of the forecast based on volatility.
+
+   Standard Mapping:
    - If report has "Introduction" → Keep as <h2>Introduction</h2>
    - If report has "15-Year Price History" → Keep as <h2>15-Year Price History & Charts</h2>
    - If report has "Technical Indicators" → Keep as <h2>Technical Indicators (RSI, MACD, Histogram)</h2>
@@ -508,8 +556,7 @@ OUTPUT FORMAT REQUIREMENTS:
 8. Include ONLY metrics that have real, valid numerical values
 9. Process the ENTIRE report - don't stop early
 10. Use <strong> for bold, NEVER **
-11. Generate comprehensive FAQ section with 5-7 relevant questions
-12. NO hardcoded FAQ schema - schema will be generated separately from the FAQ content
+
 
 Now rewrite the COMPLETE report with proper HTML formatting:
 """
@@ -1163,10 +1210,10 @@ def generate_article_from_pipeline(
     print(f"✅ COMPLETE PIPELINE SUCCESS!")
     print(f"{'='*70}")
     print(f"Article: {article_path}")
-    print(f"Word Count: {metadata['word_count']:,}")
-    print(f"Sections: {metadata['section_count']}")
-    print(f"Has FAQ: {'Yes' if metadata['has_faq'] else 'No'}")
-    print(f"Has Schema: {'Yes' if metadata['has_schema'] else 'No'}")
+    print(f"Word Count: {metadata.get('word_count', 0):,}")
+    print(f"Sections: {metadata.get('section_count', 0)}")
+    # Dropped 'has_faq' check since we removed FAQ generation
+    print(f"Has Schema: {'Yes' if metadata.get('has_schema', False) else 'No'}")
     print(f"{'='*70}\n")
     
     return article_path, metadata

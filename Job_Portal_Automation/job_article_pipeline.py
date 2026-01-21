@@ -19,6 +19,7 @@ Flow:
 
 import logging
 import os
+import re
 from datetime import datetime
 from typing import Any, Dict, Optional, List, Tuple
 
@@ -40,9 +41,10 @@ class GeminiArticleGenerator:
     ):
         self.temperature = temperature
         self.model_names = model_names or [
-            "gemini-2.5-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
+            "gemini-2.5-flash",           # Primary model (fast, high quality)
+            "gemini-3-flash-preview",     # Fallback 1 (latest preview, 20 RPD available)
+            "gemini-2.5-flash-lite",      # Fallback 2 (lighter version, 20 RPD available)
+            "gemini-2.0-flash-lite"       # Fallback 3 (stable lite version)
         ]
         self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         self.model_index = 0
@@ -162,15 +164,21 @@ class GeminiArticleGenerator:
         # Extract official links for embedding in text
         important_links = self._normalize_links(details.get("important_links") or [])
         
-        # Filter links - remove social media/promotional links
+        # Filter links - remove social media/promotional links, keep only official links
         filtered_links = []
-        skip_keywords = ['whatsapp', 'telegram', 'twitter', 'facebook', 'instagram', 'youtube', 'social', 'join', 'group', 'channel']
+        skip_keywords = ['whatsapp', 'telegram', 'twitter', 'facebook', 'instagram', 'youtube', 'social', 'join', 'group', 'channel', 'download', 'app']
+        keep_keywords = ['apply', 'official', 'website', 'notification', 'portal', 'admit', 'result', 'syllabus', 'exam']
+        
         for label, url in important_links:
-            if not any(skip in label.lower() for skip in skip_keywords):
+            # Skip social media and promotional links
+            if any(skip in label.lower() for skip in skip_keywords):
+                continue
+            # Prefer official links, otherwise check if URL contains domain info
+            if any(keep in label.lower() for keep in keep_keywords) or 'gov' in url.lower() or 'official' in label.lower():
                 filtered_links.append((label, url))
         
-        # Limit to maximum 5 links
-        filtered_links = filtered_links[:5]
+        # Limit to maximum 3 external links (only official ones)
+        filtered_links = filtered_links[:3]
         
         # Build natural context prompt - data passed without explicit labels
         context_lines = []
@@ -231,7 +239,10 @@ class GeminiArticleGenerator:
             "✓ No marketing language or robotic phrases",
             "✓ Use ONLY the information provided below",
             "✓ Organize with proper HTML headings and formatting",
-            "✓ Make it ready for WordPress publishing",
+            "✓ Include ONLY dofollow links (all links are official - use them as is)",
+            "✓ Use MAXIMUM 3 external links only - each link must appear ONLY ONCE",
+            "✓ Embed links naturally in the text flow - do NOT create a separate links section",
+            "✓ Only include official links (apply portal, notification, official website, etc.)",
             "",
             "FORBIDDEN OPENING PHRASES (NEVER start with these):",
             "✗ 'Hey there! If you're looking for...'",
@@ -258,18 +269,31 @@ class GeminiArticleGenerator:
             "- Use <h2> for section headings",
             "- Use <h3> for subsections",
             "- Use <strong> for bold text (numbers, dates, amounts): <strong>₹500</strong>, <strong>32,679</strong>, <strong>Jan 30</strong>",
-            "- NEVER use Markdown syntax (**text**) - ALWAYS use HTML tags (<strong>text</strong>)",
+            "- STRICTLY FORBIDDEN: Do NOT use markdown bold syntax (**text**). It breaks the layout.",
+            "- ALWAYS use HTML tags: <strong>text</strong> for bold.",
             "- Use <p> for paragraphs (keep them short - 2-3 sentences max)",
             "- Use <ul><li> for bullet point lists",
             "- Use <ol><li> for numbered steps (like application process)",
             "- Use <table> for all data with proper <thead>, <tbody>, <tr>, <td> structure",
-            "- Use <a href=\"URL\" target=\"_blank\"> for links - embed them naturally in text",
+            "- Use <a href=\"URL\" target=\"_blank\" rel=\"dofollow\"> for ALL links - embed them naturally in text",
+            "",
+            "CRITICAL LINK INSTRUCTIONS:",
+            "- You have MAXIMUM 3 official links to use (already filtered)",
+            "- Embed each link ONLY ONCE in the natural flow of the article",
+            "- Use rel=\"dofollow\" attribute for all links",
+            "- Never repeat the same link multiple times",
+            "- Embed links in context: 'You can <a href=\"URL\">apply on the official website</a>'",
+            "- Do NOT create a separate 'Important Links' section",
+            "- Do NOT list links at the end",
+            "- If you don't need all 3 links, that's fine - only use links that fit naturally",
             "",
             "FORMATTING EXAMPLES:",
             "✓ CORRECT: The BCECEB has announced <strong>1445</strong> openings for Junior Resident positions.",
             "✓ CORRECT: Applications started on <strong>January 16, 2026</strong>, and the last date is <strong>February 06, 2026</strong>.",
+            "✓ CORRECT LINK: You can <a href=\"https://example.com/apply\" target=\"_blank\" rel=\"dofollow\">apply online on the official portal</a>.",
             "✗ WRONG: The BCECEB has announced **1445** openings (DO NOT USE ** for bold)",
             "✗ WRONG: Applications started on **January 16, 2026** (ONLY use <strong> tags)",
+            "✗ WRONG LINK: <a href=\"URL\" target=\"_blank\"> (ALWAYS add rel=\"dofollow\")",
             "",
             "TABLE EXAMPLE:",
             "<table style=\"width: 100%; border-collapse: collapse;\">"
@@ -333,7 +357,15 @@ class GeminiArticleGenerator:
             "- Do NOT include <h1> tag or repeat the title text in the article body",
             "- Start DIRECTLY with the main content using <h2> for first section if needed",
             "",
-            "START YOUR ARTICLE WITH:",
+            "CRITICAL REMINDERS ABOUT LINKS:",
+            "- You have MAXIMUM 3 official links available",
+            "- EACH LINK MUST APPEAR ONLY ONCE in the entire article",
+            "- Embed links NATURALLY in the text, not as a list",
+            "- Use rel=\"dofollow\" attribute for one link only and for other no follow link",
+            "- Example: 'Candidates can <a href=\"URL\" target=\"_blank\" rel=\"dofollow\">apply online here</a>.'",
+            "- DO NOT create a separate 'Important Links' or 'Links' section",
+            "- DO NOT list links at the bottom or anywhere else",
+            "- If a link doesn't fit naturally, skip it - don't force it",
             "- A clear opening paragraph that immediately states the key facts",
             "- DO NOT use conversational phrases like 'Hey there!', 'If you're looking for', 'Are you interested in', etc.",
             "- Get straight to the point with factual information",
@@ -387,7 +419,13 @@ class GeminiArticleGenerator:
                 response = self.model.generate_content(prompt, generation_config=generation_config)
                 if response and getattr(response, "text", None):
                     logger.info(f"   ✅ Gemini generated {len(response.text)} characters successfully")
-                    return response.text
+                    content = response.text
+                    # Forced fix: Replace markdown bold (**text**) with HTML strong tags (<strong>text</strong>)
+                    # This handles edge cases where the LLM ignores the prompt instructions
+                    content_fixed = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', content, flags=re.DOTALL)
+                    if content_fixed != content:
+                        logger.info("   🔧 Fixed Markdown bold syntax in generated content")
+                    return content_fixed
                 raise ValueError("Empty Gemini response")
             except Exception as exc:
                 logger.warning(f"   ❌ Gemini generation failed (attempt {attempt + 1}): {exc}")
@@ -534,7 +572,7 @@ class GeminiArticleGenerator:
     @staticmethod
     def _generate_seo_slug(title: str, content_type: str, details: Dict[str, Any]) -> str:
         """
-        Generate SEO-optimized slug for URL (60-70 characters).
+        Generate SEO-optimized slug for URL (maximum 75 characters).
         
         Focus on main information only:
         - Job name and position
@@ -547,7 +585,7 @@ class GeminiArticleGenerator:
             details: Dictionary with additional details
             
         Returns:
-            SEO slug (60-70 characters, lowercase, hyphenated)
+            SEO slug (max 75 characters, lowercase, hyphenated)
         """
         import re
         
@@ -609,14 +647,14 @@ class GeminiArticleGenerator:
         if "2026" not in slug and "2026" in title:
             slug = f"{slug}-2026"
         
-        # Trim to target length (60-70 characters)
-        if len(slug) > 70:
-            # Try to cut at last hyphen before 70 chars
-            truncate_at = slug[:70].rfind('-')
+        # Trim to target length (max 75 characters)
+        if len(slug) > 75:
+            # Try to cut at last hyphen before 75 chars
+            truncate_at = slug[:75].rfind('-')
             if truncate_at > 40:  # Ensure we keep meaningful content
                 slug = slug[:truncate_at]
             else:
-                slug = slug[:70].rstrip('-')
+                slug = slug[:75].rstrip('-')
         
         return slug
 

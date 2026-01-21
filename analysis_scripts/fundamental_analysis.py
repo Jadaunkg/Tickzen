@@ -287,12 +287,29 @@ def format_value(value, value_type="number", precision=2, ticker=None):
 def extract_company_profile(fundamentals: dict):
     """Extracts key company profile info."""
     info = fundamentals.get('info', {})
+    
+    # Calculate Market Cap manually to ensure consistency with Price * Shares
+    # This prevents "Mathematical Inconsistency" complaints where API MarketCap != Price * Shares
+    shares_outstanding = safe_get(info, 'sharesOutstanding')
+    current_price = safe_get(info, 'currentPrice', safe_get(info, 'regularMarketPrice'))
+    market_cap_final = safe_get(info, 'marketCap')
+    
+    try:
+        if shares_outstanding != "N/A" and current_price != "N/A":
+            market_cap_calc = float(shares_outstanding) * float(current_price)
+            # Only use calculated if it's reasonable (within 20% of reported) to avoid bad data spikes
+            # Or just trust it because consistency is the user's priority.
+            # User priority is "Precision" and "Consistency".
+            market_cap_final = market_cap_calc
+    except (ValueError, TypeError):
+        pass
+
     profile = {
         "Company Name": safe_get(info, 'longName', safe_get(info, 'shortName', 'N/A')), # Fallback to shortName
         "Sector": safe_get(info, 'sector', 'N/A'),
         "Industry": safe_get(info, 'industry', 'N/A'),
         "Website": safe_get(info, 'website', 'N/A'),
-        "Market Cap": format_value(safe_get(info, 'marketCap'), 'large_number'),
+        "Market Cap": format_value(market_cap_final, 'large_number', 3),
         "Employees": format_value(safe_get(info, 'fullTimeEmployees'), 'integer'),
         "Summary": safe_get(info, 'longBusinessSummary', 'No summary available.')
     }
@@ -616,12 +633,12 @@ def extract_share_statistics_data(fundamentals: dict, current_price=None):
             shares_outstanding = "N/A (Calc Error)"
 
     metrics = {
-        "Shares Outstanding": format_value(shares_outstanding, 'large_number', 0),
-        "Implied Shares Outstanding": format_value(safe_get(info, 'impliedSharesOutstanding'), 'large_number', 0),
-        "Shares Float": format_value(safe_get(info, 'floatShares'), 'large_number', 0),
+        "Shares Outstanding": format_value(shares_outstanding, 'large_number', 3),
+        "Implied Shares Outstanding": format_value(safe_get(info, 'impliedSharesOutstanding'), 'large_number', 3),
+        "Shares Float": format_value(safe_get(info, 'floatShares'), 'large_number', 3),
         "Insider Ownership": format_value(safe_get(info, 'heldPercentInsiders'), 'percent'),
         "Institutional Ownership": format_value(safe_get(info, 'heldPercentInstitutions'), 'percent'),  
-        "Shares Short": format_value(safe_get(info, 'sharesShort'), 'large_number', 0),
+        "Shares Short": format_value(safe_get(info, 'sharesShort'), 'large_number', 3),
         "Shares Change (YoY)": "N/A",
     }
     return metrics
@@ -877,7 +894,10 @@ def extract_risk_analysis_data(historical_data, market_data=None, ticker=None):
                 return {}
         
         price_data = historical_data[close_col].dropna()
-        
+        # Ensure data is sorted by date (index) for correct rolling calculations
+        if isinstance(price_data.index, pd.DatetimeIndex):
+            price_data = price_data.sort_index()
+
         if len(price_data) < 30:  # Need sufficient data for meaningful risk analysis
             logging.warning(f"Insufficient price data for risk analysis: {ticker} (only {len(price_data)} data points)")
             return {}
@@ -889,7 +909,8 @@ def extract_risk_analysis_data(historical_data, market_data=None, ticker=None):
         
         # Format the metrics for display
         formatted_metrics = {
-            "Volatility (Annualized)": format_value(risk_metrics.get('volatility_annualized') * 100, 'percent_direct', 1),  # Convert decimal to percentage
+            "Volatility (30d Ann.)": format_value(risk_metrics.get('volatility_30d_annualized') * 100, 'percent_direct', 1),  # Use 30D volatility
+            "Volatility (Historical Ann.)": format_value(risk_metrics.get('volatility_annualized') * 100, 'percent_direct', 1),
             "Value at Risk (5%)": format_value(risk_metrics.get('var_5') * 100, 'percent_direct', 2),  # Convert decimal to percentage
             "Value at Risk (1%)": format_value(risk_metrics.get('var_1') * 100, 'percent_direct', 2),  # Convert decimal to percentage
             "Sharpe Ratio": format_value(risk_metrics.get('sharpe_ratio'), 'ratio', 2),

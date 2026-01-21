@@ -1,0 +1,33 @@
+{
+  "ticker": "AAPL",
+  "company_name": "Apple Inc.",
+  "word_count": 7564,
+  "section_count": 22,
+  "sections": [
+    "Apple Inc. (AAPL) Stock Analysis: Navigating Current Market Dynamics",
+    "AAPL Stock: Key Metrics & Forecast Snapshot",
+    "AAPL Price Forecast: Visualizing Future Trends",
+    "Apple Inc. (AAPL) Company Profile & Business Overview",
+    "AAPL Valuation: Market Cap, Enterprise Value & Key Multiples",
+    "AAPL Shareholder Structure: Ownership & Short Interest Insights",
+    "Apple Inc. Financial Health: Liquidity, Debt & Cash Flow Analysis",
+    "AAPL Profitability & Growth Drivers: Margins & Revenue Trends",
+    "Apple Inc. Dividends & Shareholder Returns Analysis",
+    "AAPL Technical Analysis: Price Trends, Momentum & Key Levels",
+    "AAPL Historical Stock Performance & Trading Data",
+    "Apple Inc. Quarterly Earnings Performance & Growth Metrics",
+    "AAPL Short Selling Insights: Bearish Sentiment & Short Squeeze Potential",
+    "Apple Inc. Risk Profile: Volatility, Drawdown & Value at Risk",
+    "AAPL Market Sentiment: News, Analyst & Options Data",
+    "AAPL Peer Comparison: How Apple Stacks Up Against Competitors",
+    "Apple Inc. Insider Transactions: Buys, Sells & What They Signal",
+    "Key Risk Factors for Apple Inc. (AAPL) Investors",
+    "Wall Street Consensus: AAPL Analyst Ratings & Price Targets",
+    "Latest News & Developments Impacting Apple Inc. (AAPL)",
+    "Conclusion & Investment Outlook for Apple Inc. (AAPL)",
+    "Analysis Methodology"
+  ],
+  "has_schema": false,
+  "generated_date": "2026-01-19T16:04:28.617155",
+  "model": "gemini-2.5-flash"
+}

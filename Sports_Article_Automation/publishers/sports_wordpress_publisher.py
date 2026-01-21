@@ -351,6 +351,8 @@ class SportsWordPressPublisher:
                 "slug": slug
             }
             
+            logging.info(f"📤 Sending Post Payload: Title='{title[:30]}...', Slug='{slug}'")
+
             # Don't specify author - let WordPress use the authenticated user
             # This avoids "rest_cannot_edit_others" permission errors
             logging.info(f"📝 Creating post as authenticated user: {self.wp_username}")
@@ -373,6 +375,13 @@ class SportsWordPressPublisher:
             
             post_data = response.json()
             post_id = post_data.get('id')
+            returned_slug = post_data.get('slug')
+            
+            if returned_slug != slug:
+                logging.warning(f"⚠️  Slug Mismatch! Requested: '{slug}', Got: '{returned_slug}'")
+                logging.warning(f"ℹ️  This usually happens if the slug already exists or contains invalid characters.")
+            else:
+                logging.info(f"✅ Slug verified: '{returned_slug}'")
             
             return post_id
             

@@ -1,0 +1,9 @@
+# This directory stores cached API responses as JSON files
+# Created by the refresh-data endpoint to cache unlimited articles
+
+# Files:
+# - jobs_cache.json: All jobs from API
+# - results_cache.json: All exam results from API  
+# - admit_cards_cache.json: All admit cards from API
+
+# These files are automatically created and updated when using the "Refresh & Cache All Data" feature.

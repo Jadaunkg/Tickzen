@@ -10,9 +10,11 @@ import logging
 import threading
 import time
 import json
+import random
 from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from enum import Enum
+from itertools import cycle
 
 from Job_Portal_Automation.job_automation_helpers import JobAutomationManager
 from Job_Portal_Automation.state_management.job_publishing_state_manager import JobPublishingStateManager, RunStatus
@@ -229,6 +231,19 @@ class JobAutomationProcessor:
             target_profiles = run.get('target_profiles', [])
             config = run.get('config', {})
             
+            # Get publishing status and scheduling interval configuration
+            publish_status = config.get('publish_status', 'draft')
+            min_interval = config.get('min_interval_minutes', 45)
+            max_interval = config.get('max_interval_minutes', 90)
+            
+            # Initialize scheduling for 'future' posts
+            schedule_time = None
+            if publish_status == 'future' and len(selected_items) > 0:
+                # Start scheduling 5-15 minutes from now (first article buffer)
+                schedule_time = datetime.now(timezone.utc) + timedelta(minutes=random.randint(5, 15))
+                self.logger.info(f"⏰ Scheduling enabled: first article at {schedule_time.isoformat()}")
+                self.logger.info(f"   Min interval: {min_interval} min, Max interval: {max_interval} min")
+            
             # Process each item
             total_items = len(selected_items)
             published_count = 0
@@ -260,18 +275,28 @@ class JobAutomationProcessor:
                     message=f"Processing item {idx + 1}/{total_items}: {item.get('title', 'Unknown')}"
                 )
                 
-                # Process item
+                # Process item with USER_UID for state rotation and current schedule_time
+                user_uid = run.get('user_uid')
                 success = self._process_item(
                     run_id=run_id,
                     item=item,
                     content_type=content_type,
                     target_profiles=target_profiles,
                     config=config,
-                    item_index=idx + 1
+                    item_index=idx + 1,
+                    user_uid=user_uid, # Pass user_uid for rotation state
+                    schedule_time=schedule_time,  # Pass current schedule_time
+                    publish_status=publish_status  # Pass publish status
                 )
                 
                 if success:
                     published_count += 1
+                    
+                    # Calculate next schedule time for future posts
+                    if publish_status == 'future' and idx < total_items - 1:  # Not the last article
+                        random_interval = random.randint(min_interval, max_interval)
+                        schedule_time += timedelta(minutes=random_interval)
+                        self.logger.info(f"⏰ Next article scheduled in {random_interval} minutes: {schedule_time.isoformat()}")
                 else:
                     error_count += 1
                 
@@ -317,7 +342,9 @@ class JobAutomationProcessor:
     
     def _process_item(self, run_id: str, item: Dict[str, Any],
                      content_type: str, target_profiles: List[str],
-                     config: Dict[str, Any], item_index: int) -> bool:
+                     config: Dict[str, Any], item_index: int, user_uid: str = None,
+                     schedule_time: Optional[datetime] = None,
+                     publish_status: str = 'draft') -> bool:
         """
         Process a single item
         
@@ -328,6 +355,9 @@ class JobAutomationProcessor:
             target_profiles: Target WordPress profiles
             config: Automation config
             item_index: Item index (1-based)
+            user_uid: User ID for state rotation
+            schedule_time: Scheduled publish time for 'future' posts
+            publish_status: WordPress post status (draft, future, publish)
             
         Returns:
             True if item processed successfully
@@ -401,7 +431,10 @@ class JobAutomationProcessor:
                 content=article_content,
                 content_type=content_type,  # Pass content type for feature image generation
                 target_profiles=target_profiles,
-                config=config
+                config=config,
+                user_uid=user_uid,  # Pass user_uid for rotation state
+                schedule_time=schedule_time,  # Pass schedule_time for 'future' posts
+                publish_status=publish_status  # Pass publish status
             )
             
             if not published_urls:
@@ -479,13 +512,13 @@ class JobAutomationProcessor:
         try:
             self.logger.info(f"🎨 Generating feature image for: {title[:60]}...")
             
-            # Normalize content_type (remove trailing 's' if present)
-            normalized_type = content_type.rstrip('s')
+            # Pass content_type directly (FeatureImageGenerator expects 'jobs', 'results', 'admit_cards')
+            # normalized_type = content_type.rstrip('s') 
             
             # Generate the feature image
             image_path = self.feature_image_generator.generate(
                 title=title,
-                content_type=normalized_type,
+                content_type=content_type,
                 site_name=website_name,
                 site_url='',
                 template='professional'
@@ -607,7 +640,9 @@ class JobAutomationProcessor:
     def _publish_to_profiles(self, item_id: str, title: str, slug: Optional[str],
                             content: str, content_type: str,
                             target_profiles: List[str],
-                            config: Dict[str, Any]) -> List[str]:
+                            config: Dict[str, Any], user_uid: str = None,
+                            schedule_time: Optional[datetime] = None,
+                            publish_status: str = 'draft') -> List[str]:
         """Publish article to WordPress profiles using standalone publisher."""
         published_urls: List[str] = []
         
@@ -618,7 +653,7 @@ class JobAutomationProcessor:
         if not profiles:
             dry_run = getattr(self.automation_manager.config, 'WORDPRESS_DRY_RUN', True)
             default_category = getattr(self.automation_manager.config, 'WORDPRESS_DEFAULT_CATEGORY_ID', None)
-            status = getattr(self.automation_manager.config, 'WORDPRESS_DEFAULT_STATUS', 'draft')
+            status = publish_status or getattr(self.automation_manager.config, 'WORDPRESS_DEFAULT_STATUS', 'draft')
             
             # Generate feature image with generic watermark for fallback
             feature_image_path = self._generate_feature_image(
@@ -637,7 +672,8 @@ class JobAutomationProcessor:
                         status=status,
                         category_id=default_category,
                         feature_image_path=feature_image_path,
-                        dry_run=dry_run
+                        dry_run=dry_run,
+                        schedule_time=schedule_time  # Pass schedule_time for 'future' posts
                     )
                     if url:
                         published_urls.append(url)
@@ -656,23 +692,40 @@ class JobAutomationProcessor:
             category_id = profile_data.get('category_id')
             publish_status = profile_data.get('publish_status', 'draft')
             
-            # For scheduled publishing, use 'draft' status initially
-            # The scheduler will handle publishing at the scheduled time
+            # Map 'schedule' to 'future' if used
             if publish_status == 'schedule':
-                publish_status = 'draft'
-                # TODO: Add to scheduler queue with min/max intervals
-                self.logger.info(f"Scheduling disabled for now, publishing as draft")
+                publish_status = 'future'
+
+            # Logic to handle user selection: publish, draft, or future
+            # If future, the publisher will handle scheduling (defaults to 5-15 mins if no time provided)
+            # which matches the sports automation logic requested.
             
             try:
                 # Get WordPress credentials from profile (same format as sports automation)
                 site_url = profile_data.get('site_url')
                 authors = profile_data.get('authors', [])
                 
-                # Get author from authors array (use first author)
+                # ------ AUTHOR ROTATION LOGIC START ------
                 author = None
-                if authors and len(authors) > 0:
-                    author = authors[0]
+                current_author_index = -1
                 
+                if authors and len(authors) > 0:
+                    if user_uid:
+                        # 1. Get last used index from state (default -1)
+                        last_author_index = self.state_manager.get_last_author_index(user_uid, profile_id)
+                        
+                        # 2. Calculate next index (round-robin)
+                        current_author_index = (last_author_index + 1) % len(authors)
+                        
+                        # 3. Select author
+                        author = authors[current_author_index]
+                        self.logger.info(f"🔄 Rotating authors: Selected author {current_author_index + 1}/{len(authors)} '{author.get('wp_username')}' (Last: {last_author_index})")
+                    else:
+                        # Fallback if no user_uid (should not happen in normal flow)
+                        author = authors[0]
+                        self.logger.warning("No user_uid provided for author rotation, using first author.")
+                # ------ AUTHOR ROTATION LOGIC END ------
+                                
                 if not author:
                     self.logger.error(f"No author found for profile {profile_id}. Available fields: {list(profile_data.keys())}")
                     self.state_manager.add_run_error(
@@ -726,13 +779,20 @@ class JobAutomationProcessor:
                     feature_image_path=feature_image_path,  # Pass profile-specific feature image
                     dry_run=False,
                     site_url=site_url,
-                    author=author  # Pass author dict with wp_username and app_password
+                    author=author,  # Pass author dict with wp_username and app_password
+                    schedule_time=schedule_time  # Pass schedule_time for 'future' posts
                 )
                 
                 if url:
                     published_urls.append(url)
                     profile_name = profile_data.get('profile_name', profile_id)
                     self.logger.info(f"Published item {item_id} to profile '{profile_name}': {url}")
+                    
+                    # 4. Save new author index state ONLY after successful publish
+                    if user_uid and current_author_index != -1:
+                        self.state_manager.set_last_author_index(user_uid, profile_id, current_author_index)
+                        self.logger.info(f"💾 Saved updated author index {current_author_index} for profile {profile_id}")
+                    
                 else:
                     raise WPJobPublishingError("No URL returned from publisher")
                     

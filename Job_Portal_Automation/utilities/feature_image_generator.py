@@ -421,10 +421,20 @@ class FeatureImageGenerator:
         # Extract key information (6-8 words max)
         text_info = self._extract_key_info(title, content_type)
         
-        # Create professional template (only one clean design)
-        image = self._generate_professional_template(
-            text_info, content_type, site_name, site_url, colors
-        )
+        # Create template based on content type
+        if content_type == 'results':
+            image = self._generate_results_template(
+                text_info, site_name, site_url, colors
+            )
+        elif content_type == 'admit_cards':
+            image = self._generate_admit_card_template(
+                text_info, site_name, site_url, colors
+            )
+        else:
+            # Default to jobs template (the professional layout)
+            image = self._generate_jobs_template(
+                text_info, site_name, site_url, colors
+            )
         
         # Save image
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -437,17 +447,16 @@ class FeatureImageGenerator:
         return filepath
     
     
-    def _generate_professional_template(self, text_info: Dict[str, str], 
-                                       content_type: str,
-                                       site_name: str, site_url: str,
-                                       colors: Dict) -> Image.Image:
+    def _generate_jobs_template(self, text_info: Dict[str, str], 
+                               site_name: str, site_url: str,
+                               colors: Dict) -> Image.Image:
         """
-        Generate professional template matching reference design.
+        Generate Jobs template (Classic Banner Layout).
         
-        Layout (matching reference):
+        Layout:
         - Top: Colored banner with curved bottom + white text
-        - Middle: White/light section with stats (number + label in different colors)
-        - Bottom: Solid colored button + subtle watermark
+        - Middle: Vacancy count (Large number)
+        - Bottom: Apply Button
         """
         width, height = self.DEFAULT_SIZE
         
@@ -462,7 +471,7 @@ class FeatureImageGenerator:
         # Draw main banner rectangle
         draw.rectangle([0, 0, width, banner_height - 30], fill=primary_color)
         
-        # Create smooth curved/wavy bottom edge (like reference image)
+        # Create smooth curved/wavy bottom edge
         curve_points = []
         num_points = 60
         for i in range(num_points + 1):
@@ -482,57 +491,77 @@ class FeatureImageGenerator:
         draw.rectangle([0, 0, width, 6], fill=self._hex_to_rgb(colors['accent']))
         
         # === TOP TEXT: Category/Exam name (white, bold, centered in banner) ===
-        top_text = text_info['top'].upper()  # Uppercase for impact
+        top_text = text_info['top'].upper()
         
-        # Adjust font size based on text length to prevent cutoff
+        # Adjust font size based on text length
         if len(top_text) > 35:
-            top_font = self._get_font(52, bold=True)  # Smaller for long text
+            top_font = self._get_font(52, bold=True)
         elif len(top_text) > 25:
-            top_font = self._get_font(58, bold=True)  # Medium
+            top_font = self._get_font(58, bold=True)
         else:
-            top_font = self._get_font(64, bold=True)  # Large for short text
-        
+            top_font = self._get_font(64, bold=True)
+
+        # Check if text fits in one line, otherwise wrap
+        max_width = width - 80
         top_bbox = top_font.getbbox(top_text)
         top_width = top_bbox[2] - top_bbox[0]
-        top_height = top_bbox[3] - top_bbox[1]
-        
-        # Ensure text fits within banner width with padding
-        max_width = width - 80  # 40px padding on each side
+
         if top_width > max_width:
-            # Further reduce font size if still too wide
-            top_font = self._get_font(46, bold=True)
-            top_bbox = top_font.getbbox(top_text)
-            top_width = top_bbox[2] - top_bbox[0]
+            # Wrap text logic if too wide
+            wrapped_lines = self._wrap_text(top_text, top_font, max_width)
+            
+            # Recalculate font size if still too many lines
+            if len(wrapped_lines) > 2:
+                top_font = self._get_font(40, bold=True) # Shrink font significantly
+                wrapped_lines = self._wrap_text(top_text, top_font, max_width)
+            
+            # Calculate total height block
+            line_heights = []
+            for line in wrapped_lines:
+                bbox = top_font.getbbox(line)
+                line_heights.append(bbox[3] - bbox[1])
+            
+            total_text_height = sum(line_heights) + (len(wrapped_lines) - 1) * 10
+            
+            # Start Y position to center the block vertically in banner
+            start_y = (banner_height - total_text_height) // 2 - 10
+            
+            for i, line in enumerate(wrapped_lines):
+                bbox = top_font.getbbox(line)
+                line_w = bbox[2] - bbox[0]
+                line_h = bbox[3] - bbox[1]
+                line_x = (width - line_w) // 2
+                
+                # Draw text with shadow
+                draw.text((line_x + 2, start_y + 2), line, font=top_font, fill=(0, 0, 0, 80))
+                draw.text((line_x, start_y), line, font=top_font, fill=(255, 255, 255))
+                start_y += line_h + 10
+        else:
+            # Standard single line centering
             top_height = top_bbox[3] - top_bbox[1]
+            top_x = (width - top_width) // 2
+            top_y = (banner_height - top_height) // 2 - 20
+            
+            draw.text((top_x + 2, top_y + 2), top_text, font=top_font, fill=(0, 0, 0, 80))
+            draw.text((top_x, top_y), top_text, font=top_font, fill=(255, 255, 255))
         
-        top_x = (width - top_width) // 2
-        top_y = (banner_height - top_height) // 2 - 20
-        
-        # Draw text with subtle shadow for depth
-        draw.text((top_x + 2, top_y + 2), top_text, font=top_font, fill=(0, 0, 0, 80))
-        draw.text((top_x, top_y), top_text, font=top_font, fill=(255, 255, 255))
-        
-        # === MIDDLE SECTION: Stats with contrasting colors ===
+        # === MIDDLE SECTION: Vacancy Count ===
         center_text = text_info['center']
-        
-        # Only show middle section if there's content (admit cards have empty center for simplicity)
         if center_text:
-            # Parse into number and label (e.g., "1445 VACANCIES" or "MERIT LIST PDF")
             words = center_text.split()
             number_part = ""
             label_part = ""
             
-            # Check if first word is a number
+            # Parsing specifically for vacancy structure "1234 Vacancies"
             if words and any(char.isdigit() for char in words[0]):
                 number_part = words[0]
                 label_part = ' '.join(words[1:]).upper() if len(words) > 1 else ""
             else:
-                # No number - treat all as label (e.g., "MERIT LIST PDF")
                 label_part = center_text.upper()
             
             middle_y_start = banner_height + 70
             
-            # Draw NUMBER (very large, primary color) - only for jobs
+            # Large Number
             if number_part:
                 number_font = self._get_font(140, bold=True)
                 number_bbox = number_font.getbbox(number_part)
@@ -541,29 +570,25 @@ class FeatureImageGenerator:
                 number_x = (width - number_width) // 2
                 number_y = middle_y_start
                 
-                # Shadow for depth
-                draw.text((number_x + 3, number_y + 3), number_part, 
-                         font=number_font, fill=(200, 200, 200))
-                # Main text
-                draw.text((number_x, number_y), number_part, 
-                         font=number_font, fill=primary_color)
+                # Shadow
+                draw.text((number_x + 3, number_y + 3), number_part, font=number_font, fill=(200, 200, 200))
+                # Main
+                draw.text((number_x, number_y), number_part, font=number_font, fill=primary_color)
                 
-                # Add proper spacing after number (increase gap to prevent touching)
-                middle_y_start = number_y + number_height + 25  # Increased from 15 to 25 for more space
+                middle_y_start = number_y + number_height + 25
             
-            # Draw LABEL (medium-large, accent color)
+            # Label
             if label_part:
                 label_font = self._get_font(62, bold=True)
                 label_bbox = label_font.getbbox(label_part)
                 label_width = label_bbox[2] - label_bbox[0]
                 label_x = (width - label_width) // 2
                 
-                # For results/admit cards without number, center vertically better
+                # Center vertically if no number
                 if not number_part:
                     middle_y_start = (height - banner_height - 100) // 2 + banner_height + 30
                 
-                draw.text((label_x, middle_y_start), label_part, 
-                         font=label_font, fill=self._hex_to_rgb(colors['accent']))
+                draw.text((label_x, middle_y_start), label_part, font=label_font, fill=self._hex_to_rgb(colors['accent']))
         
         # === BOTTOM BUTTON: Solid colored button with centered text ===
         button_color = self._hex_to_rgb(colors['highlight'])
@@ -608,6 +633,222 @@ class FeatureImageGenerator:
         
         draw.text((watermark_x, watermark_y), watermark_text, 
                  font=watermark_font, fill=(120, 120, 120))
+        
+        return image
+
+    def _generate_results_template(self, text_info: Dict[str, str], 
+                                  site_name: str, site_url: str,
+                                  colors: Dict) -> Image.Image:
+        """
+        Generate Results template (Side Split Layout).
+        
+        Layout:
+        - Left (30%): Solid color with vertical "RESULT" text
+        - Right (70%): Exam Name + "Merit List" + Check Button
+        """
+        width, height = self.DEFAULT_SIZE
+        
+        # Create white background
+        image = Image.new('RGB', (width, height), (255, 255, 255))
+        draw = ImageDraw.Draw(image)
+        
+        primary_color = self._hex_to_rgb(colors['primary'])
+        accent_color = self._hex_to_rgb(colors['accent'])
+        
+        # === LEFT SIDEBAR ===
+        sidebar_width = int(width * 0.28)
+        draw.rectangle([0, 0, sidebar_width, height], fill=primary_color)
+        
+        # Vertical Text "RESULT"
+        side_text = "RESULT"
+        side_font_size = 110
+        side_font = self._get_font(side_font_size, bold=True)
+        
+        # Check size and render vertically
+        side_bbox = side_font.getbbox(side_text)
+        text_w = side_bbox[2] - side_bbox[0]
+        text_h = side_bbox[3] - side_bbox[1]
+        
+        txt_img = Image.new('RGBA', (text_w, text_h + 30), (0,0,0,0))
+        txt_draw = ImageDraw.Draw(txt_img)
+        txt_draw.text((0, 0), side_text, font=side_font, fill=(255, 255, 255))
+        
+        rotated_txt = txt_img.rotate(90, expand=True)
+        
+        # Center in sidebar
+        rot_w, rot_h = rotated_txt.size
+        side_x = (sidebar_width - rot_w) // 2
+        side_y = (height - rot_h) // 2
+        
+        # Paste with alpha mask
+        image.paste(rotated_txt, (side_x, side_y), rotated_txt)
+        
+        # === RIGHT SIDE CONTENT ===
+        content_x_start = sidebar_width + 80
+        content_width = width - content_x_start - 50
+        
+        current_y = 80
+        
+        # 1. Exam Name (Top)
+        top_text = text_info['top'].upper()
+        if len(top_text) > 30:
+            top_font = self._get_font(52, bold=True)
+        else:
+            top_font = self._get_font(60, bold=True)
+            
+        wrapped_lines = self._wrap_text(top_text, top_font, content_width)
+        for line in wrapped_lines:
+            draw.text((content_x_start, current_y), line, font=top_font, fill=(50, 50, 50))
+            line_bbox = top_font.getbbox(line)
+            current_y += (line_bbox[3] - line_bbox[1]) + 15
+            
+        current_y += 30
+        
+        # 2. "MERIT LIST" / Center Text
+        center_text = text_info['center'].upper()
+        if center_text:
+            center_font = self._get_font(75, bold=True)
+            draw.text((content_x_start, current_y), center_text, font=center_font, fill=accent_color)
+            
+            # Add decorative underline
+            center_bbox = center_font.getbbox(center_text)
+            text_width = center_bbox[2] - center_bbox[0]
+            text_height = center_bbox[3] - center_bbox[1]
+            draw.rectangle([content_x_start, current_y + text_height + 15, content_x_start + 100, current_y + text_height + 22], fill=primary_color)
+            
+            current_y += text_height + 80
+        else:
+            current_y += 100
+
+        # 3. Button
+        btn_text = text_info['bottom'].upper()
+        btn_font = self._get_font(42, bold=True)
+        btn_bbox = btn_font.getbbox(btn_text)
+        btn_w = btn_bbox[2] - btn_bbox[0] + 80
+        btn_h = btn_bbox[3] - btn_bbox[1] + 40
+        
+        self._draw_rounded_rectangle(draw, [content_x_start, current_y, content_x_start + btn_w, current_y + btn_h], radius=8, fill=primary_color)
+        draw.text((content_x_start + 40, current_y + 20), btn_text, font=btn_font, fill=(255, 255, 255))
+        
+        # Watermark (Bottom Right)
+        wm_font = self._get_font(20)
+        wm_text = site_name
+        wm_bbox = wm_font.getbbox(wm_text)
+        wm_w = wm_bbox[2] - wm_bbox[0]
+        draw.text((width - wm_w - 50, height - 50), wm_text, font=wm_font, fill=(150, 150, 150))
+        
+        return image
+
+    def _generate_admit_card_template(self, text_info: Dict[str, str], 
+                                     site_name: str, site_url: str,
+                                     colors: Dict) -> Image.Image:
+        """
+        Generate Admit Card template (Center Card with Gradient).
+        
+        Layout:
+        - Background: Diagonal Gradient
+        - Center: White Card with details
+        - Header: "ADMIT CARD" badge
+        """
+        width, height = self.DEFAULT_SIZE
+        
+        # Gradient Background
+        image = self._create_gradient_background(
+            self.DEFAULT_SIZE, 
+            colors['bg_start'], 
+            colors['bg_end'], 
+            direction='diagonal'
+        )
+        # Add pattern
+        image = self._add_geometric_patterns(image, colors)
+        
+        draw = ImageDraw.Draw(image)
+        
+        # === CENTER CARD ===
+        card_w, card_h = 950, 450
+        card_x = (width - card_w) // 2
+        card_y = (height - card_h) // 2
+        
+        # Shadow
+        self._draw_rounded_rectangle(draw, [card_x+10, card_y+10, card_x+card_w+10, card_y+card_h+10], radius=20, fill=(0, 0, 0, 30))
+        # White Card
+        self._draw_rounded_rectangle(draw, [card_x, card_y, card_x+card_w, card_y+card_h], radius=20, fill=(255, 255, 255))
+        
+        current_y = card_y + 60
+        
+        # 1. Badge "ADMIT CARD RELEASED"
+        badge_text = "ADMIT CARD RELEASED"
+        badge_font = self._get_font(30, bold=True)
+        badge_bbox = badge_font.getbbox(badge_text)
+        badge_text_w = badge_bbox[2] - badge_bbox[0]
+        badge_text_h = badge_bbox[3] - badge_bbox[1]
+        
+        # Badge dimensions with padding
+        badge_w = badge_text_w + 60
+        badge_h = badge_text_h + 30
+        badge_x = (width - badge_w) // 2
+        
+        primary_rgb = self._hex_to_rgb(colors['primary'])
+        
+        self._draw_rounded_rectangle(draw, [badge_x, current_y, badge_x + badge_w, current_y + badge_h], radius=15, fill=self._hex_to_rgb(colors['accent']))
+        
+        # Center text inside badge perfectly
+        text_x = badge_x + (badge_w - badge_text_w) // 2
+        text_y = current_y + (badge_h - badge_text_h) // 2 - 4  # Slight adjustment for baseline
+        
+        draw.text((text_x, text_y), badge_text, font=badge_font, fill=(255, 255, 255))
+        
+        current_y += 90
+        
+        # 2. Exam Name
+        exam_text = text_info['top']
+        # Limit length logic moved inside wrapping
+        if len(exam_text) > 40:
+             exam_font = self._get_font(50, bold=True)
+        else:
+             exam_font = self._get_font(60, bold=True)
+             
+        wrapped = self._wrap_text(exam_text, exam_font, card_w - 80)
+        # If wrapped text takes too much space, reduce font size
+        if len(wrapped) > 3: 
+             exam_font = self._get_font(40, bold=True)
+             wrapped = self._wrap_text(exam_text, exam_font, card_w - 80)
+
+        for line in wrapped:
+            # Centered text
+            line_bbox = exam_font.getbbox(line)
+            line_w = line_bbox[2] - line_bbox[0]
+            line_x = (width - line_w) // 2
+            draw.text((line_x, current_y), line, font=exam_font, fill=(30, 30, 30))
+            current_y += (line_bbox[3] - line_bbox[1]) + 15
+            
+        # 3. Download Button
+        current_y += 40
+        btn_text = text_info['bottom'].upper()
+        btn_font = self._get_font(42, bold=True)
+        btn_bbox = btn_font.getbbox(btn_text)
+        btn_text_w = btn_bbox[2] - btn_bbox[0]
+        btn_text_h = btn_bbox[3] - btn_bbox[1]
+        
+        # Button dimensions
+        btn_w = btn_text_w + 80
+        btn_h = btn_text_h + 40
+        btn_x = (width - btn_w) // 2
+        
+        self._draw_rounded_rectangle(draw, [btn_x, current_y, btn_x+btn_w, current_y+btn_h], radius=10, fill=primary_rgb)
+        
+        # Center text inside button perfectly
+        btn_txt_x = btn_x + (btn_w - btn_text_w) // 2
+        btn_txt_y = current_y + (btn_h - btn_text_h) // 2 - 4
+        
+        draw.text((btn_txt_x, btn_txt_y), btn_text, font=btn_font, fill=(255, 255, 255))
+        
+        # Watermark
+        wm_text = site_name
+        wm_font = self._get_font(18)
+        wm_bbox = wm_font.getbbox(wm_text)
+        wm_w = wm_bbox[2] - wm_bbox[0]
+        draw.text(((width - wm_w)//2, card_y + card_h - 40), wm_text, font=wm_font, fill=(150, 150, 150))
         
         return image
     

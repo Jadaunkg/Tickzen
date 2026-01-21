@@ -521,6 +521,86 @@
             margin-left: 0.875rem;
         }
 
+        .data-source-indicator {
+            font-size: 0.6875rem;
+            font-weight: 500;
+            padding: 0.1875rem 0.375rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* New Article Badge */
+        .new-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            font-size: 0.625rem;
+            font-weight: 700;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(238, 90, 82, 0.3);
+            animation: newBadgePulse 2s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes newBadgePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 2px 4px rgba(238, 90, 82, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 4px 8px rgba(238, 90, 82, 0.4); }
+        }
+
+        .item-card {
+            position: relative;
+            overflow: visible;
+        }
+
+        /* New article highlight effect */
+        .item-card.new-article {
+            border: 2px solid #ff6b6b;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.02), rgba(238, 90, 82, 0.02));
+        }
+
+        /* New Article Badge */
+        .new-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            font-size: 0.625rem;
+            font-weight: 700;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(238, 90, 82, 0.3);
+            animation: newBadgePulse 2s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes newBadgePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 2px 4px rgba(238, 90, 82, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 4px 8px rgba(238, 90, 82, 0.4); }
+        }
+
+        .item-card {
+            position: relative;
+            overflow: visible;
+        }
+
+        /* New article highlight effect */
+        .item-card.new-article {
+            border: 2px solid #ff6b6b;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.02), rgba(238, 90, 82, 0.02));
+        }
+
         /* Configuration Panel */
         .config-panel {
             background: white;
@@ -1032,7 +1112,18 @@
                 <h3>
                     <i class="fas fa-list"></i> Available Items
                     <span class="items-count">
-                        <span id="selectedCount">0</span> selected / <span id="totalCount">{{ jobs_items|length + results_items|length + admit_cards_items|length }}</span> total
+                        <span id="selectedCount">0</span> selected / <span id="totalCount">{{ all_items|length if all_items else 0 }}</span> total
+                        {% if data_source %}
+                            <span class="data-source-indicator">
+                                {% if data_source == 'cache' %}
+                                    <i class="fas fa-database" style="color: #28a745;"></i> Cached Data
+                                {% elif data_source == 'api' %}
+                                    <i class="fas fa-cloud" style="color: #007bff;"></i> Live API
+                                {% else %}
+                                    <i class="fas fa-flask" style="color: #ffc107;"></i> Sample Data
+                                {% endif %}
+                            </span>
+                        {% endif %}
                     </span>
                 </h3>
                 
@@ -1054,15 +1145,21 @@
 
             <!-- Items Grid Display -->
             <div class="items-grid" id="itemsGrid" data-current-view="card">
-                <!-- Jobs Items -->
-                {% if jobs_items and jobs_items|length > 0 %}
-                    {% for item in jobs_items %}
-                    <div class="item-card" 
-                         data-item-id="{{ item.id or item.job_id }}" 
-                         data-content-type="jobs"
+                <!-- All Items in Collection Order (Most Recent First) -->
+                {% if all_items and all_items|length > 0 %}
+                    {% for item in all_items %}
+                    <div class="item-card{{ ' new-article' if item.is_new else '' }}" 
+                         data-item-id="{{ item.id or item.job_id or item.result_id or item.admit_id }}" 
+                         data-content-type="{{ item.content_type }}"
                          data-title="{{ item.title }}"
                          data-item-url="{{ item.url|default('#') }}"
                          onclick="toggleItemSelection(this)">
+                        
+                        {% if item.is_new %}
+                            <div class="new-badge">
+                                <i class="fas fa-star"></i> NEW
+                            </div>
+                        {% endif %}
                         
                         <div class="select-indicator" onclick="event.stopPropagation(); toggleItemSelection(this.parentElement)">
                             <i class="fas fa-check"></i>
@@ -1078,7 +1175,7 @@
                                     <h4 class="item-title" style="margin: 0;">{{ item.title }}</h4>
                                     <div class="item-meta" style="margin-top: 0.25rem;">
                                         <span class="item-meta-item">
-                                            <i class="fas fa-tag"></i> JOBS
+                                            <i class="fas fa-tag"></i> {{ item.content_label }}
                                         </span>
                                     </div>
                                 </div>
@@ -1095,11 +1192,23 @@
                         <div class="item-meta">
                             <span class="item-meta-item">
                                 <i class="fas fa-clock"></i>
-                                {{ item.posted_date|default(item.published_date|default('Unknown Date')) }}
+                                {% if item.content_type == 'jobs' %}
+                                    {{ item.posted_date|default(item.published_date|default('Unknown Date')) }}
+                                {% elif item.content_type == 'results' %}
+                                    {{ item.announced_date|default(item.published_date|default('Unknown Date')) }}
+                                {% else %}
+                                    {{ item.released_date|default(item.published_date|default('Unknown Date')) }}
+                                {% endif %}
                             </span>
                             <span class="item-meta-item">
                                 <i class="fas fa-link"></i>
-                                {{ item.source|default('Government Portal') }}
+                                {% if item.content_type == 'jobs' %}
+                                    {{ item.source|default('Government Portal') }}
+                                {% elif item.content_type == 'results' %}
+                                    {{ item.source|default('Official Portal') }}
+                                {% else %}
+                                    {{ item.source|default('Official Website') }}
+                                {% endif %}
                             </span>
                         </div>
                         
@@ -1108,7 +1217,7 @@
                                 <i class="fas fa-star"></i> {{ item.priority|default('Medium') }}
                             </span>
                             <span class="badge badge-source">
-                                <i class="fas fa-tag"></i> JOBS
+                                <i class="fas fa-tag"></i> {{ item.content_label }}
                             </span>
                         </div>
                         
@@ -1121,103 +1230,31 @@
                                 <div class="item-meta">
                                     <span class="item-meta-item">
                                         <i class="fas fa-clock"></i>
-                                        {{ item.posted_date|default(item.published_date|default('Unknown Date')) }}
+                                        {% if item.content_type == 'jobs' %}
+                                            {{ item.posted_date|default(item.published_date|default('Unknown Date')) }}
+                                        {% elif item.content_type == 'results' %}
+                                            {{ item.announced_date|default(item.published_date|default('Unknown Date')) }}
+                                        {% else %}
+                                            {{ item.released_date|default(item.published_date|default('Unknown Date')) }}
+                                        {% endif %}
                                     </span>
                                     <span class="item-meta-item">
                                         <i class="fas fa-link"></i>
-                                        {{ item.source|default('Government Portal') }}
+                                        {% if item.content_type == 'jobs' %}
+                                            {{ item.source|default('Government Portal') }}
+                                        {% elif item.content_type == 'results' %}
+                                            {{ item.source|default('Official Portal') }}
+                                        {% else %}
+                                            {{ item.source|default('Official Website') }}
+                                        {% endif %}
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
-                {% endif %}
-                
-                <!-- Results Items -->
-                {% if results_items and results_items|length > 0 %}
-                    {% for item in results_items %}
-                    <div class="item-card" 
-                         data-item-id="{{ item.id or item.result_id }}" 
-                         data-content-type="results"
-                         data-title="{{ item.title }}"
-                         data-item-url="{{ item.url|default('#') }}"
-                         onclick="toggleItemSelection(this)">
-                        
-                        <div class="select-indicator" onclick="event.stopPropagation(); toggleItemSelection(this.parentElement)">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        
-                        <h4 class="item-title">{{ item.title }}</h4>
-                        
-                        <p class="item-description">{{ item.description|default('No description available')|truncate(150) }}</p>
-                        
-                        <div class="item-meta">
-                            <span class="item-meta-item">
-                                <i class="fas fa-clock"></i>
-                                {{ item.announced_date|default(item.published_date|default('Unknown Date')) }}
-                            </span>
-                            <span class="item-meta-item">
-                                <i class="fas fa-link"></i>
-                                {{ item.source|default('Official Portal') }}
-                            </span>
-                        </div>
-                        
-                        <div class="item-badges">
-                            <span class="badge badge-{{ item.priority|default('high')|lower }}">
-                                <i class="fas fa-star"></i> {{ item.priority|default('High') }}
-                            </span>
-                            <span class="badge badge-source">
-                                <i class="fas fa-tag"></i> RESULTS
-                            </span>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% endif %}
-                
-                <!-- Admit Cards Items -->
-                {% if admit_cards_items and admit_cards_items|length > 0 %}
-                    {% for item in admit_cards_items %}
-                    <div class="item-card" 
-                         data-item-id="{{ item.id or item.admit_id }}" 
-                         data-content-type="admit_cards"
-                         data-title="{{ item.title }}"
-                         data-item-url="{{ item.url|default('#') }}"
-                         onclick="toggleItemSelection(this)">
-                        
-                        <div class="select-indicator" onclick="event.stopPropagation(); toggleItemSelection(this.parentElement)">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        
-                        <h4 class="item-title">{{ item.title }}</h4>
-                        
-                        <p class="item-description">{{ item.description|default('No description available')|truncate(150) }}</p>
-                        
-                        <div class="item-meta">
-                            <span class="item-meta-item">
-                                <i class="fas fa-clock"></i>
-                                {{ item.released_date|default(item.published_date|default('Unknown Date')) }}
-                            </span>
-                            <span class="item-meta-item">
-                                <i class="fas fa-link"></i>
-                                {{ item.source|default('Official Website') }}
-                            </span>
-                        </div>
-                        
-                        <div class="item-badges">
-                            <span class="badge badge-critical">
-                                <i class="fas fa-star"></i> Critical
-                            </span>
-                            <span class="badge badge-source">
-                                <i class="fas fa-tag"></i> ADMIT CARDS
-                            </span>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% endif %}
-                
-                <!-- No Items Message (shown if all are empty) -->
-                {% if (not jobs_items or jobs_items|length == 0) and (not results_items or results_items|length == 0) and (not admit_cards_items or admit_cards_items|length == 0) %}
+                {% else %}
+                    <!-- No Items Message (shown if all are empty) -->
                     <div class="no-items-message" style="grid-column: 1 / -1;">
                         <i class="fas fa-inbox"></i>
                         <p style="font-weight: 600; margin-top: 1rem; color: hsl(var(--foreground));">No items available</p>
@@ -1374,8 +1411,8 @@
         <!-- Action Panel at Bottom - Sticky Footer -->
         <div class="action-panel">
             <div class="action-panel-left">
-                <button type="button" class="action-btn-compact secondary" id="refresh-data-btn" title="Refresh data from API">
-                    <i class="fas fa-sync-alt"></i> Refresh Data
+                <button type="button" class="action-btn-compact secondary" id="refresh-data-btn" title="Refresh and cache unlimited data from API">
+                    <i class="fas fa-sync-alt"></i> Refresh & Cache All Data
                 </button>
                 <span class="action-status" id="selection-status">0 items selected</span>
             </div>
@@ -1423,7 +1460,7 @@
                 try {
                     // Show loading state
                     refreshBtn.disabled = true;
-                    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+                    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing & Caching...';
                     
                     // Call refresh API
                     const response = await fetch('/automation/jobs/api/refresh-data', {
@@ -1436,8 +1473,22 @@
                     const result = await response.json();
                     
                     if (result.success) {
-                        // Show success message
-                        showNotification('Data refresh triggered successfully. Reloading page...', 'success');
+                        // Show success message with new articles count
+                        const newCount = result.data?.cached_stats?.total_new || 0;
+                        let message = newCount > 0 
+                            ? `🎉 Found ${newCount} new articles! They appear at the top with NEW badges.`
+                            : '✅ Data refreshed successfully. No new articles found.';
+                        
+                        if (result.data && result.data.cached_stats) {
+                            const stats = result.data.cached_stats;
+                            message += ` Cached ${stats.total} items total.`;
+                        }
+                        message += ' Reloading page...';
+                        
+                        showNotification(message, 'success');
+                        
+                        // Store refresh timestamp for new article detection
+                        localStorage.setItem('lastRefreshTime', new Date().toISOString());
                         
                         // Wait 2 seconds then reload the page
                         setTimeout(() => {
