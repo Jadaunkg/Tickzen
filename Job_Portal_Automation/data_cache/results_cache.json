@@ -1,8 +1,129 @@
 {
-  "timestamp": "2026-01-21T14:35:55.718626",
+  "timestamp": "2026-01-24T17:20:40.858090",
   "success": true,
-  "count": 113,
+  "count": 124,
   "data": [
+    {
+      "id": "eaa33e5421587892af5ff297bc3009b2",
+      "title": "Railway RRC NR Apprentice Result / Score Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/railway-rrc-nr-apprentice-result-score-card-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": true
+    },
+    {
+      "id": "ef067fc429e90d064fef29ad874145af",
+      "title": "SIDBI Grade A & B Final Result 2026",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/sidbi-grade-a-b-final-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "53d42cdb7a0883bdad6c88761538549f",
+      "title": "RRB NTPC 10+2 Inter Level CBT-2 Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rrb-ntpc-102-inter-level-cbt-2-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "bd0ba71c195cf75be384511f1a838b7d",
+      "title": "IOCL Junior Engineer Final Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/iocl-junior-engineer-final-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "20b84d18f96e6b28b7c6d996ea9b7ce4",
+      "title": "AIIMS 4th CRE Group B, C Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/aiims-4th-cre-group-b-c-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "7468e22a2317f0d44c8c9ae3b503df08",
+      "title": "Bihar SHS ANM Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-shs-anm-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "963836e21306d7ab5b66b558f1cd22a6",
+      "title": "Bihar BSSC Field Assistant Pre Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-bssc-field-assistant-pre-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "60a800393fa8dbd3217edb0e8f255aa4",
+      "title": "MPPSC Food Safety Officer FSO Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/mppsc-food-safety-officer-fso-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "55b892fe3e0e9ab9c72f6d9945db4391",
+      "title": "DDA Deputy/Assistant Director Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/dda-deputy-assistant-director-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "bff2c6d20dbfe6a91deae089bb5905f8",
+      "title": "IBPS RRB 14th Scale-I Mains/ Scale II, III Pre Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/ibps-rrb-14th-scale-i-mains-scale-ii-iii-pre-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "33e106f28993a9f20763394b230f36cc",
+      "title": "RSSB 4th Class (Group D) Final Answer Key 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rssb-4th-class-group-d-final-answer-key-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
     {
       "id": "f807ba34f0eb329f2aa5d95bacceac53",
       "title": "CGPSC Court Manager Pre Result 2026 – Out",
@@ -12,7 +133,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "871a797c18f6bd2e9e647f5534370b55",
@@ -23,7 +144,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "50f872681ec6e9dca4c8259a1dda9222",
@@ -34,7 +155,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "940bcb8a5bf87efc308a9a1247c2ecae",

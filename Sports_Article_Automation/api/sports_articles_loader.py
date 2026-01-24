@@ -85,7 +85,7 @@ class SportsArticlesLoader:
         Get count of articles by type
         
         Args:
-            article_type (str): Type of articles ('basketball', 'cricket', 'football', 'all')
+            article_type (str): Type of articles ('basketball', 'cricket', 'football', 'database', 'all')
             
         Returns:
             int: Number of articles
@@ -96,25 +96,67 @@ class SportsArticlesLoader:
             articles = self.load_cricket_articles()
         elif article_type == "football":
             articles = self.load_football_articles()
+        elif article_type == "database":
+            articles = self.load_database_articles()
         elif article_type == "all":
-            articles = self.load_sports_articles()
+            articles = self.load_articles()
         else:
             articles = []
         
         return len(articles)
+    
+    def load_database_articles(self):
+        """Load articles from Supabase database"""
+        try:
+            # Try different import paths for better compatibility
+            try:
+                from Sports_Article_Automation.api.supabase_articles_loader import get_supabase_loader
+            except ImportError:
+                # Try relative import if we're running from within the Sports_Article_Automation directory
+                from .supabase_articles_loader import get_supabase_loader
+            except ImportError:
+                # Try absolute import if that fails
+                import sys
+                import os
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                parent_dir = os.path.dirname(current_dir)
+                if parent_dir not in sys.path:
+                    sys.path.insert(0, parent_dir)
+                from api.supabase_articles_loader import get_supabase_loader
+            
+            supabase_loader = get_supabase_loader()
+            
+            if supabase_loader.is_available():
+                database_articles = supabase_loader.load_database_articles()
+                logger.info(f"Successfully loaded {len(database_articles)} articles from database")
+                return database_articles
+            else:
+                logger.warning("Supabase database loader not available")
+                return []
+                
+        except ImportError as e:
+            logger.error(f"Could not import Supabase loader: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"Error loading database articles: {e}")
+            return []
     
     def load_articles(self, category=None, force_refresh=False):
         """
         Load articles by category
         
         Args:
-            category (str): Category of articles ('cricket', 'football', 'basketball', or None for all)
+            category (str): Category of articles ('cricket', 'football', 'basketball', 'database', or None for all)
             force_refresh (bool): Force refresh from disk (default: False)
             
         Returns:
             list: List of articles from the specified category
         """
-        # First, ensure articles are categorized
+        # Handle database category separately
+        if category and category.lower() == 'database':
+            return self.load_database_articles()
+        
+        # First, ensure RSS articles are categorized
         self._ensure_categorized()
         
         if category and category.lower() == 'cricket':
@@ -124,18 +166,25 @@ class SportsArticlesLoader:
         elif category and category.lower() == 'basketball':
             return self.load_basketball_articles()
         else:
-            # Load all sports articles (combines all categories)
+            # Load all sports articles (combines all categories including database)
+            logger.info("🔄 Loading all article categories (including database)...")
+            
             cricket = self.load_cricket_articles()
             football = self.load_football_articles()
             basketball = self.load_basketball_articles()
+            database_articles = self.load_database_articles()
+            
+            logger.info(f"📊 Category breakdown: Cricket={len(cricket)}, Football={len(football)}, Basketball={len(basketball)}, Database={len(database_articles)}")
             
             # Combine all articles
-            all_articles = cricket + football + basketball
+            all_articles = cricket + football + basketball + database_articles
             
-            # Also include uncategorized articles from main database
+            # Also include uncategorized articles from main RSS database
             main_articles = self.load_sports_articles()
             uncategorized = [a for a in main_articles if a.get('category', 'UNCATEGORIZED') == 'UNCATEGORIZED']
             all_articles.extend(uncategorized)
+            
+            logger.info(f"📈 Total articles after combining: {len(all_articles)} (including {len(uncategorized)} uncategorized RSS)")
             
             return all_articles
     

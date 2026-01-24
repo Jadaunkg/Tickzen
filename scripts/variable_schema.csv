@@ -1,0 +1,178 @@
+Variable,Tab,Category,Data Type,Description
+ticker,Overview,Identifier,string,Stock ticker symbol
+current_price,Overview,Market Price,float,Current stock price
+regularMarketPrice,Overview,Market Price,float,Regular market price
+open_price,Overview,Market Price,float,Opening price
+high_price,Overview,Market Price,float,Daily high price
+low_price,Overview,Market Price,float,Daily low price
+close_price,Overview,Market Price,float,Closing price
+volume,Overview,Market Price,int,Trading volume
+market_cap,Overview,Market Size,float,Market capitalization
+enterprise_value,Overview,Market Size,float,Enterprise value
+shares_outstanding,Overview,Market Size,float,Shares outstanding
+float_shares,Overview,Market Size,float,Float shares
+daily_return_pct,Overview,Performance,float,Daily return percentage
+change_15d_pct,Overview,Performance,float,15-day change percentage
+change_52w_pct,Overview,Performance,float,52-week change percentage
+performance_1y_pct,Overview,Performance,float,1-year performance percentage
+high_52w,Overview,Performance,float,52-week high
+low_52w,Overview,Performance,float,52-week low
+exchange,Overview,Market Context,string,Stock exchange
+country,Overview,Market Context,string,Company country
+sp500_index,Overview,Market Context,float,S&P 500 index value
+interest_rate,Overview,Market Context,float,Interest rate
+target_price_mean,Forecast,Analyst Targets,float,Mean analyst target price
+target_price_median,Forecast,Analyst Targets,float,Median analyst target price
+target_price_high,Forecast,Analyst Targets,float,Highest analyst target price
+target_price_low,Forecast,Analyst Targets,float,Lowest analyst target price
+analyst_rating,Forecast,Analyst Targets,string,Analyst recommendation
+analyst_count,Forecast,Analyst Targets,int,Number of analysts
+next_earnings_date,Forecast,Earnings Timing,date,Next earnings report date
+earningsTimestamp,Forecast,Earnings Timing,int,Earnings timestamp
+earnings_call_time,Forecast,Earnings Timing,datetime,Earnings call time
+earningsCallTimestampStart,Forecast,Earnings Timing,int,Earnings call start timestamp
+forecast_price_1y,Forecast,Price Forecast,float,1-year forecast price
+forecast_avg_price,Forecast,Price Forecast,float,Average forecast price
+forecast_range_width,Forecast,Price Forecast,float,Forecast range width
+forecast_period,Forecast,Price Forecast,string,Forecast period
+sma_7,Technicals,Trend,float,7-day simple moving average
+sma_20,Technicals,Trend,float,20-day simple moving average
+sma_50,Technicals,Trend,float,50-day simple moving average
+sma_100,Technicals,Trend,float,100-day simple moving average
+sma_200,Technicals,Trend,float,200-day simple moving average
+ema_12,Technicals,Trend,float,12-day exponential moving average
+ema_26,Technicals,Trend,float,26-day exponential moving average
+adx,Technicals,Trend,float,Average Directional Index
+parabolic_sar,Technicals,Trend,float,Parabolic SAR
+rsi_14,Technicals,Momentum,float,14-day RSI
+macd_line,Technicals,Momentum,float,MACD line
+macd_signal,Technicals,Momentum,float,MACD signal line
+macd_hist,Technicals,Momentum,float,MACD histogram
+stochastic_osc,Technicals,Momentum,float,Stochastic oscillator
+williams_r,Technicals,Momentum,float,Williams %R
+bb_upper,Technicals,Volatility,float,Bollinger band upper
+bb_middle,Technicals,Volatility,float,Bollinger band middle
+bb_lower,Technicals,Volatility,float,Bollinger band lower
+atr_14,Technicals,Volatility,float,14-day ATR
+volatility_7d,Technicals,Volatility,float,7-day volatility
+volatility_30d_annual,Technicals,Volatility,float,30-day annualized volatility
+keltner_upper,Technicals,Volatility,float,Keltner channel upper
+keltner_lower,Technicals,Volatility,float,Keltner channel lower
+volume_sma_20,Technicals,Volume,float,20-day volume SMA
+volume_sma_ratio,Technicals,Volume,float,Volume to SMA ratio
+volume_trend_5d,Technicals,Volume,string,5-day volume trend
+obv,Technicals,Volume,float,On-Balance Volume
+vpt,Technicals,Volume,float,Volume Price Trend
+chaikin_money_flow,Technicals,Volume,float,Chaikin Money Flow
+green_days_count,Technicals,Volume,int,Green days count
+support_30d,Technicals,Support & Resistance,float,30-day support level
+resistance_30d,Technicals,Support & Resistance,float,30-day resistance level
+pe_trailing,Fundamentals,Valuation,float,Trailing P/E ratio
+pe_forward,Fundamentals,Valuation,float,Forward P/E ratio
+price_to_sales,Fundamentals,Valuation,float,Price to sales ratio
+price_to_book,Fundamentals,Valuation,float,Price to book ratio
+peg_ratio,Fundamentals,Valuation,float,PEG ratio
+ev_to_revenue,Fundamentals,Valuation,float,EV to revenue ratio
+ev_to_ebitda,Fundamentals,Valuation,float,EV to EBITDA ratio
+price_to_fcf,Fundamentals,Valuation,float,Price to free cash flow
+net_margin,Fundamentals,Profitability,float,Net profit margin
+operating_margin,Fundamentals,Profitability,float,Operating margin
+gross_margin,Fundamentals,Profitability,float,Gross margin
+ebitda_margin,Fundamentals,Profitability,float,EBITDA margin
+roe,Fundamentals,Profitability,float,Return on equity
+roa,Fundamentals,Profitability,float,Return on assets
+roic,Fundamentals,Profitability,float,Return on invested capital
+debt_to_equity,Fundamentals,Financial Health,float,Debt to equity ratio
+total_cash,Fundamentals,Financial Health,float,Total cash
+totalCash,Fundamentals,Financial Health,float,Total cash (duplicate)
+total_debt,Fundamentals,Financial Health,float,Total debt
+free_cash_flow,Fundamentals,Financial Health,float,Free cash flow
+freeCashflow,Fundamentals,Financial Health,float,Free cash flow (duplicate)
+operating_cash_flow,Fundamentals,Financial Health,float,Operating cash flow
+current_ratio,Fundamentals,Financial Health,float,Current ratio
+quick_ratio,Fundamentals,Financial Health,float,Quick ratio
+revenue_ttm,Fundamentals,Growth,float,Revenue TTM
+revenue_growth_yoy,Fundamentals,Growth,float,YoY revenue growth
+net_income_ttm,Fundamentals,Growth,float,Net income TTM
+netIncomeToCommon,Fundamentals,Growth,float,Net income to common
+earnings_growth_yoy,Fundamentals,Growth,float,YoY earnings growth
+ebitda_ttm,Fundamentals,Growth,float,EBITDA TTM
+gross_profit_ttm,Fundamentals,Growth,float,Gross profit TTM
+asset_turnover,Fundamentals,Efficiency,float,Asset turnover ratio
+inventory_turnover,Fundamentals,Efficiency,float,Inventory turnover
+receivables_turnover,Fundamentals,Efficiency,float,Receivables turnover
+working_capital_turnover,Fundamentals,Efficiency,float,Working capital turnover
+dso,Fundamentals,Efficiency,float,Days sales outstanding
+dio,Fundamentals,Efficiency,float,Days inventory outstanding
+ccc,Fundamentals,Efficiency,float,Cash conversion cycle
+dividend_rate,Fundamentals,Dividends,float,Annual dividend rate
+dividend_yield_pct,Fundamentals,Dividends,float,Dividend yield percentage
+payout_ratio,Fundamentals,Dividends,float,Dividend payout ratio
+avg_dividend_yield_5y,Fundamentals,Dividends,float,5-year average dividend yield
+dividend_forward_rate,Fundamentals,Dividends,float,Forward dividend rate
+dividend_forward_yield,Fundamentals,Dividends,float,Forward dividend yield
+dividend_trailing_rate,Fundamentals,Dividends,float,Trailing dividend rate
+dividend_trailing_yield,Fundamentals,Dividends,float,Trailing dividend yield
+ex_dividend_date,Fundamentals,Dividends,date,Ex-dividend date
+last_split_date,Fundamentals,Dividends,date,Last stock split date
+last_split_factor,Fundamentals,Dividends,string,Last split factor
+var_95,Risk & Sentiment,Risk,float,Value at Risk (95%)
+var_99,Risk & Sentiment,Risk,float,Value at Risk (99%)
+sharpe_ratio,Risk & Sentiment,Risk,float,Sharpe ratio
+sortino_ratio,Risk & Sentiment,Risk,float,Sortino ratio
+calmar_ratio,Risk & Sentiment,Risk,float,Calmar ratio
+max_drawdown,Risk & Sentiment,Risk,float,Maximum drawdown
+beta,Risk & Sentiment,Risk,float,Beta coefficient
+market_correlation,Risk & Sentiment,Risk,float,Market correlation
+skewness,Risk & Sentiment,Risk,float,Return skewness
+kurtosis,Risk & Sentiment,Risk,float,Return kurtosis
+sentiment_score,Risk & Sentiment,Sentiment,float,Composite sentiment score
+sentiment_label,Risk & Sentiment,Sentiment,string,Sentiment classification
+sentiment_confidence,Risk & Sentiment,Sentiment,float,Sentiment confidence
+news_sentiment,Risk & Sentiment,Sentiment,float,News sentiment score
+analyst_sentiment,Risk & Sentiment,Sentiment,float,Analyst sentiment score
+options_sentiment,Risk & Sentiment,Sentiment,float,Options sentiment score
+put_call_ratio,Risk & Sentiment,Sentiment,float,Put/call ratio
+total_transactions,Risk & Sentiment,Insider Activity,int,Total insider transactions
+buy_count,Risk & Sentiment,Insider Activity,int,Insider buy count
+sell_count,Risk & Sentiment,Insider Activity,int,Insider sell count
+net_shares,Risk & Sentiment,Insider Activity,int,Net shares from insider activity
+net_sentiment,Risk & Sentiment,Insider Activity,string,Net insider sentiment
+market_transactions,Risk & Sentiment,Insider Activity,int,Market transactions count
+option_exercises,Risk & Sentiment,Insider Activity,int,Option exercises count
+awards,Risk & Sentiment,Insider Activity,int,Stock awards count
+company_name,Company,Profile,string,Company name
+shortName,Company,Profile,string,Short company name
+longName,Company,Profile,string,Long company name
+symbol,Company,Profile,string,Stock symbol
+sector,Company,Profile,string,Business sector
+industry,Company,Profile,string,Industry classification
+website_url,Company,Profile,string,Company website
+employee_count,Company,Profile,int,Number of employees
+business_summary,Company,Profile,text,Business description
+longBusinessSummary,Company,Profile,text,Detailed business summary
+firstTradeDateEpochUtc,Company,Profile,int,First trade date timestamp
+first_trade_date,Company,Profile,date,First trade date
+sharesOutstanding,Company,Ownership,float,Shares outstanding
+shares_outstanding_diluted,Company,Ownership,float,Diluted shares outstanding
+insider_ownership_pct,Company,Ownership,float,Insider ownership percentage
+institutional_ownership_pct,Company,Ownership,float,Institutional ownership percentage
+shares_short,Company,Ownership,float,Shares sold short
+short_ratio_days,Company,Ownership,float,Short ratio (days to cover)
+short_pct_float,Company,Ownership,float,Short percentage of float
+shares_short_prev,Company,Ownership,float,Previous month short shares
+shares_change_yoy,Company,Ownership,float,YoY shares change
+q1_date,Fundamentals,Quarterly Earnings,string,Q1 quarter end date
+q1_total_revenue,Fundamentals,Quarterly Earnings,string,Q1 total revenue
+q1_net_income,Fundamentals,Quarterly Earnings,string,Q1 net income
+q1_gross_profit,Fundamentals,Quarterly Earnings,string,Q1 gross profit
+q1_operating_income,Fundamentals,Quarterly Earnings,string,Q1 operating income
+q1_eps_basic,Fundamentals,Quarterly Earnings,string,Q1 basic EPS
+q1_eps_diluted,Fundamentals,Quarterly Earnings,string,Q1 diluted EPS
+q1_gross_margin,Fundamentals,Quarterly Earnings,string,Q1 gross margin
+qoq_revenue_growth,Fundamentals,Quarterly Earnings,string,QoQ revenue growth
+qoq_net_income_growth,Fundamentals,Quarterly Earnings,string,QoQ net income growth
+yoy_revenue_growth,Fundamentals,Quarterly Earnings,string,YoY revenue growth
+data_collection_date,Metadata,System,datetime,Data collection timestamp
+data_source,Metadata,System,string,Data source identifier
+errors,Metadata,System,text,Collection errors log

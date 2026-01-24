@@ -4294,3 +4294,333 @@ Exception: Pipeline error for AAPL: 'has_faq'
 2026-01-21 14:35:43 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
 2026-01-21 14:35:58 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
 2026-01-21 14:51:55 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-21 23:24:25 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-21 23:24:55 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-21 23:25:23 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Tanya Singh (ID: 8)
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Abhishek Sharma's Blazing 84 Powers India to Dominant T20I Victory' (66 chars)
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4718 chars
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-21 23:26:58 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 473 articles with 1832 keywords
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Abhishek Sharma's Blazing 84 Powers India to Dominant T20I Victory
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Abhishek Sharma's Blazing 84 Powers India to Dominant T20I Victory
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'abhishek-sharmas-blazing-84-powers-india-to-dominant-t20i-victory' (65 chars)
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Abhishek Sharma's Blazing 84 Powers India to Domin...' → 'abhishek-sharmas-blazing-84-powers-india-to-dominant-t20i-victory' (65/74 chars) ✅
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Abhishek Sharma's Blazing 84 Powers India to Dominant T20I Victory' (66 chars)
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'abhishek-sharmas-blazing-84-powers-india-to-dominant-t20i-victory' (65 chars)
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Tanya Singh (ID: 8)
+2026-01-21 23:27:03 - AutoPublisherLogger - INFO - Post 'Abhishek Sharma's Blazing 84 Powers India to Dominant T20I Victory' draft on https://sportspediazone.com/. ID: 4309, Link: https://sportspediazone.com/?p=4309
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Annsly Raena (ID: 5)
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'England Brings Back 2005 Ashes Pace Coach Allan Donald' (54 chars)
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5019 chars
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: England Brings Back 2005 Ashes Pace Coach Allan Donald
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: England Brings Back 2005 Ashes Pace Coach Allan Donald
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'england-brings-back-2005-ashes-pace-coach-allan-donald' (54 chars)
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'England Brings Back 2005 Ashes Pace Coach Allan Do...' → 'england-brings-back-2005-ashes-pace-coach-allan-donald' (54/74 chars) ✅
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'England Brings Back 2005 Ashes Pace Coach Allan Donald' (54 chars)
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'england-brings-back-2005-ashes-pace-coach-allan-donald' (54 chars)
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-21 23:28:09 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Annsly Raena (ID: 5)
+2026-01-21 23:28:10 - AutoPublisherLogger - INFO - Post 'England Brings Back 2005 Ashes Pace Coach Allan Donald' draft on https://sportspediazone.com/. ID: 4310, Link: https://sportspediazone.com/?p=4310
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'RCB's Chinnaswamy IPL 2026 Fate Hangs on January 27 Deadline' (60 chars)
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5297 chars
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: RCB's Chinnaswamy IPL 2026 Fate Hangs on January 27 Deadline
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: RCB's Chinnaswamy IPL 2026 Fate Hangs on January 27 Deadline
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'rcbs-chinnaswamy-ipl-2026-fate-hangs-on-january-27-deadline' (59 chars)
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'RCB's Chinnaswamy IPL 2026 Fate Hangs on January 2...' → 'rcbs-chinnaswamy-ipl-2026-fate-hangs-on-january-27-deadline' (59/74 chars) ✅
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'RCB's Chinnaswamy IPL 2026 Fate Hangs on January 27 Deadline' (60 chars)
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'rcbs-chinnaswamy-ipl-2026-fate-hangs-on-january-27-deadline' (59 chars)
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-01-21 23:29:05 - AutoPublisherLogger - INFO - Post 'RCB's Chinnaswamy IPL 2026 Fate Hangs on January 27 Deadline' draft on https://sportspediazone.com/. ID: 4313, Link: https://sportspediazone.com/?p=4313
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Govind Singh (ID: 14)
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Padikkal Back for Ranji Trophy Push, Karnataka Looks Unstoppable' (64 chars)
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3868 chars
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-21 23:30:01 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Padikkal Back for Ranji Trophy Push, Karnataka Looks Unstoppable
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Padikkal Back for Ranji Trophy Push, Karnataka Looks Unstoppable
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'padikkal-back-for-ranji-trophy-push-karnataka-looks-unstoppable' (63 chars)
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Padikkal Back for Ranji Trophy Push, Karnataka Loo...' → 'padikkal-back-for-ranji-trophy-push-karnataka-looks-unstoppable' (63/74 chars) ✅
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Padikkal Back for Ranji Trophy Push, Karnataka Looks Unstoppable' (64 chars)
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'padikkal-back-for-ranji-trophy-push-karnataka-looks-unstoppable' (63 chars)
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Govind Singh (ID: 14)
+2026-01-21 23:30:02 - AutoPublisherLogger - INFO - Post 'Padikkal Back for Ranji Trophy Push, Karnataka Looks Unstoppable' draft on https://sportspediazone.com/. ID: 4315, Link: https://sportspediazone.com/?p=4315
+2026-01-21 23:30:06 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-21 23:41:24 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-21 23:41:42 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-21 23:41:57 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-21 23:51:42 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-22 15:08:19 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-22 15:09:40 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-22 15:09:58 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-22 15:18:11 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-22 15:23:33 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 06:29:45 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 06:29:47 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 06:30:05 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 06:30:31 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 06:52:28 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 21:05:27 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 21:05:29 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 21:06:11 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ishaan singh (ID: 9)
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Sarfaraz Double Ton, Lad Century Put Mumbai on Top in Ranji' (59 chars)
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5257 chars
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-23 21:07:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 477 articles with 1837 keywords
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Sarfaraz Double Ton, Lad Century Put Mumbai on Top in Ranji
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Sarfaraz Double Ton, Lad Century Put Mumbai on Top in Ranji
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'sarfaraz-double-ton-lad-century-put-mumbai-on-top-in-ranji' (58 chars)
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Sarfaraz Double Ton, Lad Century Put Mumbai on Top...' → 'sarfaraz-double-ton-lad-century-put-mumbai-on-top-in-ranji' (58/74 chars) ✅
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Sarfaraz Double Ton, Lad Century Put Mumbai on Top in Ranji' (59 chars)
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'sarfaraz-double-ton-lad-century-put-mumbai-on-top-in-ranji' (58 chars)
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ishaan singh (ID: 9)
+2026-01-23 21:07:57 - AutoPublisherLogger - INFO - Post 'Sarfaraz Double Ton, Lad Century Put Mumbai on Top in Ranji' draft on https://sportspediazone.com/. ID: 4330, Link: https://sportspediazone.com/?p=4330
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Priyanjan Paul (ID: 19)
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Brook Finds Positives Post England Loss, Relieved For 'Day Job'' (63 chars)
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5160 chars
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Brook Finds Positives Post England Loss, Relieved For 'Day Job'
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Brook Finds Positives Post England Loss, Relieved For 'Day Job'
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'brook-finds-positives-post-england-loss-relieved-for-day-job' (60 chars)
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Brook Finds Positives Post England Loss, Relieved ...' → 'brook-finds-positives-post-england-loss-relieved-for-day-job' (60/74 chars) ✅
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Brook Finds Positives Post England Loss, Relieved For 'Day Job'' (63 chars)
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'brook-finds-positives-post-england-loss-relieved-for-day-job' (60 chars)
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Priyanjan Paul (ID: 19)
+2026-01-23 21:08:42 - AutoPublisherLogger - INFO - Post 'Brook Finds Positives Post England Loss, Relieved For 'Day Job'' draft on https://sportspediazone.com/. ID: 4331, Link: https://sportspediazone.com/?p=4331
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Sagnik Banerjee (ID: 20)
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'England's ODI Nightmare Continues After Sri Lanka Collapse' (58 chars)
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4325 chars
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: cricket
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: England's ODI Nightmare Continues After Sri Lanka Collapse
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: England's ODI Nightmare Continues After Sri Lanka Collapse
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'englands-odi-nightmare-continues-after-sri-lanka-collapse' (57 chars)
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'England's ODI Nightmare Continues After Sri Lanka ...' → 'englands-odi-nightmare-continues-after-sri-lanka-collapse' (57/74 chars) ✅
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'England's ODI Nightmare Continues After Sri Lanka Collapse' (58 chars)
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'englands-odi-nightmare-continues-after-sri-lanka-collapse' (57 chars)
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-01-23 21:09:18 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Sagnik Banerjee (ID: 20)
+2026-01-23 21:09:19 - AutoPublisherLogger - INFO - Post 'England's ODI Nightmare Continues After Sri Lanka Collapse' draft on https://sportspediazone.com/. ID: 4332, Link: https://sportspediazone.com/?p=4332
+2026-01-23 21:09:24 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 21:21:47 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 21:22:10 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-23 21:22:30 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 17:20:03 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 17:20:21 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 17:20:43 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 21:13:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 21:26:56 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 21:31:12 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Soureesh Datta (ID: 10)
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Fernandes Wonder Goal Ignites Hammers Relegation Fight, Beat Sunderland 3-1' (75 chars)
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4516 chars
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-24 21:32:49 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 400 articles with 1646 keywords
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Fernandes Wonder Goal Ignites Hammers Relegation Fight, Beat Sunderland 3-1
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Fernandes Wonder Goal Ignites Hammers Relegation Fight, Beat Sunderland 3-1
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'fernandes-wonder-goal-ignites-hammers-relegation-fight-beat-sunderland-31' (73 chars)
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Fernandes Wonder Goal Ignites Hammers Relegation F...' → 'fernandes-wonder-goal-ignites-hammers-relegation-fight-beat-sunderland-31' (73/74 chars) ✅
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Fernandes Wonder Goal Ignites Hammers Relegation Fight, Beat Sunderland 3-1' (75 chars)
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'fernandes-wonder-goal-ignites-hammers-relegation-fight-beat-sunderland-31' (73 chars)
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Soureesh Datta (ID: 10)
+2026-01-24 21:33:39 - AutoPublisherLogger - INFO - Post 'Fernandes Wonder Goal Ignites Hammers Relegation Fight, Beat Sunderland 3-1' draft on https://sportspediazone.com/. ID: 4342, Link: https://sportspediazone.com/?p=4342
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Tanya Singh (ID: 8)
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Caldentey, Mead Goals Rock Chelsea Title Hopes 2-0' (50 chars)
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4426 chars
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Caldentey, Mead Goals Rock Chelsea Title Hopes 2-0
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Caldentey, Mead Goals Rock Chelsea Title Hopes 2-0
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'caldentey-mead-goals-rock-chelsea-title-hopes-20' (48 chars)
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Caldentey, Mead Goals Rock Chelsea Title Hopes 2-0...' → 'caldentey-mead-goals-rock-chelsea-title-hopes-20' (48/74 chars) ✅
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Caldentey, Mead Goals Rock Chelsea Title Hopes 2-0' (50 chars)
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'caldentey-mead-goals-rock-chelsea-title-hopes-20' (48 chars)
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-24 21:34:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Tanya Singh (ID: 8)
+2026-01-24 21:34:43 - AutoPublisherLogger - INFO - Post 'Caldentey, Mead Goals Rock Chelsea Title Hopes 2-0' draft on https://sportspediazone.com/. ID: 4343, Link: https://sportspediazone.com/?p=4343
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Annsly Raena (ID: 5)
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Arsenal Downs Chelsea 2-0, WSL Title Battle Heats Up' (52 chars)
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4842 chars
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Arsenal Downs Chelsea 2-0, WSL Title Battle Heats Up
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Arsenal Downs Chelsea 2-0, WSL Title Battle Heats Up
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'arsenal-downs-chelsea-20-wsl-title-battle-heats-up' (50 chars)
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Arsenal Downs Chelsea 2-0, WSL Title Battle Heats ...' → 'arsenal-downs-chelsea-20-wsl-title-battle-heats-up' (50/74 chars) ✅
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Arsenal Downs Chelsea 2-0, WSL Title Battle Heats Up' (52 chars)
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'arsenal-downs-chelsea-20-wsl-title-battle-heats-up' (50 chars)
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Annsly Raena (ID: 5)
+2026-01-24 21:35:42 - AutoPublisherLogger - INFO - Post 'Arsenal Downs Chelsea 2-0, WSL Title Battle Heats Up' draft on https://sportspediazone.com/. ID: 4344, Link: https://sportspediazone.com/?p=4344
+2026-01-24 21:35:46 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 21:45:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 23:35:15 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 23:45:11 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 23:45:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 23:45:55 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 23:48:29 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 23:50:19 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 23:51:48 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-24 23:57:40 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2

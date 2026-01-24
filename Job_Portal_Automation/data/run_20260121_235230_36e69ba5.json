@@ -1,0 +1,87 @@
+{
+  "run_id": "run_20260121_235230_36e69ba5",
+  "user_uid": "iROXMDJiuebQl9Jg4vvXohKea0C2",
+  "timestamp": "2026-01-21T23:52:30.785062",
+  "content_type": "results",
+  "selected_items": [
+    {
+      "id": "bff2c6d20dbfe6a91deae089bb5905f8",
+      "title": "IBPS RRB 14th Scale-I Mains/ Scale II, III Pre Result 2026 – Out",
+      "url": "https://sarkariresult.com.cm/ibps-rrb-14th-scale-i-mains-scale-ii-iii-pre-result-2026/",
+      "content_type": "results"
+    },
+    {
+      "id": "33e106f28993a9f20763394b230f36cc",
+      "title": "RSSB 4th Class (Group D) Final Answer Key 2026 – Out",
+      "url": "https://sarkariresult.com.cm/rssb-4th-class-group-d-final-answer-key-2026/",
+      "content_type": "results"
+    }
+  ],
+  "target_profiles": [
+    "0iezbbvPuuCoQtuHkk3I"
+  ],
+  "config": {
+    "article_length": "medium",
+    "profiles": [
+      {
+        "created_at": "2026-01-17T11:56:01.091211+00:00",
+        "site_url": "https://hirenjob.com/",
+        "internal_linking": {
+          "enabled": true,
+          "cache_expiry_hours": 24,
+          "same_category_only": true,
+          "max_links_per_article": 5
+        },
+        "stockforecast_category_id": "2",
+        "uploaded_ticker_file_name": null,
+        "all_tickers_from_file": [],
+        "ticker_count_from_file": null,
+        "ticker_file_storage_path": null,
+        "profile_name": "Hirenjob",
+        "sheet_name": "1",
+        "last_updated_at": "2026-01-17T11:56:01.091211+00:00",
+        "authors": [
+          {
+            "id": "author_1768650961_0",
+            "wp_username": "Akhil Singh",
+            "app_password": "ktvJ 1cKQ qaxn snW9 RKQe s438",
+            "wp_user_id": "2"
+          },
+          {
+            "id": "author_1768650961_1",
+            "wp_username": "Krishna",
+            "app_password": "5OhV vDTj 1FTW tIyD d64J DTAI",
+            "wp_user_id": "3"
+          },
+          {
+            "id": "author_1768650961_2",
+            "wp_username": "Ramesh Pratap",
+            "app_password": "EE74 lPO1 nmGp 1MuW RGgO mais",
+            "wp_user_id": "4"
+          }
+        ],
+        "min_scheduling_gap_minutes": 45,
+        "env_prefix_for_feature_image_colors": "",
+        "ticker_preview_from_file": [],
+        "max_scheduling_gap_minutes": 60,
+        "ticker_file_uploaded_at": null,
+        "profile_id": "0iezbbvPuuCoQtuHkk3I",
+        "category_id": 4,
+        "publish_status": "schedule",
+        "min_interval": 20,
+        "max_interval": 35
+      }
+    ]
+  },
+  "status": "pending",
+  "progress": {
+    "total": 2,
+    "completed": 0,
+    "failed": 0,
+    "current_item": null
+  },
+  "results": [],
+  "errors": [],
+  "created_at": "2026-01-21T23:52:30.785062",
+  "updated_at": "2026-01-21T23:52:30.785062"
+}

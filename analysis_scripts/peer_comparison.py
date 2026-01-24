@@ -73,20 +73,25 @@ def fetch_company_peers(ticker):
     return []
 
 def get_company_peers(ticker):
-    """Get peer companies - use Finnhub peers if available, otherwise use sector-based peers."""
+    """Get peer companies - try Finnhub first, fallback to curated sector peers."""
     logging.info(f"Getting peers for {ticker}")
     
-    # Step 1: Try Finnhub API
+    # Step 1: Try Finnhub API first (real market data)
     finnhub_peers = fetch_company_peers(ticker)
     
-    if finnhub_peers:
-        # Use Finnhub peers directly (up to 3 peers)
-        logging.info(f"Using Finnhub peers for {ticker}: {finnhub_peers[:3]}")
-        return finnhub_peers[:3]
+    if finnhub_peers and len(finnhub_peers) >= 3:
+        # Filter out ETFs from Finnhub results
+        valid_peers = [p for p in finnhub_peers if not is_etf(p)][:6]
+        if len(valid_peers) >= 3:
+            logging.info(f"Using Finnhub peers for {ticker}: {valid_peers}")
+            return valid_peers
+        else:
+            logging.info(f"Finnhub returned mostly ETFs for {ticker}, using curated fallback")
     
-    # Step 2: Fallback to sector-based peers
-    logging.info(f"No Finnhub peers found for {ticker}, using sector-based fallback")
-    return get_sector_peers(ticker)
+    # Step 2: Fallback to curated sector peers
+    sector_peers = get_sector_peers(ticker)
+    logging.info(f"Using curated sector peers for {ticker}: {sector_peers}")
+    return sector_peers[:6]
 
 def analyze_insider_availability(ticker):
     """Analyze why insider transaction data might not be available for a ticker."""
@@ -1154,52 +1159,71 @@ def get_peer_metrics(ticker):
 
 def get_sector_peers(ticker):
     """Get sector-appropriate peers for a given ticker."""
-    # Define sector-based peer mapping
+    # Define sector-based peer mapping with 5-6 real competitors
     sector_peers = {
-        # Technology
-        'AAPL': ['MSFT', 'GOOGL', 'META'],
-        'MSFT': ['AAPL', 'GOOGL', 'AMZN'],
-        'GOOGL': ['AAPL', 'MSFT', 'META'],
-        'META': ['GOOGL', 'SNAP', 'TWTR'],
-        'NVDA': ['AMD', 'INTC', 'TSM'],
-        'AMD': ['NVDA', 'INTC', 'QCOM'],
-        'INTC': ['AMD', 'NVDA', 'QCOM'],
-        'NBIS': ['AAPL', 'MSFT', 'GOOGL'],  # Tech/cloud infrastructure
+        # Technology - Big Tech
+        'AAPL': ['MSFT', 'GOOGL', 'META', 'NVDA', 'AMZN'],
+        'MSFT': ['AAPL', 'GOOGL', 'AMZN', 'META', 'ORCL'],
+        'GOOGL': ['AAPL', 'MSFT', 'META', 'AMZN', 'NFLX'],
+        'META': ['GOOGL', 'SNAP', 'PINS', 'TWTR', 'MSFT'],
+        'AMZN': ['WMT', 'TGT', 'COST', 'MSFT', 'GOOGL'],
+        
+        # Semiconductors
+        'NVDA': ['AMD', 'INTC', 'TSM', 'AVGO', 'QCOM'],
+        'AMD': ['NVDA', 'INTC', 'QCOM', 'TSM', 'MU'],
+        'INTC': ['AMD', 'NVDA', 'QCOM', 'TSM', 'AVGO'],
+        'TSM': ['NVDA', 'AMD', 'INTC', 'AVGO', 'ASML'],
+        
+        # Cloud/Enterprise Software
+        'CRM': ['MSFT', 'ORCL', 'SAP', 'NOW', 'ADBE'],
+        'ORCL': ['MSFT', 'CRM', 'SAP', 'IBM', 'ADBE'],
+        'NBIS': ['MSFT', 'GOOGL', 'AMZN', 'CRM', 'ORCL'],
         
         # Automotive/EV
-        'TSLA': ['F', 'GM', 'NIO'],
-        'F': ['GM', 'TSLA', 'STLA'],
-        'GM': ['F', 'TSLA', 'STLA'],
-        'NIO': ['TSLA', 'XPEV', 'LI'],
+        'TSLA': ['F', 'GM', 'RIVN', 'NIO', 'TM'],
+        'F': ['GM', 'TSLA', 'STLA', 'TM', 'HMC'],
+        'GM': ['F', 'TSLA', 'STLA', 'TM', 'HMC'],
+        'NIO': ['TSLA', 'XPEV', 'LI', 'RIVN', 'F'],
+        'RIVN': ['TSLA', 'NIO', 'LCID', 'F', 'GM'],
         
         # E-commerce/Retail
-        'AMZN': ['WMT', 'TGT', 'COST'],
-        'WMT': ['TGT', 'COST', 'AMZN'],
+        'WMT': ['TGT', 'COST', 'AMZN', 'KR', 'HD'],
+        'TGT': ['WMT', 'COST', 'AMZN', 'KR', 'BBY'],
+        'COST': ['WMT', 'TGT', 'BJ', 'KR', 'AMZN'],
         
-        # Financial
-        'JPM': ['BAC', 'WFC', 'C'],
-        'BAC': ['JPM', 'WFC', 'C'],
-        'BRK-B': ['JPM', 'BAC', 'WFC'],
+        # Financial - Banks
+        'JPM': ['BAC', 'WFC', 'C', 'GS', 'MS'],
+        'BAC': ['JPM', 'WFC', 'C', 'USB', 'PNC'],
+        'WFC': ['JPM', 'BAC', 'C', 'USB', 'TFC'],
+        'GS': ['MS', 'JPM', 'C', 'BAC', 'SCHW'],
+        'BRK-B': ['JPM', 'BAC', 'WFC', 'C', 'GS'],
         
         # Healthcare/Pharma
-        'JNJ': ['PFE', 'MRK', 'ABBV'],
-        'PFE': ['JNJ', 'MRK', 'ABBV'],
+        'JNJ': ['PFE', 'MRK', 'ABBV', 'LLY', 'BMY'],
+        'PFE': ['JNJ', 'MRK', 'ABBV', 'LLY', 'BMY'],
+        'UNH': ['CVS', 'CI', 'HUM', 'ANTM', 'CNC'],
+        'LLY': ['JNJ', 'PFE', 'MRK', 'ABBV', 'NVO'],
         
         # Energy
-        'XOM': ['CVX', 'COP', 'EOG'],
-        'CVX': ['XOM', 'COP', 'EOG'],
+        'XOM': ['CVX', 'COP', 'EOG', 'SLB', 'OXY'],
+        'CVX': ['XOM', 'COP', 'EOG', 'SLB', 'PXD'],
         
         # Consumer Goods
-        'KO': ['PEP', 'PG', 'UL'],
-        'PEP': ['KO', 'PG', 'MNST'],
+        'KO': ['PEP', 'PG', 'UL', 'MDLZ', 'KHC'],
+        'PEP': ['KO', 'PG', 'MNST', 'MDLZ', 'KHC'],
+        'PG': ['UL', 'KO', 'PEP', 'CL', 'KMB'],
         
         # Aerospace/Defense
-        'BA': ['LMT', 'RTX', 'NOC'],
-        'LMT': ['BA', 'RTX', 'NOC'],
+        'BA': ['LMT', 'RTX', 'NOC', 'GD', 'LHX'],
+        'LMT': ['BA', 'RTX', 'NOC', 'GD', 'LHX'],
+        
+        # Streaming/Entertainment
+        'NFLX': ['DIS', 'WBD', 'PARA', 'CMCSA', 'GOOGL'],
+        'DIS': ['NFLX', 'WBD', 'PARA', 'CMCSA', 'LGF.A'],
     }
     
     # Default fallback for unknown tickers - use large cap diversified companies
-    default_peers = ['AAPL', 'MSFT', 'GOOGL']
+    default_peers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META']
     
     return sector_peers.get(ticker.upper(), default_peers)
 

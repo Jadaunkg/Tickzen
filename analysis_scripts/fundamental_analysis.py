@@ -632,10 +632,25 @@ def extract_share_statistics_data(fundamentals: dict, current_price=None):
         except (ValueError, TypeError, ZeroDivisionError):
             shares_outstanding = "N/A (Calc Error)"
 
+    # Fix float_shares validation - float MUST be <= outstanding
+    raw_float = safe_get(info, 'floatShares')
+    validated_float = raw_float
+    
+    if raw_float != "N/A" and shares_outstanding != "N/A":
+        try:
+            float_val = float(raw_float) if isinstance(raw_float, str) else raw_float
+            shares_out_val = float(shares_outstanding) if isinstance(shares_outstanding, str) else shares_outstanding
+            
+            if float_val > shares_out_val:
+                # Float can't exceed outstanding - correct it to 98% of outstanding
+                validated_float = shares_out_val * 0.98
+        except (ValueError, TypeError):
+            pass  # Keep raw value if conversion fails
+    
     metrics = {
         "Shares Outstanding": format_value(shares_outstanding, 'large_number', 3),
         "Implied Shares Outstanding": format_value(safe_get(info, 'impliedSharesOutstanding'), 'large_number', 3),
-        "Shares Float": format_value(safe_get(info, 'floatShares'), 'large_number', 3),
+        "Shares Float": format_value(validated_float, 'large_number', 3),
         "Insider Ownership": format_value(safe_get(info, 'heldPercentInsiders'), 'percent'),
         "Institutional Ownership": format_value(safe_get(info, 'heldPercentInstitutions'), 'percent'),  
         "Shares Short": format_value(safe_get(info, 'sharesShort'), 'large_number', 3),
@@ -799,16 +814,42 @@ def extract_financial_efficiency_data(fundamentals: dict):
         pass
     
     # Cash Conversion Cycle (CCC) = DIO + DSO - DPO (Days Payable Outstanding)
-    # For now, we'll calculate what we can with DIO + DSO
     cash_conversion_cycle = "N/A"
     if (days_inventory_outstanding != "N/A" and days_sales_outstanding != "N/A" and 
         "N/A" not in str(days_inventory_outstanding) and "N/A" not in str(days_sales_outstanding)):
         try:
             dio_val = float(str(days_inventory_outstanding))
             dso_val = float(str(days_sales_outstanding))
-            # Note: This is incomplete without DPO, but provides partial insight
-            partial_ccc = dio_val + dso_val
-            cash_conversion_cycle = f"~{partial_ccc:.1f} days (partial)"
+            
+            # Try to calculate DPO = (Accounts Payable / COGS) * 365
+            dpo_val = None
+            try:
+                balance_sheet = fundamentals.get('balance_sheet')
+                if balance_sheet is not None and not balance_sheet.empty:
+                    recent_period = balance_sheet.columns[0]
+                    accounts_payable = None
+                    
+                    if 'Accounts Payable' in balance_sheet.index:
+                        accounts_payable = float(balance_sheet.loc['Accounts Payable', recent_period])
+                    elif 'Payables' in balance_sheet.index:
+                        accounts_payable = float(balance_sheet.loc['Payables', recent_period])
+                    
+                    if accounts_payable and cost_of_revenue != "N/A":
+                        cogs = float(str(cost_of_revenue))
+                        if cogs != 0:
+                            dpo_val = (accounts_payable / cogs) * 365
+            except:
+                pass
+            
+            # Calculate CCC with or without DPO
+            if dpo_val is not None:
+                # Complete CCC formula: DSO + DIO - DPO
+                ccc_val = dio_val + dso_val - dpo_val
+                cash_conversion_cycle = format_value(ccc_val, 'number', 1)
+            else:
+                # Partial CCC without DPO (incomplete but still useful)
+                partial_ccc = dio_val + dso_val
+                cash_conversion_cycle = f"~{partial_ccc:.1f} days (est.)"
         except (ValueError, TypeError):
             pass
 

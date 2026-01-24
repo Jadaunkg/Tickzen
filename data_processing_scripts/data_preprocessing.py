@@ -356,17 +356,49 @@ def preprocess_data(stock_df, macro_df):
         raise ValueError(f"Missing stock columns after feature engineering: {missing_stock}. Available: {list(merged.columns)}")
 
     # Final Feature Selection for model input
+    # Include ALL technical indicators calculated in feature_engineering.py
     required_output_features = [
+        # Core price data
         'Date', 'Open', 'High', 'Low', 'Close', 'Volume', 
-        'Days',                       
+        'Days',
+        
+        # Macro indicators
         'Interest_Rate', 'SP500',     
         'Interest_Rate_MA30',         
-        'SP500_MA30',                 
-        'RSI',                        
-        'MACD',                       
-        'BB_Upper',                   
-        'MA_7',                       
-        'Volatility_7'                
+        'SP500_MA30',
+        
+        # MACD components
+        'MACD', 'MACD_Signal', 'MACD_Histogram',
+        
+        # RSI
+        'RSI',
+        
+        # Bollinger Bands
+        'BB_Upper', 'BB_Middle', 'BB_Lower',
+        
+        # Simple Moving Averages
+        'MA_7', 'MA_20', 'MA_50', 'MA_100', 'MA_200',
+        
+        # Exponential Moving Averages
+        'EMA_12', 'EMA_26',
+        
+        # Volatility
+        'ATR', 'Volatility_7', 'Volatility_30d',
+        
+        # Volume
+        'OBV', 'Volume_SMA_20', 'Green_Days_Count',
+        
+        # Support & Resistance
+        'Support_30D', 'Resistance_30D',
+        
+        # Momentum
+        'Stochastic_K', 'Stochastic_D',
+        
+        # Trend
+        'ADX',
+        
+        # Intraday
+        'VWAP'
     ]
     
     final_features = [col for col in required_output_features if col in merged.columns]

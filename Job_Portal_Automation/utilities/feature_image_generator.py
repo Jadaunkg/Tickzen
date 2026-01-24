@@ -236,9 +236,12 @@ class FeatureImageGenerator:
         """
         Extract key information with actual stats for image text.
         
-        Jobs: top=exam name+year, center=vacancy count, bottom=apply online
-        Results: top=exam name+result+year, center=merit list pdf, bottom=check marks  
-        Admit Cards: top=exam name+admit card+year, center=(empty), bottom=download now
+        CRITICAL: Each content type MUST have UNIQUE text extraction logic to ensure 
+        different feature images for jobs, admit cards, and results.
+        
+        Jobs: top=organization name+year, center=vacancy count, bottom="Apply Online"
+        Admit Cards: top=exam name+ADMIT CARD+year, center="Released", bottom="Download Now"  
+        Results: top=exam name+RESULT+year, center="Declared", bottom="Check Marks"
         """
         import re
         
@@ -253,11 +256,13 @@ class FeatureImageGenerator:
         year = year_match.group(1) if year_match else "2026"
         
         if content_type == 'jobs':
-            # Extract exam/position name WITH year for top banner
+            # JOBS: Focus on organization/position name + vacancy count
+            # Remove all job-specific keywords to get clean organization name
             exam_name = title
-            # Remove vacancy count and extra text
+            # Remove ALL job-related keywords (not admit card or result keywords)
             exam_name = re.sub(r'-?\s*\d{1,3}(?:,\d{3})*\s*(?:Posts?|Vacancies|Vacancy).*$', '', exam_name, flags=re.IGNORECASE)
-            exam_name = re.sub(r'Recruitment|Notification', '', exam_name, flags=re.IGNORECASE)
+            exam_name = re.sub(r'\b(?:Recruitment|Notification|Apply|Online|Apply Online|Application)\b', '', exam_name, flags=re.IGNORECASE)
+            exam_name = re.sub(r'-?\s*Out\b', '', exam_name, flags=re.IGNORECASE)  # Remove "Out" for jobs
             exam_name = exam_name.strip(' -.,').strip()
             
             # Limit to 6-7 words max for top
@@ -265,11 +270,11 @@ class FeatureImageGenerator:
             if len(words) > 7:
                 exam_name = ' '.join(words[:7])
             
-            # Ensure year is in headline
+            # Ensure year is in headline for jobs
             if year not in exam_name:
                 exam_name = f"{exam_name} {year}"
             
-            # Center: ONLY vacancy count
+            # Center: ONLY vacancy count (NOT "Released" or "Declared")
             if vacancy_num:
                 center_text = f"{vacancy_num} Vacancies"
             else:
@@ -278,55 +283,61 @@ class FeatureImageGenerator:
             return {
                 'top': exam_name,
                 'center': center_text,
-                'bottom': 'Apply Online'
+                'bottom': 'Apply Online'  # UNIQUE to jobs
             }
             
         elif content_type == 'admit_cards':
-            # Extract exam name + Admit Card + year for top banner
+            # ADMIT CARDS: Explicitly add "ADMIT CARD" keyword for distinction
             exam_name = title
-            # Remove download/hall ticket text
-            exam_name = re.sub(r'-?\s*Download.*$', '', exam_name, flags=re.IGNORECASE)
-            exam_name = re.sub(r'-?\s*Hall Ticket.*$', '', exam_name, flags=re.IGNORECASE)
+            # Remove admit card-specific keywords (not job or result keywords)
+            exam_name = re.sub(r'-?\s*(?:Download|Hall Ticket|Admit Card).*$', '', exam_name, flags=re.IGNORECASE)
+            exam_name = re.sub(r'-?\s*Out\b', '', exam_name, flags=re.IGNORECASE)
+            exam_name = re.sub(r'\b(?:Released)\b', '', exam_name, flags=re.IGNORECASE)
             exam_name = exam_name.strip(' -.,').strip()
             
-            # Limit words
+            # Limit words to keep it concise
             words = exam_name.split()
-            if len(words) > 6:
-                exam_name = ' '.join(words[:6])
+            if len(words) > 5:
+                exam_name = ' '.join(words[:5])
+            
+            # CRITICAL: Explicitly add "ADMIT CARD" to make it unique from jobs/results
+            exam_name = f"{exam_name} ADMIT CARD"
             
             # Ensure year is included
             if year not in exam_name:
                 exam_name = f"{exam_name} {year}"
             
-            # Simple: headline at top, button at bottom, released in middle
             return {
-                'top': exam_name,
-                'center': 'Released',  # Add released text for admit cards
-                'bottom': 'Download Now'
+                'top': exam_name,  # Includes "ADMIT CARD" keyword
+                'center': 'Released',  # UNIQUE to admit cards (not "Vacancies" or "Declared")
+                'bottom': 'Download Now'  # UNIQUE to admit cards
             }
             
         elif content_type == 'results':
-            # Extract exam name + Result + year for top banner
+            # RESULTS: Explicitly add "RESULT" keyword for distinction
             exam_name = title
-            # Remove extra text but keep Result
-            exam_name = re.sub(r'-?\s*(?:Check|Download|PDF).*$', '', exam_name, flags=re.IGNORECASE)
-            exam_name = re.sub(r'-?\s*Marks.*$', '', exam_name, flags=re.IGNORECASE)
-            exam_name = re.sub(r'-?\s*Cut Off.*$', '', exam_name, flags=re.IGNORECASE)
+            # Remove result-specific keywords (not job or admit card keywords)
+            exam_name = re.sub(r'-?\s*(?:Result|Check|Download|PDF|Marks|Cut Off|Cut-off).*$', '', exam_name, flags=re.IGNORECASE)
+            exam_name = re.sub(r'-?\s*Out\b', '', exam_name, flags=re.IGNORECASE)
+            exam_name = re.sub(r'\b(?:Declared)\b', '', exam_name, flags=re.IGNORECASE)
             exam_name = exam_name.strip(' -&.,').strip()
             
             # Limit words
             words = exam_name.split()
-            if len(words) > 6:
-                exam_name = ' '.join(words[:6])
+            if len(words) > 5:
+                exam_name = ' '.join(words[:5])
+            
+            # CRITICAL: Explicitly add "RESULT" to make it unique from jobs/admit cards
+            exam_name = f"{exam_name} RESULT"
             
             # Ensure year is included
             if year not in exam_name:
                 exam_name = f"{exam_name} {year}"
             
             return {
-                'top': exam_name,
-                'center': 'Merit List PDF',  # Fixed text for results
-                'bottom': 'Check Marks'
+                'top': exam_name,  # Includes "RESULT" keyword
+                'center': 'Declared',  # UNIQUE to results (not "Vacancies" or "Released")
+                'bottom': 'Check Marks'  # UNIQUE to results
             }
         
         # Fallback

@@ -22,6 +22,7 @@ from Job_Portal_Automation.job_article_pipeline import JobArticlePipeline, Gemin
 from Job_Portal_Automation.publishers.wp_job_publisher import publish_job_article, WPJobPublishingError
 from Job_Portal_Automation.utilities.feature_image_generator import FeatureImageGenerator
 from Job_Portal_Automation.utilities.internal_linking import JobPortalInternalLinker
+from Job_Portal_Automation.utilities.content_type_detector import get_content_type_detector
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +81,9 @@ class JobAutomationProcessor:
         
         # Internal linking system
         self.internal_linker = JobPortalInternalLinker()
+        
+        # Content type detector (intelligent pattern matching)
+        self.content_type_detector = get_content_type_detector()
     
     # ===================== LIFECYCLE METHODS =====================
     
@@ -231,23 +235,68 @@ class JobAutomationProcessor:
             target_profiles = run.get('target_profiles', [])
             config = run.get('config', {})
             
-            # Get publishing status and scheduling interval configuration
+            # Get publishing status (global default)
             publish_status = config.get('publish_status', 'draft')
-            min_interval = config.get('min_interval_minutes', 45)
-            max_interval = config.get('max_interval_minutes', 90)
             
-            # Initialize scheduling for 'future' posts
-            schedule_time = None
-            if publish_status == 'future' and len(selected_items) > 0:
-                # Start scheduling 5-15 minutes from now (first article buffer)
-                schedule_time = datetime.now(timezone.utc) + timedelta(minutes=random.randint(5, 15))
-                self.logger.info(f"⏰ Scheduling enabled: first article at {schedule_time.isoformat()}")
-                self.logger.info(f"   Min interval: {min_interval} min, Max interval: {max_interval} min")
+            self.logger.info(f"🚀 Starting run {run_id} with {len(selected_items)} items")
+            self.logger.info(f"   Content type: {content_type}")
+            self.logger.info(f"   Target profiles: {target_profiles}")
+            self.logger.info(f"   Global publish status: {publish_status}")
+            
+            # Get profile-specific min/max intervals
+            profiles = config.get('profiles', [])
+            profile_intervals = {}
+            self.logger.info(f"📋 Total profiles in config: {len(profiles)}")
+            for profile in profiles:
+                profile_id = profile.get('profile_id')
+                min_int = profile.get('min_interval', 30)
+                max_int = profile.get('max_interval', 120)
+                profile_intervals[profile_id] = {
+                    'min': min_int,
+                    'max': max_int,
+                    'profile_name': profile.get('profile_name', profile_id)
+                }
+                self.logger.info(f"   Profile ID '{profile_id}' ({profile.get('profile_name', 'Unknown')}): "
+                                f"min_interval={min_int}, max_interval={max_int}")
             
             # Process each item
             total_items = len(selected_items)
             published_count = 0
             error_count = 0
+            
+            # Initialize per-profile schedule tracking (each profile gets its own schedule_time)
+            # Check each profile's INDIVIDUAL publish_status, not the global one
+            profile_schedule_times = {}
+            self.logger.info(f"🎯 Initializing per-profile scheduling...")
+            for profile in profiles:
+                profile_id = profile.get('profile_id')
+                if not profile_id or profile_id not in target_profiles:
+                    continue
+                    
+                # Get THIS profile's publish_status (not the global one)
+                profile_publish_status = profile.get('publish_status', 'draft')
+                
+                # Map 'schedule' to 'future' for WordPress compatibility
+                if profile_publish_status == 'schedule':
+                    profile_publish_status = 'future'
+                
+                if profile_publish_status == 'future':
+                    # Initialize first article with profile-specific min/max interval
+                    interval_config = profile_intervals.get(profile_id, {})
+                    min_int = interval_config.get('min', 30)
+                    max_int = interval_config.get('max', 120)
+                    first_article_delay = random.randint(min_int, max_int)
+                    init_time = datetime.now(timezone.utc) + timedelta(minutes=first_article_delay)
+                    profile_schedule_times[profile_id] = {
+                        'schedule_time': init_time,
+                        'first_article_delay': first_article_delay,
+                        'publish_status': profile_publish_status  # Store the actual status
+                    }
+                    profile_name = interval_config.get('profile_name', profile_id)
+                    self.logger.info(f"   ⏰ Profile '{profile_name}' ({profile_id}): "
+                                    f"First article +{first_article_delay} min (interval: {min_int}-{max_int}) → {init_time.isoformat()}")
+                else:
+                    self.logger.info(f"   ⏭️  Profile '{profile_id}': Status is '{profile_publish_status}' (no scheduling)")
             
             for idx, item in enumerate(selected_items):
                 # Check for pause/stop signals
@@ -259,6 +308,7 @@ class JobAutomationProcessor:
                         total=total_items,
                         message=f"Paused at item {idx + 1}/{total_items}"
                     )
+
                     # Wait while paused
                     while self.state == ProcessorState.PAUSED:
                         time.sleep(0.5)
@@ -275,7 +325,7 @@ class JobAutomationProcessor:
                     message=f"Processing item {idx + 1}/{total_items}: {item.get('title', 'Unknown')}"
                 )
                 
-                # Process item with USER_UID for state rotation and current schedule_time
+                # Process item with USER_UID for state rotation and current schedule_times
                 user_uid = run.get('user_uid')
                 success = self._process_item(
                     run_id=run_id,
@@ -285,18 +335,28 @@ class JobAutomationProcessor:
                     config=config,
                     item_index=idx + 1,
                     user_uid=user_uid, # Pass user_uid for rotation state
-                    schedule_time=schedule_time,  # Pass current schedule_time
-                    publish_status=publish_status  # Pass publish status
+                    profile_schedule_times=profile_schedule_times,  # Pass per-profile schedule times
+                    profile_intervals=profile_intervals,  # Pass per-profile intervals
+                    publish_status=publish_status,  # Pass publish status
+                    is_first_item=(idx == 0)  # Indicate if this is first item
                 )
                 
                 if success:
                     published_count += 1
                     
-                    # Calculate next schedule time for future posts
-                    if publish_status == 'future' and idx < total_items - 1:  # Not the last article
-                        random_interval = random.randint(min_interval, max_interval)
-                        schedule_time += timedelta(minutes=random_interval)
-                        self.logger.info(f"⏰ Next article scheduled in {random_interval} minutes: {schedule_time.isoformat()}")
+                    # Calculate next schedule time for each profile that's in future/schedule mode
+                    # Only update if NOT the last article and profile is in schedule_times
+                    if idx < total_items - 1:  # Not the last article
+                        for profile_id in target_profiles:
+                            # Only update profiles that were initialized for scheduling
+                            if profile_id in profile_schedule_times:
+                                interval_config = profile_intervals.get(profile_id, {})
+                                min_int = interval_config.get('min', 30)
+                                max_int = interval_config.get('max', 120)
+                                random_interval = random.randint(min_int, max_int)
+                                profile_schedule_times[profile_id]['schedule_time'] += timedelta(minutes=random_interval)
+                                profile_name = interval_config.get('profile_name', profile_id)
+                                self.logger.info(f"⏰ Profile '{profile_name}': Next article in {random_interval} min → {profile_schedule_times[profile_id]['schedule_time'].isoformat()}")
                 else:
                     error_count += 1
                 
@@ -343,8 +403,10 @@ class JobAutomationProcessor:
     def _process_item(self, run_id: str, item: Dict[str, Any],
                      content_type: str, target_profiles: List[str],
                      config: Dict[str, Any], item_index: int, user_uid: str = None,
-                     schedule_time: Optional[datetime] = None,
-                     publish_status: str = 'draft') -> bool:
+                     profile_schedule_times: Optional[Dict[str, Any]] = None,
+                     profile_intervals: Optional[Dict[str, Any]] = None,
+                     publish_status: str = 'draft',
+                     is_first_item: bool = False) -> bool:
         """
         Process a single item
         
@@ -356,8 +418,10 @@ class JobAutomationProcessor:
             config: Automation config
             item_index: Item index (1-based)
             user_uid: User ID for state rotation
-            schedule_time: Scheduled publish time for 'future' posts
+            profile_schedule_times: Per-profile schedule times dict
+            profile_intervals: Per-profile interval configs
             publish_status: WordPress post status (draft, future, publish)
+            is_first_item: Whether this is the first item being processed
             
         Returns:
             True if item processed successfully
@@ -367,12 +431,20 @@ class JobAutomationProcessor:
             item_title = item.get('title', 'Unknown')
             item_url = item.get('url')
             
-            self.logger.info(f"Processing item {item_index}: {item_id} - {item_title}")
+            self.logger.info(f"📄 Processing item {item_index}: {item_id} - {item_title}")
+            
+            # Step 0: DETECT ACTUAL CONTENT TYPE from database/patterns
+            # This ensures we generate the correct type of headline and feature image
+            detected_content_type = self.content_type_detector.detect_content_type(item)
+            self.logger.info(f"🎯 Content type detected: {detected_content_type} (original: {content_type})")
+            
+            # Use detected type for all subsequent operations
+            actual_content_type = detected_content_type
             
             # Step 1: Fetch full details
             details_result = self.automation_manager.fetch_item_details(
                 item_url,
-                content_type=content_type.rstrip('s')  # Remove 's' from 'jobs', 'results', etc.
+                content_type=actual_content_type.rstrip('s')  # Remove 's' from 'jobs', 'results', etc.
             )
             
             if not details_result.get('success'):
@@ -388,10 +460,11 @@ class JobAutomationProcessor:
                 return False
             
             # Step 2: Generate content (Article Pipeline: API Details + Perplexity Research + Gemini Generation)
+            # NOTE: This now generates content WITHOUT a final headline (headline will be generated after)
             article_data = self._generate_article(
                 item=item,
                 details=details_result.get('details', {}),
-                content_type=content_type,
+                content_type=actual_content_type,
                 config=config
             )
             
@@ -406,6 +479,27 @@ class JobAutomationProcessor:
                 )
                 self._emit_error(run_id, f"Item {item_index}: {error_msg}")
                 return False
+            
+            # Step 2.5: EXTRACT KEY INFO from generated content for headline generation
+            extracted_info = self.content_type_detector.extract_key_info_from_content(
+                content=article_data.get('content', ''),
+                details=details_result.get('details', {})
+            )
+            
+            # Step 2.6: GENERATE ENHANCED HEADLINE using extracted info and detected content type
+            original_title = item.get('title', '')
+            final_headline = self.pipeline.generate_enhanced_headline(
+                original_title=original_title,
+                content_type=actual_content_type,
+                details=details_result.get('details', {}),
+                extracted_info=extracted_info
+            )
+            
+            self.logger.info(f"📰 Final headline: {final_headline}")
+            
+            # Update article data with the enhanced headline
+            article_data['title'] = final_headline
+            article_data['original_title'] = original_title
             
             # Step 3: Add internal links (optional - integrate with existing internal linking system)
             article_content = article_data.get('content', '')
@@ -424,17 +518,21 @@ class JobAutomationProcessor:
             # Step 4: Publish to target profiles (with feature image generation per profile)
             article_slug = article_data.get('slug')
             self.logger.info(f"📝 Publishing with slug: '{article_slug}' (type: {type(article_slug).__name__})")
+            
+            # IMPORTANT: Pass the DETECTED content type and FINAL headline for publishing
             published_urls = self._publish_to_profiles(
                 item_id=item_id,
-                title=article_data.get('title', item_title),
+                title=final_headline,  # Use the enhanced headline, not original
                 slug=article_slug,  # Pass SEO-optimized slug
                 content=article_content,
-                content_type=content_type,  # Pass content type for feature image generation
+                content_type=actual_content_type,  # Pass DETECTED type, not original
                 target_profiles=target_profiles,
                 config=config,
                 user_uid=user_uid,  # Pass user_uid for rotation state
-                schedule_time=schedule_time,  # Pass schedule_time for 'future' posts
-                publish_status=publish_status  # Pass publish status
+                profile_schedule_times=profile_schedule_times,  # Pass per-profile schedule times
+                profile_intervals=profile_intervals,  # Pass per-profile intervals
+                publish_status=publish_status,  # Pass publish status
+                is_first_item=is_first_item  # Pass first item flag
             )
             
             if not published_urls:
@@ -641,9 +739,30 @@ class JobAutomationProcessor:
                             content: str, content_type: str,
                             target_profiles: List[str],
                             config: Dict[str, Any], user_uid: str = None,
-                            schedule_time: Optional[datetime] = None,
-                            publish_status: str = 'draft') -> List[str]:
-        """Publish article to WordPress profiles using standalone publisher."""
+                            profile_schedule_times: Optional[Dict[str, Any]] = None,
+                            profile_intervals: Optional[Dict[str, Any]] = None,
+                            publish_status: str = 'draft',
+                            is_first_item: bool = False) -> List[str]:
+        """
+        Publish article to WordPress profiles using standalone publisher.
+        
+        Args:
+            item_id: Item ID
+            title: Article title
+            slug: Article slug
+            content: Article content
+            content_type: Type of content
+            target_profiles: List of target profile IDs
+            config: Automation configuration
+            user_uid: User ID for state rotation
+            profile_schedule_times: Per-profile schedule times dict
+            profile_intervals: Per-profile interval configs
+            publish_status: Publish status (draft, future, publish)
+            is_first_item: Whether this is the first item
+            
+        Returns:
+            List of published URLs
+        """
         published_urls: List[str] = []
         
         # Get full profile configurations from config
@@ -664,6 +783,12 @@ class JobAutomationProcessor:
             
             for profile_id in target_profiles:
                 try:
+                    # Get schedule time for this profile
+                    schedule_time = None
+                    if publish_status == 'future' and profile_schedule_times and profile_id in profile_schedule_times:
+                        schedule_time = profile_schedule_times[profile_id].get('schedule_time')
+                        self.logger.info(f"   Profile {profile_id}: Using schedule time {schedule_time.isoformat()}")
+                    
                     url = publish_job_article(
                         profile_id=profile_id,
                         title=title,
@@ -768,6 +893,36 @@ class JobAutomationProcessor:
                 if not feature_image_path:
                     self.logger.warning(f"⚠️  Feature image generation failed for profile {profile_id}")
                 
+                # Get schedule time specific to this profile
+                profile_schedule_time = None
+                if publish_status == 'future':
+                    if profile_schedule_times and profile_id in profile_schedule_times:
+                        profile_schedule_time = profile_schedule_times[profile_id].get('schedule_time')
+                        profile_name = profile_data.get('profile_name', profile_id)
+                        self.logger.info(f"⏰ Profile '{profile_name}': Using pre-calculated schedule time {profile_schedule_time.isoformat()}")
+                    else:
+                        # Profile not in pre-initialized schedule_times - calculate on-the-fly using profile intervals
+                        if profile_intervals and profile_id in profile_intervals:
+                            interval_config = profile_intervals[profile_id]
+                            min_int = interval_config.get('min', 30)
+                            max_int = interval_config.get('max', 120)
+                            # First time for this profile - create initial schedule_time with random interval
+                            random_delay = random.randint(min_int, max_int)
+                            profile_schedule_time = datetime.now(timezone.utc) + timedelta(minutes=random_delay)
+                            # Store it for subsequent uses
+                            if not profile_schedule_times:
+                                profile_schedule_times = {}
+                            profile_schedule_times[profile_id] = {
+                                'schedule_time': profile_schedule_time,
+                                'first_article_delay': random_delay
+                            }
+                            profile_name = profile_data.get('profile_name', profile_id)
+                            self.logger.info(f"⏰ Profile '{profile_name}': Calculated schedule time from intervals ({min_int}-{max_int} min): {profile_schedule_time.isoformat()}")
+                        else:
+                            self.logger.warning(f"⚠️  Profile '{profile_id}' not found in profile_schedule_times or profile_intervals. "
+                                              f"Available profiles: {list(profile_schedule_times.keys()) if profile_schedule_times else 'None'}")
+                            self.logger.warning(f"   publish_status={publish_status}, profile_schedule_times={profile_schedule_times is not None}")
+                
                 # Publish article using author credentials (same as sports automation)
                 url = publish_job_article(
                     profile_id=profile_id,
@@ -780,7 +935,7 @@ class JobAutomationProcessor:
                     dry_run=False,
                     site_url=site_url,
                     author=author,  # Pass author dict with wp_username and app_password
-                    schedule_time=schedule_time  # Pass schedule_time for 'future' posts
+                    schedule_time=profile_schedule_time  # Pass profile-specific schedule_time for 'future' posts
                 )
                 
                 if url:

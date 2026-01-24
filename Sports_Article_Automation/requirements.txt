@@ -4,3 +4,5 @@ requests==2.31.0
 beautifulsoup4==4.12.2
 google-generativeai==0.3.0
 fpdf2==2.8.1
+supabase==2.3.4
+pytz==2023.3

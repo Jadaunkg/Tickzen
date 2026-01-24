@@ -165,9 +165,10 @@ Last Updated: January 2026
 """
 
 import pandas as pd
-from ta.trend import MACD
-from ta.momentum import RSIIndicator
-from ta.volatility import BollingerBands
+from ta.trend import MACD, EMAIndicator, SMAIndicator, ADXIndicator
+from ta.momentum import RSIIndicator, StochasticOscillator
+from ta.volatility import BollingerBands, AverageTrueRange
+from ta.volume import OnBalanceVolumeIndicator, VolumeWeightedAveragePrice
 
 def add_technical_indicators(data):
     """Create technical indicators with strict feature control"""
@@ -222,26 +223,102 @@ def add_technical_indicators(data):
     
     # Technical indicators
     try:
+        # Ensure required columns are numeric
         df['Close'] = pd.to_numeric(df['Close'], errors='raise')
+        df['High'] = pd.to_numeric(df['High'], errors='raise')
+        df['Low'] = pd.to_numeric(df['Low'], errors='raise')
+        df['Volume'] = pd.to_numeric(df['Volume'], errors='raise')
 
-        df['MACD'] = MACD(close=df['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False).macd() #
-        df['RSI'] = RSIIndicator(close=df['Close'], window=14, fillna=False).rsi() #
-        bb = BollingerBands(close=df['Close'], window=20, window_dev=2, fillna=False) #
-        df['BB_Upper'] = bb.bollinger_hband() #
-
-        df['MA_7'] = df['Close'].rolling(window=7, min_periods=1).mean() #
-        # Default min_periods is window size for std(), making it explicit. NaNs for first 6 periods.
-        df['Volatility_7'] = df['Close'].rolling(window=7, min_periods=7).std() 
+        # MACD (3 components)
+        macd_indicator = MACD(close=df['Close'], window_slow=26, window_fast=12, window_sign=9, fillna=False)
+        df['MACD'] = macd_indicator.macd()
+        df['MACD_Signal'] = macd_indicator.macd_signal()
+        df['MACD_Histogram'] = macd_indicator.macd_diff()
         
-        df['Days'] = (df['Date'] - df['Date'].min()).dt.days #
+        # RSI
+        df['RSI'] = RSIIndicator(close=df['Close'], window=14, fillna=False).rsi()
+        
+        # Bollinger Bands (3 bands)
+        bb = BollingerBands(close=df['Close'], window=20, window_dev=2, fillna=False)
+        df['BB_Upper'] = bb.bollinger_hband()
+        df['BB_Middle'] = bb.bollinger_mavg()
+        df['BB_Lower'] = bb.bollinger_lband()
+        
+        # Moving Averages - Simple (SMA)
+        df['MA_7'] = df['Close'].rolling(window=7, min_periods=1).mean()
+        df['MA_20'] = SMAIndicator(close=df['Close'], window=20, fillna=False).sma_indicator()
+        df['MA_50'] = SMAIndicator(close=df['Close'], window=50, fillna=False).sma_indicator()
+        df['MA_100'] = SMAIndicator(close=df['Close'], window=100, fillna=False).sma_indicator()
+        df['MA_200'] = SMAIndicator(close=df['Close'], window=200, fillna=False).sma_indicator()
+        
+        # Moving Averages - Exponential (EMA)
+        df['EMA_12'] = EMAIndicator(close=df['Close'], window=12, fillna=False).ema_indicator()
+        df['EMA_26'] = EMAIndicator(close=df['Close'], window=26, fillna=False).ema_indicator()
+        
+        # ATR (Average True Range) - Volatility
+        df['ATR'] = AverageTrueRange(high=df['High'], low=df['Low'], close=df['Close'], window=14, fillna=False).average_true_range()
+        
+        # Volatility (Rolling Standard Deviation)
+        df['Volatility_7'] = df['Close'].rolling(window=7, min_periods=7).std()
+        df['Volatility_30d'] = df['Close'].pct_change().rolling(window=30).std() * (252 ** 0.5) * 100  # Annualized volatility %
+        
+        # OBV (On-Balance Volume)
+        df['OBV'] = OnBalanceVolumeIndicator(close=df['Close'], volume=df['Volume'], fillna=False).on_balance_volume()
+        
+        # Stochastic Oscillator (K and D)
+        stoch = StochasticOscillator(high=df['High'], low=df['Low'], close=df['Close'], window=14, smooth_window=3, fillna=False)
+        df['Stochastic_K'] = stoch.stoch()
+        df['Stochastic_D'] = stoch.stoch_signal()
+        
+        # ADX (Average Directional Index) - Trend Strength
+        df['ADX'] = ADXIndicator(high=df['High'], low=df['Low'], close=df['Close'], window=14, fillna=False).adx()
+        
+        # VWAP (Volume Weighted Average Price) - needs reset for each day but we'll use cumulative
+        # Note: VWAP is typically intraday, but we can calculate cumulative for daily data
+        try:
+            vwap = VolumeWeightedAveragePrice(high=df['High'], low=df['Low'], close=df['Close'], volume=df['Volume'], fillna=False)
+            df['VWAP'] = vwap.volume_weighted_average_price()
+        except Exception:
+            # If VWAP fails (needs intraday data), use simple volume-weighted price
+            df['VWAP'] = (df['Close'] * df['Volume']).cumsum() / df['Volume'].cumsum()
+        
+        # Volume SMA
+        df['Volume_SMA_20'] = df['Volume'].rolling(window=20, min_periods=1).mean()
+        
+        # Green Days Count (last 30 days where Close > Open)
+        def calculate_green_days(row_idx):
+            if row_idx < 30:
+                return None
+            last_30 = df.iloc[row_idx-29:row_idx+1]
+            return int((last_30['Close'] > last_30['Open']).sum())
+        
+        df['Green_Days_Count'] = df.index.map(calculate_green_days)
+        
+        # Support & Resistance (30-day)
+        df['Support_30D'] = df['Low'].rolling(window=30, min_periods=30).min()
+        df['Resistance_30D'] = df['High'].rolling(window=30, min_periods=30).max()
+        
+        # Days since start
+        df['Days'] = (df['Date'] - df['Date'].min()).dt.days
     
     except KeyError as e: 
-        raise ValueError(f"Missing 'Close' column for technical indicator calculation: {str(e)}")
+        raise ValueError(f"Missing required column for technical indicator calculation: {str(e)}")
     except Exception as e: 
         raise ValueError(f"Error calculating technical indicators: {e}")
         
     # Final validation for technical indicators
-    expected_ta_features = ['MACD', 'RSI', 'BB_Upper', 'MA_7', 'Volatility_7', 'Days'] 
+    expected_ta_features = [
+        'MACD', 'MACD_Signal', 'MACD_Histogram',
+        'RSI', 
+        'BB_Upper', 'BB_Middle', 'BB_Lower',
+        'MA_7', 'MA_20', 'MA_50', 'MA_100', 'MA_200',
+        'EMA_12', 'EMA_26',
+        'ATR', 'Volatility_7', 'Volatility_30d',
+        'OBV', 'Stochastic_K', 'Stochastic_D',
+        'ADX', 'VWAP', 'Volume_SMA_20',
+        'Green_Days_Count', 'Support_30D', 'Resistance_30D',
+        'Days'
+    ]
     missing_ta_features = [f for f in expected_ta_features if f not in df.columns] 
     if missing_ta_features:
         raise ValueError(f"Failed to create all expected technical indicators: {missing_ta_features}")

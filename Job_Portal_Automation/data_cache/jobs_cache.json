@@ -1,8 +1,140 @@
 {
-  "timestamp": "2026-01-21T14:35:55.718626",
+  "timestamp": "2026-01-24T17:20:40.858090",
   "success": true,
-  "count": 126,
+  "count": 138,
   "data": [
+    {
+      "id": "02e5f37a0552f27e2c5d820c60f05ebb",
+      "title": "Yantra India Limited (YIL) Apprentice Online Form 2026 (3979 Posts)",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/yantra-india-limited-yil-apprentice-recruitment-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": true
+    },
+    {
+      "id": "89407f8043705baf51f863287a712aff",
+      "title": "Indian Navy SSC Officer January Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/indian-navy-ssc-officer-january-recruitment-2026-apply/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": true
+    },
+    {
+      "id": "30bbb8f7ed4a83eb25bc93ea22ffc643",
+      "title": "HSSC Haryana Police Constable Online Form 2026 (5500 Post) – Date Extend",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/haryana-police-constable-recruitment-2026-apply-online/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "048fc3f292730e5a6dd1f66f6c0b996c",
+      "title": "Bihar Police BPSSC SI Prohibition Online Form 2026",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-police-bpssc-si-prohibition-recruitment-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "73501d908f11511650b54bfff49a710e",
+      "title": "Central Bank Specialist Officer Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/central-bank-specialist-officer-recruitment-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "c40dec413b51bf2260ee539ab3c96cbe",
+      "title": "UP Police SI Confidential, ASI Clerk & ASI Accounts Correction/ Edit Form 2026 – Last Date Today",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/up-police-si-confidential-asi-clerk-accounts-correction-edit-form-2026-last-date/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "7159e57dd822a7dc3f89409d0730a57a",
+      "title": "UPPSC Medical Officer & Other Posts Online Form 2026 – Last Date Today",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/uppsc-medical-officer-other-posts-recruitment-2026-last-date/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "a119c96d7cb6273a143b23afb19514d3",
+      "title": "Bihar BTSC Sports Trainer Online Form 2026 – Last Date Today",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-btsc-sports-trainer-recruitment-2026-last-date/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "2d3823210ae2832a5c10b6aaedead507",
+      "title": "RPSC Protection Officer Online Form 2026 – Last Date Today",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rpsc-protection-officer-recruitment-2026-last-date/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "1d9561c5649ae073c471085d4ef5aecc",
+      "title": "BTSC Junior Engineer Online Form 2026 – Re-Open",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/btsc-junior-engineer-recruitment-2026-re-open/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "1bd4ec31c63b5aa314b4406ad75d902d",
+      "title": "UP Anganwadi Bharti Online Form 2026 (60,988 Posts)",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/up-anganwadi-bharti-online-form-2026-60988-apply-online-chk/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
+    {
+      "id": "2c9914d2242d9e12a2a8dfa0de840d2e",
+      "title": "Bihar BPSC Additional Director Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-bpsc-additional-director-recruitment-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
     {
       "id": "36e4bd7fafa4fa6db119161703600bc0",
       "title": "Supreme Court Law Clerk Online Form 2026 – Start",
@@ -12,7 +144,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "64b2295094ad4e90a00d4eede33a5a0f",
@@ -23,7 +155,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "e2f0b900f33c36d9a3edbc66214a47f0",
@@ -34,7 +166,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "d117ef4669bc0436a744afddda69bf8a",
@@ -45,7 +177,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "86e2a94ba9864ffb538c4170dd3699be",
@@ -56,7 +188,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "6e963840345f3d850aba89097c2153d1",
@@ -67,7 +199,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "70af18a961c647b650cc2f1b4c7aa684",

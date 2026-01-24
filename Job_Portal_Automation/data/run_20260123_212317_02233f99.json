@@ -1,0 +1,147 @@
+{
+  "target_profiles": [
+    "0iezbbvPuuCoQtuHkk3I"
+  ],
+  "created_at": "2026-01-23T21:23:17.500596",
+  "completed_at": "2026-01-23T21:26:25.719748",
+  "run_id": "run_20260123_212317_02233f99",
+  "user_uid": "iROXMDJiuebQl9Jg4vvXohKea0C2",
+  "status": "completed",
+  "updated_at": "2026-01-23T21:26:26.775628",
+  "results": [
+    {
+      "published_url": "https://hirenjob.com/?p=206",
+      "item_title": "SIDBI Grade A & B Final Result 2026",
+      "status": "success",
+      "timestamp": "2026-01-23T21:23:59.018756",
+      "item_id": "ef067fc429e90d064fef29ad874145af",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=208",
+      "item_title": "RRB NTPC 10+2 Inter Level CBT-2 Result 2026 – Out",
+      "status": "success",
+      "timestamp": "2026-01-23T21:24:43.220322",
+      "item_id": "53d42cdb7a0883bdad6c88761538549f",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=210",
+      "item_title": "IOCL Junior Engineer Final Result 2026 – Out",
+      "status": "success",
+      "timestamp": "2026-01-23T21:25:15.214688",
+      "item_id": "bd0ba71c195cf75be384511f1a838b7d",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=213",
+      "item_title": "AIIMS 4th CRE Group B, C Result 2026 – Out",
+      "status": "success",
+      "timestamp": "2026-01-23T21:25:46.906858",
+      "item_id": "20b84d18f96e6b28b7c6d996ea9b7ce4",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=215",
+      "item_title": "Bihar SHS ANM Result 2026 – Out",
+      "status": "success",
+      "timestamp": "2026-01-23T21:26:23.415709",
+      "item_id": "7468e22a2317f0d44c8c9ae3b503df08",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    }
+  ],
+  "content_type": "results",
+  "selected_items": [
+    {
+      "title": "SIDBI Grade A & B Final Result 2026",
+      "id": "ef067fc429e90d064fef29ad874145af",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/sidbi-grade-a-b-final-result-2026/"
+    },
+    {
+      "title": "RRB NTPC 10+2 Inter Level CBT-2 Result 2026 – Out",
+      "id": "53d42cdb7a0883bdad6c88761538549f",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/rrb-ntpc-102-inter-level-cbt-2-result-2026/"
+    },
+    {
+      "title": "IOCL Junior Engineer Final Result 2026 – Out",
+      "id": "bd0ba71c195cf75be384511f1a838b7d",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/iocl-junior-engineer-final-result-2026/"
+    },
+    {
+      "title": "AIIMS 4th CRE Group B, C Result 2026 – Out",
+      "id": "20b84d18f96e6b28b7c6d996ea9b7ce4",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/aiims-4th-cre-group-b-c-result-2026/"
+    },
+    {
+      "title": "Bihar SHS ANM Result 2026 – Out",
+      "id": "7468e22a2317f0d44c8c9ae3b503df08",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/bihar-shs-anm-result-2026/"
+    }
+  ],
+  "progress": {
+    "completed": 5,
+    "total": 5,
+    "current_item": "Completed: 5 published, 0 failed",
+    "failed": 0
+  },
+  "errors": [],
+  "config": {
+    "article_length": "medium",
+    "profiles": [
+      {
+        "created_at": "2026-01-17T11:56:01.091211+00:00",
+        "site_url": "https://hirenjob.com/",
+        "min_interval": 20,
+        "max_interval": 35,
+        "stockforecast_category_id": "2",
+        "uploaded_ticker_file_name": null,
+        "internal_linking": {
+          "enabled": true,
+          "cache_expiry_hours": 24,
+          "same_category_only": true,
+          "max_links_per_article": 5
+        },
+        "all_tickers_from_file": [],
+        "ticker_count_from_file": null,
+        "ticker_file_storage_path": null,
+        "category_id": 4,
+        "profile_name": "Hirenjob",
+        "sheet_name": "1",
+        "last_updated_at": "2026-01-17T11:56:01.091211+00:00",
+        "env_prefix_for_feature_image_colors": "",
+        "min_scheduling_gap_minutes": 45,
+        "profile_id": "0iezbbvPuuCoQtuHkk3I",
+        "authors": [
+          {
+            "id": "author_1768650961_0",
+            "wp_username": "Akhil Singh",
+            "app_password": "ktvJ 1cKQ qaxn snW9 RKQe s438",
+            "wp_user_id": "2"
+          },
+          {
+            "id": "author_1768650961_1",
+            "wp_username": "Krishna",
+            "app_password": "5OhV vDTj 1FTW tIyD d64J DTAI",
+            "wp_user_id": "3"
+          },
+          {
+            "id": "author_1768650961_2",
+            "wp_username": "Ramesh Pratap",
+            "app_password": "EE74 lPO1 nmGp 1MuW RGgO mais",
+            "wp_user_id": "4"
+          }
+        ],
+        "max_scheduling_gap_minutes": 60,
+        "ticker_preview_from_file": [],
+        "publish_status": "schedule",
+        "ticker_file_uploaded_at": null
+      }
+    ]
+  },
+  "timestamp": "2026-01-23T21:23:17.500596"
+}

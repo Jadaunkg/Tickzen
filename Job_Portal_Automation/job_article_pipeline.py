@@ -693,6 +693,9 @@ class GeminiArticleGenerator:
         """
         Create SEO-optimized headline with dynamic details based on content type.
         
+        CRITICAL: Each content type MUST generate UNIQUE headlines with DISTINCT structures 
+        to ensure different titles for jobs, admit cards, and results.
+        
         SEO Optimizations:
         - Keeps length under 60 characters for full Google display
         - Uses power words (Out, Live, Latest) for higher CTR
@@ -769,8 +772,9 @@ class GeminiArticleGenerator:
         
         # Build SEO-optimized headline based on content type
         if content_type == "jobs":
-            # For jobs: [Org/Post]: [Vacancy], Apply by [Date]
+            # JOBS FORMAT: [Org/Post] [Year]: [Vacancy], Apply by [Date]
             # Target: "UP Police 2026: 5000 Posts, Apply by Jan 31"
+            # ENSURE it's different from admit cards and results
             
             vacancy_info = None
             for key in ["Total Posts", "Vacancies", "Posts", "total_posts", "vacancies", "Total Vacancy"]:
@@ -784,21 +788,24 @@ class GeminiArticleGenerator:
                     last_date = extract_text(important_dates[key])
                     break
             
-            # Build parts
+            # Build parts with JOBS-specific language
             parts = []
             
+            # CRITICAL: Add "Recruitment" or "Hiring" keyword to differentiate from other types
             # Add vacancy if available
             if vacancy_info:
                 # Clean vacancy number (remove commas for brevity if needed)
                 vacancy_clean = vacancy_info.strip().replace(',', '')
                 parts.append(f"{vacancy_clean} Posts")
+            else:
+                parts.append("Recruitment Open")  # UNIQUE to jobs
             
             # Add last date if available
             if last_date:
                 short_date = shorten_date(last_date)
                 parts.append(f"Apply by {short_date}")
             elif not parts:
-                # Fallback: add generic CTA
+                # Fallback: add generic CTA for jobs only
                 parts.append("Apply Now")
             
             # Construct headline: ensure 2026 is in title
@@ -809,18 +816,19 @@ class GeminiArticleGenerator:
                 # Vary punctuation for natural look
                 if len(parts) == 1:
                     # Single part - use dash for simplicity
-                    headline = f"{core_title} - {parts[0]}"
+                    headline = f"{core_title} Recruitment - {parts[0]}"  # Add "Recruitment" keyword
                 else:
                     # Multiple parts - use colon with comma separator
                     headline = f"{core_title}: {', '.join(parts)}"
             else:
-                headline = f"{core_title} - Apply Online"
+                headline = f"{core_title} Recruitment - Apply Online"  # Add "Recruitment" keyword
             
             return headline
         
         elif content_type == "admit_cards":
-            # For admit cards: [Org] Admit Card Out: Exam [Date] - Download
-            # Target: "SSC CGL Admit Card Out: Exam Jan 25 - Download"
+            # ADMIT CARDS FORMAT: [Org] Admit Card Out - Exam [Date] | Download
+            # Target: "SSC CGL Admit Card Out - Exam Jan 25 | Download"
+            # ENSURE it includes "Admit Card" keyword for uniqueness
             
             exam_date = None
             for key in ["Exam Date", "Test Date", "exam_date", "Admit Card Available"]:
@@ -828,35 +836,40 @@ class GeminiArticleGenerator:
                     exam_date = extract_text(important_dates[key])
                     break
             
+            # CRITICAL: Ensure "Admit Card" keyword is present
+            if "admit" not in core_title.lower() and "hall ticket" not in core_title.lower():
+                core_title = f"{core_title} Admit Card"
+            
             # Add power word "Out" if not already present
             status = "Out" if "out" not in core_title.lower() else ""
             
-            # Construct headline with varied punctuation
+            # Construct headline with ADMIT CARD-specific format
             if exam_date:
                 short_date = shorten_date(exam_date)
                 if status:
-                    headline = f"{core_title} {status} - Exam {short_date}, Download"
+                    headline = f"{core_title} {status} - Exam {short_date} | Download"
                 else:
-                    headline = f"{core_title} - Exam {short_date}, Download"
+                    headline = f"{core_title} - Exam {short_date} | Download"
                 
-                # If still too long, remove "Download" and use shorter format
+                # If still too long, use shorter format
                 if len(headline) > 60:
                     if status:
-                        headline = f"{core_title} {status} - Exam on {short_date}"
+                        headline = f"{core_title} {status} | Exam {short_date}"
                     else:
-                        headline = f"{core_title} - Exam {short_date}"
+                        headline = f"{core_title} | Exam on {short_date}"
             else:
-                # Fallback
+                # Fallback with admit card-specific language
                 if status:
-                    headline = f"{core_title} {status} - Download Link"
+                    headline = f"{core_title} {status} | Download Link Active"
                 else:
-                    headline = f"{core_title} - Download Active"
+                    headline = f"{core_title} - Download Hall Ticket Now"
             
             return headline
         
         elif content_type == "results":
-            # For results: [Org] Result Out: Check Score & Cut-off
-            # Target: "RRB Group D Result Out: Check Score & Cut-off"
+            # RESULTS FORMAT: [Org] Result Out - Check Score & Cutoff | PDF
+            # Target: "RRB Group D Result Out - Check Score & Cutoff"
+            # ENSURE it includes "Result" keyword for uniqueness
             
             result_date = None
             for key in ["Result Date", "Declaration Date", "result_date", "Result Declared"]:
@@ -864,23 +877,28 @@ class GeminiArticleGenerator:
                     result_date = extract_text(important_dates[key])
                     break
             
+            # CRITICAL: Ensure "Result" keyword is present
+            if "result" not in core_title.lower():
+                core_title = f"{core_title} Result"
+            
             # Add power word "Out" or "Declared"
             status = ""
             if "out" not in core_title.lower() and "declared" not in core_title.lower():
                 status = "Out"
             
+            # Construct headline with RESULT-specific format
             if result_date:
                 short_date = shorten_date(result_date)
                 if status:
-                    headline = f"{core_title} {status} - Declared {short_date}"
+                    headline = f"{core_title} {status} - Declared {short_date} | Check Score"
                 else:
-                    headline = f"{core_title} - Check Score & Cut-off"
+                    headline = f"{core_title} - Check Marks & Cut-off PDF"
             else:
-                # Fallback - emphasize checking
+                # Fallback - emphasize result checking
                 if status:
-                    headline = f"{core_title} {status} - Check Score & Cut-off"
+                    headline = f"{core_title} {status} - Check Score & Cutoff"
                 else:
-                    headline = f"{core_title} - Direct Link to Check Marks"
+                    headline = f"{core_title} - Download Merit List PDF"
             
             return headline
         
@@ -927,6 +945,60 @@ class JobArticlePipeline:
             self.logger.warning(f"Research collection failed: {exc}")
         
         return {"summary": None, "bullets": []}
+
+    def generate_enhanced_headline(self, original_title: str, content_type: str, 
+                                  details: Dict[str, Any], extracted_info: Dict[str, Any]) -> str:
+        """
+        Generate enhanced headline AFTER content generation using extracted information.
+        
+        This method is called after article generation to create a headline based on:
+        1. Detected content type (from database patterns)
+        2. Extracted information from content (vacancies, dates, etc.)
+        3. API details
+        
+        Args:
+            original_title: Original title from source
+            content_type: Detected content type (jobs, admit_cards, results)
+            details: API details dictionary
+            extracted_info: Extracted information from generated content
+            
+        Returns:
+            Enhanced SEO-optimized headline
+        """
+        self.logger.info(f"🎯 Generating enhanced headline for {content_type}")
+        self.logger.info(f"   Original: {original_title}")
+        self.logger.info(f"   Extracted: {extracted_info}")
+        
+        # Merge extracted info with details for comprehensive headline generation
+        enhanced_details = details.copy()
+        
+        # Add extracted info to key_details if available
+        if 'key_details' not in enhanced_details:
+            enhanced_details['key_details'] = {}
+        
+        if extracted_info.get('vacancy_count'):
+            enhanced_details['key_details']['Total Posts'] = extracted_info['vacancy_count']
+        
+        # Add extracted dates to important_dates if available
+        if 'important_dates' not in enhanced_details:
+            enhanced_details['important_dates'] = {}
+        
+        if extracted_info.get('last_date'):
+            enhanced_details['important_dates']['Last Date'] = extracted_info['last_date']
+        if extracted_info.get('exam_date'):
+            enhanced_details['important_dates']['Exam Date'] = extracted_info['exam_date']
+        if extracted_info.get('result_date'):
+            enhanced_details['important_dates']['Result Date'] = extracted_info['result_date']
+        
+        # Use the existing _enhance_headline method with enriched data
+        enhanced_headline = self.gemini_client._enhance_headline(
+            original_title=original_title,
+            content_type=content_type,
+            details=enhanced_details
+        )
+        
+        self.logger.info(f"   Enhanced: {enhanced_headline}")
+        return enhanced_headline
 
     def generate_article(self, item: Dict[str, Any], details: Dict[str, Any], content_type: str, config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Generate comprehensive article using:

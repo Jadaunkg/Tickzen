@@ -274,32 +274,58 @@ def publish_job_article(
 
     # Handle scheduling for 'future' status
     if status == 'future':
+        logger.info(f"📅 Processing 'future' status scheduling:")
+        logger.info(f"   - Input schedule_time: {schedule_time.isoformat() if schedule_time else 'None'}")
+        logger.info(f"   - Current UTC time: {datetime.now(timezone.utc).isoformat()}")
+        
         # exact logic from sports_wordpress_publisher.py
         if not schedule_time:
             schedule_time = datetime.now(timezone.utc) + timedelta(minutes=random.randint(5, 15))
+            logger.info(f"   - No schedule_time provided, generated random: {schedule_time.isoformat()}")
         
         # Ensure schedule time is in the future
         if schedule_time < datetime.now(timezone.utc):
+            old_time = schedule_time
             schedule_time = datetime.now(timezone.utc) + timedelta(minutes=5)
+            logger.warning(f"   - Schedule time was in past ({old_time.isoformat()}), adjusted to: {schedule_time.isoformat()}")
             
-        payload['date'] = schedule_time.strftime('%Y-%m-%dT%H:%M:%S')
-        logger.info(f"⏰ Scheduled for: {payload['date']}")
+        # Use date_gmt (GMT/UTC) instead of date (which uses site's timezone)
+        # This ensures the schedule time is interpreted correctly regardless of site timezone
+        payload['date_gmt'] = schedule_time.isoformat()
+        logger.info(f"   ✅ Final scheduled time (UTC): {payload['date_gmt']}")
 
     # Log the complete payload for debugging
-    logger.info(f"📤 WordPress API Payload:")
-    logger.info(f"   - title: '{title[:60]}...' ({len(title)} chars)")
-    logger.info(f"   - slug: '{payload.get('slug', 'NOT SET')}'")
-    logger.info(f"   - status: '{status}'")
-    logger.info(f"   - content length: {len(content)} chars")
-    logger.info(f"   - categories: {payload.get('categories', 'None')}")
+    logger.info(f"📤 WordPress API Request Details:")
+    logger.info(f"   Profile ID: {profile_id}")
+    logger.info(f"   Site URL: {site_url}")
+    logger.info(f"   Article Title: '{title[:60]}...' ({len(title)} chars)")
+    logger.info(f"   Article Slug: '{payload.get('slug', 'AUTO-GENERATED')}'")
+    logger.info(f"   Status: '{status}'")
+    logger.info(f"   Content length: {len(content)} chars")
+    logger.info(f"   Categories: {payload.get('categories', 'None')}")
+    logger.info(f"   Featured Media: {payload.get('featured_media', 'None')}")
     if status == 'future':
-        logger.info(f"   - date: '{payload.get('date')}'")
+        logger.info(f"   Scheduled Date (UTC): '{payload.get('date_gmt')}'")
+    logger.info(f"   Authorization: {'***' if username else 'None'}")
 
     url = f"{site_url.rstrip('/')}/wp-json/wp/v2/posts"
     try:
         resp = requests.post(url, headers=headers, json=payload, timeout=120)
         resp.raise_for_status()
         data = resp.json()
-        return data.get("link") or data.get("guid", {}).get("rendered") or url
+        
+        # Extract the published URL and status
+        published_link = data.get("link") or data.get("guid", {}).get("rendered") or url
+        post_id = data.get("id", "unknown")
+        post_status = data.get("status", "unknown")
+        post_date = data.get("date", "not set")
+        
+        logger.info(f"✅ Article Published Successfully!")
+        logger.info(f"   Post ID: {post_id}")
+        logger.info(f"   Status: {post_status}")
+        logger.info(f"   Date: {post_date}")
+        logger.info(f"   URL: {published_link}")
+        
+        return published_link
     except Exception as exc:
         raise WPJobPublishingError(f"Failed to publish to {url}: {exc}")

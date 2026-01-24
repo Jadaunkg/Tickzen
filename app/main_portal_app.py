@@ -5222,9 +5222,26 @@ def get_publishing_history():
     try:
         from Sports_Article_Automation.api.sports_articles_loader import get_sports_loader
         
+        app.logger.info("🔄 Starting sports articles loading process...")
+        
         # Get sports loader and load articles
         sports_loader = get_sports_loader()
+        
+        app.logger.info("🔄 Calling sports_loader.load_articles()...")
         articles = sports_loader.load_articles()
+        
+        app.logger.info(f"📊 Loaded {len(articles)} total articles from all sources")
+        
+        # Check data source breakdown
+        rss_articles = [a for a in articles if a.get('data_source') != 'database']
+        db_articles = [a for a in articles if a.get('data_source') == 'database']
+        
+        app.logger.info(f"📈 Article breakdown: {len(rss_articles)} RSS articles, {len(db_articles)} database articles")
+        
+        # Log sample articles to debug data_source field
+        if len(articles) > 0:
+            sample_article = articles[0]
+            app.logger.info(f"🔍 Sample article data_source: '{sample_article.get('data_source', 'NOT_SET')}', source: '{sample_article.get('source', 'NOT_SET')}'")
         
         # Sort by published date (newest first)
         articles.sort(key=lambda x: x.get('published_date', ''), reverse=True)

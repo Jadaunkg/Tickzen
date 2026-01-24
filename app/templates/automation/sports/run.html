@@ -928,6 +928,8 @@
         .badge-category { background: var(--green-100); color: var(--green-800); }
         .badge-source { background: hsl(var(--muted)); color: hsl(var(--foreground)); }
         .badge-score { background: var(--blue-50); color: var(--blue-700); font-weight: 600; }
+        .badge-database { background: #f3e8ff; color: #6b21a8; font-weight: 600; }
+        .badge-rss { background: #fff7ed; color: #ea580c; font-weight: 600; }
 
         /* Tile View */
         .articles-grid.tile-view {
@@ -1264,6 +1266,10 @@
                     <i class="fas fa-basketball-ball"></i>
                     Basketball
                 </button>
+                <button type="button" class="category-btn" data-category="database" onclick="filterByCategory('database')">
+                    <i class="fas fa-database"></i>
+                    Database
+                </button>
             </div>
         </div>
 
@@ -1462,7 +1468,7 @@
                     {% for article in sports_articles %}
                     <div class="article-card" 
                          data-article-id="{{ article.id }}" 
-                         data-category="{{ article.category }}"
+                         data-category="{% if article.data_source == 'database' %}database{% else %}{{ article.category }}{% endif %}"
                          data-importance="{{ article.importance_tier|default('Medium') }}"
                          data-score="{{ article.importance_score|default(50) }}"
                          data-published="{{ article.display_date_iso|default(article.published_date) }}"
@@ -1522,6 +1528,15 @@
                                 <span class="badge badge-source">
                                     <i class="fas fa-clock"></i> {{ article.time_bracket|default('recent')|replace('_', ' ')|title }}
                                 </span>
+                                {% if article.data_source == 'database' %}
+                                <span class="badge badge-database">
+                                    <i class="fas fa-database"></i> Database
+                                </span>
+                                {% else %}
+                                <span class="badge badge-rss">
+                                    <i class="fas fa-rss"></i> RSS
+                                </span>
+                                {% endif %}
                             </div>
                         </div>
                         
@@ -1531,6 +1546,20 @@
                                     <div class="metadata-item">
                                         <span class="metadata-label">Article ID</span>
                                         <span class="metadata-value">{{ article.id }}</span>
+                                    </div>
+                                    <div class="metadata-item">
+                                        <span class="metadata-label">Data Source</span>
+                                        <span class="metadata-value">
+                                            {% if article.data_source == 'database' %}
+                                                <span style="color: #6b21a8; font-weight: 600;">
+                                                    <i class="fas fa-database"></i> Database
+                                                </span>
+                                            {% else %}
+                                                <span style="color: #ea580c; font-weight: 600;">
+                                                    <i class="fas fa-rss"></i> RSS Feed
+                                                </span>
+                                            {% endif %}
+                                        </span>
                                     </div>
                                     <div class="metadata-item">
                                         <span class="metadata-label">Importance Score</span>
@@ -2170,6 +2199,9 @@ if (typeof lucide !== 'undefined') {
     function filterByCategory(category) {
         currentCategory = category;
         
+        console.log(`🔍 Filtering by category: ${category}`);
+        console.log(`📊 Total articles available: ${allArticleCards.length}`);
+        
         // Update button states
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -2179,8 +2211,18 @@ if (typeof lucide !== 'undefined') {
         // Filter articles
         if (category === 'all') {
             filteredArticleCards = [...allArticleCards];
+            console.log(`✅ Showing all ${filteredArticleCards.length} articles`);
         } else {
             filteredArticleCards = allArticleCards.filter(card => card.dataset.category === category);
+            console.log(`🎯 Filtered ${filteredArticleCards.length} articles for category "${category}"`);
+            
+            // Debug: Log the first few articles' categories for database filter
+            if (category === 'database') {
+                console.log('🔍 First 5 article categories:');
+                allArticleCards.slice(0, 5).forEach((card, index) => {
+                    console.log(`  Article ${index + 1}: data-category="${card.dataset.category}", title="${card.dataset.title?.substring(0, 50)}..."`);
+                });
+            }
         }
         
         // Apply active time filter sorting if any
