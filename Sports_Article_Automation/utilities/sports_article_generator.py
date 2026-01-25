@@ -687,80 +687,115 @@ All signs are now pointing to Semenyo leaving Bournemouth in January and moving 
 
 Bournemouth are due to finish off 2025 with Premier League games against Brentford and Chelsea before the transfer window opens on January 1.  The games could potentially be Semenyo's last in a Bournemouth shirt if he does indeed make a quick decision on his future.}}
 
-WRITE LIKE A REAL HUMAN SPORTS EXPERIENCED JOURNALIST (NOT AI):
+WRITE LIKE A REAL HUMAN SPORTS JOURNALIST (20 CRITICAL RULES):
 
-CRITICAL - STRICTLY PROHIBITED FILLER WORDS (NEVER USE THESE):
-❌ BANNED: "pretty", "you know", "really", "quite", "actually", "basically", "literally", "definitely", "certainly", "obviously", "clearly", "surely", "undoubtedly", "essentially", "virtually", "totally", "absolutely", "completely", "entirely", "wholly", "thoroughly", "genuinely", "truly", "indeed", "in fact", "of course", "needless to say", "it goes without saying", "suffice it to say", "as a matter of fact", "to be honest", "honestly", "frankly", "truthfully"
+RULE 1 - STATE FACTS DIRECTLY:
+- Say what happened. No framing language about how readers should feel.
+- Example: "Chelsea won 3-1" NOT "Chelsea secured an impressive 3-1 victory"
+- Facts first. Zero emotional setup.
 
-❌ BANNED ADJECTIVES: "stellar", "coveted", "bolster", "remarkable", "extraordinary", "monumental", "unprecedented", "exemplary", "exceptional", "formidable" , "magnificent", "outstanding", "phenomenal", "spectacular", "tremendous", "unparalleled", "unrivaled", "unmatched", "unbeatable", "unbelievable", "incredible", "astounding", "breathtaking", "mind-blowing", "jaw-dropping"
+RULE 2 - KEEP SENTENCES UNEVEN:
+- Mix very short lines (5-7 words) with medium ones (12-16 words).
+- Never keep consistent sentence length. Imperfect rhythm reads human.
 
-❌ BANNED VAGUE PHRASES: "seems like", "appears to be", "looks like", "kind of", "sort of", "more or less", "in a way", "somewhat", "rather", "fairly", "reasonably", "relatively"
+RULE 3 - LIMIT ADJECTIVES:
+- Use only when they add factual information.
+- NO emotional or evaluative words. Describe, don't decorate.
+- BANNED: stellar, remarkable, extraordinary, exceptional, formidable, magnificent, outstanding, phenomenal, spectacular, tremendous, incredible, astounding
 
-UNIQUE ANGLE & VALUE REQUIREMENT(Strictly follow these rules):
-- Use a unque angle or perspective on the story
-- Make sentences direct and to the point - no long explanations
-- Cut out unnecessary words - be concise
-- keep short paragraphs - max 3-4 sentences each
-- don't use too much filler phrases words keep it in simple sentence
-- try to add human value, analysis and opinions in simple sentences not too much hyped and robotic toned
-- One idea per sentence - don't combine multiple thoughts
-- Make sentences a bit messy and imperfect - humans don't write perfectly
-- Add small grammar mistakes that real people make
-- Start sentences with "And" and "But" sometimes like people talk
-- Don't explain everything - assume readers know the sport
-- Make paragraph breaks feel random, not perfectly organized  
-- try to link quotes with the actual source properly
-- no repeated phrases or sentences in whole article cover each point only once
-- Use contractions like people talk (he's, won't, they're, can't, doesn't)
-- Repeat yourself sometimes - humans do this naturally
-- Use really simple words instead of fancy ones
-- Jump between topics without perfect transitions
-- Include small flow problems that humans make when writing
-- Don't make everything perfect - leave it rough around the edges
-- Write like you're telling a friend who follows sports
-- Use "apparently" and "sources say" but don't overuse it
-- Mix super short sentences (5-8 words) with medium ones (10-15 words)
-- Add your own quick thoughts and observations
-- Make the rhythm feel choppy and natural, not smooth
-- Use filler words and phrases humans use
-- Don't sound like a textbook or formal report
-- Sound conversational and slightly informal
-- Make some word choices that aren't quite right but humans would use
-- Add redundant information that humans typically include
-- Use "pretty", "really", "quite", "seems like" to sound casual
-- Break up long thoughts into multiple short sentences
+RULE 4 - AVOID STOCK PHRASES:
+- Remove phrases common in headlines and summaries.
+- BANNED: "in a surprising turn", "marks another chapter", "sends a clear message", "raises questions about", "sparked debate", "drew attention"
+- If it sounds like a headline, rewrite it.
+
+RULE 5 - PREFER CONCRETE VERBS:
+- Use simple action verbs. One action per sentence.
+- "Palmer missed the match" NOT "Palmer was unable to feature in the match"
+
+RULE 6 - DO NOT EXPLAIN OBVIOUS REACTIONS:
+- Never tell readers something "sparked debate" or "drew attention"
+- Let facts imply impact. Don't state the obvious.
+
+RULE 7 - GROUND PARAGRAPHS IN SPECIFICS:
+- Start with names, places, or actions. Not abstract concepts.
+- "Rosenior spoke after the match" NOT "The situation has raised concerns"
+
+RULE 8 - AVOID PERFECT TRANSITIONS:
+- Don't link every paragraph smoothly.
+- Mild abruptness is acceptable. Humans don't write perfect flow.
+
+RULE 9 - VARY ATTRIBUTION STYLE:
+- Move sources around. Omit attribution when unnecessary.
+- "Goal.com reported Palmer missed training" and "Palmer missed training" in different places
+- Break repetition patterns.
+
+RULE 10 - USE NEUTRAL TONE FOR CONTROVERSY:
+- Report disputes without emphasis or loaded wording.
+- State both sides. No dramatic framing.
+
+RULE 11 - SEPARATE FACTS FROM CONTEXT:
+- Don't stack explanation in the same sentence. One idea per line.
+- "Palmer missed the match. He had a thigh issue." NOT "Palmer missed the match due to a thigh issue that emerged earlier this week"
+
+RULE 12 - BE SELECTIVE WITH NUMBERS:
+- Use exact figures only when they matter to the story.
+- Precision should serve the story, not impress readers.
+
+RULE 13 - AVOID SUMMARIZING PHRASES:
+- Don't restate what the paragraph already shows. No recap sentences.
+- End after facts are delivered.
+
+RULE 14 - LET PARAGRAPHS END NATURALLY:
+- Never use "this means that..." or similar conclusions.
+- Stop after the fact is delivered. Don't explain implications.
+
+RULE 15 - USE PLAIN COMPARISONS:
+- NO metaphors, NO idioms. Literal language only.
+- "Chelsea's form improved" NOT "Chelsea turned a corner"
+
+RULE 16 - KEEP QUOTES LIGHTLY FRAMED:
+- Minimal setup. Quotes stand on their own.
+- "Rosenior said..." NOT "Speaking in his post-match press conference, Rosenior emphasized..."
+
+RULE 17 - ALLOW MINOR REDUNDANCY:
+- Humans repeat lightly. AI avoids repetition too cleanly.
+- Small overlap between paragraphs is natural and acceptable.
+
+RULE 18 - AVOID SYMMETRICAL STRUCTURE:
+- Paragraph lengths should differ wildly (2 sentences, then 4, then 2, then 3).
+- Section weight should feel uneven. Balance is NOT the goal.
+
+RULE 19 - DO NOT OPTIMIZE FOR FLOW:
+- Flow emerges naturally in human writing. Don't force smoothness.
+- Clarity over smoothness. Some choppiness is good.
+
+RULE 20 - END WITHOUT EMPHASIS:
+- No forward-looking hype. No closing statements about "what this means"
+- Finish on information, not projection.
+- State next fixture or current status. That's it.
 
 WORDPRESS-READY FORMATTING RULES:
 - Use <p> tags for ALL paragraphs
-- Use <h2> tags for main sections (3-4 sections)
+- Use <h2> tags for main sections (3-4 sections max)
 - Use <h3> tags for subsections if needed
 - Use <strong> tags for bold text (never **text**)
 - Use <blockquote> tags for quotes
-- Use <table> tags with proper structure if data tables needed
 - Use <ul>/<ol> and <li> tags for lists if needed
+- Keep HTML clean and simple
 
-HEADLINE CREATION PROCESS:
-After you write the complete article, create an ATTRACTIVE headline that will grab readers' attention. Your headline should:
-- Be 50-70 characters long (optimal for SEO and social sharing)
-- Include the main player/team name and the key action/event
-- Use powerful action words that create urgency or excitement
-- Include specific numbers, scores, or timeframes when available
-- Make it click-worthy while staying truthful to the story
-- Create curiosity without being clickbait: hint at surprising details
-- Use present tense for recent events, past tense for completed actions
-- Include team rivalries or high-stakes context when relevant
-- Make it shareable on social media platforms
-- don't use these special symbols (!, ?, :, ;, ", ', - etc.)
-- Use ONE <h1> tag only
-
-HEADLINE EXAMPLES FOR INSPIRATION:
-- "Messi Breaks Silence on PSG Exit After Heated Dressing Room Confrontation"
-- "Liverpool Star Confirms January Exit Following Contract Dispute"  
-- "United Target Rejects 80 Million Bid in Shocking Transfer Twist"
-- "City Boss Reveals Haaland Injury Truth After Mystery Absence"
-- "Arsenal Legend Slams Current Squad After Embarrassing Defeat"
-- "Chelsea Confirm New Signing Hours Before Transfer Deadline"
-- "Ronaldo Drops Retirement Bombshell in Emotional Interview"
+CRITICAL WRITING EXECUTION:
+- Write factual sports news, not commentary
+- Assume readers follow the sport - don't over-explain
+- Short paragraphs (2-4 sentences max, vary wildly)
+- Mix sentence lengths: 5 words, then 14 words, then 8 words
+- Use contractions (he's, won't, they're, can't, doesn't)
+- Start some sentences with "And" or "But" 
+- Allow minor redundancy - humans repeat information lightly
+- Jump between topics without perfect transitions
+- No emotional adjectives or stock phrases
+- Ground every paragraph in specific names, places, or actions
+- Let quotes stand with minimal framing
+- End paragraphs naturally - no "this means" conclusions
 
 EXTERNAL LINKING (MANDATORY):
 - Embed 2-3 source links naturally in sentences
@@ -768,59 +803,19 @@ EXTERNAL LINKING (MANDATORY):
 - Examples: "<a href="URL" target="_blank" rel="noopener noreferrer">ESPN reported</a> the signing"
 - "According to <a href="URL" target="_blank" rel="noopener noreferrer">BBC Sport</a>..."
 
-SEO OPTIMIZATION:
-- Use focus keyword in first paragraph
-- Include related keywords naturally throughout
-- Write meta-description worthy opening paragraph
-- Use semantic HTML structure
-- Include entity names (player names, team names, locations)
-
 CONTENT STRUCTURE:
-- Opening: State what happened (2-3 sentences with focus keyword)
-- Headline should match the opening paragraph's main story
-- 3-4 H2 sections covering different aspects of the story
-- Include quotes if available from research (use proper attribution)
-- Build narrative tension and reader engagement throughout
-- End with next fixture/event, transfer implications, or current status
-- Ensure headline promises are delivered in the article content
-- 600-800 words total
+- Opening: State what happened in 2-3 direct sentences (include focus keyword)
+- 3-4 <h2> sections with uneven lengths (don't balance them)
+- Include quotes from research with light attribution
+- End with next fixture, current status, or what happens next
+- 500-700 words total (not 600-800)
 
-HEADLINE-CONTENT ALIGNMENT:
-- If headline mentions "breaks silence" → include quotes or statements
-- If headline mentions "confirms/denies" → provide the confirmation details  
-- If headline mentions numbers/stats → include specific data in article
-- If headline mentions "shocking/stunning" → explain why it's surprising
-- If headline mentions timeframes → clarify when events happened/will happen
-
-Write 600-800 words. Sound completely human, not AI. Make it slightly imperfect but WordPress-ready with proper HTML structure.
-
-DO WRITE LIKE THIS:
-- State facts clearly and directly
-- Provide relevant background and context
-- Use specific details that show expertise
-- Write with natural authority on the subject
-- Let the story tell itself without over-commentary
-- Use industry knowledge to add depth
-- Write for readers who follow the sport seriously
-
-FINAL CHECKLIST BEFORE SUBMITTING:
-1. NO filler words from banned list appear anywhere
-2. Paragraph lengths VARY - not all the same (2, then 4, then 3, then 2 pattern)
-3. Sentence lengths VARY dramatically - some 5 words, some 18 words
-4. Unique angle is clear in opening paragraph
-5. Every sentence adds new information or insight
-6. Sources are attributed naturally - not overly formal
-7. NO formal transitions like "In a surprising turn", "marks another chapter"
-8. Tone varies between sections - not uniformly neutral
-9. Some sentences are choppy, others flow - uneven rhythm
-10. Article feels like it was written by a human in a hurry, not AI being careful
-11. No repetition of phrases or ideas
-12. HTML formatting is WordPress-ready
-13. Headline delivers on its promise in content
-14. No overly polished or perfect parallel structures
-15. Mix of factual reporting and quick analytical asides
-
-Write 500-700 words. Sound like a human sports journalist writing on deadline - fast, knowledgeable, direct, slightly rough around the edges. NOT polished AI copy."""
+HEADLINE CREATION (AFTER writing article):
+- 50-70 characters, include main player/team full name
+- Use action words, avoid special symbols (no !, ?, :, ;, ", ')
+- Present tense for recent events, past tense for completed actions
+- Create curiosity while staying truthful
+- Use ONE <h1> tag only at the top"""
         
         return prompt
     

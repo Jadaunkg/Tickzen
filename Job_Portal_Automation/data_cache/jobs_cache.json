@@ -1,8 +1,19 @@
 {
-  "timestamp": "2026-01-24T17:20:40.858090",
+  "timestamp": "2026-01-25T22:39:49.750931",
   "success": true,
-  "count": 138,
+  "count": 139,
   "data": [
+    {
+      "id": "8030eeb9992d500a80aab5281bdc8bb1",
+      "title": "RSSB Lab Assistant Online Form 2026",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rssb-lab-assistant-online-form-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
     {
       "id": "02e5f37a0552f27e2c5d820c60f05ebb",
       "title": "Yantra India Limited (YIL) Apprentice Online Form 2026 (3979 Posts)",
@@ -12,7 +23,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "89407f8043705baf51f863287a712aff",
@@ -23,7 +34,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "30bbb8f7ed4a83eb25bc93ea22ffc643",

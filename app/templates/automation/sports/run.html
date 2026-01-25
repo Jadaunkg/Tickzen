@@ -1509,11 +1509,11 @@
                     <div class="article-meta">
                         <span class="article-meta-item">
                             <i class="fas fa-clock"></i>
-                            {{ article.display_date_ist|default(article.published_date|default('Unknown Date')) }}
+                            {{ article.published_date|default('Unknown Date') }}
                         </span>
                         <span class="article-meta-item">
-                            <i class="fas fa-user"></i>
-                            {{ article.author|default('Unknown Author') }}
+                            <i class="fas fa-newspaper"></i>
+                            {{ article.source_name|default('Unknown Source') }}
                         </span>
                     </div>                            <div class="article-badges">
                                 <span class="badge badge-category">
@@ -2432,10 +2432,8 @@ if (typeof lucide !== 'undefined') {
                     }
                 );
                 
-                // Reload page after 3 seconds to show new articles
-                setTimeout(() => {
-                    location.reload();
-                }, 3000);
+                // Don't reload - keep existing articles visible
+                addLogEntry('✅ Articles collected successfully. Click Refresh to see new articles.', 'success');
             } else {
                 addLogEntry(`❌ Error: ${data.error}`, 'error');
                 alert('Error collecting articles: ' + data.error);
@@ -2718,10 +2716,21 @@ if (typeof lucide !== 'undefined') {
                 const level = data.level || 'info';
                 addLogEntry(data.message, level);
                 
-                if (data.stage === 'complete') {
-                    setTimeout(() => {
-                        location.reload();
-                    }, 3000);
+                if (data.stage === 'complete' || data.stage === 'publishing') {
+                    // Clear selections and reset UI state instead of reloading
+                    if (data.message && data.message.includes('Complete!')) {
+                        setTimeout(() => {
+                            // Clear checkboxes
+                            document.querySelectorAll('.article-checkbox:checked').forEach(cb => cb.checked = false);
+                            document.querySelectorAll('.profile-checkbox:checked').forEach(cb => cb.checked = false);
+                            
+                            // Update counts
+                            updateSelectedCounts();
+                            
+                            // Show success message
+                            addLogEntry('✅ Automation complete! Articles remain visible. Use Refresh to reload.', 'success');
+                        }, 1000);
+                    }
                 }
             });
 
@@ -3086,11 +3095,11 @@ if (typeof lucide !== 'undefined') {
                     <div class="article-meta">
                         <span class="article-meta-item">
                             <i class="fas fa-clock"></i>
-                            ${article.display_date_ist || article.published_date || 'Unknown Date'}
+                            ${article.published_date || 'Unknown Date'}
                         </span>
                         <span class="article-meta-item">
-                            <i class="fas fa-user"></i>
-                            ${article.author || 'Unknown Author'}
+                            <i class="fas fa-newspaper"></i>
+                            ${article.source_name || 'Unknown Source'}
                         </span>
                     </div>
                     

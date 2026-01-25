@@ -306,29 +306,40 @@ Focus on latest, verified information from trusted sources."""
     
     def _build_ultra_comprehensive_query(self, headline: str, category: Optional[str] = None) -> str:
         """
-        Build simple, generic query that works for any headline
+        Build structured research query for sports headlines
+        Returns research notes format (400-500 words, bullet points)
         """
-        # Simple, generic query that works for any headline
-        query = f"""Find all relevant and complete information about this headline from trusted sources:
+        query = f"""Find all verified and relevant information about the following sports headline from trusted sources:
 
 "{headline}"
 
-Please provide comprehensive details including:
-- Latest updates and developments
-- Official statements and announcements  
-- Key facts and background information
-- Quotes from involved parties
-- Timeline of events
-- Current status
+Provide structured research notes with the following rules:
 
-Requirements:
-- Use only trusted and reliable news sources
-- Focus on the most recent and up-to-date information (not outdated content)
-- Provide detailed coverage in 600-1000 words
-- Include specific facts, numbers, dates, and direct quotes where available
-- Avoid speculation - only report confirmed information
+**Output requirements:**
+- Total length: 500-600 words
+- Use bullet points or short factual paragraphs only
+- Do not write an article or narrative flow
+- Avoid stylistic or descriptive language
+- Do not add opinions or predictions
 
-Please give me a comprehensive overview of this story with all the important details."""
+**Mandatory sections:**
+1. Event summary
+2. Key facts and statistics
+3. Timeline
+4. Official statements and quotes
+5. Sport-specific context (based on headline type)
+
+**Sport-specific rules:**
+- For transfers or trades: clearly separate confirmed and reported
+- For injuries: mention recovery only if officially stated
+- For performance news: include recent form stats
+
+**Source rules:**
+- Trusted sources only
+- No speculation
+- Cite sources clearly
+
+Provide factual research material suitable for editorial reference."""
         
         return query
         
@@ -450,28 +461,39 @@ Please give me a comprehensive overview of this story with all the important det
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are a comprehensive news researcher. Find the most recent and relevant information from trusted sources about any given topic or headline. Provide detailed, factual coverage in 600-1000 words including official statements, key facts, timeline, and direct quotes. Focus on accuracy and completeness. Only report confirmed information from reliable sources."
+                        "content": "You are a professional sports news researcher. Your task is to collect verified research material only, not to write a publishable article. Present information in neutral, factual language suitable for editorial reference."
                     },
                     {
                         "role": "user",
                         "content": query
                     }
                 ],
-                "max_tokens": 4000,
+                "max_tokens": 3000,
                 "temperature": 0.1,  # Very low for factual accuracy
                 "top_p": 0.9,
                 "stream": False,
                 "return_images": False,  # Focus on text content
-                "return_related_questions": True,
+                #"return_related_questions": True,
                 "search_recency_filter": "day",  # Last 24 hours for very recent news
                 "citations": True,
+                # MAX 20 DOMAINS (Perplexity API limit) - Focus on major sports
                 "search_domain_filter": [
-                    "espn.com", "espn.in", "espncricinfo.com", "cricbuzz.com", 
-                    "icc-cricket.com", "bbc.com", "cnn.com", "reuters.com",
-                    "ap.org", "theguardian.com", "indianexpress.com", "timesofindia.indiatimes.com",
-                    "hindustantimes.com", "ndtv.com", "firstpost.com", "aljazeera.com",
-                    "skynews.com", "foxnews.com", "nbcnews.com", "abcnews.go.com"
-                ]  # Mix of sports and general trusted news sources
+                    # Major Multi-Sport Networks (5)
+                    "espn.com", "bbc.com", "skysports.com", "reuters.com", "cbssports.com",
+                    
+                    # Soccer/Football (6)
+                    "goal.com", "theathletic.com", "transfermarkt.com", 
+                    "90min.com", "fourfourtwo.com", "onefootball.com",
+                    
+                    # Basketball & NBA (4)
+                    "nba.com", "hoopshype.com", "clutchpoints.com", "bleacherreport.com",
+                    
+                    # NFL & American Football (3)
+                    "nfl.com", "profootballtalk.nbcsports.com", "fansided.com",
+                    
+                    # Cricket (2)
+                    "espncricinfo.com", "cricbuzz.com"
+                ]  # Exactly 20 domains - Soccer, Basketball, NFL, Cricket focused
             }
             
             response = requests.post(

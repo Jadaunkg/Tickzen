@@ -1,8 +1,30 @@
 {
-  "timestamp": "2026-01-24T17:20:40.858090",
+  "timestamp": "2026-01-25T22:39:49.750931",
   "success": true,
-  "count": 124,
+  "count": 126,
   "data": [
+    {
+      "id": "c64b6d09d3d6445c7aaba306614ae004",
+      "title": "MPESB Police Constable Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/mpesb-police-constable-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": true
+    },
+    {
+      "id": "34f9890497bbfedd55b6bc2dbd50ffe7",
+      "title": "UPSSSC Auditor & Assistant Accountant 05/2023 Final Result – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/upsssc-auditor-assistant-accountant-05-2023-final-result/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_new": false
+    },
     {
       "id": "eaa33e5421587892af5ff297bc3009b2",
       "title": "Railway RRC NR Apprentice Result / Score Card 2026 – Out",
@@ -12,7 +34,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "ef067fc429e90d064fef29ad874145af",

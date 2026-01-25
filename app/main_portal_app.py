@@ -5243,57 +5243,36 @@ def get_publishing_history():
             sample_article = articles[0]
             app.logger.info(f"🔍 Sample article data_source: '{sample_article.get('data_source', 'NOT_SET')}', source: '{sample_article.get('source', 'NOT_SET')}'")
         
-        # Sort by published date (newest first)
-        articles.sort(key=lambda x: x.get('published_date', ''), reverse=True)
+        # Optimize: Pre-parse dates for efficient sorting
+        from dateutil import parser as date_parser
+        for article in articles:
+            if not article.get('published_date_parsed'):
+                pub_date_str = article.get('published_date', '')
+                if pub_date_str:
+                    try:
+                        article['published_date_parsed'] = date_parser.parse(pub_date_str)
+                    except:
+                        article['published_date_parsed'] = None
+        
+        # Sort by parsed date (newest first) - production-grade sorting
+        articles.sort(
+            key=lambda x: x.get('published_date_parsed') or date_parser.parse('1970-01-01'),
+            reverse=True
+        )
         
         # Load ALL articles - pagination handled by frontend
         sports_articles = articles
         
-        # Convert timestamps to IST for display
-        def convert_articles_to_ist_display(articles_list):
-            """Convert article timestamps to IST for frontend display"""
-            from dateutil.tz import gettz
-            ist_tz = gettz('Asia/Kolkata')
-            
-            for article in articles_list:
-                # Get the best available parsed date
-                parsed_date = (article.get('published_date_ist_parsed') or 
-                              article.get('published_date_parsed') or 
-                              article.get('collected_date_parsed'))
-                
-                if parsed_date:
-                    # Convert to IST for display
-                    ist_date = parsed_date.astimezone(ist_tz)
-                    article['display_date_ist'] = ist_date.strftime('%Y-%m-%d %H:%M:%S IST')
-                    article['display_date_iso'] = ist_date.isoformat()
-                else:
-                    # Fallback: try to parse and convert string dates
-                    date_str = (article.get('published_date_ist') or 
-                               article.get('published_date') or 
-                               article.get('collected_date'))
-                    if date_str:
-                        try:
-                            from dateutil import parser as date_parser
-                            parsed = date_parser.parse(date_str)
-                            if parsed.tzinfo is None:
-                                # Assume UTC if no timezone
-                                from dateutil.tz import UTC
-                                parsed = parsed.replace(tzinfo=UTC)
-                            ist_date = parsed.astimezone(ist_tz)
-                            article['display_date_ist'] = ist_date.strftime('%Y-%m-%d %H:%M:%S IST')
-                            article['display_date_iso'] = ist_date.isoformat()
-                        except Exception as e:
-                            # Fallback to original string
-                            article['display_date_ist'] = str(date_str)[:25] + ' (Original)'
-                            article['display_date_iso'] = str(date_str)
-                    else:
-                        article['display_date_ist'] = 'No date available'
-                        article['display_date_iso'] = ''
-            
-            return articles_list
-        
-        # Apply IST conversion
-        sports_articles = convert_articles_to_ist_display(sports_articles)
+        # Map source fields correctly based on data source
+        for article in sports_articles:
+            # Database articles use 'source_site', RSS articles use 'source_name'
+            if article.get('data_source') == 'database':
+                # Use source_site for database articles
+                article['source_name'] = article.get('source_site') or article.get('source', 'Unknown Source')
+            else:
+                # Use source_name for RSS articles
+                if not article.get('source_name'):
+                    article['source_name'] = article.get('source', 'Unknown Source')
         
         app.logger.info(f"Loaded {len(sports_articles)} sports articles for user {user_uid}")
         
@@ -5989,14 +5968,15 @@ def run_sports_automation():
         app.logger.error(f"Error in sports automation: {error_msg}")
         for profile_data in selected_profiles_data_for_run:
             socketio.emit('sports_automation_update', {
-                'stage': 'publishing',
+                'stage': 'error',
                 'message': f'Error: {error_msg}',
                 'level': 'error'
             }, room=user_uid)
         session['notification_message'] = f"Sports automation error: {error_msg}"
         session['notification_type'] = "danger"
 
-    return redirect(url_for('automation.sports_automation.run'))
+    # Return JSON response instead of redirect to prevent page reload
+    return jsonify({'success': True, 'message': 'Automation completed'}), 200
 
 
 @app.route('/refresh-sports-articles', methods=['POST'])

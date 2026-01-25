@@ -4624,3 +4624,316 @@ Exception: Pipeline error for AAPL: 'has_faq'
 2026-01-24 23:50:19 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
 2026-01-24 23:51:48 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
 2026-01-24 23:57:40 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:33:14 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:33:51 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:33:53 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:33:56 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:34:11 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:34:27 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:36:18 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:41:55 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:42:01 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:45:06 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Arsenal Striker Showdown: Gyokeres or Jesus for United Test' (59 chars)
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4737 chars
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: database
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-25 14:46:49 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 483 articles with 1862 keywords
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Arsenal Striker Showdown: Gyokeres or Jesus for United Test
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Arsenal Striker Showdown: Gyokeres or Jesus for United Test
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'arsenal-striker-showdown-gyokeres-or-jesus-for-united-test' (58 chars)
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Arsenal Striker Showdown: Gyokeres or Jesus for Un...' → 'arsenal-striker-showdown-gyokeres-or-jesus-for-united-test' (58/74 chars) ✅
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Arsenal Striker Showdown: Gyokeres or Jesus for United Test' (59 chars)
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'arsenal-striker-showdown-gyokeres-or-jesus-for-united-test' (58 chars)
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-25 14:46:54 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-01-25 14:46:55 - AutoPublisherLogger - INFO - Post 'Arsenal Striker Showdown: Gyokeres or Jesus for United Test' draft on https://sportspediazone.com/. ID: 4356, Link: https://sportspediazone.com/?p=4356
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Govind Singh (ID: 14)
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Carrick Takes United Helm Again, Solskjaer Offers Full Support' (62 chars)
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4206 chars
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: database
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Carrick Takes United Helm Again, Solskjaer Offers Full Support
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Carrick Takes United Helm Again, Solskjaer Offers Full Support
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'carrick-takes-united-helm-again-solskjaer-offers-full-support' (61 chars)
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Carrick Takes United Helm Again, Solskjaer Offers ...' → 'carrick-takes-united-helm-again-solskjaer-offers-full-support' (61/74 chars) ✅
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Carrick Takes United Helm Again, Solskjaer Offers Full Support' (62 chars)
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'carrick-takes-united-helm-again-solskjaer-offers-full-support' (61 chars)
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Govind Singh (ID: 14)
+2026-01-25 14:47:30 - AutoPublisherLogger - INFO - Post 'Carrick Takes United Helm Again, Solskjaer Offers Full Support' draft on https://sportspediazone.com/. ID: 4357, Link: https://sportspediazone.com/?p=4357
+2026-01-25 14:47:32 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 14:55:10 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 15:00:42 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 15:00:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 15:01:56 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 15:30:45 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 15:30:51 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 20:26:21 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 20:26:49 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 20:26:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 20:27:08 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 20:27:21 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 20:27:39 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 20:28:38 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 20:44:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 20:45:40 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 21:27:28 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 21:34:53 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 22:39:18 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 22:39:19 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 22:39:38 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 22:39:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 23:03:26 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ishaan singh (ID: 9)
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Mascherano calls Messi football itself, a daily masterclass' (59 chars)
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4366 chars
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: database
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-25 23:08:59 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 484 articles with 1850 keywords
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Mascherano calls Messi football itself, a daily masterclass
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Mascherano calls Messi football itself, a daily masterclass
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'mascherano-calls-messi-football-itself-a-daily-masterclass' (58 chars)
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Mascherano calls Messi football itself, a daily ma...' → 'mascherano-calls-messi-football-itself-a-daily-masterclass' (58/74 chars) ✅
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Mascherano calls Messi football itself, a daily masterclass' (59 chars)
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'mascherano-calls-messi-football-itself-a-daily-masterclass' (58 chars)
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-25 23:09:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ishaan singh (ID: 9)
+2026-01-25 23:09:06 - AutoPublisherLogger - INFO - Post 'Mascherano calls Messi football itself, a daily masterclass' draft on https://sportspediazone.com/. ID: 4366, Link: https://sportspediazone.com/?p=4366
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Priyanjan Paul (ID: 19)
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Chelsea Youth Shine at Selhurst, Grab Top Four Spot' (51 chars)
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4489 chars
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: database
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Chelsea Youth Shine at Selhurst, Grab Top Four Spot
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Chelsea Youth Shine at Selhurst, Grab Top Four Spot
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'chelsea-youth-shine-at-selhurst-grab-top-four-spot' (50 chars)
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Chelsea Youth Shine at Selhurst, Grab Top Four Spo...' → 'chelsea-youth-shine-at-selhurst-grab-top-four-spot' (50/74 chars) ✅
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Chelsea Youth Shine at Selhurst, Grab Top Four Spot' (51 chars)
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'chelsea-youth-shine-at-selhurst-grab-top-four-spot' (50 chars)
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Priyanjan Paul (ID: 19)
+2026-01-25 23:10:11 - AutoPublisherLogger - INFO - Post 'Chelsea Youth Shine at Selhurst, Grab Top Four Spot' draft on https://sportspediazone.com/. ID: 4367, Link: https://sportspediazone.com/?p=4367
+2026-01-25 23:10:15 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 23:21:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Sagnik Banerjee (ID: 20)
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'City Eyes New Captain After Silva Exit' (38 chars)
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3863 chars
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: database
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: City Eyes New Captain After Silva Exit
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: City Eyes New Captain After Silva Exit
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'city-eyes-new-captain-after-silva-exit' (38 chars)
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'City Eyes New Captain After Silva Exit...' → 'city-eyes-new-captain-after-silva-exit' (38/74 chars) ✅
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'City Eyes New Captain After Silva Exit' (38 chars)
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'city-eyes-new-captain-after-silva-exit' (38 chars)
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Sagnik Banerjee (ID: 20)
+2026-01-25 23:25:05 - AutoPublisherLogger - INFO - Post 'City Eyes New Captain After Silva Exit' draft on https://sportspediazone.com/. ID: 4375, Link: https://sportspediazone.com/?p=4375
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Soureesh Datta (ID: 10)
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Messi's 'Crazy Things' Amazed Ex-Argentina Teammate Battaglia' (61 chars)
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3982 chars
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: database
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Messi's 'Crazy Things' Amazed Ex-Argentina Teammate Battaglia
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Messi's 'Crazy Things' Amazed Ex-Argentina Teammate Battaglia
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'messis-crazy-things-amazed-exargentina-teammate-battaglia' (57 chars)
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Messi's 'Crazy Things' Amazed Ex-Argentina Teammat...' → 'messis-crazy-things-amazed-exargentina-teammate-battaglia' (57/74 chars) ✅
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Messi's 'Crazy Things' Amazed Ex-Argentina Teammate Battaglia' (61 chars)
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'messis-crazy-things-amazed-exargentina-teammate-battaglia' (57 chars)
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Soureesh Datta (ID: 10)
+2026-01-25 23:26:08 - AutoPublisherLogger - INFO - Post 'Messi's 'Crazy Things' Amazed Ex-Argentina Teammate Battaglia' draft on https://sportspediazone.com/. ID: 4376, Link: https://sportspediazone.com/?p=4376
+2026-01-25 23:26:12 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:10:56 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:16:28 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:21:04 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:24:52 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:25:47 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:30:45 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Tanya Singh (ID: 8)
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Chelsea Climbs to Fourth Despite Palmer Absence' (47 chars)
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4048 chars
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: database
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-26 00:31:39 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 486 articles with 1853 keywords
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Chelsea Climbs to Fourth Despite Palmer Absence
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Chelsea Climbs to Fourth Despite Palmer Absence
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'chelsea-climbs-to-fourth-despite-palmer-absence' (47 chars)
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Chelsea Climbs to Fourth Despite Palmer Absence...' → 'chelsea-climbs-to-fourth-despite-palmer-absence' (47/74 chars) ✅
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Chelsea Climbs to Fourth Despite Palmer Absence' (47 chars)
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'chelsea-climbs-to-fourth-despite-palmer-absence' (47 chars)
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Tanya Singh (ID: 8)
+2026-01-26 00:31:45 - AutoPublisherLogger - INFO - Post 'Chelsea Climbs to Fourth Despite Palmer Absence' draft on https://sportspediazone.com/. ID: 4380, Link: https://sportspediazone.com/?p=4380
+2026-01-26 00:31:50 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:35:13 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:50:23 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Annsly Raena (ID: 5)
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Rosenior Explains Palmer's Absence, Chelsea Secures 3-1 Victory' (63 chars)
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3721 chars
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: database
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-01-26 00:51:26 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 486 articles with 1853 keywords
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Rosenior Explains Palmer's Absence, Chelsea Secures 3-1 Victory
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Rosenior Explains Palmer's Absence, Chelsea Secures 3-1 Victory
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'rosenior-explains-palmers-absence-chelsea-secures-31-victory' (60 chars)
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Rosenior Explains Palmer's Absence, Chelsea Secure...' → 'rosenior-explains-palmers-absence-chelsea-secures-31-victory' (60/74 chars) ✅
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Rosenior Explains Palmer's Absence, Chelsea Secures 3-1 Victory' (63 chars)
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'rosenior-explains-palmers-absence-chelsea-secures-31-victory' (60 chars)
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Annsly Raena (ID: 5)
+2026-01-26 00:51:32 - AutoPublisherLogger - INFO - Post 'Rosenior Explains Palmer's Absence, Chelsea Secures 3-1 Victory' draft on https://sportspediazone.com/. ID: 4381, Link: https://sportspediazone.com/?p=4381
+2026-01-26 00:51:37 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:54:37 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Manchester City Prepares for Captaincy Change as Bernardo Silva Nears Exit' (74 chars)
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3268 chars
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 6
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: database
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-01-26 00:56:04 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Manchester City Prepares for Captaincy Change as Bernardo Silva Nears Exit
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Manchester City Prepares for Captaincy Change as Bernardo Silva Nears Exit
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'manchester-city-prepares-for-captaincy-change-as-bernardo-silva-nears-exit' (74 chars)
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Manchester City Prepares for Captaincy Change as B...' → 'manchester-city-prepares-for-captaincy-change-as-bernardo-silva-nears-exit' (74/74 chars) ✅
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Manchester City Prepares for Captaincy Change as Bernardo Silva Nears Exit' (74 chars)
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'manchester-city-prepares-for-captaincy-change-as-bernardo-silva-nears-exit' (74 chars)
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 6
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-01-26 00:56:05 - AutoPublisherLogger - INFO - Post 'Manchester City Prepares for Captaincy Change as Bernardo Silva Nears Exit' draft on https://sportspediazone.com/. ID: 4382, Link: https://sportspediazone.com/?p=4382
+2026-01-26 00:56:10 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-01-26 01:08:25 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2

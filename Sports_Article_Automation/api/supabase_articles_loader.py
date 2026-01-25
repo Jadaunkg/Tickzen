@@ -205,6 +205,7 @@ class SupabaseArticlesLoader:
                 # Categorization
                 'category': article_data.get('sport_category', 'UNCATEGORIZED'),
                 'source': site_name,
+                'source_name': article_data.get('source_site', site_name),  # Map to source_name for display
                 'source_site': article_data.get('source_site', site_name),
                 'source_domain': site_domain,
                 

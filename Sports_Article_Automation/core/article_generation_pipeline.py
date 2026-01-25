@@ -150,8 +150,8 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 from pathlib import Path
 
-# Import enhanced search content fetcher
-from Sports_Article_Automation.testing.test_enhanced_search_content import EnhancedSearchContentFetcher
+# Enhanced Search is DISABLED - not imported
+# from Sports_Article_Automation.testing.test_enhanced_search_content import EnhancedSearchContentFetcher
 
 # Base directories
 BASE_DIR = Path(__file__).resolve().parent
@@ -222,7 +222,8 @@ class ArticleGenerationPipeline:
         self.database_file = database_file
         self.perplexity_client = perplexity_client
         self.gemini_client = gemini_client
-        self.enhanced_search_client = enhanced_search_client or EnhancedSearchContentFetcher()
+        # Enhanced Search is DISABLED - always None
+        self.enhanced_search_client = None
         self.state_manager = state_manager or (SportsPublishingStateManager() if SportsPublishingStateManager else None)
         self.profile_id = profile_id
         self.generated_articles = []
@@ -373,9 +374,9 @@ class ArticleGenerationPipeline:
             logging.info(f"📍 Source: {source}")
             logging.info(f"🏷️  Category: {category}")
             
-            # Stage 1: Collect research from multiple sources
+            # Stage 1: Collect research from Perplexity AI ONLY
             logging.info(f"\n{'='*70}")
-            logging.info(f"STAGE 1️⃣: COMPREHENSIVE RESEARCH COLLECTION (Perplexity + Enhanced Search)")
+            logging.info(f"STAGE 1️⃣: PERPLEXITY AI RESEARCH COLLECTION (Enhanced Search DISABLED)")
             logging.info(f"{'='*70}")
             
             # Sub-stage 1A: Collect Perplexity research
@@ -400,23 +401,40 @@ class ArticleGenerationPipeline:
                     )
             else:
                 logging.warning("⚠️ Perplexity client not available")
+            
+            # Log Perplexity research content size and save to file
+            if perplexity_research and perplexity_research.get('status') in ['success', 'placeholder']:
+                perplexity_content_length = 0
+                perplexity_content = ""
+                if 'research_sections' in perplexity_research:
+                    comprehensive = perplexity_research['research_sections'].get('comprehensive', {})
+                    perplexity_content = comprehensive.get('content', '')
+                    perplexity_content_length = len(perplexity_content)
                 
-            # Sub-stage 1B: Collect Enhanced Search research
-            logging.info(f"\n🔍 Sub-stage 1B: Enhanced Search Content Collection")
-            logging.info(f"-"*50)
+                perplexity_sources_count = len(perplexity_research.get('compiled_sources', []))
+                perplexity_citations_count = len(perplexity_research.get('compiled_citations', []))
+                
+                logging.info(f"\n📊 PERPLEXITY RESEARCH SIZE:")
+                logging.info(f"   📄 Content length: {perplexity_content_length:,} characters")
+                logging.info(f"   📚 Sources: {perplexity_sources_count}")
+                logging.info(f"   🔗 Citations: {perplexity_citations_count}")
+                
+                # Save Perplexity research to text file
+                if perplexity_content:
+                    saved_file = self._save_perplexity_research(
+                        headline=headline,
+                        research_content=perplexity_content,
+                        sources=perplexity_research.get('compiled_sources', []),
+                        citations=perplexity_research.get('compiled_citations', [])
+                    )
+                    if saved_file:
+                        logging.info(f"   💾 Research saved to: {saved_file}")
             
+            # Enhanced Search is DISABLED - skipping completely
+            logging.info(f"\n⚠️ Enhanced Search: DISABLED (Not used in pipeline)")
             enhanced_search_research = None
-            if self.enhanced_search_client and self.enhanced_search_client.available:
-                logging.info("🌐 Collecting comprehensive research with full article content...")
-                enhanced_search_research = self.enhanced_search_client.collect_comprehensive_research(
-                    headline=headline,
-                    category=category,
-                    max_sources=5  # Limit to 5 sources to keep processing reasonable
-                )
-            else:
-                logging.warning("⚠️ Enhanced Search client not available or not configured")
             
-            # Sub-stage 1C: Combine research from both sources
+            # Sub-stage 1C: Process Perplexity research only
             logging.info(f"\n🔗 Sub-stage 1C: Combining Research Sources")
             logging.info(f"-"*50)
             
@@ -440,6 +458,19 @@ class ArticleGenerationPipeline:
                 }
             
             research_data = combined_research
+            
+            # Log final research data being sent to Gemini
+            gemini_input_content_length = 0
+            if 'research_sections' in research_data:
+                comprehensive = research_data['research_sections'].get('comprehensive', {})
+                gemini_input_content_length = len(comprehensive.get('content', ''))
+            
+            logging.info(f"\n📊 FINAL RESEARCH DATA FOR GEMINI:")
+            logging.info(f"   📄 Total content length: {gemini_input_content_length:,} characters")
+            logging.info(f"   📚 Total sources: {len(research_data.get('compiled_sources', []))}")
+            logging.info(f"   🔗 Total citations: {len(research_data.get('compiled_citations', []))}")
+            logging.info(f"   ✅ Research method: {research_data.get('research_method', 'unknown')}")
+            logging.info(f"   🎯 Sources used: {', '.join(research_data.get('sources_used', []))}")
             
             # Stage 2: Generate article from research
             logging.info(f"\n{'='*70}")
@@ -494,6 +525,67 @@ class ArticleGenerationPipeline:
                 'error': str(e),
                 'article_entry': article_entry
             }
+    
+    def _save_perplexity_research(self, headline: str, research_content: str, 
+                                   sources: List[str], citations: List) -> Optional[str]:
+        """
+        Save Perplexity research content to a text file
+        
+        Args:
+            headline (str): Article headline
+            research_content (str): Research content from Perplexity
+            sources (List[str]): List of source URLs
+            citations (List): List of citations
+            
+        Returns:
+            str: Path to saved file or None if failed
+        """
+        try:
+            # Create directory for research data
+            research_dir = BASE_DIR / "perplexity_researched_data"
+            research_dir.mkdir(exist_ok=True)
+            
+            # Generate safe filename from headline
+            safe_filename = "".join(c for c in headline if c.isalnum() or c in (' ', '-', '_'))[:50]
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"{safe_filename}_{timestamp}.txt"
+            
+            filepath = research_dir / filename
+            
+            # Format the research content with metadata
+            content_lines = []
+            content_lines.append("="*70)
+            content_lines.append("PERPLEXITY AI RESEARCH DATA")
+            content_lines.append("="*70)
+            content_lines.append(f"Headline: {headline}")
+            content_lines.append(f"Collected: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            content_lines.append(f"Content Length: {len(research_content)} characters")
+            content_lines.append(f"Sources: {len(sources)}")
+            content_lines.append(f"Citations: {len(citations)}")
+            content_lines.append("="*70)
+            content_lines.append("")
+            content_lines.append("RESEARCH CONTENT:")
+            content_lines.append("-"*70)
+            content_lines.append(research_content)
+            content_lines.append("")
+            content_lines.append("="*70)
+            content_lines.append("SOURCES:")
+            content_lines.append("-"*70)
+            for idx, source in enumerate(sources, 1):
+                content_lines.append(f"{idx}. {source}")
+            content_lines.append("")
+            content_lines.append("="*70)
+            
+            # Write to file
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(content_lines))
+            
+            logging.info(f"💾 Perplexity research saved to: {filepath}")
+            return str(filepath)
+            
+        except Exception as e:
+            logging.error(f"❌ Error saving Perplexity research: {e}")
+            return None
     
     def save_generated_article(self, article_data: Dict, 
                               output_dir: str = "outputs/articles") -> Optional[str]:
@@ -690,7 +782,7 @@ class ArticleGenerationPipeline:
             'category': category,
             'collection_timestamp': datetime.now().isoformat(),
             'status': 'success',
-            'research_method': 'hybrid_perplexity_enhanced_search',
+            'research_method': 'perplexity_only',  # Changed from hybrid
             'sources_used': []
         }
         
@@ -725,43 +817,24 @@ class ArticleGenerationPipeline:
         else:
             logging.warning("⚠️ Perplexity research not available or failed")
         
-        # Process Enhanced Search research  
-        if enhanced_search_research and enhanced_search_research.get('status') == 'success':
-            logging.info("✅ Including Enhanced Search research with full article content")
-            combined_research['sources_used'].append('Enhanced Search with Full Content')
-            
-            # Extract Enhanced Search content
-            enhanced_content = enhanced_search_research.get('combined_content', '')
-            if enhanced_content:
-                combined_content_parts.append("RESEARCH FROM ENHANCED SEARCH (FULL ARTICLE CONTENT):")
-                combined_content_parts.append("-" * 50)  
-                combined_content_parts.append(enhanced_content)
-                combined_content_parts.append("")
-            
-            # Collect Enhanced Search sources
-            enhanced_sources = enhanced_search_research.get('source_urls', [])
-            if enhanced_sources:
-                all_sources.extend(enhanced_sources)
-                # Create citations from URLs
-                for url in enhanced_sources:
-                    all_citations.append(f"Enhanced Search: {url}")
-                    
+        # Enhanced Search is DISABLED - this block is now inactive
+        # Enhanced Search research will always be None
+        if enhanced_search_research:
+            # This should never execute since enhanced_search_research is always None
+            logging.warning("⚠️ Enhanced Search was unexpectedly provided - ignoring it")
         else:
-            logging.warning("⚠️ Enhanced Search research not available or failed")
+            logging.info("ℹ️ Enhanced Search: DISABLED (using Perplexity only)")
         
-        # Determine final status
+        # Determine final status (Perplexity-only approach)
         if not combined_content_parts:
-            # No research available from any source
+            # No research available
             combined_research['status'] = 'error'
-            combined_research['error'] = 'No research data available from any source'
-            logging.error("❌ No research content available from either source")
-        elif len(combined_research['sources_used']) == 1:
-            # Partial success - only one source worked
-            combined_research['status'] = 'partial_success'
-            logging.warning(f"⚠️ Partial research success - only {combined_research['sources_used'][0]} available")
+            combined_research['error'] = 'No research data available from Perplexity'
+            logging.error("❌ No research content available from Perplexity")
         else:
-            # Full success - both sources worked
-            logging.info(f"🎉 Full research success - combined {len(combined_research['sources_used'])} sources")
+            # Success - Perplexity research available
+            combined_research['status'] = 'success'
+            logging.info(f"✅ Research collection successful using Perplexity only")
         
         # Combine all content
         if combined_content_parts:
