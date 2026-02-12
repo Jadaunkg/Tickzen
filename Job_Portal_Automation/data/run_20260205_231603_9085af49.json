@@ -1,0 +1,119 @@
+{
+  "target_profiles": [
+    "0iezbbvPuuCoQtuHkk3I"
+  ],
+  "created_at": "2026-02-05T23:16:03.174903",
+  "completed_at": "2026-02-05T23:17:47.691819",
+  "run_id": "run_20260205_231603_9085af49",
+  "user_uid": "iROXMDJiuebQl9Jg4vvXohKea0C2",
+  "status": "completed",
+  "updated_at": "2026-02-05T23:17:49.723366",
+  "results": [
+    {
+      "published_url": "https://hirenjob.com/?p=598",
+      "item_title": "BSSC Inter Level Form (25,311 Posts)",
+      "status": "success",
+      "timestamp": "2026-02-05T23:16:39.835728",
+      "item_id": "f313a052ac78cf4f6b97e0e1044c913a",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=600",
+      "item_title": "RSSB Clerk Online Form (10,644 Posts)",
+      "status": "success",
+      "timestamp": "2026-02-05T23:17:07.416373",
+      "item_id": "575fb7c343061f614a92153c2bd82965",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=602",
+      "item_title": "BSNL Senior Executive Trainee Online Form 2026 – Start",
+      "status": "success",
+      "timestamp": "2026-02-05T23:17:43.955651",
+      "item_id": "b58c9daaa726892155b9eb52c9b4764c",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    }
+  ],
+  "content_type": "jobs",
+  "selected_items": [
+    {
+      "title": "BSSC Inter Level Form (25,311 Posts)",
+      "id": "f313a052ac78cf4f6b97e0e1044c913a",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/bihar-bssc-inter-level-recruitment-2026-extend/"
+    },
+    {
+      "title": "RSSB Clerk Online Form (10,644 Posts)",
+      "id": "575fb7c343061f614a92153c2bd82965",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/rssb-clerk-jr-ii-junior-assistant-recruitment-2026/"
+    },
+    {
+      "title": "BSNL Senior Executive Trainee Online Form 2026 – Start",
+      "id": "b58c9daaa726892155b9eb52c9b4764c",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/bsnl-senior-executive-trainee-2026/"
+    }
+  ],
+  "progress": {
+    "completed": 3,
+    "total": 3,
+    "current_item": "Completed: 3 published, 0 failed",
+    "failed": 0
+  },
+  "errors": [],
+  "config": {
+    "article_length": "medium",
+    "profiles": [
+      {
+        "created_at": "2026-01-17T11:56:01.091211+00:00",
+        "site_url": "https://hirenjob.com/",
+        "min_interval": 20,
+        "max_interval": 35,
+        "stockforecast_category_id": "2",
+        "uploaded_ticker_file_name": null,
+        "internal_linking": {
+          "enabled": true,
+          "cache_expiry_hours": 24,
+          "same_category_only": true,
+          "max_links_per_article": 5
+        },
+        "all_tickers_from_file": [],
+        "ticker_count_from_file": null,
+        "ticker_file_storage_path": null,
+        "category_id": 2,
+        "profile_name": "Hirenjob",
+        "sheet_name": "1",
+        "last_updated_at": "2026-01-17T11:56:01.091211+00:00",
+        "env_prefix_for_feature_image_colors": "",
+        "min_scheduling_gap_minutes": 45,
+        "profile_id": "0iezbbvPuuCoQtuHkk3I",
+        "authors": [
+          {
+            "id": "author_1768650961_0",
+            "wp_username": "Akhil Singh",
+            "app_password": "ktvJ 1cKQ qaxn snW9 RKQe s438",
+            "wp_user_id": "2"
+          },
+          {
+            "id": "author_1768650961_1",
+            "wp_username": "Krishna",
+            "app_password": "5OhV vDTj 1FTW tIyD d64J DTAI",
+            "wp_user_id": "3"
+          },
+          {
+            "id": "author_1768650961_2",
+            "wp_username": "Ramesh Pratap",
+            "app_password": "EE74 lPO1 nmGp 1MuW RGgO mais",
+            "wp_user_id": "4"
+          }
+        ],
+        "max_scheduling_gap_minutes": 60,
+        "ticker_preview_from_file": [],
+        "publish_status": "schedule",
+        "ticker_file_uploaded_at": null
+      }
+    ]
+  },
+  "timestamp": "2026-02-05T23:16:03.174903"
+}

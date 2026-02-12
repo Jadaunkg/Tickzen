@@ -259,19 +259,20 @@
             text-decoration: none;
         }
 
-        .nav {
+        /* Homepage-specific nav styles (not the navbar-nav) */
+        .homepage-nav {
             display: none;
             gap: 2rem;
         }
 
-        .nav a {
+        .homepage-nav a {
             color: hsl(var(--muted-foreground));
             text-decoration: none;
             transition: color 0.2s;
             font-weight: 500;
         }
 
-        .nav a:hover {
+        .homepage-nav a:hover {
             color: hsl(var(--foreground));
         }
 
@@ -328,35 +329,6 @@
         .btn-lg {
             padding: 1rem 2rem;
             font-size: 1rem;
-        }
-
-        /* Mobile Menu */
-        .mobile-menu-btn {
-            display: block;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
-        .mobile-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border-bottom: 1px solid hsl(var(--border));
-            padding: 2rem;
-        }
-
-        .mobile-menu.active {
-            display: block;
-        }
-
-        .mobile-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
         }
 
         /* Hero Section */
@@ -1231,12 +1203,8 @@
         }
 
         @media (min-width: 768px) {
-            .nav {
+            .homepage-nav {
                 display: flex;
-            }
-
-            .mobile-menu-btn {
-                display: none;
             }
 
             .demo-grid {
@@ -4491,17 +4459,8 @@ if (suggestions.length > 0) {
             });
         }
         
-        // Mobile menu toggle
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenu) {
-                mobileMenu.classList.toggle('active');
-            }
-        }
-        
         // Make functions globally available
         window.startAnalysis = startAnalysis;
-        window.toggleMobileMenu = toggleMobileMenu;
         window.openWaitlistModal = openWaitlistModal;
         window.closeWaitlistModal = closeWaitlistModal;
         
@@ -4568,16 +4527,6 @@ if (suggestions.length > 0) {
                     }
                 }
             });
-        });
-        
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(e) {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-            
-            if (mobileMenu && mobileMenuBtn && !mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-                mobileMenu.classList.remove('active');
-            }
         });
         
         // Add scroll effect to header

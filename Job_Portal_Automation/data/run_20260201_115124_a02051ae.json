@@ -1,0 +1,147 @@
+{
+  "target_profiles": [
+    "0iezbbvPuuCoQtuHkk3I"
+  ],
+  "created_at": "2026-02-01T11:51:24.063939",
+  "completed_at": "2026-02-01T11:53:56.920682",
+  "run_id": "run_20260201_115124_a02051ae",
+  "user_uid": "iROXMDJiuebQl9Jg4vvXohKea0C2",
+  "status": "completed",
+  "updated_at": "2026-02-01T11:53:57.621342",
+  "results": [
+    {
+      "published_url": "https://hirenjob.com/?p=489",
+      "item_title": "Delhi High Court JJA Online Form 2026",
+      "status": "success",
+      "timestamp": "2026-02-01T11:52:01.719020",
+      "item_id": "e5d25fd1d4d61761cf50a3dcc21b7148",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=491",
+      "item_title": "Indian Airforce Agniveer Vayu Intake 01/2027 Online Form – Last Date Today",
+      "status": "success",
+      "timestamp": "2026-02-01T11:52:40.950872",
+      "item_id": "0b77e910877dcddc7ae432e62cd8ab48",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=493",
+      "item_title": "UP Police Constable Correction / Edit Form 2026 – Link Active",
+      "status": "success",
+      "timestamp": "2026-02-01T11:53:11.182848",
+      "item_id": "86f4c76734b15387580878fd7c0335ca",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=495",
+      "item_title": "India Post GDS Online Form 2026 (28000+ Posts)",
+      "status": "success",
+      "timestamp": "2026-02-01T11:53:30.352345",
+      "item_id": "e0011e1a02204761a61dc796d130e0d7",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=497",
+      "item_title": "Railway RRB Group D Online Form 2026 (21,997 Posts) – Start",
+      "status": "success",
+      "timestamp": "2026-02-01T11:53:55.686108",
+      "item_id": "27ed462db8888479b77ddb7621d1b18c",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    }
+  ],
+  "content_type": "jobs",
+  "selected_items": [
+    {
+      "title": "Delhi High Court JJA Online Form 2026",
+      "id": "e5d25fd1d4d61761cf50a3dcc21b7148",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/delhi-high-court-jja-recruitment-2026/"
+    },
+    {
+      "title": "Indian Airforce Agniveer Vayu Intake 01/2027 Online Form – Last Date Today",
+      "id": "0b77e910877dcddc7ae432e62cd8ab48",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/indian-airforce-agniveer-vayu-intake-01-2027-online-form-last-date/"
+    },
+    {
+      "title": "UP Police Constable Correction / Edit Form 2026 – Link Active",
+      "id": "86f4c76734b15387580878fd7c0335ca",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/up-police-constable-correction-edit-form-2026/"
+    },
+    {
+      "title": "India Post GDS Online Form 2026 (28000+ Posts)",
+      "id": "e0011e1a02204761a61dc796d130e0d7",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/india-post-gds-online-form-2026/"
+    },
+    {
+      "title": "Railway RRB Group D Online Form 2026 (21,997 Posts) – Start",
+      "id": "27ed462db8888479b77ddb7621d1b18c",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/railway-rrb-group-d-level-1-recruitment-2026-online/"
+    }
+  ],
+  "progress": {
+    "completed": 5,
+    "total": 5,
+    "current_item": "Completed: 5 published, 0 failed",
+    "failed": 0
+  },
+  "errors": [],
+  "config": {
+    "article_length": "medium",
+    "profiles": [
+      {
+        "created_at": "2026-01-17T11:56:01.091211+00:00",
+        "site_url": "https://hirenjob.com/",
+        "min_interval": 20,
+        "max_interval": 29,
+        "stockforecast_category_id": "2",
+        "uploaded_ticker_file_name": null,
+        "internal_linking": {
+          "enabled": true,
+          "cache_expiry_hours": 24,
+          "same_category_only": true,
+          "max_links_per_article": 5
+        },
+        "all_tickers_from_file": [],
+        "ticker_count_from_file": null,
+        "ticker_file_storage_path": null,
+        "category_id": 2,
+        "profile_name": "Hirenjob",
+        "sheet_name": "1",
+        "last_updated_at": "2026-01-17T11:56:01.091211+00:00",
+        "env_prefix_for_feature_image_colors": "",
+        "min_scheduling_gap_minutes": 45,
+        "profile_id": "0iezbbvPuuCoQtuHkk3I",
+        "authors": [
+          {
+            "id": "author_1768650961_0",
+            "wp_username": "Akhil Singh",
+            "app_password": "ktvJ 1cKQ qaxn snW9 RKQe s438",
+            "wp_user_id": "2"
+          },
+          {
+            "id": "author_1768650961_1",
+            "wp_username": "Krishna",
+            "app_password": "5OhV vDTj 1FTW tIyD d64J DTAI",
+            "wp_user_id": "3"
+          },
+          {
+            "id": "author_1768650961_2",
+            "wp_username": "Ramesh Pratap",
+            "app_password": "EE74 lPO1 nmGp 1MuW RGgO mais",
+            "wp_user_id": "4"
+          }
+        ],
+        "max_scheduling_gap_minutes": 60,
+        "ticker_preview_from_file": [],
+        "publish_status": "schedule",
+        "ticker_file_uploaded_at": null
+      }
+    ]
+  },
+  "timestamp": "2026-02-01T11:51:24.063939"
+}

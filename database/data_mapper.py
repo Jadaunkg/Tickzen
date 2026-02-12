@@ -31,6 +31,63 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def safe_float_conversion(value, max_value=None):
+    """
+    Safely convert value to float, handling NaN, Infinity, and None.
+    Returns None for invalid values to ensure JSON compliance.
+    
+    Args:
+        value: Value to convert
+        max_value: Optional maximum value to cap at
+        
+    Returns:
+        Float value or None
+    """
+    if value is None or value == 'N/A':
+        return None
+    try:
+        val = float(value)
+        # Check for NaN or Infinity (not JSON compliant)
+        if np.isnan(val) or np.isinf(val):
+            return None
+        # Apply max value cap if specified
+        if max_value is not None and abs(val) > max_value:
+            return max_value if val > 0 else -max_value
+        return val
+    except (ValueError, TypeError):
+        return None
+
+
+def sanitize_for_json(obj):
+    """
+    Recursively sanitize any object for JSON serialization.
+    Converts inf, -inf, and NaN to None throughout nested structures.
+    
+    Args:
+        obj: Any Python object (dict, list, number, etc.)
+        
+    Returns:
+        Sanitized object safe for JSON serialization
+    """
+    if obj is None:
+        return None
+    elif isinstance(obj, dict):
+        return {k: sanitize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [sanitize_for_json(item) for item in obj]
+    elif isinstance(obj, float):
+        if np.isnan(obj) or np.isinf(obj):
+            return None
+        return obj
+    elif isinstance(obj, (int, str, bool)):
+        return obj
+    elif isinstance(obj, (datetime, date)):
+        return obj.isoformat() if hasattr(obj, 'isoformat') else str(obj)
+    else:
+        # For other types, try to convert to string
+        return str(obj)
+
+
 class DataMapper:
     """Maps pipeline data to Supabase schema format"""
     
@@ -390,9 +447,9 @@ class DataMapper:
         try:
             # Calculate additional metrics
             # Price to Free Cash Flow
-            market_cap = info.get('marketCap')
-            free_cash_flow = info.get('freeCashflow')
-            price_to_fcf = float(market_cap / free_cash_flow) if market_cap and free_cash_flow and free_cash_flow > 0 else None
+            market_cap = safe_float_conversion(info.get('marketCap'))
+            free_cash_flow = safe_float_conversion(info.get('freeCashflow'))
+            price_to_fcf = safe_float_conversion(market_cap / free_cash_flow) if market_cap and free_cash_flow and free_cash_flow > 0 else None
             
             record = {
                 'stock_id': stock_id,
@@ -400,38 +457,38 @@ class DataMapper:
                 'period_type': 'TTM',  # Trailing Twelve Months
                 
                 # Valuation
-                'pe_ratio': float(info.get('trailingPE')) if info.get('trailingPE') else None,
-                'pe_forward': float(info.get('forwardPE')) if info.get('forwardPE') else None,
-                'price_to_sales': float(info.get('priceToSalesTrailing12Months')) if info.get('priceToSalesTrailing12Months') else None,
-                'price_to_book': float(info.get('priceToBook')) if info.get('priceToBook') else None,
+                'pe_ratio': safe_float_conversion(info.get('trailingPE')),
+                'pe_forward': safe_float_conversion(info.get('forwardPE')),
+                'price_to_sales': safe_float_conversion(info.get('priceToSalesTrailing12Months')),
+                'price_to_book': safe_float_conversion(info.get('priceToBook')),
                 'price_to_fcf': price_to_fcf,
-                'ev_to_revenue': float(info.get('enterpriseToRevenue')) if info.get('enterpriseToRevenue') else None,
-                'ev_to_ebitda': float(info.get('enterpriseToEbitda')) if info.get('enterpriseToEbitda') else None,
+                'ev_to_revenue': safe_float_conversion(info.get('enterpriseToRevenue')),
+                'ev_to_ebitda': safe_float_conversion(info.get('enterpriseToEbitda')),
                 
                 # Profitability
-                'net_margin': float(info.get('profitMargins')) if info.get('profitMargins') else None,
-                'operating_margin': float(info.get('operatingMargins')) if info.get('operatingMargins') else None,
-                'gross_margin': float(info.get('grossMargins')) if info.get('grossMargins') else None,
-                'ebitda_margin': float(info.get('ebitdaMargins')) if info.get('ebitdaMargins') else None,
-                'roe': float(info.get('returnOnEquity')) if info.get('returnOnEquity') else None,
-                'roa': float(info.get('returnOnAssets')) if info.get('returnOnAssets') else None,
+                'net_margin': safe_float_conversion(info.get('profitMargins')),
+                'operating_margin': safe_float_conversion(info.get('operatingMargins')),
+                'gross_margin': safe_float_conversion(info.get('grossMargins')),
+                'ebitda_margin': safe_float_conversion(info.get('ebitdaMargins')),
+                'roe': safe_float_conversion(info.get('returnOnEquity')),
+                'roa': safe_float_conversion(info.get('returnOnAssets')),
                 
                 # Financial Health
-                'debt_to_equity': float(info.get('debtToEquity')) if info.get('debtToEquity') else None,
-                'total_cash': float(info.get('totalCash')) if info.get('totalCash') else None,
-                'total_debt': float(info.get('totalDebt')) if info.get('totalDebt') else None,
-                'free_cash_flow': float(info.get('freeCashflow')) if info.get('freeCashflow') else None,
-                'operating_cash_flow': float(info.get('operatingCashflow')) if info.get('operatingCashflow') else None,
-                'current_ratio': float(info.get('currentRatio')) if info.get('currentRatio') else None,
-                'quick_ratio': float(info.get('quickRatio')) if info.get('quickRatio') else None,
+                'debt_to_equity': safe_float_conversion(info.get('debtToEquity')),
+                'total_cash': safe_float_conversion(info.get('totalCash')),
+                'total_debt': safe_float_conversion(info.get('totalDebt')),
+                'free_cash_flow': safe_float_conversion(info.get('freeCashflow')),
+                'operating_cash_flow': safe_float_conversion(info.get('operatingCashflow')),
+                'current_ratio': safe_float_conversion(info.get('currentRatio')),
+                'quick_ratio': safe_float_conversion(info.get('quickRatio')),
                 
                 # Growth
-                'revenue_ttm': float(info.get('totalRevenue')) if info.get('totalRevenue') else None,
-                'revenue_growth_yoy': float(info.get('revenueGrowth')) if info.get('revenueGrowth') else None,
-                'net_income_ttm': float(info.get('netIncomeToCommon')) if info.get('netIncomeToCommon') else None,
-                'earnings_growth_yoy': float(info.get('earningsGrowth')) if info.get('earningsGrowth') else None,
-                'ebitda_ttm': float(info.get('ebitda')) if info.get('ebitda') else None,
-                'gross_profit_ttm': float(info.get('grossProfits')) if info.get('grossProfits') else None,
+                'revenue_ttm': safe_float_conversion(info.get('totalRevenue')),
+                'revenue_growth_yoy': safe_float_conversion(info.get('revenueGrowth')),
+                'net_income_ttm': safe_float_conversion(info.get('netIncomeToCommon')),
+                'earnings_growth_yoy': safe_float_conversion(info.get('earningsGrowth')),
+                'ebitda_ttm': safe_float_conversion(info.get('ebitda')),
+                'gross_profit_ttm': safe_float_conversion(info.get('grossProfits')),
             }
             
             # Calculate efficiency metrics from financial statements
@@ -493,25 +550,25 @@ class DataMapper:
                     'period_type': 'Q',
                     
                     # Direct Financials (using _raw values from analysis script)
-                    'revenue_ttm': float(data.get('Total Revenue_raw')) if data.get('Total Revenue_raw') else None,
-                    'net_income_ttm': float(data.get('Net Income_raw')) if data.get('Net Income_raw') else None, # reusing column for quarterly net income
-                    'gross_profit_ttm': float(data.get('Gross Profit_raw')) if data.get('Gross Profit_raw') else None, # reusing column
-                    'operating_income': float(data.get('Operating Income_raw')) if data.get('Operating Income_raw') else None,
+                    'revenue_ttm': safe_float_conversion(data.get('Total Revenue_raw')),
+                    'net_income_ttm': safe_float_conversion(data.get('Net Income_raw')), # reusing column for quarterly net income
+                    'gross_profit_ttm': safe_float_conversion(data.get('Gross Profit_raw')), # reusing column
+                    'operating_income': safe_float_conversion(data.get('Operating Income_raw')),
                      # Note: EPS is ratio, no need for _raw usually, but let's check analysis script
-                    'eps_diluted': float(data.get('Diluted EPS_raw')) if data.get('Diluted EPS_raw') else (float(data.get('Diluted EPS')) if data.get('Diluted EPS') and isinstance(data.get('Diluted EPS'), (int, float)) else None),
-                    'eps_basic': float(data.get('Basic EPS_raw')) if data.get('Basic EPS_raw') else (float(data.get('Basic EPS')) if data.get('Basic EPS') and isinstance(data.get('Basic EPS'), (int, float)) else None),
+                    'eps_diluted': safe_float_conversion(data.get('Diluted EPS_raw')) if data.get('Diluted EPS_raw') else (safe_float_conversion(data.get('Diluted EPS')) if data.get('Diluted EPS') and isinstance(data.get('Diluted EPS'), (int, float)) else None),
+                    'eps_basic': safe_float_conversion(data.get('Basic EPS_raw')) if data.get('Basic EPS_raw') else (safe_float_conversion(data.get('Basic EPS')) if data.get('Basic EPS') and isinstance(data.get('Basic EPS'), (int, float)) else None),
                     
                     # Calculated Margins
-                    'gross_margin': float(data.get('Gross Margin_raw')) if data.get('Gross Margin_raw') else None,
+                    'gross_margin': safe_float_conversion(data.get('Gross Margin_raw')),
                 }
                 
                 # Calculate Net Margin if possible
                 if record['net_income_ttm'] is not None and record['revenue_ttm'] is not None and record['revenue_ttm'] != 0:
-                    record['net_margin'] = float(record['net_income_ttm'] / record['revenue_ttm'])
+                    record['net_margin'] = safe_float_conversion(record['net_income_ttm'] / record['revenue_ttm'])
                     
                 # Calculate Operating Margin if possible
                 if record.get('operating_income') is not None and record['revenue_ttm'] is not None and record['revenue_ttm'] != 0:
-                    record['operating_margin'] = float(record['operating_income'] / record['revenue_ttm'])
+                    record['operating_margin'] = safe_float_conversion(record['operating_income'] / record['revenue_ttm'])
                 
                 records.append(record)
             
@@ -555,14 +612,11 @@ class DataMapper:
                     except:
                         pass
                 
-                # Helper to convert metric values
+                # Helper to convert metric values (handles NaN and Infinity)
                 def to_float(value):
-                    if value is None or value == 'N/A' or (isinstance(value, str) and 'ETF' in value):
+                    if isinstance(value, str) and 'ETF' in value:
                         return None
-                    try:
-                        return float(value)
-                    except:
-                        return None
+                    return safe_float_conversion(value)
                 
                 record = {
                     'stock_id': stock_id,
@@ -594,25 +648,25 @@ class DataMapper:
         """
         try:
             # Get PEG Ratio (trailingPegRatio is what yfinance actually provides)
-            record['peg_ratio'] = float(info.get('trailingPegRatio')) if info.get('trailingPegRatio') else None
+            record['peg_ratio'] = safe_float_conversion(info.get('trailingPegRatio'))
             
             # Calculate ROIC from balance sheet (yfinance doesn't provide it in info)
             roic = None
-            net_income = info.get('netIncomeToCommon')
+            net_income = safe_float_conversion(info.get('netIncomeToCommon'))
             if balance_sheet is not None and not balance_sheet.empty and net_income:
                 try:
                     recent_period = balance_sheet.columns[0]
                     if 'Invested Capital' in balance_sheet.index:
-                        invested_capital = float(balance_sheet.loc['Invested Capital', recent_period])
-                        if invested_capital != 0:
-                            roic = float(net_income / invested_capital)
+                        invested_capital = safe_float_conversion(balance_sheet.loc['Invested Capital', recent_period])
+                        if invested_capital and invested_capital != 0:
+                            roic = safe_float_conversion(net_income / invested_capital)
                 except Exception as e:
                     logger.debug(f"Error calculating ROIC: {e}")
             
             record['roic'] = roic
             
             # Get basic data for calculations
-            total_revenue = info.get('totalRevenue')
+            total_revenue = safe_float_conversion(info.get('totalRevenue'))
             
             # Extract data from balance sheet
             total_assets = None
@@ -626,23 +680,23 @@ class DataMapper:
                     recent_period = balance_sheet.columns[0]
                     
                     if 'Total Assets' in balance_sheet.index:
-                        total_assets = float(balance_sheet.loc['Total Assets', recent_period])
+                        total_assets = safe_float_conversion(balance_sheet.loc['Total Assets', recent_period])
                     
                     if 'Inventory' in balance_sheet.index:
-                        inventory = float(balance_sheet.loc['Inventory', recent_period])
+                        inventory = safe_float_conversion(balance_sheet.loc['Inventory', recent_period])
                     
                     if 'Accounts Receivable' in balance_sheet.index:
-                        receivables = float(balance_sheet.loc['Accounts Receivable', recent_period])
+                        receivables = safe_float_conversion(balance_sheet.loc['Accounts Receivable', recent_period])
                     elif 'Receivables' in balance_sheet.index:
-                        receivables = float(balance_sheet.loc['Receivables', recent_period])
+                        receivables = safe_float_conversion(balance_sheet.loc['Receivables', recent_period])
                     
                     if 'Accounts Payable' in balance_sheet.index:
-                        accounts_payable = float(balance_sheet.loc['Accounts Payable', recent_period])
+                        accounts_payable = safe_float_conversion(balance_sheet.loc['Accounts Payable', recent_period])
                     elif 'Payables' in balance_sheet.index:
-                        accounts_payable = float(balance_sheet.loc['Payables', recent_period])
+                        accounts_payable = safe_float_conversion(balance_sheet.loc['Payables', recent_period])
                     
                     if 'Working Capital' in balance_sheet.index:
-                        working_capital = float(balance_sheet.loc['Working Capital', recent_period])
+                        working_capital = safe_float_conversion(balance_sheet.loc['Working Capital', recent_period])
                 except Exception as e:
                     logger.debug(f"Error extracting balance sheet data: {e}")
             
@@ -652,43 +706,43 @@ class DataMapper:
                 try:
                     recent_period = financials.columns[0]
                     if 'Cost Of Revenue' in financials.index:
-                        cost_of_revenue = float(financials.loc['Cost Of Revenue', recent_period])
+                        cost_of_revenue = safe_float_conversion(financials.loc['Cost Of Revenue', recent_period])
                 except Exception as e:
                     logger.debug(f"Error extracting income statement data: {e}")
             
             # Calculate Asset Turnover = Revenue / Total Assets
             if total_revenue and total_assets and total_assets != 0:
-                record['asset_turnover'] = float(total_revenue / total_assets)
+                record['asset_turnover'] = safe_float_conversion(total_revenue / total_assets)
             else:
                 record['asset_turnover'] = None
             
             # Calculate Inventory Turnover = COGS / Inventory
             if cost_of_revenue and inventory and inventory != 0:
-                record['inventory_turnover'] = float(cost_of_revenue / inventory)
+                record['inventory_turnover'] = safe_float_conversion(cost_of_revenue / inventory)
             else:
                 record['inventory_turnover'] = None
             
             # Calculate Receivables Turnover = Revenue / Receivables
             if total_revenue and receivables and receivables != 0:
-                record['receivables_turnover'] = float(total_revenue / receivables)
+                record['receivables_turnover'] = safe_float_conversion(total_revenue / receivables)
             else:
                 record['receivables_turnover'] = None
             
             # Calculate Working Capital Turnover = Revenue / Working Capital
             if total_revenue and working_capital and working_capital != 0:
-                record['working_capital_turnover'] = float(total_revenue / working_capital)
+                record['working_capital_turnover'] = safe_float_conversion(total_revenue / working_capital)
             else:
                 record['working_capital_turnover'] = None
             
             # Calculate Days Sales Outstanding (DSO) = 365 / Receivables Turnover
             if record.get('receivables_turnover'):
-                record['dso'] = float(365 / record['receivables_turnover'])
+                record['dso'] = safe_float_conversion(365 / record['receivables_turnover'])
             else:
                 record['dso'] = None
             
             # Calculate Days Inventory Outstanding (DIO) = 365 / Inventory Turnover
             if record.get('inventory_turnover'):
-                record['dio'] = float(365 / record['inventory_turnover'])
+                record['dio'] = safe_float_conversion(365 / record['inventory_turnover'])
             else:
                 record['dio'] = None
             
@@ -696,14 +750,14 @@ class DataMapper:
             # DPO = (Accounts Payable / COGS) * 365
             dpo = None
             if cost_of_revenue and accounts_payable and cost_of_revenue != 0:
-                dpo = float((accounts_payable / cost_of_revenue) * 365)
+                dpo = safe_float_conversion((accounts_payable / cost_of_revenue) * 365)
             
             # Calculate Cash Conversion Cycle (CCC) = DSO + DIO - DPO
             # This measures how long it takes to convert cash investments in inventory back to cash
             if record.get('dio') and record.get('dso'):
                 if dpo is not None:
                     # Complete CCC formula with DPO
-                    record['ccc'] = float(record['dio'] + record['dso'] - dpo)
+                    record['ccc'] = safe_float_conversion(record['dio'] + record['dso'] - dpo)
                 else:
                     # Partial CCC without DPO (still useful but incomplete)
                     record['ccc'] = float(record['dio'] + record['dso'])
@@ -718,82 +772,178 @@ class DataMapper:
                 if field not in record:
                     record[field] = None
     
-    def map_risk_data(self, stock_id: int, processed_data: pd.DataFrame, info: Dict) -> Dict:
+    def map_risk_data(self, stock_id: int, processed_data: pd.DataFrame, info: Dict, 
+                     risk_profile: Dict = None, market_data: pd.DataFrame = None, 
+                     ticker: str = None) -> Dict:
         """
-        Map risk metrics to risk_data table
+        Map risk metrics to risk_data table WITH METADATA (v2 Enhanced)
+        
+        Now includes all 64 metadata fields for complete transparency
         
         Args:
             stock_id: Stock ID from stocks table
             processed_data: DataFrame with returns data
             info: yfinance info dict
+            risk_profile: Optional comprehensive risk profile from RiskAnalyzer
+            market_data: Optional market benchmark data (S&P 500)
+            ticker: Stock ticker symbol (for liquidity/Altman calculations)
             
         Returns:
-            Dict ready for risk_data table
+            Dict ready for risk_data table (with all metadata)
         """
         try:
-            # Calculate risk metrics from returns
-            returns = processed_data['Close'].pct_change().dropna()
+            from analysis_scripts.risk_analysis import RiskAnalyzer
             
-            # Calculate VaR (95% and 99%)
-            var_95 = float(returns.quantile(0.05)) if len(returns) > 0 else None
-            var_99 = float(returns.quantile(0.01)) if len(returns) > 0 else None
+            ra = RiskAnalyzer()
             
-            # Calculate max drawdown
-            cum_returns = (1 + returns).cumprod()
-            running_max = cum_returns.cummax()
-            drawdown = (cum_returns - running_max) / running_max
-            max_drawdown = float(drawdown.min()) if len(drawdown) > 0 else None
+            # Use NEW enhanced method that returns metrics + metadata
+            full_profile = ra.comprehensive_risk_profile_with_metadata(
+                price_data=processed_data['Close'],
+                market_data=market_data['Close'] if market_data is not None else None,
+                ticker=ticker
+            )
             
-            # Calculate Sharpe ratio (annualized)
-            risk_free_rate = 0.02  # Assume 2% risk-free rate
-            excess_returns = returns - (risk_free_rate / 252)
-            sharpe_ratio = float((excess_returns.mean() / returns.std()) * np.sqrt(252)) if returns.std() > 0 else None
+            metrics = full_profile.get('metrics', {})
+            metadata = full_profile.get('metadata', {})
             
-            # Calculate Calmar Ratio (Annual Return / Max Drawdown)
-            annual_return = float(returns.mean() * 252) if len(returns) > 0 else None
-            calmar_ratio = float(annual_return / abs(max_drawdown)) if max_drawdown and max_drawdown != 0 and annual_return else None
-            
-            # Calculate Kurtosis (tail risk)
-            kurtosis = float(returns.kurtosis()) if len(returns) > 3 else None
-            
-            # Calculate Skewness (distribution asymmetry)
-            skewness = float(returns.skew()) if len(returns) > 2 else None
-            
-            # Calculate Sortino Ratio (downside risk-adjusted return)
-            downside_returns = returns[returns < 0]
-            downside_std = float(downside_returns.std()) if len(downside_returns) > 1 else None
-            sortino_ratio = float((excess_returns.mean() / downside_std) * np.sqrt(252)) if downside_std and downside_std > 0 else None
-            
-            # Calculate Market Correlation (with S&P 500)
-            market_correlation = None
-            if 'SP500' in processed_data.columns and len(processed_data) > 30:
-                sp500_returns = processed_data['SP500'].pct_change().dropna()
-                # Align the two series
-                aligned_returns = returns.align(sp500_returns, join='inner')
-                if len(aligned_returns[0]) > 30:
-                    market_correlation = float(aligned_returns[0].corr(aligned_returns[1]))
-            
+            # Build complete record with all fields
             record = {
                 'stock_id': stock_id,
                 'date': datetime.now().strftime('%Y-%m-%d'),
                 
-                # Value at Risk
-                'var_95': var_95,
-                'var_99': var_99,
+                # === BASE METRICS ===
+                'var_95': safe_float_conversion(metrics.get('var_5')),
+                'var_99': safe_float_conversion(metrics.get('var_1')),
+                'cvar_95': safe_float_conversion(metrics.get('cvar_5')),
+                'cvar_99': safe_float_conversion(metrics.get('cvar_1')),
+                'sharpe_ratio': safe_float_conversion(metrics.get('sharpe_ratio')),
+                'sortino_ratio': safe_float_conversion(metrics.get('sortino_ratio')),
+                'calmar_ratio': None,  # TODO: implement
+                'max_drawdown': safe_float_conversion(metrics.get('max_drawdown')),
+                'beta': safe_float_conversion(metrics.get('beta')) if 'beta' in metrics else safe_float_conversion(info.get('beta')),
+                'market_correlation': safe_float_conversion(metrics.get('correlation_market')),
+                'volatility_30d_annual': safe_float_conversion(metrics.get('volatility_30d_annualized')),
+                'volatility_historical_annual': safe_float_conversion(metrics.get('volatility_annualized')),
+                'skewness': safe_float_conversion(metrics.get('skewness')),
+                'kurtosis': safe_float_conversion(metrics.get('kurtosis')),
                 
-                # Risk-adjusted metrics
-                'sharpe_ratio': sharpe_ratio,
-                'sortino_ratio': sortino_ratio,
-                'calmar_ratio': calmar_ratio,
-                'max_drawdown': max_drawdown,
+                # === ALL 64 METADATA FIELDS ===
+                # VaR metadata
+                'var_95_data_period_days': metadata.get('var_95_data_period_days'),
+                'var_95_sample_size': metadata.get('var_95_sample_size'),
+                'var_95_calculation_method': metadata.get('var_95_calculation_method'),
+                'var_95_confidence_level': metadata.get('var_95_confidence_level'),
+                'var_95_return_frequency': metadata.get('var_95_return_frequency'),
+                'var_99_data_period_days': metadata.get('var_99_data_period_days'),
+                'var_99_sample_size': metadata.get('var_99_sample_size'),
+                'var_99_calculation_method': metadata.get('var_99_calculation_method'),
+                'var_99_confidence_level': metadata.get('var_99_confidence_level'),
+                'var_99_return_frequency': metadata.get('var_99_return_frequency'),
                 
-                # Distribution metrics
-                'kurtosis': kurtosis,
-                'skewness': skewness,
+                # CVaR metadata
+                'cvar_95_data_period_days': metadata.get('cvar_95_data_period_days'),
+                'cvar_95_tail_size': metadata.get('cvar_95_tail_size'),
+                'cvar_95_calculation_method': metadata.get('cvar_95_calculation_method'),
+                'cvar_95_confidence_level': metadata.get('cvar_95_confidence_level'),
+                'cvar_99_data_period_days': metadata.get('cvar_99_data_period_days'),
+                'cvar_99_tail_size': metadata.get('cvar_99_tail_size'),
+                'cvar_99_calculation_method': metadata.get('cvar_99_calculation_method'),
+                'cvar_99_confidence_level': metadata.get('cvar_99_confidence_level'),
                 
-                # Market Risk
-                'beta': float(info.get('beta')) if info.get('beta') else None,
-                'market_correlation': market_correlation,
+                # Volatility metadata
+                'volatility_30d_sample_days': metadata.get('volatility_30d_sample_days'),
+                'volatility_30d_calculation_method': metadata.get('volatility_30d_calculation_method'),
+                'volatility_30d_annualization_factor': metadata.get('volatility_30d_annualization_factor'),
+                'volatility_30d_return_frequency': metadata.get('volatility_30d_return_frequency'),
+                'volatility_30d_model_type': metadata.get('volatility_30d_model_type'),
+                'volatility_30d_fallback_logic': metadata.get('volatility_30d_fallback_logic'),
+                'volatility_historical_sample_days': metadata.get('volatility_historical_sample_days'),
+                'volatility_historical_calculation_method': metadata.get('volatility_historical_calculation_method'),
+                'volatility_historical_annualization_factor': metadata.get('volatility_historical_annualization_factor'),
+                'volatility_historical_return_frequency': metadata.get('volatility_historical_return_frequency'),
+                'volatility_historical_model_type': metadata.get('volatility_historical_model_type'),
+                'volatility_trading_days_annual': metadata.get('volatility_trading_days_annual'),
+                
+                # Liquidity metadata
+                'liquidity_calculation_method': metadata.get('liquidity_calculation_method'),
+                'liquidity_data_period_days': metadata.get('liquidity_data_period_days'),
+                'liquidity_actual_sample_days': metadata.get('liquidity_actual_sample_days'),
+                'liquidity_volume_weight': metadata.get('liquidity_volume_weight'),
+                'liquidity_volume_benchmark': metadata.get('liquidity_volume_benchmark'),
+                'liquidity_mcap_weight': metadata.get('liquidity_mcap_weight'),
+                'liquidity_mcap_benchmark': metadata.get('liquidity_mcap_benchmark'),
+                'liquidity_stability_weight': metadata.get('liquidity_stability_weight'),
+                'liquidity_stability_metric': metadata.get('liquidity_stability_metric'),
+                'liquidity_data_freshness': metadata.get('liquidity_data_freshness'),
+                'liquidity_minimum_required_days': metadata.get('liquidity_minimum_required_days'),
+                'liquidity_sufficient_data': metadata.get('liquidity_sufficient_data'),
+                
+                # Altman metadata
+                'altman_calculation_method': metadata.get('altman_calculation_method'),
+                'altman_financial_period': metadata.get('altman_financial_period'),
+                'altman_financial_period_end_date': metadata.get('altman_financial_period_end_date'),
+                'altman_financial_data_source': metadata.get('altman_financial_data_source'),
+                'altman_data_age_days': metadata.get('altman_data_age_days'),
+                'altman_filing_type': metadata.get('altman_filing_type'),
+                'altman_required_fields_count': metadata.get('altman_required_fields_count'),
+                'altman_available_fields_count': metadata.get('altman_available_fields_count'),
+                'altman_data_completeness_percent': metadata.get('altman_data_completeness_percent'),
+                'altman_minimum_completeness_percent': metadata.get('altman_minimum_completeness_percent'),
+                'altman_retained_earnings_imputed': metadata.get('altman_retained_earnings_imputed'),
+                'altman_imputation_method': metadata.get('altman_imputation_method'),
+                'altman_next_update_expected': metadata.get('altman_next_update_expected'),
+                'altman_coefficient_a': metadata.get('altman_coefficient_a'),
+                'altman_coefficient_b': metadata.get('altman_coefficient_b'),
+                'altman_coefficient_c': metadata.get('altman_coefficient_c'),
+                'altman_coefficient_d': metadata.get('altman_coefficient_d'),
+                'altman_coefficient_e': metadata.get('altman_coefficient_e'),
+                
+                # Sharpe/Sortino metadata
+                'sharpe_ratio_calculation_method': metadata.get('sharpe_ratio_calculation_method'),
+                'sharpe_ratio_data_period_days': metadata.get('sharpe_ratio_data_period_days'),
+                'sharpe_ratio_risk_free_rate_used': metadata.get('sharpe_ratio_risk_free_rate_used'),
+                'sharpe_ratio_risk_free_rate_source': metadata.get('sharpe_ratio_risk_free_rate_source'),
+                'sharpe_ratio_annualization_factor': metadata.get('sharpe_ratio_annualization_factor'),
+                'sharpe_ratio_daily_rf_rate': metadata.get('sharpe_ratio_daily_rf_rate'),
+                'sortino_ratio_calculation_method': metadata.get('sortino_ratio_calculation_method'),
+                'sortino_ratio_data_period_days': metadata.get('sortino_ratio_data_period_days'),
+                'sortino_ratio_annualization_factor': metadata.get('sortino_ratio_annualization_factor'),
+                'sortino_ratio_downside_focus': metadata.get('sortino_ratio_downside_focus'),
+                
+                # Other metrics metadata
+                'max_drawdown_calculation_method': metadata.get('max_drawdown_calculation_method'),
+                'max_drawdown_data_period_days': metadata.get('max_drawdown_data_period_days'),
+                'max_drawdown_definition': metadata.get('max_drawdown_definition'),
+                'beta_calculation_method': metadata.get('beta_calculation_method'),
+                'beta_data_period_days': metadata.get('beta_data_period_days'),
+                'beta_market_benchmark': metadata.get('beta_market_benchmark'),
+                'beta_return_frequency': metadata.get('beta_return_frequency'),
+                'correlation_calculation_method': metadata.get('correlation_calculation_method'),
+                'correlation_data_period_days': metadata.get('correlation_data_period_days'),
+                'correlation_market_benchmark': metadata.get('correlation_market_benchmark'),
+                'skewness_calculation_method': metadata.get('skewness_calculation_method'),
+                'skewness_data_period_days': metadata.get('skewness_data_period_days'),
+                'skewness_interpretation': metadata.get('skewness_interpretation'),
+                'kurtosis_calculation_method': metadata.get('kurtosis_calculation_method'),
+                'kurtosis_data_period_days': metadata.get('kurtosis_data_period_days'),
+                
+                # Confidence scores
+                'var_estimation_confidence': metadata.get('var_estimation_confidence'),
+                'volatility_estimation_confidence': metadata.get('volatility_estimation_confidence'),
+                'liquidity_estimation_confidence': metadata.get('liquidity_estimation_confidence'),
+                'altman_estimation_confidence': metadata.get('altman_estimation_confidence'),
+                'sharpe_estimation_confidence': metadata.get('sharpe_estimation_confidence'),
+                'overall_profile_confidence': metadata.get('overall_profile_confidence'),
+                'has_data_gaps': metadata.get('has_data_gaps'),
+                'missing_price_data': metadata.get('missing_price_data'),
+                'missing_financial_data': metadata.get('missing_financial_data'),
+                'insufficient_liquidity_data': metadata.get('insufficient_liquidity_data'),
+                'data_quality_score': metadata.get('data_quality_score'),
+                
+                # Tracking
+                'metadata_calculation_timestamp': metadata.get('metadata_calculation_timestamp'),
+                'metadata_version': metadata.get('metadata_version'),
+                'risk_profile_calculation_method': metadata.get('risk_profile_calculation_method'),
             }
             
             return record
@@ -816,15 +966,27 @@ class DataMapper:
         Returns:
             Dict ready for market_price_snapshot table
         """
+        def cap_percentage(value, max_val=9999.99):
+            """Cap percentage values to avoid database overflow (NUMERIC(8,4) max is 9999.9999)"""
+            if value is None:
+                return None
+            if abs(value) > max_val:
+                return max_val if value > 0 else -max_val
+            return value
+        
         try:
-            # Determine last historical close (for reference and as fallback)
-            historical_close = None
+            # Get the most recent close price (today's close or real-time price)
+            current_close = None
+            previous_close = None
+            
             if not processed_data.empty and 'Close' in processed_data.columns:
                 closes = processed_data['Close'].dropna()
                 if len(closes) > 0:
-                    historical_close = float(closes.iloc[-1])
+                    current_close = float(closes.iloc[-1])  # Today's close
+                if len(closes) > 1:
+                    previous_close = float(closes.iloc[-2])  # Previous day's close for % calculation
 
-            # Prefer real-time price when available; fallback to historical close
+            # Prefer real-time price when available; fallback to current close
             real_price = None
             if current_price and current_price.get('current_price') is not None:
                 try:
@@ -832,15 +994,15 @@ class DataMapper:
                 except (ValueError, TypeError):
                     real_price = None
 
-            # Final published price (real-time if available)
-            published_price = real_price if real_price is not None else (historical_close if historical_close is not None else 0.0)
+            # Final published price (real-time if available, else today's close)
+            published_price = real_price if real_price is not None else (current_close if current_close is not None else 0.0)
 
-            # Compute price change relative to last historical close when possible
-            # Percentage change should be shown relative to the published (real-time) price
-            if historical_close is not None and published_price is not None:
-                price_change_val = published_price - historical_close
-                # Use published price (real-time) as denominator for percentage change per product decision
-                change_pct_val = (price_change_val / published_price * 100) if published_price > 0 else None
+            # Compute price change relative to PREVIOUS day's close (not comparing to itself!)
+            # Percentage change formula: (current - previous) / previous * 100
+            if previous_close is not None and published_price is not None:
+                price_change_val = published_price - previous_close
+                # Use previous_close (previous day's price) as denominator for correct percentage
+                change_pct_val = (price_change_val / previous_close * 100) if previous_close > 0 else None
             else:
                 # Fall back to values from current_price dict if present
                 price_change_val = current_price.get('change') if current_price else None
@@ -894,13 +1056,13 @@ class DataMapper:
                 # Current Price & Changes (published_price is real-time when available)
                 'current_price': float(published_price),
                 'price_change': float(price_change_val) if price_change_val is not None else None,
-                'change_pct': float(change_pct_val) if change_pct_val is not None else None,
+                'change_pct': cap_percentage(change_pct_val),
 
-                # Performance metrics
-                'change_15d_pct': float(change_15d_pct) if change_15d_pct is not None else None,
-                'change_52w_pct': float(change_52w_pct) if change_52w_pct is not None else None,
-                'performance_1y_pct': float(performance_1y_pct) if performance_1y_pct is not None else None,
-                'overall_pct_change': float(overall_pct_change) if overall_pct_change is not None else None,
+                # Performance metrics (capped to avoid overflow)
+                'change_15d_pct': cap_percentage(change_15d_pct),
+                'change_52w_pct': cap_percentage(change_52w_pct),
+                'performance_1y_pct': cap_percentage(performance_1y_pct),
+                'overall_pct_change': cap_percentage(overall_pct_change),
 
                 # 52 Week Range
                 'high_52w': float(info.get('fiftyTwoWeekHigh')) if info.get('fiftyTwoWeekHigh') else None,
@@ -1113,7 +1275,7 @@ class DataMapper:
             
             records = []
             
-            def safe_float(value):
+            def safe_float(value, max_value=None):
                 """Convert to float, handling NaN and Infinity"""
                 try:
                     if pd.isna(value) or value is None:
@@ -1122,6 +1284,9 @@ class DataMapper:
                     # Check for infinity or NaN
                     if np.isinf(val) or np.isnan(val):
                         return None
+                    # Apply max value cap if specified
+                    if max_value is not None and abs(val) > max_value:
+                        return max_value if val > 0 else -max_value
                     return val
                 except (ValueError, TypeError):
                     return None
@@ -1139,9 +1304,9 @@ class DataMapper:
                 if not transaction_date:
                     continue
                 
-                # Get shares and price with safe conversion
-                shares = safe_float(row.get('Shares', row.get('#Shares')))
-                price = safe_float(row.get('Value', row.get('Price')))
+                # Get shares and price with safe conversion (cap large values)
+                shares = safe_float(row.get('Shares', row.get('#Shares')), max_value=999999999999999.0)
+                price = safe_float(row.get('Value', row.get('Price')), max_value=999999999999999.0)
                 
                 record = {
                     'stock_id': stock_id,
@@ -1157,10 +1322,13 @@ class DataMapper:
                 }
                 
                 # Calculate estimated value if we have shares and price
+                # Cap at 10^15 to avoid database numeric overflow (field is NUMERIC(18,2), max ~10^16)
                 if shares is not None and price is not None and shares != 0:
-                    estimated = safe_float(abs(shares) * price)
-                    if estimated is not None:
-                        record['estimated_value'] = estimated
+                    estimated = abs(shares) * price
+                    # Use safe_float with max value of 999999999999999 (10^15 - 1)
+                    estimated_safe = safe_float(estimated, max_value=999999999999999.0)
+                    if estimated_safe is not None:
+                        record['estimated_value'] = estimated_safe
                 
                 records.append(record)
             
@@ -1224,3 +1392,199 @@ class DataMapper:
             'records_updated': 0,
             'records_failed': 0
         }
+    
+    # ========================================================================
+    # ADVANCED RISK METRICS MAPPING
+    # ========================================================================
+    
+    def map_liquidity_risk_data(self, stock_id: int, risk_profile: Dict) -> Optional[Dict]:
+        """
+        Map liquidity risk metrics to liquidity_risk_data table
+        
+        Args:
+            stock_id: Stock ID from stocks table
+            risk_profile: Comprehensive risk profile from RiskAnalyzer
+            
+        Returns:
+            Dict ready for liquidity_risk_data table or None if data unavailable
+        """
+        try:
+            # Check if liquidity data exists in risk profile
+            if not risk_profile or 'liquidity_score' not in risk_profile:
+                return None
+            
+            liquidity_score = risk_profile.get('liquidity_score')
+            if liquidity_score is None:
+                return None
+            
+            # Extract liquidity components
+            components = risk_profile.get('liquidity_components', {})
+            
+            record = {
+                'stock_id': stock_id,
+                'date': datetime.now().strftime('%Y-%m-%d'),
+                
+                # Core Metrics
+                'liquidity_score': safe_float_conversion(liquidity_score, max_value=100),
+                'risk_level': risk_profile.get('liquidity_risk_level', 'Unknown'),
+                
+                # Component Analysis
+                # Note: RiskAnalyzer returns mcap_component, volume_component, stability_component
+                # bid_ask_spread removed (requires Level 2 market data we don't have)
+                'trading_volume_consistency': safe_float_conversion(components.get('volume_component')),
+                'market_depth_score': safe_float_conversion(components.get('mcap_component')),
+                'components': sanitize_for_json(components) if components else None,
+            }
+            
+            return record
+            
+        except Exception as e:
+            logger.error(f"Error mapping liquidity risk data: {e}")
+            return None
+    
+    def map_altman_zscore_data(self, stock_id: int, risk_profile: Dict) -> Optional[Dict]:
+        """
+        Map Altman Z-Score metrics to altman_zscore_data table
+        
+        Args:
+            stock_id: Stock ID from stocks table
+            risk_profile: Comprehensive risk profile from RiskAnalyzer
+            
+        Returns:
+            Dict ready for altman_zscore_data table or None if data unavailable
+        """
+        try:
+            # Check if Altman Z-Score data exists in risk profile
+            if not risk_profile or 'altman_z_score' not in risk_profile:
+                return None
+            
+            z_score = risk_profile.get('altman_z_score')
+            if z_score is None:
+                return None
+            
+            # Extract Altman Z-Score components
+            components = risk_profile.get('altman_components', {})
+            
+            # Calculate bankruptcy risk percentage from risk zone
+            risk_zone = risk_profile.get('altman_risk_zone', 'Unknown')
+            bankruptcy_risk_map = {
+                'Safe': 10.0,      # < 10% bankruptcy risk
+                'Caution': 50.0,   # ~50% bankruptcy risk
+                'Distress': 90.0,  # > 90% bankruptcy risk
+                'Unknown': None
+            }
+            bankruptcy_risk = bankruptcy_risk_map.get(risk_zone)
+            
+            # Override with actual value if provided
+            if 'altman_bankruptcy_risk' in risk_profile:
+                bankruptcy_risk_str = risk_profile.get('altman_bankruptcy_risk')
+                if bankruptcy_risk_str and bankruptcy_risk_str != 'Unknown':
+                    # Extract percentage if it's a string like "15%"
+                    if isinstance(bankruptcy_risk_str, str) and '%' in bankruptcy_risk_str:
+                        bankruptcy_risk = float(bankruptcy_risk_str.replace('%', ''))
+                    elif isinstance(bankruptcy_risk_str, (int, float)):
+                        bankruptcy_risk = float(bankruptcy_risk_str)
+            
+            record = {
+                'stock_id': stock_id,
+                'date': datetime.now().strftime('%Y-%m-%d'),
+                
+                # Core Z-Score
+                'z_score': safe_float_conversion(z_score),
+                'risk_zone': risk_zone,
+                'bankruptcy_risk': safe_float_conversion(bankruptcy_risk, max_value=100),
+                'data_quality': risk_profile.get('altman_data_quality', 'Unknown'),
+                
+                # Component Ratios
+                'working_capital_ratio': safe_float_conversion(components.get('working_capital_ratio')),
+                'retained_earnings_ratio': safe_float_conversion(components.get('retained_earnings_ratio')),
+                'ebit_ratio': safe_float_conversion(components.get('ebit_ratio')),
+                # RiskAnalyzer returns 'market_to_liability' (component D in Altman formula)
+                'market_value_ratio': safe_float_conversion(components.get('market_to_liability')),
+                'sales_ratio': safe_float_conversion(components.get('sales_ratio')),
+                'components': sanitize_for_json(components) if components else None,
+            }
+            
+            return record
+            
+        except Exception as e:
+            logger.error(f"Error mapping Altman Z-Score data: {e}")
+            return None
+    
+    def map_regime_risk_data(self, stock_id: int, risk_profile: Dict) -> Optional[Dict]:
+        """
+        Map regime risk metrics to regime_risk_data table
+        
+        Args:
+            stock_id: Stock ID from stocks table
+            risk_profile: Comprehensive risk profile from RiskAnalyzer
+            
+        Returns:
+            Dict ready for regime_risk_data table or None if data unavailable
+        """
+        try:
+            # Check if regime risk data exists in risk profile
+            if not risk_profile or 'regime_risk' not in risk_profile:
+                return None
+            
+            regime_data = risk_profile.get('regime_risk')
+            if not regime_data or not isinstance(regime_data, dict):
+                return None
+            
+            # Determine current regime based on profile and defensive score
+            profile = regime_data.get('profile', 'Unknown')
+            defensive_score = regime_data.get('defensive_score', 50.0)
+            
+            # Map profile to regime classification
+            # Profile is Defensive/Balanced/Aggressive, not Bull/Bear
+            # Use defensive_score to estimate current market regime
+            if defensive_score and defensive_score > 60:
+                current_regime = 'Defensive'  # Stock behavior suggests cautious market
+            elif defensive_score and defensive_score < 40:
+                current_regime = 'Aggressive'  # Stock behavior suggests bullish market
+            else:
+                current_regime = profile  # Use profile as regime
+            
+            # Calculate confidence based on data availability
+            dist = regime_data.get('regime_distribution', {})
+            total_days = sum([dist.get('bull_days', 0), dist.get('bear_days', 0), dist.get('volatile_days', 0)])
+            regime_confidence = min(100.0, (total_days / 250.0) * 100.0) if total_days > 0 else 50.0
+            
+            # Extract regime-specific metrics from RiskAnalyzer output
+            bull_volatility = regime_data.get('bull_market_volatility')
+            bear_volatility = regime_data.get('bear_market_volatility')
+            volatile_volatility = regime_data.get('volatile_market_volatility')
+            
+            bull_sharpe = regime_data.get('bull_market_sharpe')
+            bear_sharpe = regime_data.get('bear_market_sharpe')
+            
+            volatility_ratio = regime_data.get('volatility_ratio')
+            
+            # Map to database schema
+            # Note: beta/correlation columns removed from schema (not calculated by RiskAnalyzer)
+            record = {
+                'stock_id': stock_id,
+                'date': datetime.now().strftime('%Y-%m-%d'),
+                
+                # Current Regime
+                'current_regime': current_regime,
+                'regime_confidence': safe_float_conversion(regime_confidence, max_value=100),
+                
+                # Bull Market Behavior
+                'bull_volatility': safe_float_conversion(bull_volatility),
+                
+                # Bear Market Behavior
+                'bear_downside_capture': safe_float_conversion(1.0 / volatility_ratio if volatility_ratio and volatility_ratio != 0 else None),
+                
+                # Correction/Volatile Behavior
+                'correction_volatility': safe_float_conversion(volatile_volatility),
+                
+                # Full Analysis (JSONB)
+                'regime_analysis': sanitize_for_json(regime_data),
+            }
+            
+            return record
+            
+        except Exception as e:
+            logger.error(f"Error mapping regime risk data: {e}")
+            return None

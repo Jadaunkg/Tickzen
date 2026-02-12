@@ -60,12 +60,81 @@ class SupabaseArticlesLoader:
         """Check if Supabase client is available and working"""
         return self.supabase_client is not None and SUPABASE_AVAILABLE
     
-    def load_database_articles(self, limit: int = 500) -> List[Dict]:
+    def load_database_articles_by_category(self, sport_category: str, limit: int = None) -> List[Dict]:
+        """
+        Load articles from Supabase database filtered by sport category
+        
+        Args:
+            sport_category (str): Sport category to filter by (e.g., 'cricket', 'football', 'basketball')
+            limit (int): Maximum number of articles to load (None for all articles)
+            
+        Returns:
+            list: List of articles from the database for the specified category
+        """
+        if not self.is_available():
+            logger.warning("Supabase client not available")
+            return []
+        
+        try:
+            # Standardize the category name for querying
+            standardized_category = self._standardize_sport_category(sport_category)
+            
+            # Query articles from Supabase with proper ordering and category filter
+            query = self.supabase_client.table('articles').select(
+                '*'
+            ).eq('ready_for_analysis', True).eq(
+                'sport_category', standardized_category
+            ).order(
+                'publish_date', desc=True
+            )
+            
+            # Only apply limit if specified
+            if limit is not None:
+                query = query.limit(limit)
+            
+            response = query.execute()
+            
+            if not response.data:
+                logger.info(f"No articles found in Supabase database for category: {standardized_category}")
+                return []
+            
+            # Format articles
+            articles = []
+            for article_data in response.data:
+                # Try to get site information if site_id exists
+                site_info = {}
+                site_id = article_data.get('site_id')
+                if site_id:
+                    try:
+                        site_response = self.supabase_client.table('sites').select(
+                            'name, domain'
+                        ).eq('id', site_id).limit(1).execute()
+                        if site_response.data:
+                            site_info = site_response.data[0]
+                    except Exception as site_error:
+                        logger.warning(f"Could not fetch site info for article {article_data.get('id')}: {site_error}")
+                
+                # Add site info to article data
+                article_data['sites'] = site_info
+                
+                # Convert Supabase article to format compatible with existing system
+                formatted_article = self._format_database_article(article_data)
+                if formatted_article:
+                    articles.append(formatted_article)
+            
+            logger.info(f"Loaded {len(articles)} articles from Supabase database for category: {standardized_category}")
+            return articles
+            
+        except Exception as e:
+            logger.error(f"Error loading articles from Supabase for category {sport_category}: {e}")
+            return []
+    
+    def load_database_articles(self, limit: int = None) -> List[Dict]:
         """
         Load articles from Supabase database
         
         Args:
-            limit (int): Maximum number of articles to load
+            limit (int): Maximum number of articles to load (None for all articles)
             
         Returns:
             list: List of articles from the database
@@ -77,11 +146,17 @@ class SupabaseArticlesLoader:
         try:
             # Query articles from Supabase with proper ordering
             # Note: We'll query articles first, then get site info separately if needed
-            response = self.supabase_client.table('articles').select(
+            query = self.supabase_client.table('articles').select(
                 '*'  # Start with just articles data
             ).eq('ready_for_analysis', True).order(
                 'publish_date', desc=True
-            ).limit(limit).execute()
+            )
+            
+            # Only apply limit if specified
+            if limit is not None:
+                query = query.limit(limit)
+            
+            response = query.execute()
             
             if not response.data:
                 logger.info("No articles found in Supabase database")
@@ -202,8 +277,9 @@ class SupabaseArticlesLoader:
                 'content': article_data.get('content', ''),
                 'summary': self._extract_summary(article_data.get('content', '')),
                 
-                # Categorization
-                'category': article_data.get('sport_category', 'UNCATEGORIZED'),
+                # Categorization - standardize sport categories
+                'category': self._standardize_sport_category(article_data.get('sport_category', 'UNCATEGORIZED')),
+                'sport_category': self._standardize_sport_category(article_data.get('sport_category', 'UNCATEGORIZED')),
                 'source': site_name,
                 'source_name': article_data.get('source_site', site_name),  # Map to source_name for display
                 'source_site': article_data.get('source_site', site_name),
@@ -239,6 +315,39 @@ class SupabaseArticlesLoader:
         except Exception as e:
             logger.error(f"Error formatting article data: {e}")
             return None
+    
+    def _standardize_sport_category(self, category: str) -> str:
+        """Standardize sport category names to match the system's expected categories"""
+        if not category:
+            return 'UNCATEGORIZED'
+        
+        category_lower = category.lower().strip()
+        
+        # Map common variations to standard category names
+        category_mappings = {
+            'cricket': 'CRICKET',
+            'football': 'FOOTBALL',
+            'soccer': 'FOOTBALL',
+            'basketball': 'BASKETBALL',
+            'tennis': 'TENNIS',
+            'hockey': 'HOCKEY',
+            'baseball': 'BASEBALL',
+            'rugby': 'RUGBY',
+            'golf': 'GOLF',
+            'volleyball': 'VOLLEYBALL',
+            'badminton': 'BADMINTON',
+            'swimming': 'SWIMMING',
+            'athletics': 'ATHLETICS',
+            'boxing': 'BOXING',
+            'mma': 'MMA',
+            'motorsport': 'MOTORSPORT',
+            'racing': 'MOTORSPORT',
+            'f1': 'MOTORSPORT',
+            'formula 1': 'MOTORSPORT',
+        }
+        
+        # Return standardized category or the original uppercased if not in mapping
+        return category_mappings.get(category_lower, category.upper())
     
     def _extract_summary(self, content: str, max_length: int = 200) -> str:
         """Extract summary from article content"""

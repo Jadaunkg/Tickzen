@@ -223,6 +223,22 @@ def safe_get(data_dict, key, default="N/A"):
 
 def format_value(value, value_type="number", precision=2, ticker=None):
     """Formats values for display, handling 'N/A' and potential errors."""
+    import pandas as pd
+    
+    # Convert Series/array-like to scalar first
+    if isinstance(value, (pd.Series, pd.Index)):
+        if len(value) == 0:
+            return "N/A"
+        value = value.iloc[0] if hasattr(value, 'iloc') else value[0]
+    
+    # Handle numpy arrays
+    if hasattr(value, 'item'):
+        try:
+            value = value.item()
+        except (ValueError, AttributeError):
+            pass
+    
+    # Now check for N/A conditions
     if value == "N/A" or value is None or (isinstance(value, float) and np.isnan(value)):
         return "N/A"
 
@@ -945,8 +961,8 @@ def extract_risk_analysis_data(historical_data, market_data=None, ticker=None):
         
         logging.info(f"Calculating risk metrics for {ticker} with {len(price_data)} data points using column '{close_col}'")
         
-        # Calculate comprehensive risk profile
-        risk_metrics = risk_analyzer.comprehensive_risk_profile(price_data, market_data)
+        # Calculate comprehensive risk profile (with ticker for liquidity score - P2.2 Day 8)
+        risk_metrics = risk_analyzer.comprehensive_risk_profile(price_data, market_data, ticker=ticker)
         
         # Format the metrics for display
         formatted_metrics = {
@@ -954,12 +970,28 @@ def extract_risk_analysis_data(historical_data, market_data=None, ticker=None):
             "Volatility (Historical Ann.)": format_value(risk_metrics.get('volatility_annualized') * 100, 'percent_direct', 1),
             "Value at Risk (5%)": format_value(risk_metrics.get('var_5') * 100, 'percent_direct', 2),  # Convert decimal to percentage
             "Value at Risk (1%)": format_value(risk_metrics.get('var_1') * 100, 'percent_direct', 2),  # Convert decimal to percentage
+            "CVaR (5%)": format_value(risk_metrics.get('cvar_5') * 100, 'percent_direct', 2),  # Expected loss in worst 5% scenarios
+            "CVaR (1%)": format_value(risk_metrics.get('cvar_1') * 100, 'percent_direct', 2),  # Expected loss in worst 1% scenarios
             "Sharpe Ratio": format_value(risk_metrics.get('sharpe_ratio'), 'ratio', 2),
             "Sortino Ratio": format_value(risk_metrics.get('sortino_ratio'), 'ratio', 2),
             "Maximum Drawdown": format_value(risk_metrics.get('max_drawdown') * 100, 'percent_direct', 2),  # Convert decimal to percentage
             "Skewness": format_value(risk_metrics.get('skewness'), 'ratio', 2),
             "Kurtosis": format_value(risk_metrics.get('kurtosis'), 'ratio', 2),
+            "Liquidity Score": format_value(risk_metrics.get('liquidity_score'), 'ratio', 1) if risk_metrics.get('liquidity_score') is not None else "N/A",  # P2.2 - Hasbrouck Model
+            "Liquidity Risk": risk_metrics.get('liquidity_risk_level', 'Unknown'),  # Provides interpretation: Very Low, Low, Medium, High
+            "Altman Z-Score": format_value(risk_metrics.get('altman_z_score'), 'ratio', 2) if risk_metrics.get('altman_z_score') is not None else "N/A",  # P2.3 - Altman Z-Score Model
+            "Bankruptcy Risk": risk_metrics.get('altman_bankruptcy_risk', 'Unknown'),  # Interpretation: Low, Medium, High
+            "Financial Health Zone": risk_metrics.get('altman_risk_zone', 'Unknown'),  # Safe Zone, Grey Zone, Distress Zone
         }
+        
+        # Add regime risk metrics if available (P2.4 - MSCI/NBER Regime Detection)
+        regime_risk = risk_metrics.get('regime_risk', {})
+        if regime_risk and isinstance(regime_risk, dict):
+            formatted_metrics["Bull Market Volatility"] = format_value(regime_risk.get('bull_market_volatility') * 100 if regime_risk.get('bull_market_volatility') is not None else None, 'percent_direct', 1)
+            formatted_metrics["Bear Market Volatility"] = format_value(regime_risk.get('bear_market_volatility') * 100 if regime_risk.get('bear_market_volatility') is not None else None, 'percent_direct', 1)
+            formatted_metrics["Volatility Ratio (Bear/Bull)"] = format_value(regime_risk.get('volatility_ratio'), 'ratio', 2) if regime_risk.get('volatility_ratio') is not None else "N/A"
+            formatted_metrics["Defensive Score"] = format_value(regime_risk.get('defensive_score'), 'number', 1) if regime_risk.get('defensive_score') is not None else "N/A"  # 0-100 scale (not a ratio)
+            formatted_metrics["Regime Profile"] = regime_risk.get('profile', 'Unknown')  # Defensive, Balanced, Aggressive
         
         # Add beta and correlation if market data is available
         if market_data is not None:

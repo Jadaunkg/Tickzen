@@ -18,6 +18,7 @@ Routes:
 from flask import Blueprint, render_template, redirect, url_for, session, current_app, request, jsonify
 import requests
 import json
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -488,21 +489,23 @@ def refresh_data():
         from Job_Portal_Automation.job_config import Config
         
         # Get previous article IDs for comparison (optimized approach)
+        # Only load cached data to extract existing IDs - we will REPLACE the cache completely
         previous_jobs, previous_results, previous_admits = load_cached_data()
         
-        # Create sets of existing IDs for efficient lookup
+        # Create sets of existing IDs for efficient lookup (to detect new articles)
         existing_job_ids = set()
         existing_result_ids = set()
         existing_admit_ids = set()
         
         if previous_jobs:
-            existing_job_ids = {item.get('id') or item.get('job_id') for item in previous_jobs if item.get('id') or item.get('job_id')}
+            existing_job_ids = {item.get('id') for item in previous_jobs if item.get('id')}
         if previous_results:
-            existing_result_ids = {item.get('id') or item.get('result_id') for item in previous_results if item.get('id') or item.get('result_id')}
+            existing_result_ids = {item.get('id') for item in previous_results if item.get('id')}
         if previous_admits:
-            existing_admit_ids = {item.get('id') or item.get('admit_id') for item in previous_admits if item.get('id') or item.get('admit_id')}
+            existing_admit_ids = {item.get('id') for item in previous_admits if item.get('id')}
         
-        current_app.logger.info(f"Previous article counts - Jobs: {len(existing_job_ids)}, Results: {len(existing_result_ids)}, Admits: {len(existing_admit_ids)}")
+        current_app.logger.info(f"Previous article counts from cache - Jobs: {len(previous_jobs)}, Results: {len(previous_results)}, Admits: {len(previous_admits)}")
+        current_app.logger.info(f"Previous article IDs extracted - Job IDs: {len(existing_job_ids)}, Result IDs: {len(existing_result_ids)}, Admit IDs: {len(existing_admit_ids)}")
         
         # External API endpoint
         api_url = 'https://job-crawler-api-0885.onrender.com/api/refresh/now'
@@ -515,6 +518,44 @@ def refresh_data():
         if response.status_code == 200:
             result = response.json()
             current_app.logger.info(f"Refresh triggered successfully: {result}")
+            
+            # Wait for the crawler to complete (check status endpoint)
+            status_url = 'https://job-crawler-api-0885.onrender.com/api/refresh/status'
+            max_wait_time = 60  # Maximum 60 seconds
+            check_interval = 3  # Check every 3 seconds
+            elapsed_time = 0
+            
+            current_app.logger.info("Waiting for crawler to complete...")
+            
+            while elapsed_time < max_wait_time:
+                try:
+                    status_response = requests.get(status_url, timeout=10)
+                    if status_response.status_code == 200:
+                        status_data = status_response.json()
+                        current_app.logger.info(f"Crawler status: {status_data.get('status')}")
+                        
+                        # Check if crawler is done
+                        if status_data.get('status') in ['completed', 'idle', 'ready']:
+                            current_app.logger.info(f"Crawler completed after {elapsed_time} seconds")
+                            # Log detailed crawler stats from external API
+                            external_items_found = status_data.get('items_found', 'unknown')
+                            external_message = status_data.get('message', 'No message')
+                            external_last_refresh = status_data.get('last_refresh', 'unknown')
+                            current_app.logger.info(f"External crawler report: {external_message} (items: {external_items_found}, last refresh: {external_last_refresh})")
+                            break
+                        elif status_data.get('status') == 'error':
+                            current_app.logger.warning(f"Crawler encountered an error: {status_data}")
+                            break
+                    
+                    time.sleep(check_interval)
+                    elapsed_time += check_interval
+                    
+                except Exception as e:
+                    current_app.logger.warning(f"Error checking crawler status: {e}")
+                    break
+            
+            if elapsed_time >= max_wait_time:
+                current_app.logger.warning(f"Crawler did not complete within {max_wait_time} seconds. Proceeding with data fetch...")
             
             # Now fetch unlimited data and save to JSON cache
             current_app.logger.info("Fetching unlimited data after refresh...")
@@ -547,17 +588,40 @@ def refresh_data():
                     current_app.logger.warning(f"Error fetching jobs page {page}: {e}")
                     break
             
-            # Mark new articles in jobs (optimized with Set lookup)
+            # Detect duplicates and new articles in jobs
+            # Group by URL to find duplicates, and check IDs against previous cache to find new items
+            seen_urls = {}
             new_jobs = []
-            for item in all_jobs:
-                item_id = item.get('id') or item.get('job_id')
-                if item_id and item_id not in existing_job_ids:
-                    item['is_new'] = True
-                    new_jobs.append(item)
-                else:
-                    item['is_new'] = False
+            duplicate_jobs = []
+            jobs_with_ids = 0
+            jobs_without_ids = 0
             
-            current_app.logger.info(f"Found {len(new_jobs)} new jobs")
+            for item in all_jobs:
+                item_id = item.get('id')
+                item_url = item.get('url', '')
+                
+                # Check for duplicates by URL
+                if item_url in seen_urls:
+                    item['is_duplicate'] = True
+                    item['is_new'] = False
+                    duplicate_jobs.append(item)
+                else:
+                    seen_urls[item_url] = True
+                    item['is_duplicate'] = False
+                    
+                    # Check if it's a new article (not in previous cache)
+                    if item_id:
+                        jobs_with_ids += 1
+                        if item_id not in existing_job_ids:
+                            item['is_new'] = True
+                            new_jobs.append(item)
+                        else:
+                            item['is_new'] = False
+                    else:
+                        jobs_without_ids += 1
+                        item['is_new'] = False
+            
+            current_app.logger.info(f"Jobs: {len(all_jobs)} total, {jobs_with_ids} with IDs, {jobs_without_ids} without IDs, {len(new_jobs)} new, {len(duplicate_jobs)} duplicates")
             
             # Fetch all results (multiple pages, no limit)
             page = 1
@@ -579,17 +643,39 @@ def refresh_data():
                     current_app.logger.warning(f"Error fetching results page {page}: {e}")
                     break
             
-            # Mark new articles in results (optimized with Set lookup)
+            # Detect duplicates and new articles in results
+            seen_urls = {}
             new_results = []
-            for item in all_results:
-                item_id = item.get('id') or item.get('result_id')
-                if item_id and item_id not in existing_result_ids:
-                    item['is_new'] = True
-                    new_results.append(item)
-                else:
-                    item['is_new'] = False
+            duplicate_results = []
+            results_with_ids = 0
+            results_without_ids = 0
             
-            current_app.logger.info(f"Found {len(new_results)} new results")
+            for item in all_results:
+                item_id = item.get('id')
+                item_url = item.get('url', '')
+                
+                # Check for duplicates by URL
+                if item_url in seen_urls:
+                    item['is_duplicate'] = True
+                    item['is_new'] = False
+                    duplicate_results.append(item)
+                else:
+                    seen_urls[item_url] = True
+                    item['is_duplicate'] = False
+                    
+                    # Check if it's a new article (not in previous cache)
+                    if item_id:
+                        results_with_ids += 1
+                        if item_id not in existing_result_ids:
+                            item['is_new'] = True
+                            new_results.append(item)
+                        else:
+                            item['is_new'] = False
+                    else:
+                        results_without_ids += 1
+                        item['is_new'] = False
+            
+            current_app.logger.info(f"Results: {len(all_results)} total, {results_with_ids} with IDs, {results_without_ids} without IDs, {len(new_results)} new, {len(duplicate_results)} duplicates")
             
             # Fetch all admit cards (multiple pages, no limit)
             page = 1
@@ -611,29 +697,56 @@ def refresh_data():
                     current_app.logger.warning(f"Error fetching admit cards page {page}: {e}")
                     break
             
-            # Mark new articles in admit cards (optimized with Set lookup)
+            # Detect duplicates and new articles in admit cards
+            seen_urls = {}
             new_admits = []
+            duplicate_admits = []
+            admits_with_ids = 0
+            admits_without_ids = 0
+            
             for item in all_admit_cards:
-                item_id = item.get('id') or item.get('admit_id')
-                if item_id and item_id not in existing_admit_ids:
-                    item['is_new'] = True
-                    new_admits.append(item)
-                else:
+                item_id = item.get('id')
+                item_url = item.get('url', '')
+                
+                # Check for duplicates by URL
+                if item_url in seen_urls:
+                    item['is_duplicate'] = True
                     item['is_new'] = False
+                    duplicate_admits.append(item)
+                else:
+                    seen_urls[item_url] = True
+                    item['is_duplicate'] = False
+                    
+                    # Check if it's a new article (not in previous cache)
+                    if item_id:
+                        admits_with_ids += 1
+                        if item_id not in existing_admit_ids:
+                            item['is_new'] = True
+                            new_admits.append(item)
+                        else:
+                            item['is_new'] = False
+                    else:
+                        admits_without_ids += 1
+                        item['is_new'] = False
             
-            current_app.logger.info(f"Found {len(new_admits)} new admit cards")
+            current_app.logger.info(f"Admit cards: {len(all_admit_cards)} total, {admits_with_ids} with IDs, {admits_without_ids} without IDs, {len(new_admits)} new, {len(duplicate_admits)} duplicates")
             
-            # Save all fetched data to JSON cache
+            # COMPLETELY REPLACE the JSON cache files with fresh data from API
+            # The local JSON files are only for backup/cache purposes
+            current_app.logger.info("Completely replacing local JSON cache with fresh API data...")
             save_api_data_to_json(
                 jobs=all_jobs,
                 results=all_results, 
                 admit_cards=all_admit_cards
             )
             
-            # Calculate total new articles
+            # Calculate statistics
             total_new = len(new_jobs) + len(new_results) + len(new_admits)
+            total_duplicates = len(duplicate_jobs) + len(duplicate_results) + len(duplicate_admits)
             
-            current_app.logger.info(f"Data refresh completed: {len(all_jobs)} jobs, {len(all_results)} results, {len(all_admit_cards)} admit cards saved to cache. {total_new} new articles found.")
+            current_app.logger.info(f"✅ JSON cache completely replaced with fresh data!")
+            current_app.logger.info(f"Data refresh completed: {len(all_jobs)} jobs, {len(all_results)} results, {len(all_admit_cards)} admit cards")
+            current_app.logger.info(f"New articles: {total_new}, Duplicates detected: {total_duplicates}")
             
             return jsonify({
                 'success': True,
@@ -648,7 +761,11 @@ def refresh_data():
                         'new_jobs': len(new_jobs),
                         'new_results': len(new_results),
                         'new_admits': len(new_admits),
-                        'total_new': total_new
+                        'total_new': total_new,
+                        'duplicate_jobs': len(duplicate_jobs),
+                        'duplicate_results': len(duplicate_results),
+                        'duplicate_admits': len(duplicate_admits),
+                        'total_duplicates': total_duplicates
                     }
                 }
             })

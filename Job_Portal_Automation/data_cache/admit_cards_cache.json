@@ -1,479 +1,306 @@
 {
-  "timestamp": "2026-01-25T22:39:49.750931",
+  "timestamp": "2026-02-12T17:03:18.449806",
   "success": true,
-  "count": 144,
+  "count": 124,
   "data": [
     {
-      "id": "d63fecafe96dbac3af793c69894ee5e1",
-      "title": "Bihar BSEB DELED Dummy Admit Card Date 2026",
+      "id": "7ce68e3e0d27ad6fbd287d26ad5fb88b",
+      "title": "Railway RRB ALP Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-bseb-deled-dummy-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/railway-rrb-alp-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "6aff30c9f22311da8c09a7d5f9cea752",
-      "title": "BPSSC Bihar Police Enforcement SI PET Admit Card 2026 – Out",
+      "id": "80d1f425bff72a6e426d919d847bc4cb",
+      "title": "SSC MTS / Havaldar Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpssc-bihar-police-enforcement-si-pet-admit-card-date-2026/",
+      "url": "https://sarkariresult.com.cm/ssc-mts-havaldar-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "f6ad8267232e17270cbd2da02b8d8558",
-      "title": "UPPSC RO/ ARO 2023 Mains Admit Card",
+      "id": "f434c255746aacd0a2572fb3a5a39aec",
+      "title": "RRB Junior Engineer JE Exam City Details 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rrb-junior-engineer-je-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "25815bab8121debc5caaf48a3ae02da3",
+      "title": "SEBI Assistant Manager Grade A Phase-II Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/sebi-assistant-manager-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "eb93fcb450c5a473f598f3c1c4c3e366",
+      "title": "UPPSC RO/ ARO 2023 Typing Test Admit Card 2026",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/uppsc-ro-aro-mains-admit-card-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": false
+      "is_duplicate": false,
+      "is_new": true
     },
     {
-      "id": "7683917ff7cf3c9945ed2a53cffc5153",
-      "title": "RRVUNL Technician Various Post Mains Exam Date 2026 – Out",
+      "id": "97e914b51dec90b58d2b57147e846a06",
+      "title": "MPESB Group 1 Sub Group 2 Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rrvunl-technician-various-post-mains-exam-date-2026/",
+      "url": "https://sarkariresult.com.cm/mpesb-group-1-sub-group-2-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": false
+      "is_duplicate": false,
+      "is_new": true
     },
     {
-      "id": "38b1b5ae1ebf99f9022717e77931824a",
-      "title": "Intelligence Bureau (IB) MTS Admit Card 2026 – Out",
+      "id": "f6a46b48d5180ab50e5022566d2a1afa",
+      "title": "Jharkhand JSSC ANM Exam Date 2026 – OUT",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/intelligence-bureau-ib-mts-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/jharkhand-jssc-anm-recruitment-2025/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": false
+      "is_duplicate": false,
+      "is_new": true
     },
     {
-      "id": "8e6914accd1fd18bb0944c3467dfcc0b",
-      "title": "IOCL Non Executive Personnel Admit Card 2026 – Out",
+      "id": "811d9c1b8d9e3fc936b1bf4cc27eef30",
+      "title": "CGPSC SSE PCS Pre Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/iocl-non-executive-personnel-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/cgpsc-sse-pcs-pre-recruitment-2025-chk/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": false
+      "is_duplicate": false,
+      "is_new": true
     },
     {
-      "id": "a0033cffd67533c3dbb6f09fadea940d",
-      "title": "RPSC Assistant Electrical Inspector Admit Card Date 2026 – Out",
+      "id": "53a134673cf4a5dfe3490e1144ea7cb6",
+      "title": "IB Security Assistant/ Executive Tier-II Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rpsc-assistant-electrical-inspector-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/ib-security-assistant-executive-2025/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "35e013c9a9f3f4e80a43b6e3f12a508d",
-      "title": "RPSC Junior Chemist Admit Card Date 2026 – Start",
+      "id": "c7d9771eb09d08b12fc8b9dbb2a9e426",
+      "title": "Railway RRB Group D Exam City / Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rpsc-junior-chemist-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/railway-rrb-group-d-admit-card-2026-chk-now/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "70ccbcd09e858877b91ab8eb6e594a40",
-      "title": "UPPSC RO/ ARO 2023 Revised Mains Admit Card",
+      "id": "013e64c7f0f3f3661d98449159cc4a68",
+      "title": "RRB Section Controller Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/uppsc-ro-aro-mains-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/rrb-section-controller-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "53d42cdb7a0883bdad6c88761538549f",
-      "title": "RRB NTPC 10+2 Inter Level CBT-2 Result 2026 – Out",
+      "id": "2547e760020b4d863fa7e3e18162726f",
+      "title": "RRB NTPC 10+2 Inter Level Application Status 2026",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rrb-ntpc-102-inter-level-cbt-2-result-2026/",
+      "url": "https://sarkariresult.com.cm/rrb-ntpc-inter-level-2025/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "05e79fc7953b651ea8b5104a9d3830ab",
-      "title": "CTET February Exam City Details 2026 – Out",
+      "id": "6de0d8c0cbbf1fdfc488b2364a65faab",
+      "title": "CTET February Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/ctet-february-exam-city-details-2026/",
+      "url": "https://sarkariresult.com.cm/ctet-february-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "7a896739cfd3a5adda70a23ab10aba69",
-      "title": "IBPS RRB Officer Scale-I, II, III Interview Letter 2026 – Out",
+      "id": "80150091e931b6e7f7c1df5133775520",
+      "title": "MPPGCL Plant Assistant Exam Date 2026",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/ibps-rrb-officer-scale-i-ii-iii-interview-letter-2026/",
+      "url": "https://sarkariresult.com.cm/mppgcl-plant-assistant-2025/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "b7580b6b71461b71dbbf0993246a4552",
-      "title": "CBSE Group A, B, C Tier-I Admit Card 2026 – Soon",
+      "id": "0da8b583c6921dfb446a637cb69489d7",
+      "title": "UPPSC PCS Interview Letter 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/cbse-group-a-b-c-tier-i-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/uppsc-pcs-mains-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "e74a04860cad0bbffcc5a14ad77ed924",
-      "title": "MPESB Group 2 Sub Group 3 Admit Card 2026 – Out",
+      "id": "263ce041427f5a0c89daec8bcdee10a8",
+      "title": "UP Police Constable OMR Sheet Instruction 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/mpesb-group-2-sub-group-3-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/up-police-constable-correction-edit-form-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "00b61093f200a97283982818bb79bcf4",
-      "title": "BPSSC Bihar Police Enforcement SI PET Admit Card Link 2026 – Out",
+      "id": "db3eb62c0b66d2088b4ccb07f0440193",
+      "title": "UP Home Guard OMR Sheet Instruction 2026",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpssc-bihar-police-enforcement-si-pet-admit-card-date-2026/",
+      "url": "https://sarkariresult.com.cm/up-home-guard-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "1504478f468e8521dbcd89c94b563c8e",
-      "title": "AFCAT 01/2026 Batch Admit Card – Out",
+      "id": "6ba6201d4e000f31aaeb88688ff290e2",
+      "title": "UPSC Engineering Services Pre Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/afcat-01-2026-batch-admit-card/",
+      "url": "https://sarkariresult.com.cm/upsc-engineering-services-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "9b097c07abdea6dabd2b09520b5bcc94",
-      "title": "UPSSSC Junior Assistant Exam City Details 2026 – Out",
+      "id": "2d5d0a82f25e81504d9c7a496d41569c",
+      "title": "UPSC Geo Scientist Pre Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/upsssc-junior-assistant-exam-city-details-2026/",
+      "url": "https://sarkariresult.com.cm/upsc-geo-scientist-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "96b6b76cd3baafd8581c00e1bbc9aa1c",
-      "title": "UPTET Exam Date 2026 – Out",
+      "id": "a9a6a096e3ff055cef730e5529bea1e5",
+      "title": "NTA NIFTEE Stage-I Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/uptet-exam-date-2026/",
+      "url": "https://sarkariresult.com.cm/nta-niftee-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "c7facc4ae7d53e55c915b24d86c055d6",
-      "title": "CTET February Exam Date 2026 – Out",
+      "id": "79b9f6a74d24a186bfdb691f0c81d4d1",
+      "title": "Bank of Baroda Office Assistant PET Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/ctet-february-exam-date-2026/",
+      "url": "https://sarkariresult.com.cm/bank-of-baroda-office-assistant-2025/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "1f878301e8c83898a26425adb369d4b7",
-      "title": "Bihar BPSC Special School Teacher Admit Card 2026 – Out",
+      "id": "5a11019a2a22b86b4262338d2a3fdf94",
+      "title": "UPSSSC Forest Guard PET / PMT Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-bpsc-special-school-teacher-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/upsssc-forest-guard-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "39046841536a6bb71cbd54bed59b5e66",
-      "title": "BPSC District Sports Officer DSO Admit Card 2026 – Out",
+      "id": "c0c4b3c5e2027104985ddfa89c80763d",
+      "title": "Bihar BSEB DELED 2nd Dummy Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpsc-district-sports-officer-dso-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/bihar-bseb-deled-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "c4083f1efda77904942578d9a69f42b2",
-      "title": "BPSC DSO/ AD Mains Admit Card 2026 – Out",
+      "id": "3dca9a30863f370778b01f14c118d53f",
+      "title": "RRB NTPC 10+2 Inter Level Typing Test Admit Card 2026",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpsc-dso-ad-mains-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/rrb-ntpc-inter-level-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "09d6c00530f98ec4b2b61f3442f6147e",
-      "title": "UP Police Computer Operator DV Test Admit Card 2026 – Out",
+      "id": "4729e8881b336421f2f5b2f5053e2a47",
+      "title": "SSB HC (Ministerial) PET/PST Admit Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/up-police-computer-operator-dv-test-admit-card-2026/",
+      "url": "https://sarkariresult.com.cm/ssb-hc-ministerial-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "7127305913f9d00ba1041991fb1e87df",
-      "title": "BPSC DSO/ AD Mains Admit Card Date 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpsc-dso-ad-mains-admit-card-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "19ee3de478d948e59f1423cfef7b8df9",
-      "title": "NTA CMAT Admit Card 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/nta-cmat-admit-card-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "14977dab5add8a47b1576838558ca091",
-      "title": "RRB NTPC Graduate Level Application Status 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rrb-ntpc-graduate-level-application-status-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "17b40348bbd4639991d5c4a6cc301fd7",
-      "title": "Indian Navy Civilian INCET 01/2025 Re-Exam Admit Card – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/indian-navy-civilian-incet-01-2025-re-exam-admit-card-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "827aa79fb13b45f76350374a4d070871",
-      "title": "SSC Stenographer C, D Skill Test Exam City Details 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/ssc-stenographer-c-d-skill-test-exam-city-details-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "811ef2d52463cd2c5e23ce306fa88996",
-      "title": "MPESB Group 2 Sub Group 3 Exam Date 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/mpesb-group-2-sub-group-3-exam-date-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "54c8fbd5b658f6901d04e93c51f8f364",
-      "title": "UPHESC Assistant Professor New Exam Date 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/uphesc-assistant-professor-new-exam-date-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "0ced51e1b987770dd1073b3918d1689f",
-      "title": "UP TGT / PGT New Exam Date 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/up-tgt-pgt-new-exam-date-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "b73ae66adf1af797915a862322157e7a",
-      "title": "NIACL AO Interview Letter 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/niacl-ao-interview-letter-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "24370aae883997aa02d5fd978db47a0e",
-      "title": "BPSC District Sports Officer DSO Admit Card Date 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpsc-district-sports-officer-dso-admit-card-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "38678e79cb1c9999799936aa78e7e2a1",
-      "title": "Bihar BPSC Special School Teacher Admit Card Date 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-bpsc-special-school-teacher-admit-card-date-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "3204e7e5fb2a9cf64ae914aa64716d84",
-      "title": "JPSC FRO Mains Admit Card 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/jpsc-fro-mains-admit-card-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "e25d8abcea1d8ba0845c7a1ecd76c099",
-      "title": "NTA JEE Main Session-I Admit Card 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/nta-jee-main-session-i-admit-card-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "4bdf18dd8e3569969d152a78fd7759a6",
-      "title": "CBSE Group A, B, C Tier-I Exam City Details 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/cbse-group-a-b-c-tier-i-exam-city-details-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "f2ef7031f10a0f77b66d8efe456bc5d8",
-      "title": "SSC MTS / Havaldar Self Slot Booking 2026",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/ssc-mts-havaldar-self-slot-booking-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "024dbd9a05552edcf21465dd0bbba080",
-      "title": "UPSSSC Stenographer Admit Card 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/upsssc-stenographer-admit-card-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "a2ace37be6d51ed704531069b9c58772",
-      "title": "NABARD Assistant Manager Grade-A Mains Admit Card 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/nabard-assistant-manager-grade-a-mains-admit-card-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "00768dc61f9709e5f4cb6393003fb57f",
-      "title": "BPSSC Bihar Police Enforcement SI PET Admit Card Date 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpssc-bihar-police-enforcement-si-pet-admit-card-date-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "e434216cafe610a8e34d7007a2995d13",
-      "title": "SSC CGL Tier – II Admit Card 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/ssc-cgl-tier-ii-admit-card-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "16844704f1ed4921c9940a8e60a48b18",
-      "title": "NTA CMAT Exam City Details 2026",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/nta-cmat-exam-city-details-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -671,6 +498,7 @@
           }
         ]
       },
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -682,6 +510,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -693,6 +522,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -704,17 +534,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "c7d9771eb09d08b12fc8b9dbb2a9e426",
-      "title": "Railway RRB Group D Exam City / Admit Card 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/railway-rrb-group-d-admit-card-2026-chk-now/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -726,6 +546,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -737,6 +558,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -748,17 +570,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "4729e8881b336421f2f5b2f5053e2a47",
-      "title": "SSB HC (Ministerial) PET/PST Admit Card 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/ssb-hc-ministerial-pet-pst-admit-card-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -770,6 +582,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -781,6 +594,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -792,6 +606,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -803,6 +618,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -814,6 +630,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -825,6 +642,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -836,6 +654,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -847,6 +666,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -858,6 +678,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -869,6 +690,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -880,6 +702,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -891,6 +714,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -902,6 +726,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -913,6 +738,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -924,6 +750,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -935,6 +762,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -946,6 +774,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -957,6 +786,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -968,6 +798,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -979,6 +810,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -990,6 +822,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1001,6 +834,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1012,6 +846,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1023,6 +858,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1034,6 +870,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1045,6 +882,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1056,6 +894,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1067,6 +906,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1078,6 +918,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1089,6 +930,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1100,6 +942,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1111,6 +954,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1122,6 +966,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1133,6 +978,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1144,6 +990,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1155,6 +1002,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1166,6 +1014,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1177,6 +1026,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1188,6 +1038,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1199,6 +1050,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1210,6 +1062,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1221,6 +1074,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1232,6 +1086,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1243,6 +1098,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1254,6 +1110,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1265,6 +1122,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1276,6 +1134,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1287,6 +1146,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1298,6 +1158,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1309,6 +1170,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1320,6 +1182,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1331,6 +1194,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1342,6 +1206,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1353,6 +1218,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1364,6 +1230,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1375,6 +1242,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1386,6 +1254,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1397,6 +1266,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1408,6 +1278,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1419,6 +1290,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1430,6 +1302,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1441,6 +1314,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1452,6 +1326,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1463,6 +1338,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1474,6 +1350,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1485,6 +1362,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1496,6 +1374,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1507,6 +1386,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1518,6 +1398,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1529,6 +1410,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1540,6 +1422,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1551,6 +1434,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1562,6 +1446,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1573,6 +1458,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1584,6 +1470,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1595,6 +1482,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1606,6 +1494,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1617,6 +1506,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1628,6 +1518,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1639,6 +1530,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1650,6 +1542,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1661,6 +1554,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1672,6 +1566,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1683,6 +1578,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1694,6 +1590,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1705,6 +1602,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1716,6 +1614,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1727,6 +1626,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1738,6 +1638,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1749,6 +1650,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1760,6 +1662,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1771,6 +1674,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     }
   ]

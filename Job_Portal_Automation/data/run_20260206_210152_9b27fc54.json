@@ -1,0 +1,161 @@
+{
+  "target_profiles": [
+    "0iezbbvPuuCoQtuHkk3I"
+  ],
+  "created_at": "2026-02-06T21:01:52.794115",
+  "completed_at": "2026-02-06T21:05:09.311322",
+  "run_id": "run_20260206_210152_9b27fc54",
+  "user_uid": "iROXMDJiuebQl9Jg4vvXohKea0C2",
+  "status": "completed",
+  "updated_at": "2026-02-06T21:05:10.011117",
+  "results": [
+    {
+      "published_url": "https://hirenjob.com/?p=624",
+      "item_title": "UPPSC Assistant Registrar Result 2026 – Out",
+      "status": "success",
+      "timestamp": "2026-02-06T21:03:09.029659",
+      "item_id": "48123c48ddefb25d1fc1af52fcd284f8",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=626",
+      "item_title": "MPESB Excise Constable Result 2026 – Out",
+      "status": "success",
+      "timestamp": "2026-02-06T21:03:37.455542",
+      "item_id": "b0c05b5bbd69517f257a397937032e08",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=628",
+      "item_title": "SSC Selection Phase 13 Result 2026 – Out",
+      "status": "success",
+      "timestamp": "2026-02-06T21:04:08.348092",
+      "item_id": "8e34a51bf1219f0bb609109a128c7285",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=631",
+      "item_title": "SBI Bank Clerk 3rd Wait List 2026 – Out",
+      "status": "success",
+      "timestamp": "2026-02-06T21:04:40.622938",
+      "item_id": "31ab21cb7db3e529a64da01d99507635",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=634",
+      "item_title": "RPSC RAS/ RTS 2023 Final Result – Out",
+      "status": "success",
+      "timestamp": "2026-02-06T21:05:08.088977",
+      "item_id": "4caa15197d10bde1f24e1aab6d8f4730",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    }
+  ],
+  "content_type": "results",
+  "selected_items": [
+    {
+      "title": "UPPSC LT Grade Assistant Teacher Result 2026 – Out",
+      "id": "4bba3fcc9589844428616c5373c21022",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/uppsc-lt-grade-assistant-teache-2026/"
+    },
+    {
+      "title": "UPPSC Assistant Registrar Result 2026 – Out",
+      "id": "48123c48ddefb25d1fc1af52fcd284f8",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/uppsc-assistant-registrar-2025/"
+    },
+    {
+      "title": "MPESB Excise Constable Result 2026 – Out",
+      "id": "b0c05b5bbd69517f257a397937032e08",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/mpesb-excise-constable-result-2026/"
+    },
+    {
+      "title": "SSC Selection Phase 13 Result 2026 – Out",
+      "id": "8e34a51bf1219f0bb609109a128c7285",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/ssc-phase-13-2025/"
+    },
+    {
+      "title": "SBI Bank Clerk 3rd Wait List 2026 – Out",
+      "id": "31ab21cb7db3e529a64da01d99507635",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/sbi-bank-clerk-2025/"
+    },
+    {
+      "title": "RPSC RAS/ RTS 2023 Final Result – Out",
+      "id": "4caa15197d10bde1f24e1aab6d8f4730",
+      "content_type": "results",
+      "url": "https://sarkariresult.com.cm/rpsc-ras-rts-2023/"
+    }
+  ],
+  "progress": {
+    "completed": 6,
+    "total": 6,
+    "current_item": "Completed: 5 published, 1 failed",
+    "failed": 0
+  },
+  "errors": [
+    {
+      "error_message": "Failed to fetch details: Connection error after 3 attempts",
+      "item_title": "UPPSC LT Grade Assistant Teacher Result 2026 – Out",
+      "timestamp": "2026-02-06T21:02:35.658668",
+      "item_id": "4bba3fcc9589844428616c5373c21022",
+      "step": "detail_fetching"
+    }
+  ],
+  "config": {
+    "article_length": "medium",
+    "profiles": [
+      {
+        "created_at": "2026-01-17T11:56:01.091211+00:00",
+        "site_url": "https://hirenjob.com/",
+        "min_interval": 20,
+        "max_interval": 32,
+        "stockforecast_category_id": "2",
+        "uploaded_ticker_file_name": null,
+        "internal_linking": {
+          "enabled": true,
+          "cache_expiry_hours": 24,
+          "same_category_only": true,
+          "max_links_per_article": 5
+        },
+        "all_tickers_from_file": [],
+        "ticker_count_from_file": null,
+        "ticker_file_storage_path": null,
+        "category_id": 4,
+        "profile_name": "Hirenjob",
+        "sheet_name": "1",
+        "last_updated_at": "2026-01-17T11:56:01.091211+00:00",
+        "env_prefix_for_feature_image_colors": "",
+        "min_scheduling_gap_minutes": 45,
+        "profile_id": "0iezbbvPuuCoQtuHkk3I",
+        "authors": [
+          {
+            "id": "author_1768650961_0",
+            "wp_username": "Akhil Singh",
+            "app_password": "ktvJ 1cKQ qaxn snW9 RKQe s438",
+            "wp_user_id": "2"
+          },
+          {
+            "id": "author_1768650961_1",
+            "wp_username": "Krishna",
+            "app_password": "5OhV vDTj 1FTW tIyD d64J DTAI",
+            "wp_user_id": "3"
+          },
+          {
+            "id": "author_1768650961_2",
+            "wp_username": "Ramesh Pratap",
+            "app_password": "EE74 lPO1 nmGp 1MuW RGgO mais",
+            "wp_user_id": "4"
+          }
+        ],
+        "max_scheduling_gap_minutes": 60,
+        "ticker_preview_from_file": [],
+        "publish_status": "schedule",
+        "ticker_file_uploaded_at": null
+      }
+    ]
+  },
+  "timestamp": "2026-02-06T21:01:52.794115"
+}

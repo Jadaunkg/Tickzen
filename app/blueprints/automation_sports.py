@@ -208,8 +208,8 @@ def run():
         sports_loader = get_sports_loader()
         articles = sports_loader.load_articles()
         
-        # Sort by published date (newest first)
-        articles.sort(key=lambda x: x.get('published_date', ''), reverse=True)
+        # Sort by published date (newest first) - handle None values
+        articles.sort(key=lambda x: x.get('published_date') or '', reverse=True)
         
         # Load ALL articles - pagination handled by frontend
         sports_articles = articles
@@ -255,6 +255,10 @@ def run():
                             dt = utc.localize(dt)
                         ist_time = dt.astimezone(ist)
                         
+                        # Store separate components for better display
+                        article['display_date'] = ist_time.strftime('%Y-%m-%d')
+                        article['display_time'] = ist_time.strftime('%H:%M:%S')
+                        article['display_timezone'] = '+05:30'
                         article['display_date_ist'] = ist_time.strftime('%Y-%m-%d %H:%M:%S IST')
                     except Exception as e:
                         current_app.logger.warning(f"Error converting timestamp for article: {e}")

@@ -1,0 +1,119 @@
+{
+  "target_profiles": [
+    "0iezbbvPuuCoQtuHkk3I"
+  ],
+  "created_at": "2026-01-28T17:44:29.370836",
+  "completed_at": "2026-01-28T17:46:04.286175",
+  "run_id": "run_20260128_174429_466428e8",
+  "user_uid": "iROXMDJiuebQl9Jg4vvXohKea0C2",
+  "status": "completed",
+  "updated_at": "2026-01-28T17:46:06.026970",
+  "results": [
+    {
+      "published_url": "https://hirenjob.com/?p=344",
+      "item_title": "UPSSSC Lekhpal Online Form 2026 (7994 Post) – Last Date Today",
+      "status": "success",
+      "timestamp": "2026-01-28T17:44:57.136718",
+      "item_id": "3be1fafbdf546bb2618cb078eb0749c8",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=347",
+      "item_title": "BTSC Pump Operator Online Form 2026 – Re-Open",
+      "status": "success",
+      "timestamp": "2026-01-28T17:45:38.375237",
+      "item_id": "3696d1d0caea20d533edf9d657f0ce7a",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=351",
+      "item_title": "BTSC Work Inspector Mechanical Online Form 2026 – Re-Open",
+      "status": "success",
+      "timestamp": "2026-01-28T17:46:02.591163",
+      "item_id": "28686ff889b7e49d50749d2cf259b21c",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    }
+  ],
+  "content_type": "jobs",
+  "selected_items": [
+    {
+      "title": "UPSSSC Lekhpal Online Form 2026 (7994 Post) – Last Date Today",
+      "id": "3be1fafbdf546bb2618cb078eb0749c8",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/upsssc-lekhpal-recruitment-2026-apply-online-chk2/"
+    },
+    {
+      "title": "BTSC Pump Operator Online Form 2026 – Re-Open",
+      "id": "3696d1d0caea20d533edf9d657f0ce7a",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/btsc-pump-operator-recruitment-2026-re-open/"
+    },
+    {
+      "title": "BTSC Work Inspector Mechanical Online Form 2026 – Re-Open",
+      "id": "28686ff889b7e49d50749d2cf259b21c",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/btsc-work-inspector-mechanical-recruitment-2026-re-open/"
+    }
+  ],
+  "progress": {
+    "completed": 3,
+    "total": 3,
+    "current_item": "Completed: 3 published, 0 failed",
+    "failed": 0
+  },
+  "errors": [],
+  "config": {
+    "article_length": "medium",
+    "profiles": [
+      {
+        "created_at": "2026-01-17T11:56:01.091211+00:00",
+        "site_url": "https://hirenjob.com/",
+        "min_interval": 30,
+        "max_interval": 120,
+        "stockforecast_category_id": "2",
+        "uploaded_ticker_file_name": null,
+        "internal_linking": {
+          "enabled": true,
+          "cache_expiry_hours": 24,
+          "same_category_only": true,
+          "max_links_per_article": 5
+        },
+        "all_tickers_from_file": [],
+        "ticker_count_from_file": null,
+        "ticker_file_storage_path": null,
+        "category_id": 2,
+        "profile_name": "Hirenjob",
+        "sheet_name": "1",
+        "last_updated_at": "2026-01-17T11:56:01.091211+00:00",
+        "env_prefix_for_feature_image_colors": "",
+        "min_scheduling_gap_minutes": 45,
+        "profile_id": "0iezbbvPuuCoQtuHkk3I",
+        "authors": [
+          {
+            "id": "author_1768650961_0",
+            "wp_username": "Akhil Singh",
+            "app_password": "ktvJ 1cKQ qaxn snW9 RKQe s438",
+            "wp_user_id": "2"
+          },
+          {
+            "id": "author_1768650961_1",
+            "wp_username": "Krishna",
+            "app_password": "5OhV vDTj 1FTW tIyD d64J DTAI",
+            "wp_user_id": "3"
+          },
+          {
+            "id": "author_1768650961_2",
+            "wp_username": "Ramesh Pratap",
+            "app_password": "EE74 lPO1 nmGp 1MuW RGgO mais",
+            "wp_user_id": "4"
+          }
+        ],
+        "max_scheduling_gap_minutes": 60,
+        "ticker_preview_from_file": [],
+        "publish_status": "draft",
+        "ticker_file_uploaded_at": null
+      }
+    ]
+  },
+  "timestamp": "2026-01-28T17:44:29.370836"
+}

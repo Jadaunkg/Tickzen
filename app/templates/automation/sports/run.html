@@ -325,6 +325,58 @@
             font-size: 0.875rem;
         }
 
+        /* Database Submenu Styles */
+        .database-submenu {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                max-height: 500px;
+                transform: translateY(0);
+            }
+        }
+
+        .db-subcategory-btn {
+            padding: 0.5rem 0.875rem;
+            border: 1.5px solid #e9ecef;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            color: #495057;
+        }
+
+        .db-subcategory-btn:hover {
+            border-color: #6b21a8;
+            background: #f3e8ff;
+            color: #6b21a8;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(107, 33, 168, 0.15);
+        }
+
+        .db-subcategory-btn.active {
+            background: #6b21a8;
+            color: white;
+            border-color: #6b21a8;
+            font-weight: 600;
+        }
+
+        .db-subcategory-btn i {
+            font-size: 0.75rem;
+        }
+
 
         .filter-input {
             width: 100%;
@@ -1266,10 +1318,68 @@
                     <i class="fas fa-basketball-ball"></i>
                     Basketball
                 </button>
-                <button type="button" class="category-btn" data-category="database" onclick="filterByCategory('database')">
+                <button type="button" class="category-btn" data-category="database" onclick="toggleDatabaseSubmenu()">
                     <i class="fas fa-database"></i>
                     Database
+                    <i class="fas fa-chevron-down" id="databaseChevron" style="margin-left: 0.5rem; font-size: 0.75rem; transition: transform 0.3s;"></i>
                 </button>
+            </div>
+            
+            <!-- Database Subcategory Buttons -->
+            <div id="databaseSubmenu" class="database-submenu" style="display: none; margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; border: 1px solid #e9ecef;">
+                <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.75rem; color: #6b21a8;">
+                    <i class="fas fa-database"></i> Database Sports Categories
+                </h4>
+                <div class="database-category-buttons" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    <button type="button" class="db-subcategory-btn" data-db-category="all" onclick="filterByDatabaseCategory('all')">
+                        <i class="fas fa-list"></i> All Database
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="CRICKET" onclick="filterByDatabaseCategory('CRICKET')">
+                        <i class="fas fa-cricket"></i> Cricket
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="FOOTBALL" onclick="filterByDatabaseCategory('FOOTBALL')">
+                        <i class="fas fa-football-ball"></i> Football
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="BASKETBALL" onclick="filterByDatabaseCategory('BASKETBALL')">
+                        <i class="fas fa-basketball-ball"></i> Basketball
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="TENNIS" onclick="filterByDatabaseCategory('TENNIS')">
+                        <i class="fas fa-table-tennis"></i> Tennis
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="HOCKEY" onclick="filterByDatabaseCategory('HOCKEY')">
+                        <i class="fas fa-hockey-puck"></i> Hockey
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="BASEBALL" onclick="filterByDatabaseCategory('BASEBALL')">
+                        <i class="fas fa-baseball-ball"></i> Baseball
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="RUGBY" onclick="filterByDatabaseCategory('RUGBY')">
+                        <i class="fas fa-football-ball"></i> Rugby
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="GOLF" onclick="filterByDatabaseCategory('GOLF')">
+                        <i class="fas fa-golf-ball"></i> Golf
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="VOLLEYBALL" onclick="filterByDatabaseCategory('VOLLEYBALL')">
+                        <i class="fas fa-volleyball-ball"></i> Volleyball
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="BADMINTON" onclick="filterByDatabaseCategory('BADMINTON')">
+                        <i class="fas fa-shuttlecock"></i> Badminton
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="SWIMMING" onclick="filterByDatabaseCategory('SWIMMING')">
+                        <i class="fas fa-swimmer"></i> Swimming
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="ATHLETICS" onclick="filterByDatabaseCategory('ATHLETICS')">
+                        <i class="fas fa-running"></i> Athletics
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="BOXING" onclick="filterByDatabaseCategory('BOXING')">
+                        <i class="fas fa-fist-raised"></i> Boxing
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="MMA" onclick="filterByDatabaseCategory('MMA')">
+                        <i class="fas fa-user-ninja"></i> MMA
+                    </button>
+                    <button type="button" class="db-subcategory-btn" data-db-category="MOTORSPORT" onclick="filterByDatabaseCategory('MOTORSPORT')">
+                        <i class="fas fa-car"></i> Motorsport
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -1469,6 +1579,7 @@
                     <div class="article-card" 
                          data-article-id="{{ article.id }}" 
                          data-category="{% if article.data_source == 'database' %}database{% else %}{{ article.category }}{% endif %}"
+                         data-sport-category="{{ article.sport_category|default(article.category)|upper }}"
                          data-importance="{{ article.importance_tier|default('Medium') }}"
                          data-score="{{ article.importance_score|default(50) }}"
                          data-published="{{ article.display_date_iso|default(article.published_date) }}"
@@ -1508,8 +1619,28 @@
                             
                     <div class="article-meta">
                         <span class="article-meta-item">
+                            <i class="fas fa-calendar"></i>
+                            {% if article.display_date %}
+                                <span style="font-weight: 500;">{{ article.display_date }}</span>
+                            {% else %}
+                                <span>{{ article.published_date|default('Unknown Date') }}</span>
+                            {% endif %}
+                        </span>
+                        <span class="article-meta-item">
                             <i class="fas fa-clock"></i>
-                            {{ article.published_date|default('Unknown Date') }}
+                            {% if article.display_time %}
+                                <span style="font-weight: 500;">{{ article.display_time }}</span>
+                            {% else %}
+                                <span>--:--:--</span>
+                            {% endif %}
+                        </span>
+                        <span class="article-meta-item">
+                            <i class="fas fa-globe"></i>
+                            {% if article.display_timezone %}
+                                <span style="font-weight: 500; color: #059669;">IST {{ article.display_timezone }}</span>
+                            {% else %}
+                                <span>UTC</span>
+                            {% endif %}
                         </span>
                         <span class="article-meta-item">
                             <i class="fas fa-newspaper"></i>
@@ -2208,6 +2339,18 @@ if (typeof lucide !== 'undefined') {
         });
         document.querySelector(`[data-category="${category}"]`).classList.add('active');
 
+        // Hide database submenu when switching to other categories
+        if (category !== 'database') {
+            const submenu = document.getElementById('databaseSubmenu');
+            if (submenu) {
+                submenu.style.display = 'none';
+            }
+            const chevron = document.getElementById('databaseChevron');
+            if (chevron) {
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
         // Filter articles
         if (category === 'all') {
             filteredArticleCards = [...allArticleCards];
@@ -2227,6 +2370,76 @@ if (typeof lucide !== 'undefined') {
         
         // Apply active time filter sorting if any
         applySortingToArticles();
+        
+        // Reset to page 1
+        renderPage(1);
+    }
+
+    // Toggle database submenu
+    function toggleDatabaseSubmenu() {
+        const submenu = document.getElementById('databaseSubmenu');
+        const chevron = document.getElementById('databaseChevron');
+        
+        if (submenu.style.display === 'none' || submenu.style.display === '') {
+            submenu.style.display = 'block';
+            chevron.style.transform = 'rotate(180deg)';
+            // Also activate the database filter
+            filterByCategory('database');
+        } else {
+            submenu.style.display = 'none';
+            chevron.style.transform = 'rotate(0deg)';
+        }
+    }
+
+    // Filter by specific database sport category
+    function filterByDatabaseCategory(sportCategory) {
+        console.log(`🎯 Filtering database articles by sport: ${sportCategory}`);
+        
+        // Update database subcategory button states
+        document.querySelectorAll('.db-subcategory-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-db-category="${sportCategory}"]`).classList.add('active');
+        
+        // Ensure main database category is active
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-category="database"]`).classList.add('active');
+        
+        // Filter articles from database source
+        const databaseArticles = allArticleCards.filter(card => card.dataset.category === 'database');
+        console.log(`📊 Total database articles: ${databaseArticles.length}`);
+        
+        if (sportCategory === 'all') {
+            filteredArticleCards = databaseArticles;
+            console.log(`✅ Showing all ${filteredArticleCards.length} database articles`);
+        } else {
+            // Filter by sport_category using data-sport-category attribute
+            filteredArticleCards = databaseArticles.filter(card => {
+                const cardSportCategory = card.dataset.sportCategory?.toUpperCase();
+                return cardSportCategory === sportCategory.toUpperCase();
+            });
+            
+            console.log(`🎯 Filtered ${filteredArticleCards.length} database articles for sport "${sportCategory}"`);
+            
+            // Debug: Log sample articles
+            if (filteredArticleCards.length > 0) {
+                console.log('✅ Sample filtered articles:');
+                filteredArticleCards.slice(0, 3).forEach((card, index) => {
+                    console.log(`  ${index + 1}. ${card.dataset.title?.substring(0, 50)}... (${card.dataset.sportCategory})`);
+                });
+            }
+        }
+        
+        // Sort by newest first (published date)
+        filteredArticleCards.sort((cardA, cardB) => {
+            const dateA = new Date(cardA.dataset.published || 0);
+            const dateB = new Date(cardB.dataset.published || 0);
+            return dateB - dateA; // Newest first
+        });
+        
+        console.log(`✅ Sorted ${filteredArticleCards.length} articles by date (newest first)`);
         
         // Reset to page 1
         renderPage(1);
@@ -3094,8 +3307,16 @@ if (typeof lucide !== 'undefined') {
                     
                     <div class="article-meta">
                         <span class="article-meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span style="font-weight: 500;">${article.display_date || article.published_date || 'Unknown Date'}</span>
+                        </span>
+                        <span class="article-meta-item">
                             <i class="fas fa-clock"></i>
-                            ${article.published_date || 'Unknown Date'}
+                            <span style="font-weight: 500;">${article.display_time || '--:--:--'}</span>
+                        </span>
+                        <span class="article-meta-item">
+                            <i class="fas fa-globe"></i>
+                            <span style="font-weight: 500; color: #059669;">IST ${article.display_timezone || 'UTC'}</span>
                         </span>
                         <span class="article-meta-item">
                             <i class="fas fa-newspaper"></i>

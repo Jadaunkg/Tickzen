@@ -91,11 +91,12 @@ class JobAutomationManager:
                 response = self.api_client.get_jobs(page, limit, portal)
             
             # Extract and structure response
-            # API returns 'items' not 'data'
+            # API returns 'items' not 'data' and doesn't include 'success' field
+            # The API response structure: {total, page, limit, total_pages, items}
             data = response.get('items', response.get('data', []))
             
             return {
-                'success': True,
+                'success': True,  # We add this for consistency
                 'data': data,
                 'pagination': {
                     'page': page,

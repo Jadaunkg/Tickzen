@@ -534,7 +534,7 @@
         /* New Article Badge */
         .new-badge {
             position: absolute;
-            top: 0.5rem;
+            bottom: 0.5rem;
             right: 0.5rem;
             background: linear-gradient(135deg, #ff6b6b, #ee5a52);
             color: white;
@@ -554,24 +554,12 @@
             50% { transform: scale(1.05); box-shadow: 0 4px 8px rgba(238, 90, 82, 0.4); }
         }
 
-        .item-card {
-            position: relative;
-            overflow: visible;
-        }
-
-        /* New article highlight effect */
-        .item-card.new-article {
-            border: 2px solid #ff6b6b;
-            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.02), rgba(238, 90, 82, 0.02));
-        }
-
-        /* New Article Badge */
-        .new-badge {
+        /* Duplicate Article Badge */
+        .duplicate-badge {
             position: absolute;
-            top: 0.5rem;
+            bottom: 0.5rem;
             right: 0.5rem;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            background: linear-gradient(135deg, #94a3b8, #64748b);
             color: white;
             font-size: 0.625rem;
             font-weight: 700;
@@ -579,14 +567,8 @@
             border-radius: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 2px 4px rgba(238, 90, 82, 0.3);
-            animation: newBadgePulse 2s ease-in-out infinite;
+            box-shadow: 0 2px 4px rgba(100, 116, 139, 0.3);
             z-index: 10;
-        }
-
-        @keyframes newBadgePulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 2px 4px rgba(238, 90, 82, 0.3); }
-            50% { transform: scale(1.05); box-shadow: 0 4px 8px rgba(238, 90, 82, 0.4); }
         }
 
         .item-card {
@@ -599,6 +581,18 @@
             border: 2px solid #ff6b6b;
             box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
             background: linear-gradient(135deg, rgba(255, 107, 107, 0.02), rgba(238, 90, 82, 0.02));
+        }
+
+        /* Duplicate article styling - grayed out */
+        .item-card.duplicate-article {
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 2px 6px rgba(148, 163, 184, 0.1);
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.03), rgba(203, 213, 225, 0.03));
+            opacity: 0.75;
+        }
+
+        .item-card.duplicate-article:hover {
+            opacity: 0.85;
         }
 
         /* Configuration Panel */
@@ -1105,6 +1099,28 @@
                         <span class="category-count" id="admit-cards-count">{{ admit_cards_items|length }}</span>
                     </button>
                 </div>
+                
+                <!-- Filter Options for New/Duplicate -->
+                <div class="filter-options" style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="filterShowNew" checked style="cursor: pointer;">
+                        <span style="font-size: 0.875rem;">
+                            <i class="fas fa-star" style="color: #ff6b6b;"></i> Show New Articles
+                        </span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="filterShowDuplicates" checked style="cursor: pointer;">
+                        <span style="font-size: 0.875rem;">
+                            <i class="fas fa-copy" style="color: #94a3b8;"></i> Show Duplicates
+                        </span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="filterShowRegular" checked style="cursor: pointer;">
+                        <span style="font-size: 0.875rem;">
+                            <i class="fas fa-file-alt" style="color: #64748b;"></i> Show Regular
+                        </span>
+                    </label>
+                </div>
             </div>
 
             <!-- Items Section Header -->
@@ -1148,14 +1164,20 @@
                 <!-- All Items in Collection Order (Most Recent First) -->
                 {% if all_items and all_items|length > 0 %}
                     {% for item in all_items %}
-                    <div class="item-card{{ ' new-article' if item.is_new else '' }}" 
+                    <div class="item-card{{ ' new-article' if item.is_new else '' }}{{ ' duplicate-article' if item.is_duplicate else '' }}" 
                          data-item-id="{{ item.id or item.job_id or item.result_id or item.admit_id }}" 
                          data-content-type="{{ item.content_type }}"
                          data-title="{{ item.title }}"
                          data-item-url="{{ item.url|default('#') }}"
+                         data-is-new="{{ 'true' if item.is_new else 'false' }}"
+                         data-is-duplicate="{{ 'true' if item.is_duplicate else 'false' }}"
                          onclick="toggleItemSelection(this)">
                         
-                        {% if item.is_new %}
+                        {% if item.is_duplicate %}
+                            <div class="duplicate-badge">
+                                <i class="fas fa-copy"></i> DUPLICATE
+                            </div>
+                        {% elif item.is_new %}
                             <div class="new-badge">
                                 <i class="fas fa-star"></i> NEW
                             </div>
@@ -1546,8 +1568,51 @@
             });
         });
 
+        // Filter by new/duplicate/regular status
+        const filterShowNew = document.getElementById('filterShowNew');
+        const filterShowDuplicates = document.getElementById('filterShowDuplicates');
+        const filterShowRegular = document.getElementById('filterShowRegular');
+
+        function applyStatusFilters() {
+            const showNew = filterShowNew.checked;
+            const showDuplicates = filterShowDuplicates.checked;
+            const showRegular = filterShowRegular.checked;
+
+            allItemCards.forEach(card => {
+                const isNew = card.dataset.isNew === 'true';
+                const isDuplicate = card.dataset.isDuplicate === 'true';
+                const isRegular = !isNew && !isDuplicate;
+
+                let shouldShow = false;
+                if (isNew && showNew) shouldShow = true;
+                if (isDuplicate && showDuplicates) shouldShow = true;
+                if (isRegular && showRegular) shouldShow = true;
+
+                if (shouldShow) {
+                    card.classList.remove('status-hidden');
+                } else {
+                    card.classList.add('status-hidden');
+                }
+            });
+
+            // Update counts and pagination
+            updateItemsCount();
+            initPagination();
+        }
+
+        if (filterShowNew) {
+            filterShowNew.addEventListener('change', applyStatusFilters);
+        }
+        if (filterShowDuplicates) {
+            filterShowDuplicates.addEventListener('change', applyStatusFilters);
+        }
+        if (filterShowRegular) {
+            filterShowRegular.addEventListener('change', applyStatusFilters);
+        }
+
         // Initial filter to show only jobs on page load
         filterItemsByContentType('jobs');
+        applyStatusFilters();
 
         // Selection status helpers
         const selectionStatusEl = document.getElementById('selection-status');
@@ -1755,7 +1820,7 @@
         // Re-initialize pagination with filtered results
         initPagination();
 
-        const visibleCards = allItemCards.filter(card => !card.classList.contains('category-hidden'));
+        const visibleCards = allItemCards.filter(card => !card.classList.contains('category-hidden') && !card.classList.contains('status-hidden'));
         if (visibleCards.length === 0) {
             const noItemsMsg = itemsGrid.querySelector('.no-items-message');
             if (!noItemsMsg) {
@@ -1855,9 +1920,9 @@
 
     // Pagination Functions
     function initPagination() {
-        // Get currently visible cards (respecting category filter)
+        // Get currently visible cards (respecting both category and status filters)
         filteredItemCards = allItemCards.filter(card => {
-            return !card.classList.contains('category-hidden');
+            return !card.classList.contains('category-hidden') && !card.classList.contains('status-hidden');
         });
         renderPage(1);
     }
@@ -1869,9 +1934,9 @@
     }
 
     function changePage(page) {
-        // Get currently visible cards (respecting category filter)
+        // Get currently visible cards (respecting both category and status filters)
         filteredItemCards = allItemCards.filter(card => {
-            return !card.classList.contains('category-hidden');
+            return !card.classList.contains('category-hidden') && !card.classList.contains('status-hidden');
         });
         totalPages = Math.ceil(filteredItemCards.length / itemsPerPage) || 1;
         if (page < 1 || page > totalPages) return;
@@ -1881,9 +1946,9 @@
     function renderPage(page) {
         currentPage = page;
         
-        // Get currently visible cards (respecting category filter)
+        // Get currently visible cards (respecting both category and status filters)
         filteredItemCards = allItemCards.filter(card => {
-            return !card.classList.contains('category-hidden');
+            return !card.classList.contains('category-hidden') && !card.classList.contains('status-hidden');
         });
         
         totalPages = Math.ceil(filteredItemCards.length / itemsPerPage) || 1;

@@ -40,16 +40,43 @@ except ImportError:
 # Load environment variables from .env file
 load_dotenv()
 
-# Import content freshness validation
+# Import content freshness validation using dynamic imports to avoid import errors
+import importlib
+FRESHNESS_VALIDATOR_AVAILABLE = False
+ContentFreshnessValidator = None
+track_article_usage = None
+
 try:
-    from .content_freshness_validator import ContentFreshnessValidator, track_article_usage
+    # Try relative import first
+    module = importlib.import_module('.content_freshness_validator', package=__package__)
+    ContentFreshnessValidator = getattr(module, 'ContentFreshnessValidator')
+    track_article_usage = getattr(module, 'track_article_usage')
     FRESHNESS_VALIDATOR_AVAILABLE = True
-except ImportError:
+except (ImportError, AttributeError):
     try:
-        from content_freshness_validator import ContentFreshnessValidator, track_article_usage
+        # Try absolute import as fallback
+        module = importlib.import_module('content_freshness_validator')
+        ContentFreshnessValidator = getattr(module, 'ContentFreshnessValidator')
+        track_article_usage = getattr(module, 'track_article_usage')
         FRESHNESS_VALIDATOR_AVAILABLE = True
-    except ImportError:
-        print("⚠️ Content Freshness Validator not found for Perplexity client")
+    except (ImportError, AttributeError):
+        # Module not available - use placeholder implementations
+        class ContentFreshnessValidator:
+            """Placeholder implementation when content freshness validator is not available."""
+            def __init__(self):
+                pass
+            
+            def validate_article_collection(self, *args, **kwargs):
+                return {"status": "not_available", "message": "Content freshness validation not available"}
+            
+            def filter_fresh_articles(self, articles):
+                return articles, []  # Return all articles as fresh, none as outdated
+        
+        def track_article_usage(*args, **kwargs):
+            """Placeholder function for tracking article usage."""
+            pass
+        
+        print("⚠️ Content Freshness Validator not found for Perplexity client - using placeholder implementation")
         FRESHNESS_VALIDATOR_AVAILABLE = False
 
 # Ensure console can handle UTF-8 output to avoid encoding errors on Windows terminals
@@ -84,7 +111,67 @@ class PerplexityResearchCollector:
     Collects research information from internet using Perplexity AI
     Role: Pure research data collection from latest and trusted sources
     Output: Structured research with citations for Gemini AI article generation
+    
+    Sport-Specific Research:
+    - Each sport has dedicated domain lists (up to 20 domains per sport)
+    - Custom query templates optimized for sport-specific terminology
+    - Automatic routing based on category parameter
     """
+    
+    # FOOTBALL/SOCCER DOMAINS (20 trusted sources)
+    FOOTBALL_DOMAINS = [
+        # Major Football News & Analysis (8)
+        "espn.com", "bbc.com", "skysports.com", "goal.com", 
+        "theathletic.com", "theguardian.com", "telegraph.co.uk", "onefootball.com",
+        # Transfer & Squad News (4)
+        "transfermarkt.com", "90min.com", "fourfourtwo.com", "football365.com",
+        # League-Specific (4)
+        "premierleague.com", "uefa.com", "laliga.com", "bundesliga.com",
+        # Analysis & Stats (4)
+        "whoscored.com", "fbref.com", "sportsmole.co.uk", "talksport.com"
+    ]
+    
+    # CRICKET DOMAINS (20 trusted sources)
+    CRICKET_DOMAINS = [
+        # Major Cricket News (6)
+        "espncricinfo.com", "cricbuzz.com", "cricket.com.au", 
+        "ecb.co.uk", "bcci.tv", "icc-cricket.com",
+        # News & Analysis (6)
+        "wisden.com", "cricketaddictor.com", "thecricketer.com",
+        "crictracker.com", "cricket-world.com", "sportskeeda.com",
+        # Regional Cricket (4)
+        "hindustantimes.com", "indianexpress.com", "timesofindia.indiatimes.com",
+        "news18.com",
+        # International (4)
+        "bbc.com", "theguardian.com", "skysports.com", "espn.com"
+    ]
+    
+    # BASKETBALL/NBA DOMAINS (20 trusted sources)
+    BASKETBALL_DOMAINS = [
+        # Official & Major Networks (6)
+        "nba.com", "espn.com", "bbc.com", "cbssports.com",
+        "nbcsports.com", "skysports.com",
+        # Analysis & News (6)
+        "theathletic.com", "bleacherreport.com", "hoopshype.com",
+        "clutchpoints.com", "slamonline.com", "basketball-reference.com",
+        # Trade & Rumors (4)
+        "sportingnews.com", "fansided.com", "yardbarker.com", "realgm.com",
+        # International Basketball (4)
+        "fiba.basketball", "eurohoops.net", "euroleague.net", "nbl.com.au"
+    ]
+    
+    # GENERAL SPORTS DOMAINS (fallback for other sports)
+    GENERAL_SPORTS_DOMAINS = [
+        # Major Multi-Sport Networks (8)
+        "espn.com", "bbc.com", "skysports.com", "reuters.com", 
+        "cbssports.com", "nbcsports.com", "theguardian.com", "telegraph.co.uk",
+        # Analysis & News (6)
+        "theathletic.com", "bleacherreport.com", "sportingnews.com",
+        "si.com", "yahoo.com", "fansided.com",
+        # International (6)
+        "apnews.com", "marca.com", "lequipe.fr", 
+        "gazzetta.it", "sport1.de", "sportsnet.ca"
+    ]
     
     def __init__(self, api_key: Optional[str] = None):
         """
@@ -120,7 +207,19 @@ class PerplexityResearchCollector:
         ENHANCED SINGLE-REQUEST METHOD: Collect maximum information in one comprehensive query
         Designed to respect Perplexity API rate limits (2 requests/minute)
         Packs all research angles into one ultra-comprehensive request
+        
+        SPORT-SPECIFIC ROUTING: Automatically routes to sport-specific methods
+        based on category parameter for optimized domain filtering.
         """
+        # Route to sport-specific method if category is recognized
+        if category:
+            category_lower = category.lower()
+            if 'football' in category_lower or 'soccer' in category_lower:
+                return self.collect_football_research_for_headline(headline, source, category)
+            elif 'cricket' in category_lower:
+                return self.collect_cricket_research_for_headline(headline, source, category)
+            elif 'basketball' in category_lower or 'nba' in category_lower:
+                return self.collect_basketball_research_for_headline(headline, source, category)
         try:
             if not self.api_key:
                 logging.error("❌ Perplexity API key not configured")
@@ -222,6 +321,7 @@ class PerplexityResearchCollector:
         """
         Collect comprehensive research information about a headline
         OPTIMIZED: Uses 1 comprehensive request to minimize API calls
+        SPORT-SPECIFIC: Automatically routes to specialized methods based on category
         
         Args:
             headline (str): Article headline to research
@@ -231,6 +331,15 @@ class PerplexityResearchCollector:
         Returns:
             Dict: Structured research data with citations and sources for article generation
         """
+        # Route to sport-specific method if category is recognized
+        if category:
+            category_lower = category.lower()
+            if 'football' in category_lower or 'soccer' in category_lower:
+                return self.collect_football_research_for_headline(headline, source, category)
+            elif 'cricket' in category_lower:
+                return self.collect_cricket_research_for_headline(headline, source, category)
+            elif 'basketball' in category_lower or 'nba' in category_lower:
+                return self.collect_basketball_research_for_headline(headline, source, category)
         try:
             if not self.api_key:
                 logging.error("❌ Perplexity API key not configured")
@@ -440,17 +549,406 @@ Provide factual research material suitable for editorial reference."""
         """Legacy method - redirects to ultra-comprehensive query"""
         return self._build_ultra_comprehensive_query(headline, category)
     
-    def _call_perplexity_api(self, query: str) -> Optional[Dict]:
+    # ========================================================================
+    # SPORT-SPECIFIC RESEARCH METHODS
+    # ========================================================================
+    
+    def collect_football_research_for_headline(self, headline: str,
+                                              source: Optional[str] = None,
+                                              category: Optional[str] = None) -> Dict:
+        """
+        FOOTBALL-SPECIFIC RESEARCH: Optimized for football/soccer news
+        Uses 20 dedicated football domains for maximum relevance
+        """
+        try:
+            if not self.api_key:
+                logging.error("❌ Perplexity API key not configured")
+                return self._get_placeholder_research(headline, "API key not configured")
+            
+            logging.info(f"\n{'='*80}")
+            logging.info(f"⚽ FOOTBALL-SPECIFIC RESEARCH")
+            logging.info(f"{'='*80}")
+            logging.info(f"📰 Headline: {headline}")
+            logging.info(f"📍 Source: {source or 'Unknown'}")
+            logging.info(f"🎯 Using {len(self.FOOTBALL_DOMAINS)} football-specific domains")
+            
+            # Build football-specific query
+            football_query = self._build_football_query(headline)
+            
+            # Make API call with football domains
+            research_result = self._call_perplexity_api(
+                query=football_query,
+                domain_filter=self.FOOTBALL_DOMAINS,
+                sport_context="football"
+            )
+            
+            # Apply freshness validation
+            if self.freshness_validator and research_result.get('status') == 'success':
+                citations = research_result.get('citations', [])
+                articles = self._convert_citations_to_articles(citations)
+                
+                if articles:
+                    fresh_articles, outdated_articles = self.freshness_validator.filter_fresh_articles(articles)
+                    fresh_citations = [c for c in citations if isinstance(c, dict) and 
+                                     any(c.get('url') == a.get('url') for a in fresh_articles)]
+                    
+                    research_result['citations'] = fresh_citations
+                    research_result['sources'] = [c.get('url') for c in fresh_citations if isinstance(c, dict)]
+                    
+                    logging.info(f"⚽ Football research freshness: {len(fresh_citations)} fresh citations")
+            
+            # Extract SEO keywords from research content
+            seo_data = self._extract_seo_keywords(
+                research_result.get('content', ''),
+                headline
+            )
+            research_result['seo_keywords'] = seo_data
+            
+            return self._structure_research_data(headline, source, category, research_result, "football")
+            
+        except Exception as e:
+            logging.error(f"❌ Error in football research: {e}")
+            return self._get_placeholder_research(headline, str(e))
+    
+    def collect_cricket_research_for_headline(self, headline: str,
+                                             source: Optional[str] = None,
+                                             category: Optional[str] = None) -> Dict:
+        """
+        CRICKET-SPECIFIC RESEARCH: Optimized for cricket news
+        Uses 20 dedicated cricket domains for maximum relevance
+        """
+        try:
+            if not self.api_key:
+                logging.error("❌ Perplexity API key not configured")
+                return self._get_placeholder_research(headline, "API key not configured")
+            
+            logging.info(f"\n{'='*80}")
+            logging.info(f"🏏 CRICKET-SPECIFIC RESEARCH")
+            logging.info(f"{'='*80}")
+            logging.info(f"📰 Headline: {headline}")
+            logging.info(f"📍 Source: {source or 'Unknown'}")
+            logging.info(f"🎯 Using {len(self.CRICKET_DOMAINS)} cricket-specific domains")
+            
+            # Build cricket-specific query
+            cricket_query = self._build_cricket_query(headline)
+            
+            # Make API call with cricket domains
+            research_result = self._call_perplexity_api(
+                query=cricket_query,
+                domain_filter=self.CRICKET_DOMAINS,
+                sport_context="cricket"
+            )
+            
+            # Apply freshness validation
+            if self.freshness_validator and research_result.get('status') == 'success':
+                citations = research_result.get('citations', [])
+                articles = self._convert_citations_to_articles(citations)
+                
+                if articles:
+                    fresh_articles, outdated_articles = self.freshness_validator.filter_fresh_articles(articles)
+                    fresh_citations = [c for c in citations if isinstance(c, dict) and 
+                                     any(c.get('url') == a.get('url') for a in fresh_articles)]
+                    
+                    research_result['citations'] = fresh_citations
+                    research_result['sources'] = [c.get('url') for c in fresh_citations if isinstance(c, dict)]
+                    
+                    logging.info(f"🏏 Cricket research freshness: {len(fresh_citations)} fresh citations")
+            
+            # Extract SEO keywords from research content
+            seo_data = self._extract_seo_keywords(
+                research_result.get('content', ''),
+                headline
+            )
+            research_result['seo_keywords'] = seo_data
+            
+            return self._structure_research_data(headline, source, category, research_result, "cricket")
+            
+        except Exception as e:
+            logging.error(f"❌ Error in cricket research: {e}")
+            return self._get_placeholder_research(headline, str(e))
+    
+    def collect_basketball_research_for_headline(self, headline: str,
+                                                source: Optional[str] = None,
+                                                category: Optional[str] = None) -> Dict:
+        """
+        BASKETBALL-SPECIFIC RESEARCH: Optimized for basketball/NBA news
+        Uses 20 dedicated basketball domains for maximum relevance
+        """
+        try:
+            if not self.api_key:
+                logging.error("❌ Perplexity API key not configured")
+                return self._get_placeholder_research(headline, "API key not configured")
+            
+            logging.info(f"\n{'='*80}")
+            logging.info(f"🏀 BASKETBALL-SPECIFIC RESEARCH")
+            logging.info(f"{'='*80}")
+            logging.info(f"📰 Headline: {headline}")
+            logging.info(f"📍 Source: {source or 'Unknown'}")
+            logging.info(f"🎯 Using {len(self.BASKETBALL_DOMAINS)} basketball-specific domains")
+            
+            # Build basketball-specific query
+            basketball_query = self._build_basketball_query(headline)
+            
+            # Make API call with basketball domains
+            research_result = self._call_perplexity_api(
+                query=basketball_query,
+                domain_filter=self.BASKETBALL_DOMAINS,
+                sport_context="basketball"
+            )
+            
+            # Apply freshness validation
+            if self.freshness_validator and research_result.get('status') == 'success':
+                citations = research_result.get('citations', [])
+                articles = self._convert_citations_to_articles(citations)
+                
+                if articles:
+                    fresh_articles, outdated_articles = self.freshness_validator.filter_fresh_articles(articles)
+                    fresh_citations = [c for c in citations if isinstance(c, dict) and 
+                                     any(c.get('url') == a.get('url') for a in fresh_articles)]
+                    
+                    research_result['citations'] = fresh_citations
+                    research_result['sources'] = [c.get('url') for c in fresh_citations if isinstance(c, dict)]
+                    
+                    logging.info(f"🏀 Basketball research freshness: {len(fresh_citations)} fresh citations")
+            
+            # Extract SEO keywords from research content
+            seo_data = self._extract_seo_keywords(
+                research_result.get('content', ''),
+                headline
+            )
+            research_result['seo_keywords'] = seo_data
+            
+            return self._structure_research_data(headline, source, category, research_result, "basketball")
+            
+        except Exception as e:
+            logging.error(f"❌ Error in basketball research: {e}")
+            return self._get_placeholder_research(headline, str(e))
+    
+    # ========================================================================
+    # SPORT-SPECIFIC QUERY BUILDERS
+    # ========================================================================
+    
+    def _build_football_query(self, headline: str) -> str:
+        """
+        Build football-specific research query
+        Optimized for transfers, matches, injuries, tactics, and league news
+        """
+        query = f"""Find all verified and relevant information about the following football/soccer headline from trusted sources:
+
+"{headline}"
+
+Provide structured research notes with the following rules:
+
+**Output requirements:**
+- Total length: 500-600 words
+- Use bullet points or short factual paragraphs only
+- Do not write an article or narrative flow
+- Avoid stylistic or descriptive language
+- Do not add opinions or predictions
+- Include commonly searched terms and trending keywords related to this topic
+
+**Mandatory sections for FOOTBALL:**
+1. Event summary (match result, transfer status, injury update, etc.)
+2. Key facts and statistics (goals, assists, transfer fee, contract length, etc.)
+3. Timeline of events
+4. Official statements and quotes from players, managers, or clubs
+5. Team/player context (current form, league position, recent performances)
+6. Tactical analysis (if match-related)
+7. Transfer market implications (if transfer-related)
+
+**Football-specific rules:**
+- For transfers: clearly separate confirmed deals from rumors/negotiations
+- For matches: include scorers, key moments, league standings impact
+- For injuries: mention expected return date only if officially confirmed
+- For manager news: include win rate, recent results, contract details
+- Include competition context (league, Champions League, cup, etc.)
+
+**Source rules:**
+- Trusted football sources only (official clubs, reputable journalists)
+- No speculation unless clearly marked as rumors
+- Cite sources clearly
+
+**SEO Optimization:**
+- Include popular search terms people use to find this type of news
+- Mention key player names, team names, and event names that drive searches
+- Use terminology that appears in trending football/soccer searches
+
+Provide factual research material suitable for editorial reference."""
+        
+        return query
+    
+    def _build_cricket_query(self, headline: str) -> str:
+        """
+        Build cricket-specific research query
+        Optimized for matches, player performances, tournaments, and records
+        """
+        query = f"""Find all verified and relevant information about the following cricket headline from trusted sources:
+
+"{headline}"
+
+Provide structured research notes with the following rules:
+
+**Output requirements:**
+- Total length: 500-600 words
+- Use bullet points or short factual paragraphs only
+- Do not write an article or narrative flow
+- Avoid stylistic or descriptive language
+- Do not add opinions or predictions
+- Include commonly searched terms and trending keywords related to this topic
+
+**Mandatory sections for CRICKET:**
+1. Event summary (match result, player milestone, tournament update, etc.)
+2. Key statistics (runs, wickets, strike rates, economy rates, averages)
+3. Timeline of events (innings breakdown, key partnerships, fall of wickets)
+4. Official statements and quotes from players, coaches, or cricket boards
+5. Player/team context (current form, rankings, head-to-head records)
+6. Format-specific analysis (Test, ODI, T20, IPL, etc.)
+7. Tournament implications (points table, qualification scenarios)
+
+**Cricket-specific rules:**
+- For matches: include scorecard details, key partnerships, bowling figures
+- For player news: mention current form, career stats, records
+- For injuries: specify match availability and recovery timeline if confirmed
+- For selection news: include squad composition, tactical reasoning
+- For records: provide historical context and previous record holders
+- Include format and competition context (Test series, World Cup, IPL, etc.)
+
+**Source rules:**
+- Trusted cricket sources only (ICC, cricket boards, established cricket media)
+- No speculation unless clearly marked as rumors
+- Cite sources clearly
+
+**SEO Optimization:**
+- Include popular search terms people use to find cricket news
+- Mention key player names, teams, tournaments, and match details that drive searches
+- Use terminology that appears in trending cricket searches
+
+Provide factual research material suitable for editorial reference."""
+        
+        return query
+    
+    def _build_basketball_query(self, headline: str) -> str:
+        """
+        Build basketball-specific research query
+        Optimized for NBA games, trades, player performances, and team news
+        """
+        query = f"""Find all verified and relevant information about the following basketball/NBA headline from trusted sources:
+
+"{headline}"
+
+Provide structured research notes with the following rules:
+
+**Output requirements:**
+- Total length: 500-600 words
+- Use bullet points or short factual paragraphs only
+- Do not write an article or narrative flow
+- Avoid stylistic or descriptive language
+- Do not add opinions or predictions
+- Include commonly searched terms and trending keywords related to this topic
+
+**Mandatory sections for BASKETBALL:**
+1. Event summary (game result, trade details, player performance, etc.)
+2. Key statistics (points, rebounds, assists, shooting percentages, +/-)
+3. Timeline of events (quarter-by-quarter breakdown, key plays)
+4. Official statements and quotes from players, coaches, or front office
+5. Player/team context (season stats, standings, playoff implications)
+6. Impact analysis (trade implications, lineup changes, playoff race)
+7. Historical context (career highs, franchise records, comparisons)
+
+**Basketball-specific rules:**
+- For games: include box score highlights, quarter scores, key runs
+- For trades: clearly separate finalized deals from rumors/negotiations
+- For player news: mention per-game averages, advanced stats (PER, TS%, etc.)
+- For injuries: specify games missed and expected return if confirmed
+- For draft/roster news: include draft position, college stats, contract details
+- Include league context (NBA, EuroLeague, NCAA, etc.)
+
+**Source rules:**
+- Trusted basketball sources only (NBA official, verified reporters, team sites)
+- No speculation unless clearly marked as rumors
+- Cite sources clearly
+
+**SEO Optimization:**
+- Include popular search terms people use to find NBA/basketball news
+- Mention key player names, teams, stats, and game details that drive searches
+- Use terminology that appears in trending basketball searches
+
+Provide factual research material suitable for editorial reference."""
+        
+        return query
+    
+    # ========================================================================
+    # HELPER METHODS
+    # ========================================================================
+    
+    def _structure_research_data(self, headline: str, source: Optional[str],
+                                 category: Optional[str], research_result: Dict,
+                                 sport_type: str) -> Dict:
+        """
+        Structure research data in standardized format
+        """
+        research_data = {
+            'headline': headline,
+            'source': source,
+            'category': category,
+            'sport_type': sport_type,  # football, cricket, basketball
+            'collection_timestamp': datetime.now().isoformat(),
+            'research_sections': {
+                'comprehensive': research_result
+            },
+            'compiled_sources': research_result.get('sources', []),
+            'compiled_citations': research_result.get('citations', []),
+            'seo_optimization': research_result.get('seo_keywords', {}),  # SEO keywords and optimized sentences
+            'enhanced_research': True,
+            'sport_specific_research': True,
+            'domains_used': getattr(self, f'{sport_type.upper()}_DOMAINS', []),
+            'total_research_calls': 1,
+            'status': research_result.get('status', 'unknown')
+        }
+        
+        if research_result.get('status') == 'success':
+            logging.info(f"✅ {sport_type.title()} research complete!")
+            logging.info(f"   📚 Sources collected: {len(research_data['compiled_sources'])}")
+            logging.info(f"   🔗 Citations: {len(research_data['compiled_citations'])}")
+            logging.info(f"   🎯 Sport-specific domains: {len(research_data['domains_used'])}")
+            
+            # Log SEO keywords if available
+            seo_info = research_data.get('seo_optimization', {})
+            if seo_info.get('seo_keywords'):
+                logging.info(f"   🔍 SEO Keywords extracted: {len(seo_info['seo_keywords'])}")
+                logging.info(f"   🎯 Top keyword: {seo_info.get('top_keyword', 'N/A')}")
+                if seo_info.get('headline_relevant_keywords'):
+                    logging.info(f"   📰 Headline-relevant: {', '.join(seo_info['headline_relevant_keywords'][:3])}")
+        
+        return research_data
+    
+    def _call_perplexity_api(self, query: str, domain_filter: Optional[List[str]] = None,
+                            sport_context: Optional[str] = None) -> Optional[Dict]:
         """
         Make actual API call to Perplexity AI
         
         Args:
             query (str): Search query
+            domain_filter (List[str]): Optional list of domains to filter search (max 20)
+            sport_context (str): Sport context for system prompt (football, cricket, basketball)
             
         Returns:
             Dict: API response or None if failed
         """
         try:
+            # Use provided domain filter or default to general sports domains
+            domains_to_use = domain_filter if domain_filter else self.GENERAL_SPORTS_DOMAINS
+            
+            # Customize system prompt based on sport context
+            if sport_context == "football":
+                system_prompt = "You are a professional football/soccer news researcher. Your task is to collect verified research material focusing on transfers, match reports, player performances, and tactical analysis. Present information in neutral, factual language suitable for editorial reference."
+            elif sport_context == "cricket":
+                system_prompt = "You are a professional cricket news researcher. Your task is to collect verified research material focusing on match statistics, player performances, tournament updates, and records. Present information in neutral, factual language suitable for editorial reference."
+            elif sport_context == "basketball":
+                system_prompt = "You are a professional basketball/NBA news researcher. Your task is to collect verified research material focusing on game statistics, trades, player performances, and team dynamics. Present information in neutral, factual language suitable for editorial reference."
+            else:
+                system_prompt = "You are a professional sports news researcher. Your task is to collect verified research material only, not to write a publishable article. Present information in neutral, factual language suitable for editorial reference."
+            
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json"
@@ -461,7 +959,7 @@ Provide factual research material suitable for editorial reference."""
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are a professional sports news researcher. Your task is to collect verified research material only, not to write a publishable article. Present information in neutral, factual language suitable for editorial reference."
+                        "content": system_prompt
                     },
                     {
                         "role": "user",
@@ -473,27 +971,9 @@ Provide factual research material suitable for editorial reference."""
                 "top_p": 0.9,
                 "stream": False,
                 "return_images": False,  # Focus on text content
-                #"return_related_questions": True,
                 "search_recency_filter": "day",  # Last 24 hours for very recent news
                 "citations": True,
-                # MAX 20 DOMAINS (Perplexity API limit) - Focus on major sports
-                "search_domain_filter": [
-                    # Major Multi-Sport Networks (5)
-                    "espn.com", "bbc.com", "skysports.com", "reuters.com", "cbssports.com",
-                    
-                    # Soccer/Football (6)
-                    "goal.com", "theathletic.com", "transfermarkt.com", 
-                    "90min.com", "fourfourtwo.com", "onefootball.com",
-                    
-                    # Basketball & NBA (4)
-                    "nba.com", "hoopshype.com", "clutchpoints.com", "bleacherreport.com",
-                    
-                    # NFL & American Football (3)
-                    "nfl.com", "profootballtalk.nbcsports.com", "fansided.com",
-                    
-                    # Cricket (2)
-                    "espncricinfo.com", "cricbuzz.com"
-                ]  # Exactly 20 domains - Soccer, Basketball, NFL, Cricket focused
+                "search_domain_filter": domains_to_use  # Use sport-specific or general domains
             }
             
             response = requests.post(
@@ -600,6 +1080,96 @@ Provide factual research material suitable for editorial reference."""
             logging.warning(f"Error converting citations to articles: {e}")
         
         return articles
+    
+    def _extract_seo_keywords(self, content: str, headline: str, max_keywords: int = 10) -> Dict:
+        """
+        Extract SEO keywords from research content
+        Returns highly relevant keywords and sentences containing them
+        
+        Args:
+            content (str): Research content
+            headline (str): Article headline
+            max_keywords (int): Maximum number of keywords to extract
+            
+        Returns:
+            Dict: SEO keywords with context sentences
+        """
+        try:
+            import re
+            from collections import Counter
+            
+            # Common stop words to exclude
+            stop_words = set([
+                'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+                'of', 'with', 'by', 'from', 'is', 'was', 'are', 'were', 'been', 'be',
+                'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
+                'should', 'may', 'might', 'can', 'this', 'that', 'these', 'those',
+                'it', 'its', 'he', 'she', 'they', 'them', 'their', 'his', 'her',
+                'as', 'all', 'not', 'so', 'if', 'than', 'when', 'where', 'who',
+                'which', 'what', 'how', 'said', 'about', 'after', 'also', 'into'
+            ])
+            
+            # Extract words from content (2-3 word phrases are better for SEO)
+            content_lower = content.lower()
+            headline_lower = headline.lower()
+            
+            # Extract individual words
+            words = re.findall(r'\b[a-z]{3,}\b', content_lower)
+            word_freq = Counter([w for w in words if w not in stop_words])
+            
+            # Extract 2-word phrases (bigrams) - better for SEO
+            sentences = re.split(r'[.!?\n]', content)
+            bigrams = []
+            for sentence in sentences:
+                words_in_sent = re.findall(r'\b[a-zA-Z]{3,}\b', sentence.lower())
+                for i in range(len(words_in_sent) - 1):
+                    if words_in_sent[i] not in stop_words:
+                        bigram = f"{words_in_sent[i]} {words_in_sent[i+1]}"
+                        bigrams.append(bigram)
+            
+            bigram_freq = Counter(bigrams)
+            
+            # Get top keywords (mix of single words and phrases)
+            top_single_words = [word for word, count in word_freq.most_common(max_keywords * 2)]
+            top_bigrams = [phrase for phrase, count in bigram_freq.most_common(max_keywords)]
+            
+            # Prioritize keywords that appear in headline
+            headline_words = set(re.findall(r'\b[a-z]{3,}\b', headline_lower))
+            priority_keywords = [kw for kw in top_single_words if kw in headline_words]
+            
+            # Combine and deduplicate
+            all_keywords = priority_keywords[:3] + top_bigrams[:5] + top_single_words[:max_keywords]
+            unique_keywords = []
+            seen = set()
+            for kw in all_keywords:
+                if kw not in seen and len(unique_keywords) < max_keywords:
+                    unique_keywords.append(kw)
+                    seen.add(kw)
+            
+            # Extract sentences containing top keywords
+            keyword_sentences = {}
+            for keyword in unique_keywords[:5]:  # Top 5 keywords
+                for sentence in sentences:
+                    if keyword in sentence.lower() and len(sentence.strip()) > 30:
+                        if keyword not in keyword_sentences:
+                            keyword_sentences[keyword] = sentence.strip()[:200]  # First 200 chars
+                        break
+            
+            return {
+                'seo_keywords': unique_keywords,
+                'keyword_sentences': keyword_sentences,
+                'top_keyword': unique_keywords[0] if unique_keywords else None,
+                'headline_relevant_keywords': priority_keywords[:3]
+            }
+            
+        except Exception as e:
+            logging.warning(f"Error extracting SEO keywords: {e}")
+            return {
+                'seo_keywords': [],
+                'keyword_sentences': {},
+                'top_keyword': None,
+                'headline_relevant_keywords': []
+            }
     
     def _get_placeholder_research(self, headline: str, error: str) -> Dict:
         """

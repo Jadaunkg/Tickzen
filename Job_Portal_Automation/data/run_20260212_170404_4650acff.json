@@ -1,0 +1,133 @@
+{
+  "target_profiles": [
+    "0iezbbvPuuCoQtuHkk3I"
+  ],
+  "created_at": "2026-02-12T17:04:04.883257",
+  "completed_at": "2026-02-12T17:07:08.318765",
+  "run_id": "run_20260212_170404_4650acff",
+  "user_uid": "iROXMDJiuebQl9Jg4vvXohKea0C2",
+  "status": "completed",
+  "updated_at": "2026-02-12T17:07:09.686719",
+  "results": [
+    {
+      "published_url": "https://hirenjob.com/?p=709",
+      "item_title": "BPSC School Teacher TRE 4.0 Online Form 2026 (44000+ Posts)",
+      "status": "success",
+      "timestamp": "2026-02-12T17:05:02.727505",
+      "item_id": "6c939f9270fba33d61efb990709c16b8",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=711",
+      "item_title": "Indian Army NCC 124th October Course Online Form 2026",
+      "status": "success",
+      "timestamp": "2026-02-12T17:05:49.886071",
+      "item_id": "20635c85c0daae5e95a406b63f3d6a9e",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=713",
+      "item_title": "UPSC IES/ISS Online Form 2026 – Start",
+      "status": "success",
+      "timestamp": "2026-02-12T17:06:19.659426",
+      "item_id": "f2228b5fed507137a581cc9c22b6280b",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    },
+    {
+      "published_url": "https://hirenjob.com/?p=715",
+      "item_title": "SBI Circle Based Officer CBO Online Form 2026 – Date Extend",
+      "status": "success",
+      "timestamp": "2026-02-12T17:07:06.775186",
+      "item_id": "d848cbe0e628618161b7a2a2342d5318",
+      "profile_name": "0iezbbvPuuCoQtuHkk3I"
+    }
+  ],
+  "content_type": "jobs",
+  "selected_items": [
+    {
+      "title": "BPSC School Teacher TRE 4.0 Online Form 2026 (44000+ Posts)",
+      "id": "6c939f9270fba33d61efb990709c16b8",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/bpsc-school-teacher-tre-4-0-2026/"
+    },
+    {
+      "title": "Indian Army NCC 124th October Course Online Form 2026",
+      "id": "20635c85c0daae5e95a406b63f3d6a9e",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/indian-army-ncc-124th-october-course-2026/"
+    },
+    {
+      "title": "UPSC IES/ISS Online Form 2026 – Start",
+      "id": "f2228b5fed507137a581cc9c22b6280b",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/upsc-ies-iss-2026/"
+    },
+    {
+      "title": "SBI Circle Based Officer CBO Online Form 2026 – Date Extend",
+      "id": "d848cbe0e628618161b7a2a2342d5318",
+      "content_type": "jobs",
+      "url": "https://sarkariresult.com.cm/sbi-circle-based-officer-cbo-2026/"
+    }
+  ],
+  "progress": {
+    "completed": 4,
+    "total": 4,
+    "current_item": "Completed: 4 published, 0 failed",
+    "failed": 0
+  },
+  "errors": [],
+  "config": {
+    "article_length": "medium",
+    "profiles": [
+      {
+        "created_at": "2026-01-17T11:56:01.091211+00:00",
+        "site_url": "https://hirenjob.com/",
+        "min_interval": 20,
+        "max_interval": 35,
+        "stockforecast_category_id": "2",
+        "uploaded_ticker_file_name": null,
+        "internal_linking": {
+          "enabled": true,
+          "cache_expiry_hours": 24,
+          "same_category_only": true,
+          "max_links_per_article": 5
+        },
+        "all_tickers_from_file": [],
+        "ticker_count_from_file": null,
+        "ticker_file_storage_path": null,
+        "category_id": 2,
+        "profile_name": "Hirenjob",
+        "sheet_name": "1",
+        "last_updated_at": "2026-01-17T11:56:01.091211+00:00",
+        "env_prefix_for_feature_image_colors": "",
+        "min_scheduling_gap_minutes": 45,
+        "profile_id": "0iezbbvPuuCoQtuHkk3I",
+        "authors": [
+          {
+            "id": "author_1768650961_0",
+            "wp_username": "Akhil Singh",
+            "app_password": "ktvJ 1cKQ qaxn snW9 RKQe s438",
+            "wp_user_id": "2"
+          },
+          {
+            "id": "author_1768650961_1",
+            "wp_username": "Krishna",
+            "app_password": "5OhV vDTj 1FTW tIyD d64J DTAI",
+            "wp_user_id": "3"
+          },
+          {
+            "id": "author_1768650961_2",
+            "wp_username": "Ramesh Pratap",
+            "app_password": "EE74 lPO1 nmGp 1MuW RGgO mais",
+            "wp_user_id": "4"
+          }
+        ],
+        "max_scheduling_gap_minutes": 60,
+        "ticker_preview_from_file": [],
+        "publish_status": "schedule",
+        "ticker_file_uploaded_at": null
+      }
+    ]
+  },
+  "timestamp": "2026-02-12T17:04:04.883257"
+}

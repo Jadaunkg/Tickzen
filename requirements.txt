@@ -116,3 +116,5 @@ feedparser==6.0.11
 pytrends==4.9.1
 selenium==4.15.2
 webdriver-manager==4.0.1
+vaderSentiment==3.3.2
+praw==7.7.1

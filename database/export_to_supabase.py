@@ -39,6 +39,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 from database.pipeline_data_collector import PipelineDataCollector
 from database.data_mapper import DataMapper
 from database.supabase_client import SupabaseClient
+from analysis_scripts.risk_analysis import RiskAnalyzer
 
 # Configure logging
 logging.basicConfig(
@@ -76,8 +77,313 @@ class SupabaseDataExporter:
         self.collector = PipelineDataCollector()
         self.mapper = DataMapper()
         self.db = SupabaseClient(url=self.supabase_url, key=self.supabase_key)
+        self.risk_analyzer = RiskAnalyzer()
         
         logger.info("SupabaseDataExporter initialized successfully")
+    
+    def _get_latest_data_date(self, stock_id: int, table_name: str, date_column: str = 'date') -> str:
+        """
+        Get the latest date we have data for in the specified table
+        
+        Args:
+            stock_id: Database ID of the stock
+            table_name: Name of the table to check
+            date_column: Name of the date column (default: 'date')
+            
+        Returns:
+            Latest date as string (YYYY-MM-DD) or None if no data exists
+        """
+        try:
+            result = self.db.client.table(table_name)\
+                .select(date_column)\
+                .eq('stock_id', stock_id)\
+                .order(date_column, desc=True)\
+                .limit(1)\
+                .execute()
+            
+            if result.data:
+                latest_date = result.data[0][date_column]
+                logger.info(f"  📅 Latest {table_name} date in DB: {latest_date}")
+                return latest_date
+            else:
+                logger.info(f"  📅 No existing {table_name} data found - full export needed")
+                return None
+                
+        except Exception as e:
+            logger.warning(f"Error checking latest date in {table_name}: {e}")
+            return None
+    
+    def _filter_new_data_only(self, data, latest_db_date: str, date_column: str = 'Date'):
+        """
+        Filter dataframe to only include records newer than the latest database date
+        
+        Args:
+            data: pandas DataFrame with date column
+            latest_db_date: Latest date we have in database (YYYY-MM-DD)
+            date_column: Name of the date column in data
+            
+        Returns:
+            Filtered DataFrame with only new records
+        """
+        try:
+            import pandas as pd
+            from datetime import datetime
+            
+            if data is None or data.empty or latest_db_date is None:
+                return data
+                
+            # Convert date column to datetime for comparison
+            data_dates = pd.to_datetime(data[date_column], errors='coerce')
+            latest_db_datetime = pd.to_datetime(latest_db_date)
+            
+            # Filter to only dates after the latest database date
+            mask = data_dates > latest_db_datetime
+            new_data = data[mask].copy()
+            
+            original_count = len(data)
+            new_count = len(new_data)
+            
+            if new_count > 0:
+                logger.info(f"  📊 Incremental update: {original_count} total → {new_count} new records (after {latest_db_date})")
+            else:
+                logger.info(f"  ⏭️  No new data found after {latest_db_date} - skipping export")
+            
+            return new_data
+            
+        except Exception as e:
+            logger.warning(f"Error filtering new data: {e}")
+            return data  # Return original data if filtering fails
+    
+    def _filter_last_two_years(self, data, column_name='Date'):
+        """
+        Filter dataframe to only include the last 2 years of data
+        
+        Args:
+            data: pandas DataFrame with date column
+            column_name: Name of the date column (default: 'Date')
+            
+        Returns:
+            Filtered DataFrame with last 2 years of data
+        """
+        try:
+            import pandas as pd
+            from datetime import datetime, timedelta
+            
+            if data is None or data.empty:
+                return data
+                
+            # Convert to DataFrame if not already
+            if not isinstance(data, pd.DataFrame):
+                return data
+                
+            # Check if date column exists
+            if column_name not in data.columns:
+                logger.warning(f"Date column '{column_name}' not found, returning full dataset")
+                return data
+            
+            # Calculate cutoff date (2 years ago from today)
+            cutoff_date = datetime.now() - timedelta(days=730)  # 2 years = 730 days
+            
+            # Convert date column to datetime if needed
+            date_col = pd.to_datetime(data[column_name], errors='coerce')
+            
+            # Filter to last 2 years
+            mask = date_col >= cutoff_date
+            filtered_data = data[mask].copy()
+            
+            original_count = len(data)
+            filtered_count = len(filtered_data)
+            
+            logger.info(f"  📅 Filtered data: {original_count} → {filtered_count} rows (last 2 years only)")
+            
+            return filtered_data
+            
+        except Exception as e:
+            logger.warning(f"Error filtering data to last 2 years: {e}")
+            return data  # Return original data if filtering fails
+    
+    def _is_forecast_updated_this_month(self, stock_id: int) -> bool:
+        """
+        Check if forecast data has been updated for this stock in the current month
+        
+        Args:
+            stock_id: Database ID of the stock
+            
+        Returns:
+            True if forecast data exists for current month, False otherwise
+        """
+        try:
+            from datetime import datetime
+            current_month = datetime.now().strftime('%Y-%m')
+            
+            # Check if there's any forecast data for this stock created/updated this month
+            result = self.db.client.table('forecast_data')\
+                .select('forecast_date')\
+                .eq('stock_id', stock_id)\
+                .gte('created_at', f'{current_month}-01')\
+                .limit(1)\
+                .execute()
+            
+            has_data = bool(result.data)
+            if has_data:
+                logger.info(f"  ℹ Forecast data already updated this month ({current_month}) - skipping")
+            
+            return has_data
+            
+        except Exception as e:
+            logger.warning(f"Error checking forecast update status: {e}")
+            return False  # If we can't check, proceed with update to be safe
+    
+    def _is_company_profile_updated_this_month(self, stock_id: int) -> bool:
+        """
+        Check if company profile data has been updated for this stock in the current month
+        
+        Args:
+            stock_id: Database ID of the stock
+            
+        Returns:
+            True if company profile updated this month, False otherwise
+        """
+        try:
+            from datetime import datetime
+            current_month = datetime.now().strftime('%Y-%m')
+            
+            # Check if stock metadata was updated this month
+            result = self.db.client.table('stocks')\
+                .select('updated_at')\
+                .eq('id', stock_id)\
+                .gte('updated_at', f'{current_month}-01')\
+                .limit(1)\
+                .execute()
+            
+            has_data = bool(result.data)
+            if has_data:
+                logger.info(f"  ℹ Company profile already updated this month ({current_month}) - skipping")
+            
+            return has_data
+            
+        except Exception as e:
+            logger.warning(f"Error checking company profile update status: {e}")
+            return False
+    
+    def _is_insider_transactions_updated_this_month(self, stock_id: int) -> bool:
+        """
+        Check if insider transactions have been updated for this stock in the current month
+        
+        Args:
+            stock_id: Database ID of the stock
+            
+        Returns:
+            True if insider transactions updated this month, False otherwise
+        """
+        try:
+            from datetime import datetime
+            current_month = datetime.now().strftime('%Y-%m')
+            
+            # Check if there are any insider transactions for this stock created this month
+            result = self.db.client.table('insider_transactions')\
+                .select('transaction_date')\
+                .eq('stock_id', stock_id)\
+                .gte('created_at', f'{current_month}-01')\
+                .limit(1)\
+                .execute()
+            
+            has_data = bool(result.data)
+            if has_data:
+                logger.info(f"  ℹ Insider transactions already updated this month ({current_month}) - skipping")
+            
+            return has_data
+            
+        except Exception as e:
+            logger.warning(f"Error checking insider transactions update status: {e}")
+            return False
+    
+    def _get_latest_data_date(self, stock_id: int, table_name: str, date_column: str = 'date') -> str:
+        """
+        Get the latest date available in database for a stock's time-series data
+        
+        Args:
+            stock_id: Database ID of the stock
+            table_name: Name of the table to check (e.g., 'daily_price_data', 'technical_indicators') 
+            date_column: Name of the date column (default: 'date')
+            
+        Returns:
+            Latest date as string (YYYY-MM-DD) or None if no data exists
+        """
+        try:
+            result = self.db.client.table(table_name)\
+                .select(date_column)\
+                .eq('stock_id', stock_id)\
+                .order(date_column, desc=True)\
+                .limit(1)\
+                .execute()
+            
+            if result.data:
+                latest_date = result.data[0][date_column]
+                logger.info(f"  📅 Latest {table_name} date in DB: {latest_date}")
+                return latest_date
+            else:
+                logger.info(f"  📅 No existing {table_name} data found in DB - will export full dataset")
+                return None
+                
+        except Exception as e:
+            logger.warning(f"Error checking latest {table_name} date: {e}")
+            return None
+    
+    def _filter_new_records_only(self, data, latest_db_date: str, date_column: str = 'Date'):
+        """
+        Filter dataframe to only include records newer than the latest database date
+        
+        Args:
+            data: pandas DataFrame with date column
+            latest_db_date: Latest date in database (YYYY-MM-DD) or None
+            date_column: Name of the date column (default: 'Date')
+            
+        Returns:
+            Filtered DataFrame with only new records
+        """
+        try:
+            import pandas as pd
+            from datetime import datetime
+            
+            if data is None or data.empty:
+                return data
+                
+            if latest_db_date is None:
+                # No existing data in DB - return full 2-year filtered dataset
+                logger.info(f"  🆕 No existing data in DB - exporting full filtered dataset")
+                return data
+            
+            # Convert to DataFrame if not already
+            if not isinstance(data, pd.DataFrame):
+                return data
+                
+            # Check if date column exists
+            if date_column not in data.columns:
+                logger.warning(f"Date column '{date_column}' not found, returning full dataset")
+                return data
+            
+            # Convert dates for comparison
+            data_dates = pd.to_datetime(data[date_column], errors='coerce')
+            latest_db_datetime = pd.to_datetime(latest_db_date)
+            
+            # Filter to only records newer than latest DB date
+            mask = data_dates > latest_db_datetime
+            filtered_data = data[mask].copy()
+            
+            original_count = len(data)
+            filtered_count = len(filtered_data)
+            
+            if filtered_count == 0:
+                logger.info(f"  ✅ All data is already in DB - no new records to export")
+            else:
+                logger.info(f"  🆕 Filtered to new records only: {original_count} → {filtered_count} new records")
+            
+            return filtered_data
+            
+        except Exception as e:
+            logger.warning(f"Error filtering new records: {e}")
+            return data  # Return original data if filtering fails
     
     def export_stock_data(self, ticker: str) -> Dict:
         """
@@ -135,72 +441,130 @@ class SupabaseDataExporter:
             # Reset mapper stats
             self.mapper.reset_sync_stats()
             
-            # 2.1: Export stock metadata
+            # 2.1: Export stock metadata (company profile - monthly update)
             logger.info("\n[1/11] Exporting stock metadata...")
-            stock_record = self.mapper.map_stock_metadata(
-                ticker,
-                collected_data['info'],
-                collected_data['processed_data']
-            )
             
-            # Upsert stock record
+            # First, get or create basic stock record to get stock_id
+            basic_stock_record = {
+                'symbol': ticker,
+                'ticker': ticker,
+                'is_active': True,
+                'sync_enabled': True
+            }
+            
             stock_result = self.db.client.table('stocks').upsert(
-                stock_record,
+                basic_stock_record,
                 on_conflict='symbol'
             ).execute()
             
             if not stock_result.data:
-                raise Exception("Failed to insert/update stock record")
+                raise Exception("Failed to insert/update basic stock record")
             
             stock_id = stock_result.data[0]['id']
-            logger.info(f"  ✓ Stock registered: ID = {stock_id}")
-            result['records_exported']['stocks'] = 1
-            self.mapper.sync_stats['records_inserted'] += 1
             
-            # 2.2: Export daily price data
+            # Check if company profile needs updating this month
+            if self._is_company_profile_updated_this_month(stock_id):
+                logger.info("  ⏭️  Company profile already updated this month - skipping")
+                result['records_exported']['stocks'] = 0  # Track as skipped
+            else:
+                # Update full company profile
+                stock_record = self.mapper.map_stock_metadata(
+                    ticker,
+                    collected_data['info'],
+                    collected_data['processed_data']
+                )
+                
+                stock_result = self.db.client.table('stocks').upsert(
+                    stock_record,
+                    on_conflict='symbol'
+                ).execute()
+                
+                logger.info(f"  ✓ Stock profile updated: ID = {stock_id}")
+                result['records_exported']['stocks'] = 1
+                self.mapper.sync_stats['records_inserted'] += 1
+            
+            # 2.2: Export daily price data (incremental - only new records)
             logger.info("\n[2/11] Exporting daily price data...")
-            price_records = self.mapper.map_daily_prices(
-                stock_id,
-                collected_data['processed_data']
+            
+            # First filter to last 2 years for database storage policy
+            filtered_price_data = self._filter_last_two_years(
+                collected_data['processed_data'], 
+                'Date'
             )
             
-            # Batch insert prices
-            batch_size = 1000
-            total_inserted = 0
-            for i in range(0, len(price_records), batch_size):
-                batch = price_records[i:i+batch_size]
-                self.db.client.table('daily_price_data').upsert(
-                    batch,
-                    on_conflict='stock_id,date'
-                ).execute()
-                total_inserted += len(batch)
-                logger.info(f"  Progress: {total_inserted}/{len(price_records)} records...")
+            # Get latest date in database for this stock
+            latest_price_date = self._get_latest_data_date(stock_id, 'daily_price_data', 'date')
             
-            logger.info(f"  ✓ Exported {total_inserted} price records")
-            result['records_exported']['daily_price_data'] = total_inserted
-            self.mapper.sync_stats['records_inserted'] += total_inserted
+            # Filter to only new records (newer than latest DB date)
+            incremental_price_data = self._filter_new_records_only(
+                filtered_price_data, 
+                latest_price_date, 
+                'Date'
+            )
             
-            # 2.3: Export technical indicators
+            if incremental_price_data is not None and len(incremental_price_data) > 0:
+                price_records = self.mapper.map_daily_prices(
+                    stock_id,
+                    incremental_price_data
+                )
+                
+                # Batch insert only new price records
+                batch_size = 1000
+                total_inserted = 0
+                for i in range(0, len(price_records), batch_size):
+                    batch = price_records[i:i+batch_size]
+                    self.db.client.table('daily_price_data').upsert(
+                        batch,
+                        on_conflict='stock_id,date'
+                    ).execute()
+                    total_inserted += len(batch)
+                    if len(price_records) > batch_size:  # Only show progress for large batches
+                        logger.info(f"  Progress: {total_inserted}/{len(price_records)} records...")
+                
+                logger.info(f"  ✓ Exported {total_inserted} new price records")
+                result['records_exported']['daily_price_data'] = total_inserted
+                self.mapper.sync_stats['records_inserted'] += total_inserted
+            else:
+                logger.info(f"  ✅ No new price data to export")
+                result['records_exported']['daily_price_data'] = 0
+            
+            # 2.3: Export technical indicators (incremental - only new records)
             logger.info("\n[3/11] Exporting technical indicators...")
-            tech_records = self.mapper.map_technical_indicators(
-                stock_id,
-                collected_data['processed_data']
+            
+            # Get latest date in database for this stock's technical indicators
+            latest_indicators_date = self._get_latest_data_date(stock_id, 'technical_indicators', 'date')
+            
+            # Filter to only new records (newer than latest DB date)
+            incremental_indicators_data = self._filter_new_records_only(
+                filtered_price_data,  # Uses same data as price (filtered to 2 years) 
+                latest_indicators_date, 
+                'Date'
             )
             
-            # Batch insert technical indicators
-            total_inserted = 0
-            for i in range(0, len(tech_records), batch_size):
-                batch = tech_records[i:i+batch_size]
-                self.db.client.table('technical_indicators').upsert(
-                    batch,
-                    on_conflict='stock_id,date'
-                ).execute()
-                total_inserted += len(batch)
-                logger.info(f"  Progress: {total_inserted}/{len(tech_records)} records...")
-            
-            logger.info(f"  ✓ Exported {total_inserted} indicator records")
-            result['records_exported']['technical_indicators'] = total_inserted
-            self.mapper.sync_stats['records_inserted'] += total_inserted
+            if incremental_indicators_data is not None and len(incremental_indicators_data) > 0:
+                tech_records = self.mapper.map_technical_indicators(
+                    stock_id,
+                    incremental_indicators_data
+                )
+                
+                # Batch insert only new indicator records
+                total_inserted = 0
+                for i in range(0, len(tech_records), batch_size):
+                    batch = tech_records[i:i+batch_size]
+                    self.db.client.table('technical_indicators').upsert(
+                        batch,
+                        on_conflict='stock_id,date'
+                    ).execute()
+                    total_inserted += len(batch)
+                    if len(tech_records) > batch_size:  # Only show progress for large batches
+                        logger.info(f"  Progress: {total_inserted}/{len(tech_records)} records...")
+                
+                logger.info(f"  ✓ Exported {total_inserted} new indicator records")
+                result['records_exported']['technical_indicators'] = total_inserted
+                self.mapper.sync_stats['records_inserted'] += total_inserted
+            else:
+                logger.info(f"  ✅ No new technical indicators to export")
+                result['records_exported']['technical_indicators'] = 0
             
             # 2.4: Export analyst data (one record per stock)
             logger.info("\n[4/11] Exporting analyst data...")
@@ -217,9 +581,14 @@ class SupabaseDataExporter:
             result['records_exported']['analyst_data'] = 1
             self.mapper.sync_stats['records_inserted'] += 1
             
-            # 2.5: Export forecast data (12 monthly forecasts without redundant analyst data)
+            # 2.5: Export forecast data (12 monthly forecasts - updated monthly only)
             logger.info("\n[5/11] Exporting forecast data...")
-            if collected_data.get('forecast_data') is not None:
+            
+            # Check if forecast data was already updated this month
+            if self._is_forecast_updated_this_month(stock_id):
+                logger.info("  ⏭️  Forecast data already updated this month - skipping")
+                result['records_exported']['forecast_data'] = 0  # Track as skipped
+            elif collected_data.get('forecast_data') is not None:
                 forecast_records = self.mapper.map_forecast_data(
                     stock_id,
                     collected_data['forecast_data'],
@@ -276,21 +645,90 @@ class SupabaseDataExporter:
             else:
                 logger.info("  ℹ Quarterly data not available")
             
-            # 2.7: Export risk data
+            # 2.7: Export risk data (basic + advanced metrics)
             logger.info("\n[7/12] Exporting risk data...")
+            
+            # Calculate comprehensive risk profile using RiskAnalyzer
+            risk_profile = None
+            try:
+                price_data = collected_data['processed_data']['Close']
+                
+                # Get market data (S&P 500) if available
+                market_data = None
+                if 'SP500' in collected_data['processed_data'].columns:
+                    market_data = collected_data['processed_data']['SP500']
+                
+                # Calculate comprehensive risk profile
+                risk_profile = self.risk_analyzer.comprehensive_risk_profile(
+                    price_data=price_data,
+                    market_data=market_data,
+                    ticker=ticker
+                )
+                logger.info("  ✓ Calculated comprehensive risk profile")
+            except Exception as e:
+                logger.warning(f"  ⚠ Could not calculate comprehensive risk profile: {e}")
+                risk_profile = None
+            
+            # Map and export basic risk data (includes CVaR and volatility)
             risk_record = self.mapper.map_risk_data(
                 stock_id,
                 collected_data['processed_data'],
-                collected_data['info']
+                collected_data['info'],
+                risk_profile=risk_profile,
+                market_data=None,  # TODO: Add S&P 500 data if available
+                ticker=ticker  # Pass ticker for liquidity/Altman metadata
             )
             
             self.db.client.table('risk_data').upsert(
                 [risk_record],
                 on_conflict='stock_id,date'
             ).execute()
-            logger.info(f"  ✓ Exported risk metrics")
+            logger.info(f"  ✓ Exported enhanced risk metrics (basic)")
             result['records_exported']['risk_data'] = 1
             self.mapper.sync_stats['records_inserted'] += 1
+            
+            # Export advanced risk tables (if data available)
+            if risk_profile:
+                # 2.7a: Export liquidity risk data
+                liquidity_record = self.mapper.map_liquidity_risk_data(stock_id, risk_profile)
+                if liquidity_record:
+                    self.db.client.table('liquidity_risk_data').upsert(
+                        [liquidity_record],
+                        on_conflict='stock_id,date'
+                    ).execute()
+                    logger.info(f"  ✓ Exported liquidity risk metrics")
+                    result['records_exported']['liquidity_risk_data'] = 1
+                    self.mapper.sync_stats['records_inserted'] += 1
+                else:
+                    logger.info("  ℹ No liquidity risk data available")
+                
+                # 2.7b: Export Altman Z-Score data
+                altman_record = self.mapper.map_altman_zscore_data(stock_id, risk_profile)
+                if altman_record:
+                    self.db.client.table('altman_zscore_data').upsert(
+                        [altman_record],
+                        on_conflict='stock_id,date'
+                    ).execute()
+                    logger.info(f"  ✓ Exported Altman Z-Score metrics")
+                    result['records_exported']['altman_zscore_data'] = 1
+                    self.mapper.sync_stats['records_inserted'] += 1
+                else:
+                    logger.info("  ℹ No Altman Z-Score data available")
+                
+                # 2.7c: Export regime risk data
+                regime_record = self.mapper.map_regime_risk_data(stock_id, risk_profile)
+                if regime_record:
+                    self.db.client.table('regime_risk_data').upsert(
+                        [regime_record],
+                        on_conflict='stock_id,date'
+                    ).execute()
+                    logger.info(f"  ✓ Exported regime risk metrics")
+                    result['records_exported']['regime_risk_data'] = 1
+                    self.mapper.sync_stats['records_inserted'] += 1
+                else:
+                    logger.info("  ℹ No regime risk data available")
+            else:
+                logger.info("  ℹ Skipping advanced risk exports (no risk profile)")
             
             # 2.8: Export market snapshot
             logger.info("\n[8/12] Exporting market snapshot...")
@@ -358,9 +796,14 @@ class SupabaseDataExporter:
             result['records_exported']['sentiment_data'] = 1
             self.mapper.sync_stats['records_inserted'] += 1
             
-            # 2.12: Export insider transactions
+            # 2.12: Export insider transactions (monthly update)
             logger.info("\n[12/12] Exporting insider transactions...")
-            if collected_data.get('insider_transactions') is not None and not collected_data['insider_transactions'].empty:
+            
+            # Check if insider transactions were already updated this month
+            if self._is_insider_transactions_updated_this_month(stock_id):
+                logger.info("  ⏭️  Insider transactions already updated this month - skipping")
+                result['records_exported']['insider_transactions'] = 0  # Track as skipped
+            elif collected_data.get('insider_transactions') is not None and not collected_data['insider_transactions'].empty:
                 insider_records = self.mapper.map_insider_transactions(
                     stock_id,
                     collected_data['insider_transactions']

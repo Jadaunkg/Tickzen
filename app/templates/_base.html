@@ -307,15 +307,12 @@
             text-align: center;
         }
         .dropdown-toggle::after {
-            content: '';
-            display: inline-block;
-            width: 0;
-            height: 0;
+            content: '\f078';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
             margin-left: 0.5rem;
+            font-size: 0.75rem;
             vertical-align: middle;
-            border-top: 4px solid currentColor;
-            border-right: 4px solid transparent;
-            border-left: 4px solid transparent;
             transition: transform 0.2s ease;
         }
         .dropdown:hover .dropdown-toggle::after {
@@ -655,66 +652,178 @@
             .mobile-nav {
                 position: fixed;
                 top: 0;
-                left: 0; /* Anchor to the left edge */
-                width: 280px; /* Adjust width as desired */
-                max-width: 80%; /* Max width to not occupy full screen on smaller devices */
-                height: 100%;
-                background-color: #ffffff;
-                box-shadow: 2px 0 10px rgba(0,0,0,0.15); /* Shadow on the right for left menu */
+                left: 0;
+                width: 280px;
+                max-width: 80%;
+                height: 100vh;
+                min-height: 100vh;
+                background-color: #ffffff !important;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.15);
                 flex-direction: column;
-                padding-top: 60px; /* Space for close button or padding from top */
+                padding-top: 0;
+                padding-bottom: 20px;
                 z-index: 1001;
                 overflow-y: auto;
-                display: flex;
-                transform: translateX(-100%); /* Initially off-screen to the left */
-                transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                display: flex !important;
+                transform: translateX(-100%);
+                transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s linear 0.35s;
+                visibility: hidden;
             }
             .mobile-nav.active {
-                transform: translateX(0%); /* Slide into view */
+                transform: translateX(0%);
+                visibility: visible;
+                transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0s linear 0s;
             }
 
-            .mobile-nav .nav-item { margin-left: 0; width: 100%; text-align: left; margin-bottom: 8px; }
+            .mobile-nav .nav-item { 
+                margin-left: 0 !important; 
+                width: 100% !important; 
+                text-align: left; 
+                margin-bottom: 4px; 
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                list-style: none;
+            }
             .mobile-nav .nav-link {
-                display: block; width: 100%; padding: 15px 25px;
-                margin: 0; border-radius: 0; justify-content: flex-start;
-                font-size: 1rem; border: none;
+                display: flex !important; 
+                align-items: center;
+                width: 100%; 
+                padding: 14px 25px;
+                margin: 0; 
+                border-radius: 8px;
+                font-size: 0.95rem; 
+                border: none;
+                color: #475569 !important;
+                background-color: transparent;
+                visibility: visible !important;
+                opacity: 1 !important;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                font-weight: 500;
+                position: relative;
+            }
+            .mobile-nav .nav-link:hover {
+                background-color: #f1f5f9;
+                color: #1e293b !important;
+            }
+            .mobile-nav .nav-link.active {
+                color: var(--green-600) !important;
+                background-color: #f0fdf4;
+            }
+            .mobile-nav .nav-link.active i,
+            .mobile-nav .nav-link.active svg {
+                color: var(--green-600) !important;
+                fill: var(--green-600) !important;
+                stroke: var(--green-600) !important;
+            }
+            .mobile-nav .mobile-nav-header {
+                display: flex !important;
+                align-items: center;
+                justify-content: space-between;
+                padding: 18px 25px;
+                border-bottom: 1px solid #e2e8f0;
+                margin-bottom: 12px;
+                background-color: #fff;
+            }
+            .mobile-nav .mobile-nav-header span {
+                font-weight: 600;
+                font-size: 1.1rem;
+                color: #1e293b;
+            }
+            .mobile-nav .mobile-nav-close {
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: #64748b;
+                padding: 5px;
+                transition: color 0.2s ease;
+            }
+            .mobile-nav .mobile-nav-close:hover {
+                color: var(--green-600);
+            }
+            .mobile-nav .nav-link.active {
+                color: var(--green-600) !important;
+                background-color: #f0fdf4;
+            }
+            .mobile-nav .nav-link.active i,
+            .mobile-nav .nav-link.active svg {
+                color: var(--green-600) !important;
+                fill: var(--green-600) !important;
+                stroke: var(--green-600) !important;
+            }
+            .mobile-nav .nav-link i,
+            .mobile-nav .nav-link svg {
+                color: #475569 !important;
+                fill: #475569 !important;
+                stroke: #475569 !important;
+                display: inline-block !important;
+                margin-right: 0.75rem;
+                width: 1.25rem;
+                height: 1.25rem;
+                flex-shrink: 0;
             }
             .mobile-nav .nav-link.btn-login {
-                 margin: 15px 25px; width: calc(100% - 50px);
-                 border-radius: 12px; text-align: center; justify-content: center;
-                 background-color: white; color: #333; border: 2px solid var(--green-600);
-                 box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2);
+                 margin: 15px 25px 8px 25px; 
+                 width: calc(100% - 50px);
+                 border-radius: 10px; 
+                 text-align: center; 
+                 justify-content: center;
+                 background-color: white; 
+                 color: var(--green-600) !important; 
+                 border: 2px solid var(--green-600);
+                 box-shadow: 0 2px 4px rgba(22, 163, 74, 0.1);
+                 font-weight: 600;
             }
             .mobile-nav .nav-link.btn-login:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
                 border-color: var(--green-700);
-                background-color: var(--green-50);
+                background-color: #f0fdf4;
             }
             .mobile-nav .nav-link.btn-get-started {
-                margin: 15px 25px; width: calc(100% - 50px);
-                border-radius: 12px; text-align: center; justify-content: center;
-                background-color: var(--green-600); color: white; border: 2px solid var(--green-600);
+                margin: 8px 25px 15px 25px; 
+                width: calc(100% - 50px);
+                border-radius: 10px; 
+                text-align: center; 
+                justify-content: center;
+                background-color: var(--green-600); 
+                color: white !important; 
+                border: 2px solid var(--green-600);
                 box-shadow: 0 2px 4px rgba(22, 163, 74, 0.3);
+                font-weight: 600;
             }
             .mobile-nav .nav-link.btn-get-started:hover {
-                transform: translateY(-2px);
+                transform: translateY(-1px);
                 box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
                 border-color: var(--green-700);
                 background-color: var(--green-700);
-                color: white;
+                color: white !important;
             }
 
+            .mobile-nav .nav-item.dropdown > .dropdown-toggle {
+                position: relative;
+                padding-right: 50px;
+            }
             .mobile-nav .nav-item.dropdown .dropdown-toggle::after {
-                content: ' \25B8'; 
+                content: '\f078';
+                font-family: 'Font Awesome 5 Free';
+                font-weight: 900;
                 position: absolute;
                 right: 25px;
                 top: 50%;
                 transform: translateY(-50%);
-                transition: transform 0.2s ease-in-out;
+                font-size: 0.75rem;
+                transition: transform 0.3s ease;
+                color: #64748b;
+            }
+            .mobile-nav .nav-item.dropdown.open > .dropdown-toggle {
+                color: var(--green-600) !important;
             }
             .mobile-nav .nav-item.dropdown.open > .dropdown-toggle::after {
-                transform: translateY(-50%) rotate(90deg);
+                transform: translateY(-50%) rotate(180deg);
+                color: var(--green-600);
             }
 
             .mobile-nav .nav-item.dropdown .dropdown-menu {
@@ -722,9 +831,11 @@
                 display: none; 
                 box-shadow: none;
                 border-radius: 0;
-                border-top: 1px solid #eee;
-                background-color: #f9f9f9;
+                border: none;
+                background-color: #f8fafc;
                 padding-left: 0; 
+                margin-top: 4px;
+                margin-bottom: 4px;
                 max-height: 0;
                 overflow: hidden;
                 transition: max-height 0.4s ease-in-out, padding-top 0.4s ease-in-out, padding-bottom 0.4s ease-in-out;
@@ -732,13 +843,26 @@
              .mobile-nav .nav-item.dropdown.open > .dropdown-menu {
                 display: block; 
                 max-height: 500px; 
-                padding-top: 0.5rem;
-                padding-bottom: 0.5rem;
+                padding-top: 8px;
+                padding-bottom: 8px;
             }
 
             .mobile-nav .dropdown-menu .nav-link {
-                padding: 10px 25px 10px 35px; 
-                font-size: 0.95rem;
+                padding: 12px 25px 12px 55px; 
+                font-size: 0.875rem;
+                color: #64748b !important;
+            }
+            .mobile-nav .dropdown-menu .nav-link:hover {
+                background-color: #e2e8f0;
+                color: #1e293b !important;
+            }
+            .mobile-nav .dropdown-menu .nav-link.active {
+                color: var(--green-600) !important;
+                background-color: #f0fdf4;
+                font-weight: 600;
+            }
+            .mobile-nav .dropdown-menu .nav-link.active i {
+                color: var(--green-600) !important;
             }
             .mobile-nav .dropdown-menu .nav-link i {
                 margin-right: 8px;
@@ -1313,7 +1437,7 @@
                             
                             <!-- Stock Analysis (redirects to dashboard) -->
                             <li class="nav-item">
-                                <a class="nav-link {% if is_stock_analysis_page %}active{% endif %}" href="{{ url_for('stock_analysis.dashboard') }}">
+                                <a class="nav-link {% if (endpoint.startswith('stock_analysis.') or endpoint.startswith('market_news.')) %}active{% endif %}" href="{{ url_for('stock_analysis.dashboard') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                                     </svg>
@@ -1449,6 +1573,13 @@
             
             <!-- Mobile menu (hidden on desktop) -->
             <ul class="navbar-nav mobile-nav" id="mobileNavbarNav">
+                <!-- Mobile menu header with logo -->
+                <li class="mobile-nav-header" style="display: flex; align-items: center; padding: 15px 25px; border-bottom: 1px solid #eee; margin-bottom: 10px;">
+                    <a href="{{ url_for('stock_analysis_homepage_route') }}" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #1e293b;">
+                        <img src="{{ url_for('static', filename='images/site icon 40x.png') }}" alt="Tickzen Icon" height="32" class="site-icon">
+                        <span style="font-weight: 700; font-size: 1.15rem; color: #1e293b;">Tickzen</span>
+                    </a>
+                </li>
                 {% if is_user_logged_in %}
                     <!-- Home -->
                     <li class="nav-item">
@@ -1459,7 +1590,7 @@
                     
                     <!-- Stock Analysis (redirects to dashboard) -->
                     <li class="nav-item">
-                        <a class="nav-link {% if 'stock_analysis' in (request.endpoint or '') or 'market_news' in (request.endpoint or '') %}active{% endif %}" href="{{ url_for('stock_analysis.dashboard') }}">
+                        <a class="nav-link {% if (request.endpoint or '').startswith('stock_analysis.') or (request.endpoint or '').startswith('market_news.') %}active{% endif %}" href="{{ url_for('stock_analysis.dashboard') }}">
                             <i class="fas fa-chart-line"></i> Stock Analysis
                         </a>
                     </li>
@@ -1472,12 +1603,7 @@
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="mobileToolsDropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            Tools<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.3rem; vertical-align: middle;">
-                                <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.2"/>
-                                <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
-                                <circle cx="12" cy="12" r="3"/>
-                                <path d="M21 12c.5.5.5 1.5 0 2l-1.5 1.5c-.5.5-1.5.5-2 0l-.5-.5-4 4-.5-.5c-.5-.5-.5-1.5 0-2L14 15.5c.5-.5.5-1.5 0-2l-1.5-1.5c-.5-.5-.5-1.5 0-2L14 8.5"/>
-                            </svg>
+                            <i class="fas fa-tools" style="margin-right: 0.75rem;"></i>Tools
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="mobileToolsDropdown">
                             <li>
@@ -1510,13 +1636,7 @@
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle nav-link-user" href="#" id="mobileUserDropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            {{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'Account') }}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.5rem; vertical-align: middle;">
-                                <circle cx="12" cy="8" r="5" fill="currentColor" opacity="0.2"/>
-                                <path d="M20 21a8 8 0 0 0-16 0" fill="currentColor" opacity="0.2"/>
-                                <circle cx="12" cy="8" r="5"/>
-                                <path d="M20 21a8 8 0 0 0-16 0"/>
-                            </svg>
+                            <i class="fas fa-user-circle" style="margin-right: 0.75rem; font-size: 1.25rem;"></i>{{ user_displayName.split(' ')[0] if user_displayName else (user_email.split('@')[0] if user_email else 'Account') }}
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="mobileUserDropdown">
                             <li>
@@ -1651,16 +1771,23 @@
         const body = document.body;
 
         function toggleNavbar() {
+            if (!mobileNavbarNav) {
+                console.error('Mobile nav not found');
+                return;
+            }
             const isActive = mobileNavbarNav.classList.contains('active');
             mobileNavbarNav.classList.toggle('active');
-            mobileMenuOverlay.classList.toggle('active');
-            navbarToggler.setAttribute('aria-expanded', String(!isActive)); // Ensure string value
-            // body.classList.toggle('mobile-menu-open'); 
+            if (mobileMenuOverlay) {
+                mobileMenuOverlay.classList.toggle('active');
+            }
+            if (navbarToggler) {
+                navbarToggler.setAttribute('aria-expanded', String(!isActive));
+            }
 
             if (mobileNavbarNav.classList.contains('active')) {
-                navbarToggler.innerHTML = '<i class="fas fa-times"></i>'; 
+                if (navbarToggler) navbarToggler.innerHTML = '<i class="fas fa-times"></i>'; 
             } else {
-                navbarToggler.innerHTML = '<i class="fas fa-bars"></i>'; 
+                if (navbarToggler) navbarToggler.innerHTML = '<i class="fas fa-bars"></i>'; 
                 document.querySelectorAll('.mobile-nav .nav-item.dropdown.open').forEach(openDropdown => {
                     openDropdown.classList.remove('open');
                     const submenu = openDropdown.querySelector('.dropdown-menu');
@@ -1672,6 +1799,9 @@
                 });
             }
         }
+        
+        // Make toggleNavbar globally accessible for onclick handlers
+        window.toggleNavbar = toggleNavbar;
 
         if (navbarToggler) {
             navbarToggler.addEventListener('click', toggleNavbar);

@@ -1,171 +1,186 @@
 {
-  "timestamp": "2026-01-25T22:39:49.750931",
+  "timestamp": "2026-02-12T17:03:18.449806",
   "success": true,
-  "count": 126,
+  "count": 127,
   "data": [
     {
-      "id": "c64b6d09d3d6445c7aaba306614ae004",
-      "title": "MPESB Police Constable Result 2026 – Out",
+      "id": "644e57b77e2d8f7345f8166e5c9350d6",
+      "title": "RPSC SI Telecom Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/mpesb-police-constable-result-2026/",
+      "url": "https://sarkariresult.com.cm/rpsc-rajasthan-police-si-telecom-2025/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": true
     },
     {
-      "id": "34f9890497bbfedd55b6bc2dbd50ffe7",
-      "title": "UPSSSC Auditor & Assistant Accountant 05/2023 Final Result – Out",
+      "id": "c41a11dbd12fb4b77e9489036b98194d",
+      "title": "NTA JEE Main Session-I Result 2026",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/upsssc-auditor-assistant-accountant-05-2023-final-result/",
+      "url": "https://sarkariresult.com.cm/nta-jee-main-session-i-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "ed0738a7d35726addaad5bb4c8159fe9",
+      "title": "UP Police Computer Operator Final Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/up-police-computer-operator-2023/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "eaa33e5421587892af5ff297bc3009b2",
-      "title": "Railway RRC NR Apprentice Result / Score Card 2026 – Out",
+      "id": "88ba3d543ee13d0f68dcad36beb2f0e6",
+      "title": "RSSB NHM & RajMES Final Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/railway-rrc-nr-apprentice-result-score-card-2026/",
+      "url": "https://sarkariresult.com.cm/rssb-nhm-rajmes-2025/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "ef067fc429e90d064fef29ad874145af",
-      "title": "SIDBI Grade A & B Final Result 2026",
+      "id": "22c4df0e21bf0c832a8fe5af67ed5156",
+      "title": "RSSB 4th Class (Group D) Revised Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/sidbi-grade-a-b-final-result-2026/",
+      "url": "https://sarkariresult.com.cm/rssb-4th-class-group-d-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "53d42cdb7a0883bdad6c88761538549f",
-      "title": "RRB NTPC 10+2 Inter Level CBT-2 Result 2026 – Out",
+      "id": "840ba15397d4c41ec8f7a217f85312b7",
+      "title": "OICL Administrative Officer Pre Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rrb-ntpc-102-inter-level-cbt-2-result-2026/",
+      "url": "https://sarkariresult.com.cm/oicl-administrative-officer-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "bd0ba71c195cf75be384511f1a838b7d",
-      "title": "IOCL Junior Engineer Final Result 2026 – Out",
+      "id": "8fcd3102982f355fe80e716c5b9eb983",
+      "title": "Nainital Bank Clerk CSA, PO & SO Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/iocl-junior-engineer-final-result-2026/",
+      "url": "https://sarkariresult.com.cm/nainital-bank-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "20b84d18f96e6b28b7c6d996ea9b7ce4",
-      "title": "AIIMS 4th CRE Group B, C Result 2026 – Out",
+      "id": "4bba3fcc9589844428616c5373c21022",
+      "title": "UPPSC LT Grade Assistant Teacher Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/aiims-4th-cre-group-b-c-result-2026/",
+      "url": "https://sarkariresult.com.cm/uppsc-lt-grade-assistant-teache-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "7468e22a2317f0d44c8c9ae3b503df08",
-      "title": "Bihar SHS ANM Result 2026 – Out",
+      "id": "48123c48ddefb25d1fc1af52fcd284f8",
+      "title": "UPPSC Assistant Registrar Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-shs-anm-result-2026/",
+      "url": "https://sarkariresult.com.cm/uppsc-assistant-registrar-2025/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "963836e21306d7ab5b66b558f1cd22a6",
-      "title": "Bihar BSSC Field Assistant Pre Result 2026 – Out",
+      "id": "b0c05b5bbd69517f257a397937032e08",
+      "title": "MPESB Excise Constable Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-bssc-field-assistant-pre-result-2026/",
+      "url": "https://sarkariresult.com.cm/mpesb-excise-constable-result-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "60a800393fa8dbd3217edb0e8f255aa4",
-      "title": "MPPSC Food Safety Officer FSO Result 2026 – Out",
+      "id": "8e34a51bf1219f0bb609109a128c7285",
+      "title": "SSC Selection Phase 13 Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/mppsc-food-safety-officer-fso-result-2026/",
+      "url": "https://sarkariresult.com.cm/ssc-phase-13-2025/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "55b892fe3e0e9ab9c72f6d9945db4391",
-      "title": "DDA Deputy/Assistant Director Result 2026 – Out",
+      "id": "31ab21cb7db3e529a64da01d99507635",
+      "title": "SBI Bank Clerk 3rd Wait List 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/dda-deputy-assistant-director-result-2026/",
+      "url": "https://sarkariresult.com.cm/sbi-bank-clerk-2025/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "bff2c6d20dbfe6a91deae089bb5905f8",
-      "title": "IBPS RRB 14th Scale-I Mains/ Scale II, III Pre Result 2026 – Out",
+      "id": "4caa15197d10bde1f24e1aab6d8f4730",
+      "title": "RPSC RAS/ RTS 2023 Final Result – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/ibps-rrb-14th-scale-i-mains-scale-ii-iii-pre-result-2026/",
+      "url": "https://sarkariresult.com.cm/rpsc-ras-rts-2023/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "33e106f28993a9f20763394b230f36cc",
-      "title": "RSSB 4th Class (Group D) Final Answer Key 2026 – Out",
+      "id": "407d253ad8bb4d66508db0382abd5bf0",
+      "title": "UPSC Civil Services IAS 2024 Reserve List Marks – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rssb-4th-class-group-d-final-answer-key-2026/",
+      "url": "https://sarkariresult.com.cm/upsc-civil-services-2024/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "f807ba34f0eb329f2aa5d95bacceac53",
-      "title": "CGPSC Court Manager Pre Result 2026 – Out",
+      "id": "f60e08b2805f8adc5432178d20ffce8e",
+      "title": "NTA UGC NET December Result / Cutoff Marks 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/cgpsc-court-manager-pre-result-2026/",
+      "url": "https://sarkariresult.com.cm/nta-ugc-net-december-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_new": false
-    },
-    {
-      "id": "871a797c18f6bd2e9e647f5534370b55",
-      "title": "AAI Junior Executive Result 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/aai-junior-executive-result-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -177,94 +192,115 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "940bcb8a5bf87efc308a9a1247c2ecae",
-      "title": "India Post IPPB GDS Executive 2025 Final Result – Out",
+      "id": "189c940ff16f1e5c1a13b97cd9a7fe8f",
+      "title": "LIC AAO / AE Mains Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/india-post-ippb-gds-executive-2025-final-result/",
+      "url": "https://sarkariresult.com.cm/lic-aao-ae-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "2b4e4e676d1b9f06208ab16f40c33da2",
-      "title": "DSSSB Music Teacher Result 2026",
+      "id": "661eddfd7be03e1f06784f64f539fef0",
+      "title": "BPSSC Bihar Police Range Officer of Forest Final Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/dsssb-music-teacher-result-2026/",
+      "url": "https://sarkariresult.com.cm/bpssc-bihar-police-range-officer-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "896fa0da047e5026425df361d4174d9b",
-      "title": "RBI Grade B Phase-II Result 2026 – Out",
+      "id": "4447faaed9bc360c1232527981c25bc1",
+      "title": "ECGC PO Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rbi-grade-b-phase-ii-result-2026/",
+      "url": "https://sarkariresult.com.cm/ecgc-po-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "0570cc69789d209f2918d5b6a18be94e",
-      "title": "RSSB Platoon Commander Result 2026 – Out",
+      "id": "9e11b62cc71077b523272f766890512e",
+      "title": "RSSB VDO Score Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rssb-platoon-commander-result-2026/",
+      "url": "https://sarkariresult.com.cm/rssb-vdo-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "b117eaea450fee7ca23decf39358f40d",
-      "title": "RSSB 4th Class (Group D) Result 2026 – Out",
+      "id": "b4b467a56a77cd5d3fa98796fb2da77b",
+      "title": "RSSB Conductor Score Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rssb-4th-class-group-d-result-2026/",
+      "url": "https://sarkariresult.com.cm/rssb-conductor-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "f11dceb2fcd58973cb49a3b1fe650321",
-      "title": "RSSB Driver Result 2026 – Out",
+      "id": "8d870ad9c60e785128de3c755aeb64c7",
+      "title": "RSSB Driver Score Card 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rssb-driver-result-2026/",
+      "url": "https://sarkariresult.com.cm/rssb-driver-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "235d0b37566865309ce988413c49277f",
-      "title": "SSC Constable GD 2025 Final Result – Out",
+      "id": "9cdfd0fa967557b6baaa2598fb8c3591",
+      "title": "KVS NVS Teaching & Non-Teaching Answer Key 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/ssc-constable-gd-final-result-2026/",
+      "url": "https://sarkariresult.com.cm/kvs-nvs-teaching-non-teaching-answer-key-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
-      "id": "b51cc1b064fac496c20b300dfb5e343d",
-      "title": "RSSB Conductor Result 2026 – Out",
+      "id": "da4fd3f1ea2b0a4440bcfcacf6840f6c",
+      "title": "Patna High Court Stenographer Result 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rssb-conductor-result-2026/",
+      "url": "https://sarkariresult.com.cm/patna-high-court-stenographer-result-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "073c40d047f736c09bc00425497e280a",
+      "title": "NTA CSIR UGC NET December Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/nta-csir-ugc-net-december-result-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -463,6 +499,7 @@
           }
         ]
       },
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -474,6 +511,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -485,6 +523,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -496,6 +535,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -507,6 +547,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -518,6 +559,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -529,6 +571,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -540,6 +583,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -551,6 +595,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -562,6 +607,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -573,6 +619,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -584,6 +631,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -595,6 +643,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -606,6 +655,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -617,6 +667,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -628,6 +679,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -639,6 +691,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -650,6 +703,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -661,6 +715,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -672,6 +727,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -683,6 +739,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -694,6 +751,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -705,6 +763,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -716,6 +775,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -727,6 +787,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -738,6 +799,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -749,6 +811,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -760,6 +823,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -771,6 +835,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -782,6 +847,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -793,6 +859,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -804,6 +871,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -815,6 +883,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -826,6 +895,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -837,6 +907,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -848,6 +919,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -859,6 +931,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -870,6 +943,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -881,6 +955,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -892,6 +967,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -903,6 +979,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -914,6 +991,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -925,6 +1003,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -936,6 +1015,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -947,6 +1027,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -958,6 +1039,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -969,6 +1051,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -980,6 +1063,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -991,6 +1075,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1002,6 +1087,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1013,6 +1099,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1024,6 +1111,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1035,6 +1123,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1046,6 +1135,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1057,6 +1147,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1068,6 +1159,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1079,6 +1171,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1090,6 +1183,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1101,6 +1195,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1112,6 +1207,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1123,6 +1219,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1134,6 +1231,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1145,6 +1243,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1156,6 +1255,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1167,6 +1267,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1178,6 +1279,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1189,6 +1291,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1200,6 +1303,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1211,6 +1315,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1222,6 +1327,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1233,6 +1339,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1244,6 +1351,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1255,6 +1363,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1266,6 +1375,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1277,6 +1387,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1288,6 +1399,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1299,6 +1411,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1310,6 +1423,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1321,6 +1435,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1332,6 +1447,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1343,6 +1459,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1354,6 +1471,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1365,6 +1483,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1376,6 +1495,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1387,6 +1507,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1398,6 +1519,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1409,6 +1531,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1420,6 +1543,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1431,6 +1555,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1442,6 +1567,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1453,6 +1579,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1464,6 +1591,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1475,6 +1603,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1486,6 +1615,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1497,6 +1627,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1508,6 +1639,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1519,6 +1651,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1530,6 +1663,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1541,6 +1675,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1552,6 +1687,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1563,6 +1699,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -1574,6 +1711,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
+      "is_duplicate": false,
       "is_new": false
     }
   ]

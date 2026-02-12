@@ -6,6 +6,7 @@ import numpy as np
 import requests
 import os
 from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
 
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
@@ -1228,27 +1229,50 @@ def get_sector_peers(ticker):
     return sector_peers.get(ticker.upper(), default_peers)
 
 def get_peer_comparison_data(ticker):
-    """Main function to get peer comparison data with simplified peer selection."""
+    """Main function to get peer comparison data with parallel peer selection for faster performance."""
     try:
         # Use simplified peer selection
         peers = get_company_peers(ticker)
         
-        # Get metrics for target company and peers
+        # Get metrics for target company and peers in parallel
         comparison_data = {}
         
-        # Get target company metrics
-        target_metrics = get_peer_metrics(ticker)
-        if target_metrics:
-            comparison_data[ticker.upper()] = target_metrics
+        # Prepare list of all tickers to fetch (target + peers)
+        all_tickers = [ticker] + peers
         
-        # Get peer metrics
-        for peer in peers:
-            peer_metrics = get_peer_metrics(peer)
-            if peer_metrics:
-                comparison_data[peer.upper()] = peer_metrics
+        # Use ThreadPoolExecutor for parallel API calls
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        import time
         
-        logging.info(f"Peer comparison completed for {ticker} with {len(comparison_data)-1} peers: {list(comparison_data.keys())}")
+        start_time = time.time()
+        logging.info(f"Starting parallel fetch for {ticker} and {len(peers)} peers: {peers}")
+        
+        # Fetch all metrics in parallel (max 6 concurrent connections to avoid rate limits)
+        with ThreadPoolExecutor(max_workers=6) as executor:
+            # Submit all tasks
+            future_to_ticker = {
+                executor.submit(get_peer_metrics, t): t 
+                for t in all_tickers
+            }
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_ticker):
+                ticker_name = future_to_ticker[future]
+                try:
+                    metrics = future.result()
+                    if metrics:
+                        comparison_data[ticker_name.upper()] = metrics
+                        logging.info(f"✓ Completed metrics for {ticker_name}")
+                    else:
+                        logging.warning(f"✗ No metrics returned for {ticker_name}")
+                except Exception as e:
+                    logging.error(f"✗ Error fetching metrics for {ticker_name}: {e}")
+        
+        elapsed_time = time.time() - start_time
+        logging.info(f"Peer comparison completed for {ticker} with {len(comparison_data)-1} peers in {elapsed_time:.2f}s (parallel): {list(comparison_data.keys())}")
+        
         return comparison_data
+        
     except Exception as e:
         logging.error(f"Error in get_peer_comparison_data: {e}")
         return {}
