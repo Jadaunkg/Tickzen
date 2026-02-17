@@ -368,14 +368,14 @@
                 <div class="tool-card-icon"><i class="fas fa-sitemap"></i></div>
                 <h3>Manage Site Profiles</h3>
                 <p class="tool-description">Configure and manage your WordPress site profiles for automated content posting, including authors and scheduling preferences.</p>
-                <a href="{{ url_for('manage_site_profiles') }}" class="btn btn-primary btn-launch-tool">Manage Profiles</a>
+                <a href="{{ (automation_base_url ~ '/automation/stock-analysis/profiles') if automation_base_url else '/automation/stock-analysis/profiles' }}" class="btn btn-primary btn-launch-tool">Manage Profiles</a>
             </div>
 
             <div class="tool-card">
                 <div class="tool-card-icon"><i class="fas fa-play-circle"></i></div>
                 <h3>Run Automation</h3>
                 <p class="tool-description">Execute automated posting tasks for your configured WordPress site profiles using ticker lists or uploaded files.</p>
-                <a href="{{ url_for('automation_runner_page') }}" class="btn btn-primary btn-launch-tool">Run Automation</a>
+                <a href="{{ (automation_base_url ~ '/automation/stock-analysis/run') if automation_base_url else '/automation/stock-analysis/run' }}" class="btn btn-primary btn-launch-tool">Run Automation</a>
             </div>
             
             <div class="tool-card">

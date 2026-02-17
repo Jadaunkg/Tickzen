@@ -223,13 +223,19 @@
   border: 4px solid rgba(22,163,74,0.12); /* subtle ring background */
   border-top: 4px solid var(--news-primary, var(--primary, #16a34a)); /* primary green */
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: skeletonSpin 1s linear infinite !important;
   box-shadow: 0 2px 6px rgba(16,24,40,0.06);
 }
 
-@keyframes spin {
+@keyframes skeletonSpin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-spinner {
+    animation: skeletonSpin 1s linear infinite !important;
+  }
 }
 
 /* Hide actual content while loading */

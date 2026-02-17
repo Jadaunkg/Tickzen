@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-02-16T23:55:59.763171",
+  "timestamp": "2026-02-17T18:53:11.014287",
   "success": true,
-  "count": 148,
+  "count": 149,
   "data": [
     {
       "id": "6782df52ffc8178d447e6bb7e230be85",
@@ -37,7 +37,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "8995f202ac59bedff528c23d82278ae5",
@@ -49,7 +49,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "fb712be2039744d838f184f47b4883ba",
@@ -85,7 +85,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "fc1d3066e16e66a19f8ccb3f6b6ad8be",
@@ -97,30 +97,6 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
-    },
-    {
-      "id": "6aca3c9ff518b95a4991d9ae04fbb413",
-      "title": "India Post GDS Online Form 2026 (28,636 Post)",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/india-post-gds-online-form-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": false
-    },
-    {
-      "id": "c0836bebb0b8a18d255131c4fc33e28c",
-      "title": "Indian Army Agniveer CEE Online Form 2026 – Start",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/indian-army-agniveer-cee-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": true,
       "is_new": false
     },
     {
@@ -136,22 +112,10 @@
       "is_new": false
     },
     {
-      "id": "baaeac6da83da4ec8cd9e44fc3467f54",
-      "title": "Bihar BSSC Inter Level Online Form 2026 (26,426 Posts) – Last Date Today",
+      "id": "c0836bebb0b8a18d255131c4fc33e28c",
+      "title": "Indian Army Agniveer CEE Online Form 2026 – Start",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-bssc-inter-level-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": true
-    },
-    {
-      "id": "6c939f9270fba33d61efb990709c16b8",
-      "title": "BPSC School Teacher TRE 4.0 Online Form 2026 (44000+ Posts)",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpsc-school-teacher-tre-4-0-2026/",
+      "url": "https://sarkariresult.com.cm/indian-army-agniveer-cee-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -169,13 +133,37 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
+    },
+    {
+      "id": "6c939f9270fba33d61efb990709c16b8",
+      "title": "BPSC School Teacher TRE 4.0 Online Form 2026 (44000+ Posts)",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bpsc-school-teacher-tre-4-0-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": true,
+      "is_new": false
     },
     {
       "id": "595fdd867b21b54a647c5b7cfa8b3342",
       "title": "Yantra India Limited (YIL) Apprentice Online Form 2026 (3979 Posts) – Start",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/yantra-india-limited-yil-apprentice-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "86a0942092dcb9407b864e1582f83e71",
+      "title": "Bihar Police CSBC Constable Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-police-csbc-constable-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -193,18 +181,6 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": true,
-      "is_new": false
-    },
-    {
-      "id": "86a0942092dcb9407b864e1582f83e71",
-      "title": "Bihar Police CSBC Constable Online Form 2026 – Start",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-police-csbc-constable-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -229,7 +205,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "2ac35c4877463c5bd7573e838b763b9a",
@@ -241,7 +217,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "9c97d244e63c5bbe21bb4c44bda53219",
@@ -400,6 +376,54 @@
       "is_new": false
     },
     {
+      "id": "2415fb732c95d141c6a3b6da5c9f4d8a",
+      "title": "BPSC Professor Online Form 2026",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bpsc-professor-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "7953492c8df30b9056126fdfc29a15df",
+      "title": "Bihar Police BPSSC SI Prohibition Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-police-bpssc-si-prohibition-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "6aca3c9ff518b95a4991d9ae04fbb413",
+      "title": "India Post GDS Online Form 2026 (28,636 Post)",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/india-post-gds-online-form-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "baaeac6da83da4ec8cd9e44fc3467f54",
+      "title": "Bihar BSSC Inter Level Online Form 2026 (26,426 Posts) – Last Date Today",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-bssc-inter-level-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
       "id": "eaa80f4e5e7bc64adf254844c21174a0",
       "title": "India Post GDS Form (28636 Posts)",
       "posted_date": null,
@@ -524,18 +548,6 @@
       "title": "HSSC Group C Various Post Online Form 2026 (1383 Post)",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/hssc-group-c-various-post-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": false
-    },
-    {
-      "id": "2415fb732c95d141c6a3b6da5c9f4d8a",
-      "title": "BPSC Professor Online Form 2026",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpsc-professor-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,

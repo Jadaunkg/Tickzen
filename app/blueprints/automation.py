@@ -76,7 +76,8 @@ def api_overview_stats():
         'this_week_count': shared_context.get('this_week_count', 0),
         'pending_count': shared_context.get('pending_count', 0),
         'has_profiles': shared_context.get('has_profiles', False),
-        'user_site_profiles': user_site_profiles or []
+        'user_site_profiles': user_site_profiles or [],
+        'recent_activity': shared_context.get('recent_activity', [])
     }
     
     # Cache for 5 minutes

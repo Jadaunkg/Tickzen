@@ -565,12 +565,12 @@
                         <i class="fas fa-history"></i> View History
                     </a>
                     {% if user_site_profiles and user_site_profiles|length > 0 %}
-                        <a href="{{ url_for('manage_site_profiles') }}" class="action-btn secondary">
-                            <i class="fas fa-cogs"></i> Manage Profiles
+                        <a href="{{ url_for('automation.overview') }}" class="action-btn secondary">
+                            <i class="fas fa-cogs"></i> Automation Hub
                         </a>
                     {% else %}
-                        <a href="{{ url_for('manage_site_profiles') }}" class="action-btn secondary">
-                            <i class="fas fa-plus"></i> Connect Sites
+                        <a href="{{ url_for('automation.overview') }}" class="action-btn secondary">
+                            <i class="fas fa-plus"></i> Automation Hub
                         </a>
                     {% endif %}
                 </div>

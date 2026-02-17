@@ -607,11 +607,11 @@
             </div>
 
             <!-- Refresh Calendar Form (separate from main form) -->
-            <form action="{{ url_for('refresh_earnings_calendar') }}" method="POST" id="refreshCalendarForm" style="display: none;">
+            <form action="{{ url_for('automation.earnings_automation.calendar') }}" method="POST" id="refreshCalendarForm" style="display: none;">
                 <input type="hidden" name="refresh" value="1">
             </form>
 
-            <form action="{{ url_for('run_earnings_automation') }}" method="POST" id="earningsAutomationForm">
+            <form action="{{ url_for('automation.earnings_automation.run') }}" method="POST" id="earningsAutomationForm">
                 
                 <!-- Ticker Input Section -->
                 <div class="ticker-input-section">

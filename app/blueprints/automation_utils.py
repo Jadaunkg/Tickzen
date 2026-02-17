@@ -10,7 +10,35 @@ and blueprints access them through this module.
 """
 
 from functools import wraps
-from flask import session, redirect, url_for, flash, request, current_app
+from flask import session, redirect, url_for, flash, request, current_app, render_template, jsonify
+from google.cloud.firestore_v1.base_query import FieldFilter
+
+def admin_required(f):
+    """Decorator to require admin access for certain automation routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # First ensure user is logged in
+        if 'firebase_user_uid' not in session:
+            if request.path.startswith('/api/'):
+                return jsonify({'error': 'Unauthorized'}), 401
+            return redirect(url_for('login'))
+            
+        # Check admin email
+        admin_emails = [
+            'admin@tickzen.com',
+            'jadaunkg@gmail.com'
+        ]
+        
+        user_email = session.get('firebase_user_email', '')
+        if user_email not in admin_emails:
+            if request.path.startswith('/api/'):
+                return jsonify({'error': 'Admin access required'}), 403
+            flash('Admin access required.', 'error')
+            return redirect(url_for('automation.overview'))
+            
+        return f(*args, **kwargs)
+        
+    return decorated_function
 
 # --- Callback Registry ---
 # These will be set by main_portal_app after initialization
@@ -84,7 +112,7 @@ def get_cache():
 def login_required(f):
     """
     Decorator to require user authentication.
-    Redirects to login page if user is not authenticated.
+    Returns JSON error if user is not authenticated.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -93,14 +121,17 @@ def login_required(f):
         
         if not firebase_initialized:
             current_app.logger.error("Login attempt failed: Firebase Admin SDK not initialized.")
-            session['notification_message'] = "Authentication service is currently unavailable. Please try again later."
-            session['notification_type'] = "danger"
-            return redirect(url_for('stock_analysis_homepage_route'))
+            return jsonify({
+                'error': 'service_unavailable',
+                'message': 'Authentication service is currently unavailable. Please try again later.'
+            }), 503
         
         if 'firebase_user_uid' not in session:
-            session['notification_message'] = "Please login to access this page."
-            session['notification_type'] = "warning"
-            return redirect(url_for('login', next=request.full_path))
+            return jsonify({
+                'error': 'unauthorized',
+                'message': 'Authentication required. Please login to access this resource.',
+                'login_url': '/login'
+            }), 401
         
         return f(*args, **kwargs)
     return decorated_function
@@ -200,7 +231,7 @@ def get_automation_shared_context(user_uid, profiles_list, ticker_status_limit=5
                 # Get ALL articles for this user (removed limit to get accurate count)
                 # This includes published, draft, scheduled, and pending articles
                 articles_query = db.collection('userPublishedArticles')\
-                    .where('user_uid', '==', user_uid)
+                    .where(filter=FieldFilter('user_uid', '==', user_uid))
                 
                 articles = list(articles_query.stream())
                 total_articles_count = len(articles)  # This now includes ALL articles (published + draft + scheduled + pending)
@@ -231,10 +262,25 @@ def get_automation_shared_context(user_uid, profiles_list, ticker_status_limit=5
                 # Sort by published_at descending
                 articles_with_dates.sort(key=lambda x: x[0], reverse=True)
                 
-                # Count this week from published articles only and get recent activity (last 10)
+                # Count this week from ALL articles (published, draft, scheduled, etc.) and get recent activity (last 10)
                 for published_at, article_data, article_doc in articles_with_dates:
-                    # Check if published this week (only count published articles for weekly stats)
-                    if published_at >= week_start and article_data.get('status') == 'published':
+                    # Check if created/published this week (count ALL statuses for weekly stats)
+                    # Use created_at as fallback if published_at is not available for drafts/scheduled
+                    article_date = published_at
+                    if published_at == datetime.min.replace(tzinfo=timezone.utc):
+                        # Try to use created_at for articles without published_at
+                        created_at_str = article_data.get('created_at')
+                        if created_at_str:
+                            try:
+                                if isinstance(created_at_str, str):
+                                    article_date = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
+                                elif hasattr(created_at_str, 'isoformat'):
+                                    article_date = created_at_str
+                            except Exception:
+                                article_date = datetime.min.replace(tzinfo=timezone.utc)
+                    
+                    # Count any article created/published this week regardless of status
+                    if article_date >= week_start and article_date != datetime.min.replace(tzinfo=timezone.utc):
                         this_week_count += 1
                     
                     # Build recent activity item (only for first 10)

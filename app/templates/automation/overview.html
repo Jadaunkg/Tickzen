@@ -1067,7 +1067,7 @@
                 <div class="hub-stat-icon purple"><i data-lucide="calendar-check"></i></div>
                 <div class="hub-stat-info">
                     <div class="hub-stat-value skeleton" style="width: 60px; height: 32px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
-                    <div class="hub-stat-label">Published This Week</div>
+                    <div class="hub-stat-label">Articles This Week</div>
                 </div>
             </div>
             <div class="hub-stat-card skeleton-loading">
@@ -1359,7 +1359,7 @@
                     
                     <div class="hub-quick-card">
                         <div class="hub-quick-grid">
-                            <a href="{{ url_for('manage_site_profiles') }}" class="hub-quick-item">
+                            <a href="{{ url_for('automation.overview') }}" class="hub-quick-item">
                                 <div class="hub-quick-icon green">
                                     <i data-lucide="settings"></i>
                                 </div>
@@ -1395,7 +1395,7 @@
                                     <p>Upcoming earnings dates</p>
                                 </div>
                             </a>
-                            <a href="{{ url_for('stock_analysis_homepage_route') }}" class="hub-quick-item">
+                            <a href="{{ url_for('automation.stock_automation.dashboard') }}" class="hub-quick-item">
                                 <div class="hub-quick-icon green">
                                     <i data-lucide="bar-chart-3"></i>
                                 </div>
@@ -1535,7 +1535,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="hub-stat-icon purple"><i data-lucide="calendar-check"></i></div>
                     <div class="hub-stat-info">
                         <div class="hub-stat-value">${data.this_week_count || 0}</div>
-                        <div class="hub-stat-label">Published This Week</div>
+                        <div class="hub-stat-label">Articles This Week</div>
                     </div>
                 </div>
                 <div class="hub-stat-card">

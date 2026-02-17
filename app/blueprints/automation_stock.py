@@ -17,6 +17,7 @@ Routes:
 """
 
 from flask import Blueprint, render_template, redirect, url_for, session, current_app, request, flash, jsonify
+from google.cloud.firestore_v1.base_query import FieldFilter
 import time
 import sys
 import os
@@ -83,8 +84,8 @@ def api_dashboard_stats():
         try:
             # Get stock analysis articles from userPublishedArticles
             stock_articles_query = db.collection('userPublishedArticles')\
-                .where('user_uid', '==', user_uid)\
-                .where('article_type', '==', 'stock')
+                .where(filter=FieldFilter('user_uid', '==', user_uid))\
+                .where(filter=FieldFilter('article_type', '==', 'stock'))
             
             stock_articles = list(stock_articles_query.stream())
             stock_reports_published = len([article for article in stock_articles 

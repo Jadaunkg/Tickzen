@@ -3,57 +3,76 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
         console.log("DOMContentLoaded: Initializing Firebase script...");
 
-        // --- START: Firebase Configuration ---
-        // Get Firebase configuration from global window object (set in base template)
-    const firebaseConfig = window.firebaseConfig;
-        
-        // Debug: Log Firebase config details
-        console.log("Firebase config debug:", {
-            hasWindowConfig: !!window.firebaseConfig,
-            apiKey: firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 10)}...` : 'MISSING',
-            projectId: firebaseConfig.projectId || 'MISSING',
-            configSource: window.firebaseConfig ? 'environment' : 'fallback'
-        });
-        
-        // Check if Firebase config is properly set (not empty)
-    const hasValidConfig = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId && 
-                  firebaseConfig.apiKey !== '' && firebaseConfig.projectId !== '';
-        
-        // Log configuration source for debugging
-        if (window.firebaseConfig && hasValidConfig) {
-            console.log("✅ Using Firebase config from environment variables");
-        } else if (hasValidConfig) {
-            console.warn("⚠️ Using client config from template but verify environment variables are set on server.");
-        } else {
-            console.error("❌ Firebase configuration is incomplete - authentication will be disabled");
-            displayAuthMessage("Firebase configuration incomplete. Authentication features disabled.", "warning", true);
-            return; // Exit early if config is incomplete
-        }
-        // --- END: Firebase Configuration ---
-
         let app;
         let auth; // Declare here to be accessible throughout the try block
 
-    if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function' && hasValidConfig) {
-            app = firebase.initializeApp(firebaseConfig);
-            
-            if (typeof firebase.auth === 'function') {
-                auth = firebase.auth(); // Initialize auth
-                console.log("Firebase App and Auth initialized successfully.");
-                
-                // Hide any existing warning messages since Firebase loaded successfully
-                hideGlobalWarningMessage();
-                
-            } else {
-                console.error("Firebase Auth SDK not loaded or firebase.auth is not a function.");
-                displayAuthMessage("Firebase Auth services unavailable - using fallback authentication.", "warning", true);
-                return; // Stop if auth isn't available
-            }
-        } else {
-            console.error("Firebase SDK not loaded correctly. Check your internet connection and try refreshing.");
-            displayAuthMessage("Firebase services unavailable - authentication features disabled.", "warning", true);
-            return; 
+        function isValidConfig(config) {
+            return !!(config && config.apiKey && config.projectId &&
+                config.apiKey !== '' && config.projectId !== '');
         }
+
+        function logConfig(config) {
+            console.log("Firebase config debug:", {
+                hasWindowConfig: !!window.firebaseConfig,
+                apiKey: config && config.apiKey ? `${config.apiKey.substring(0, 10)}...` : 'MISSING',
+                projectId: config && config.projectId ? config.projectId : 'MISSING',
+                configSource: window.firebaseConfig ? 'environment' : 'fallback'
+            });
+        }
+
+        function initializeFirebase(config) {
+            if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function' && isValidConfig(config)) {
+                app = firebase.initializeApp(config);
+
+                if (typeof firebase.auth === 'function') {
+                    auth = firebase.auth(); // Initialize auth
+                    console.log("Firebase App and Auth initialized successfully.");
+
+                    // Hide any existing warning messages since Firebase loaded successfully
+                    hideGlobalWarningMessage();
+                } else {
+                    console.error("Firebase Auth SDK not loaded or firebase.auth is not a function.");
+                    displayAuthMessage("Firebase Auth services unavailable - using fallback authentication.", "warning", true);
+                }
+            } else {
+                console.error("Firebase SDK not loaded correctly. Check your internet connection and try refreshing.");
+                displayAuthMessage("Firebase services unavailable - authentication features disabled.", "warning", true);
+            }
+        }
+
+        // --- START: Firebase Configuration ---
+        const firebaseConfig = window.firebaseConfig || {};
+
+        logConfig(firebaseConfig);
+
+        const hasValidConfig = isValidConfig(firebaseConfig);
+
+        if (window.firebaseConfig && hasValidConfig) {
+            console.log("✅ Using Firebase config from environment variables");
+            initializeFirebase(firebaseConfig);
+        } else if (hasValidConfig) {
+            console.warn("⚠️ Using client config from template but verify environment variables are set on server.");
+            initializeFirebase(firebaseConfig);
+        } else {
+            console.warn("⚠️ Firebase config missing in template, attempting server fetch...");
+            fetch('/api/firebase-config')
+                .then((response) => response.ok ? response.json() : null)
+                .then((data) => {
+                    if (data && isValidConfig(data)) {
+                        window.firebaseConfig = data;
+                        logConfig(data);
+                        initializeFirebase(data);
+                    } else {
+                        console.error("❌ Firebase configuration is incomplete - authentication will be disabled");
+                        displayAuthMessage("Firebase configuration incomplete. Authentication features disabled.", "warning", true);
+                    }
+                })
+                .catch((error) => {
+                    console.error("❌ Failed to fetch Firebase configuration:", error);
+                    displayAuthMessage("Firebase configuration incomplete. Authentication features disabled.", "warning", true);
+                });
+        }
+        // --- END: Firebase Configuration ---
 
         if (auth) {
             // Global listener to refresh token and handle sign-out

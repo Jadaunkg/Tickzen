@@ -24,7 +24,7 @@
         </a>
         
         <!-- Site Profiles - Global -->
-        <a href="{{ url_for('manage_site_profiles') }}" class="auto-nav-item {% if request.endpoint == 'manage_site_profiles' %}active{% endif %}">
+        <a href="{{ url_for('automation.stock_automation.profiles') }}" class="auto-nav-item {% if request.endpoint == 'automation.stock_automation.profiles' %}active{% endif %}">
             <i data-lucide="globe"></i>
             <span>Site Profiles</span>
         </a>
@@ -118,11 +118,34 @@
                 </a>
             </div>
         </div>
+        
+        <!-- Admin Section (Only for admin users) -->
+        {% if admin_tools_enabled and session.get('firebase_user_email') in ['admin@tickzen.com', 'jadaunkg@gmail.com'] %}
+        <div class="auto-nav-divider"></div>
+        
+        <div class="auto-nav-group {% if 'admin' in (request.endpoint or '') %}expanded{% endif %}">
+            <button class="auto-nav-toggle" type="button" data-target="admin-menu">
+                <div class="auto-nav-toggle-left">
+                    <i data-lucide="shield" class="icon-admin"></i>
+                    <span>Admin Tools</span>
+                </div>
+                <i data-lucide="chevron-right" class="toggle-arrow"></i>
+            </button>
+            <div class="auto-submenu" id="admin-menu">
+                <a href="{{ url_for('admin_panel') }}" class="auto-submenu-item {% if request.endpoint == 'admin_panel' %}active{% endif %}">
+                    <i data-lucide="settings"></i>Admin Panel
+                </a>
+                <a href="{{ url_for('admin_quota_management') }}" class="auto-submenu-item {% if request.endpoint == 'admin_quota_management' %}active{% endif %}">
+                    <i data-lucide="users"></i>Quota Management
+                </a>
+            </div>
+        </div>
+        {% endif %}
     </nav>
     
     <!-- Footer -->
     <div class="auto-sidebar-footer">
-        <a href="{{ url_for('info.faq') }}" class="auto-footer-help" title="Help & Documentation">
+        <a href="{{ url_for('automation.overview') }}" class="auto-footer-help" title="Help & Documentation">
             <i data-lucide="help-circle"></i>
             <span>Help & Support</span>
         </a>
@@ -478,6 +501,11 @@
                     0 0 15px rgba(34, 197, 94, 0.2),
                     inset 0 0 10px rgba(34, 197, 94, 0.1);
     }
+}
+
+/* Icon Colors */
+.icon-admin {
+    stroke: #dc2626 !important; /* Red for admin */
 }
 
 @keyframes shimmer {

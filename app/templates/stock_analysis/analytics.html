@@ -176,7 +176,7 @@ body.dark-mode {
     border: 4px solid rgba(22, 163, 74, 0.2);
     border-radius: 50%;
     border-top-color: var(--tickzen-spinner);
-    animation: spin 1s linear infinite;
+    animation: analyticsSpin 1s linear infinite !important;
 }
 
 .loader-text {
@@ -185,9 +185,15 @@ body.dark-mode {
     color: #64748b;
 }
 
-@keyframes spin {
+@keyframes analyticsSpin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spinner {
+        animation: analyticsSpin 1s linear infinite !important;
+    }
 }
 
 .empty-chart-message {
@@ -463,6 +469,18 @@ body.dark-mode {
 
 {% block scripts_extra %}
 <script>
+    const FETCH_TIMEOUT_MS = 30000;  // 30 seconds to handle slow Firestore queries
+
+    async function fetchWithTimeout(url, options = {}) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+        try {
+            return await fetch(url, { ...options, signal: controller.signal });
+        } finally {
+            clearTimeout(timeoutId);
+        }
+    }
+
     // Initial page load
     document.addEventListener('DOMContentLoaded', async function() {
         // Initialize charts with loaders displayed
@@ -485,7 +503,7 @@ body.dark-mode {
     // Utility functions
     async function fetchDashboardStats() {
         try { 
-            const r = await fetch('/api/dashboard/stats');
+            const r = await fetchWithTimeout('/api/dashboard/stats');
             if (!r.ok) throw new Error(`Server returned ${r.status}: ${r.statusText}`);
             return await r.json();
         } catch (error) {
@@ -502,7 +520,7 @@ body.dark-mode {
     
     async function fetchReportsOverTime(period = 'week') {
         try { 
-            const r = await fetch(`/api/dashboard/reports-over-time?period=${period}`);
+            const r = await fetchWithTimeout(`/api/dashboard/reports-over-time?period=${period}`);
             if (!r.ok) throw new Error(`Server returned ${r.status}: ${r.statusText}`);
             const data = await r.json();
             return data;
@@ -514,7 +532,7 @@ body.dark-mode {
     
     async function fetchMostAnalyzed(limit = 5) {
         try { 
-            const r = await fetch(`/api/dashboard/most-analyzed?limit=${limit}`);
+            const r = await fetchWithTimeout(`/api/dashboard/most-analyzed?limit=${limit}`);
             if (!r.ok) throw new Error(`Server returned ${r.status}: ${r.statusText}`);
             return await r.json(); 
         } catch (error) { 
@@ -524,13 +542,13 @@ body.dark-mode {
     }
     
     async function fetchPublishingStatus() {
-        try { const r = await fetch('/api/dashboard/publishing-status'); return await r.json(); } catch { return { labels: ['Published'], data: [0], colors: ['#10b981'], has_data: false }; }
+        try { const r = await fetchWithTimeout('/api/dashboard/publishing-status'); return await r.json(); } catch { return { labels: ['Published'], data: [0], colors: ['#10b981'], has_data: false }; }
     }
     
     async function fetchActivityHeatmap(year = null) {
         try { 
             const url = year ? `/api/dashboard/activity-heatmap?year=${year}` : '/api/dashboard/activity-heatmap';
-            const r = await fetch(url); 
+            const r = await fetchWithTimeout(url); 
             return await r.json(); 
         } catch { 
             return { heatmap: {}, has_data: false, year: null }; 
@@ -539,7 +557,7 @@ body.dark-mode {
     
     async function fetchFailedAnalyses() {
         try {
-            const r = await fetch('/api/dashboard/failed-analyses');
+            const r = await fetchWithTimeout('/api/dashboard/failed-analyses');
             if (!r.ok) throw new Error(`Server returned ${r.status}: ${r.statusText}`);
             return await r.json();
         } catch (error) {
@@ -615,19 +633,20 @@ body.dark-mode {
         hideMiniStatLoader('published-reports-card');
         hideMiniStatLoader('unique-tickers-card');
         
-        // Update failed analyses mini stat
+        updateFailedAnalysesMiniStat();
+    }
+
+    async function updateFailedAnalysesMiniStat() {
         try {
             const failedData = await fetchFailedAnalyses();
             if (failedData && failedData.has_data) {
                 document.querySelector('#failed-analyses-card .mini-stat-value').textContent = failedData.total_failures;
                 
-                // Show recent failures count if available
                 if (failedData.recent_failures > 0) {
                     const trendEl = document.querySelector('#failed-analyses-card .mini-stat-trend');
                     trendEl.style.display = 'block';
                     trendEl.querySelector('.recent-count').textContent = failedData.recent_failures;
                     
-                    // Style the mini stat card to indicate failures
                     const valueEl = document.querySelector('#failed-analyses-card .mini-stat-value');
                     valueEl.style.color = '#ef4444';
                 }
@@ -637,9 +656,9 @@ body.dark-mode {
         } catch (e) {
             console.error('Error updating failed analyses mini stat:', e);
             document.querySelector('#failed-analyses-card .mini-stat-value').textContent = '0';
+        } finally {
+            hideMiniStatLoader('failed-analyses-card');
         }
-        
-        hideMiniStatLoader('failed-analyses-card');
     }
     
     // Reports Over Time Chart
@@ -648,56 +667,61 @@ body.dark-mode {
         showLoader('reportsOverTimeChart');
         hideEmptyState('reportsOverTimeChart');
         
-        const data = await fetchReportsOverTime(period);
-        
-        hideLoader('reportsOverTimeChart');
-        
-        if (!data || !data.has_data || !data.labels.length) {
-            showEmptyState('reportsOverTimeChart');
-            return;
-        }
-        
-        const ctx = document.getElementById('reportsOverTimeChart').getContext('2d');
-        
-        // Destroy existing chart if it exists
-        if (reportsOverTimeChart) {
-            reportsOverTimeChart.destroy();
-        }
-        
-        reportsOverTimeChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    label: 'Reports',
-                    data: data.data,
-                    backgroundColor: '#16a34a',
-                    borderColor: '#16a34a',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    }
+        try {
+            const data = await fetchReportsOverTime(period);
+            
+            if (!data || !data.has_data || !data.labels.length) {
+                showEmptyState('reportsOverTimeChart');
+                return;
+            }
+            
+            const ctx = document.getElementById('reportsOverTimeChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (reportsOverTimeChart) {
+                reportsOverTimeChart.destroy();
+            }
+            
+            reportsOverTimeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Reports',
+                        data: data.data,
+                        backgroundColor: '#16a34a',
+                        borderColor: '#16a34a',
+                        borderWidth: 1
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            console.error('Error loading reports over time chart:', e);
+            showEmptyState('reportsOverTimeChart');
+        } finally {
+            hideLoader('reportsOverTimeChart');
+        }
     }
     
     // Most Analyzed Tickers Chart
@@ -706,72 +730,77 @@ body.dark-mode {
         showLoader('mostAnalyzedChart');
         hideEmptyState('mostAnalyzedChart');
         
-        const tickersData = await fetchMostAnalyzed(limit);
-        
-        hideLoader('mostAnalyzedChart');
-        
-        if (!tickersData || !tickersData.has_data || !tickersData.tickers.length) {
-            showEmptyState('mostAnalyzedChart');
-            return;
-        }
-        
-        const ctx = document.getElementById('mostAnalyzedChart').getContext('2d');
-        
-        // Destroy existing chart if it exists
-        if (mostAnalyzedChart) {
-            mostAnalyzedChart.destroy();
-        }
-        
-        const sectorColors = {
-            'Technology': '#2563eb',
-            'Consumer': '#8b5cf6',
-            'Finance': '#10b981',
-            'Healthcare': '#ef4444',
-            'Energy': '#f97316',
-            'Other': '#94a3b8'
-        };
-        
-        const colors = tickersData.sectors.map(sector => sectorColors[sector] || sectorColors['Other']);
-        
-        mostAnalyzedChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: tickersData.tickers,
-                datasets: [{
-                    label: 'Reports Generated',
-                    data: tickersData.counts,
-                    backgroundColor: colors,
-                    borderColor: colors.map(c => c),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
+        try {
+            const tickersData = await fetchMostAnalyzed(limit);
+            
+            if (!tickersData || !tickersData.has_data || !tickersData.tickers.length) {
+                showEmptyState('mostAnalyzedChart');
+                return;
+            }
+            
+            const ctx = document.getElementById('mostAnalyzedChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (mostAnalyzedChart) {
+                mostAnalyzedChart.destroy();
+            }
+            
+            const sectorColors = {
+                'Technology': '#2563eb',
+                'Consumer': '#8b5cf6',
+                'Finance': '#10b981',
+                'Healthcare': '#ef4444',
+                'Energy': '#f97316',
+                'Other': '#94a3b8'
+            };
+            
+            const colors = tickersData.sectors.map(sector => sectorColors[sector] || sectorColors['Other']);
+            
+            mostAnalyzedChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: tickersData.tickers,
+                    datasets: [{
+                        label: 'Reports Generated',
+                        data: tickersData.counts,
+                        backgroundColor: colors,
+                        borderColor: colors.map(c => c),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    const index = context.dataIndex;
+                                    return `Sector: ${tickersData.sectors[index]}`;
+                                }
+                            }
+                        }
                     },
-                    tooltip: {
-                        callbacks: {
-                            afterLabel: function(context) {
-                                const index = context.dataIndex;
-                                return `Sector: ${tickersData.sectors[index]}`;
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
                             }
                         }
                     }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
-                        }
-                    }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            console.error('Error loading most analyzed chart:', e);
+            showEmptyState('mostAnalyzedChart');
+        } finally {
+            hideLoader('mostAnalyzedChart');
+        }
     }
     
     // Publishing Status Chart
@@ -780,44 +809,49 @@ body.dark-mode {
         showLoader('publishingStatusChart');
         hideEmptyState('publishingStatusChart');
         
-        const data = await fetchPublishingStatus();
-        
-        hideLoader('publishingStatusChart');
-        
-        if (!data || !data.has_data || !data.labels.length) {
-            showEmptyState('publishingStatusChart');
-            return;
-        }
-        
-        const ctx = document.getElementById('publishingStatusChart').getContext('2d');
-        
-        // Destroy existing chart if it exists
-        if (publishingStatusChart) {
-            publishingStatusChart.destroy();
-        }
-        
-        publishingStatusChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    data: data.data,
-                    backgroundColor: data.colors,
-                    borderColor: '#ffffff',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                },
-                cutout: '65%'
+        try {
+            const data = await fetchPublishingStatus();
+            
+            if (!data || !data.has_data || !data.labels.length) {
+                showEmptyState('publishingStatusChart');
+                return;
             }
-        });
+            
+            const ctx = document.getElementById('publishingStatusChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (publishingStatusChart) {
+                publishingStatusChart.destroy();
+            }
+            
+            publishingStatusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.data,
+                        backgroundColor: data.colors,
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        } catch (e) {
+            console.error('Error loading publishing status chart:', e);
+            showEmptyState('publishingStatusChart');
+        } finally {
+            hideLoader('publishingStatusChart');
+        }
     }
     
     // Failed Tickers Chart
@@ -826,69 +860,69 @@ body.dark-mode {
         showLoader('failedTickersChart');
         hideEmptyState('failedTickersChart');
         
-        const failedData = await fetchFailedAnalyses();
-        
-        hideLoader('failedTickersChart');
-        
-        if (!failedData || !failedData.has_data || !failedData.top_failed_tickers.length) {
-            showEmptyState('failedTickersChart');
-            return;
-        }
-        
-        // Prepare data for chart
-        const tickers = failedData.top_failed_tickers.slice(0, limit).map(item => item.ticker);
-        const counts = failedData.top_failed_tickers.slice(0, limit).map(item => item.count);
-        
-        const ctx = document.getElementById('failedTickersChart').getContext('2d');
-        
-        // Destroy existing chart if it exists
-        if (failedTickersChart) {
-            failedTickersChart.destroy();
-        }
-        
-        failedTickersChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: tickers,
-                datasets: [{
-                    label: 'Failed Attempts',
-                    data: counts,
-                    backgroundColor: '#ef4444',
-                    borderColor: '#ef4444',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
+        try {
+            const failedData = await fetchFailedAnalyses();
+            
+            if (!failedData || !failedData.has_data || !failedData.top_failed_tickers.length) {
+                showEmptyState('failedTickersChart');
+                return;
+            }
+            
+            // Prepare data for chart
+            const tickers = failedData.top_failed_tickers.slice(0, limit).map(item => item.ticker);
+            const counts = failedData.top_failed_tickers.slice(0, limit).map(item => item.count);
+            
+            const ctx = document.getElementById('failedTickersChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (failedTickersChart) {
+                failedTickersChart.destroy();
+            }
+            
+            failedTickersChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: tickers,
+                    datasets: [{
+                        label: 'Failed Attempts',
+                        data: counts,
+                        backgroundColor: '#ef4444',
+                        borderColor: '#ef4444',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const count = context.raw || 0;
+                                    return count === 1 ? '1 failed attempt' : `${count} failed attempts`;
+                                }
+                            }
+                        }
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const count = context.raw || 0;
-                                return count === 1 ? '1 failed attempt' : `${count} failed attempts`;
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
                             }
                         }
                     }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
-                        }
-                    }
                 }
-            }
-        });
-        
-        // Update mini stats if available
-        if (failedData.total_failures > 0) {
-            // You could add a mini stat card for failed analyses count if needed
+            });
+        } catch (e) {
+            console.error('Error loading failed tickers chart:', e);
+            showEmptyState('failedTickersChart');
+        } finally {
+            hideLoader('failedTickersChart');
         }
     }
 
@@ -900,90 +934,95 @@ body.dark-mode {
         showLoader('activityHeatmapChart');
         hideEmptyState('activityHeatmapChart');
         
-        const data = await fetchActivityHeatmap(year);
-        
-        hideLoader('activityHeatmapChart');
-        
-        if (!data || !data.has_data || !data.year || Object.keys(data.heatmap).length === 0) {
-            showEmptyState('activityHeatmapChart');
-            return;
-        }
-        
-        // Update year selector
-        currentHeatmapYear = data.year;
-        updateYearSelector(data.year);
-        
-        const ctx = document.getElementById('activityHeatmapChart').getContext('2d');
-        
-        // Destroy existing chart if it exists
-        if (activityHeatmapChart) {
-            activityHeatmapChart.destroy();
-        }
-        
-        // Process heatmap data for chart.js
-        const chartData = prepareHeatmapData(data.heatmap);
-        
-        activityHeatmapChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: 'Reports',
-                    data: chartData.data,
-                    backgroundColor: ctx => {
-                        const value = ctx.raw || 0;
-                        if (value === 0) return 'rgba(229, 231, 235, 0.8)';
-                        if (value === 1) return 'rgba(16, 185, 129, 0.3)';
-                        if (value === 2) return 'rgba(16, 185, 129, 0.5)';
-                        if (value === 3) return 'rgba(16, 185, 129, 0.7)';
-                        return 'rgba(16, 185, 129, 0.9)';
+        try {
+            const data = await fetchActivityHeatmap(year);
+            
+            if (!data || !data.has_data || !data.year || Object.keys(data.heatmap).length === 0) {
+                showEmptyState('activityHeatmapChart');
+                return;
+            }
+            
+            // Update year selector
+            currentHeatmapYear = data.year;
+            updateYearSelector(data.year);
+            
+            const ctx = document.getElementById('activityHeatmapChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (activityHeatmapChart) {
+                activityHeatmapChart.destroy();
+            }
+            
+            // Process heatmap data for chart.js
+            const chartData = prepareHeatmapData(data.heatmap);
+            
+            activityHeatmapChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Reports',
+                        data: chartData.data,
+                        backgroundColor: ctx => {
+                            const value = ctx.raw || 0;
+                            if (value === 0) return 'rgba(229, 231, 235, 0.8)';
+                            if (value === 1) return 'rgba(16, 185, 129, 0.3)';
+                            if (value === 2) return 'rgba(16, 185, 129, 0.5)';
+                            if (value === 3) return 'rgba(16, 185, 129, 0.7)';
+                            return 'rgba(16, 185, 129, 0.9)';
+                        },
+                        borderColor: 'rgba(16, 185, 129, 0)',
+                        borderWidth: 0,
+                        borderRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const value = context.raw || 0;
+                                    return value === 1 ? '1 report' : `${value} reports`;
+                                }
+                            }
+                        }
                     },
-                    borderColor: 'rgba(16, 185, 129, 0)',
-                    borderWidth: 0,
-                    borderRadius: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            title: function(context) {
-                                return context[0].label;
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
                             },
-                            label: function(context) {
-                                const value = context.raw || 0;
-                                return value === 1 ? '1 report' : `${value} reports`;
+                            ticks: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                precision: 0,
+                                display: false
                             }
                         }
                     }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            display: false
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            precision: 0,
-                            display: false
-                        }
-                    }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            console.error('Error loading activity heatmap chart:', e);
+            showEmptyState('activityHeatmapChart');
+        } finally {
+            hideLoader('activityHeatmapChart');
+        }
     }
     
     // Helper for heatmap data

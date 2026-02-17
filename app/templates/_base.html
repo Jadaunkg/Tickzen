@@ -1407,12 +1407,12 @@
             <div class="navbar-container">
                 <div class="navbar-left">
                     {% if is_user_logged_in %}
-                        <a href="{{ url_for('stock_analysis_homepage_route') }}" class="navbar-brand">
+                        <a href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}" class="navbar-brand">
                             <img src="{{ url_for('static', filename='images/site icon 40x.png') }}" alt="Tickzen Icon" height="40" class="site-icon">
                             Tickzen
                         </a>
                     {% else %}
-                        <a href="{{ url_for('stock_analysis_homepage_route') }}" class="navbar-brand">
+                        <a href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}" class="navbar-brand">
                             <img src="{{ url_for('static', filename='images/site icon 40x.png') }}" alt="Tickzen Icon" height="40" class="site-icon">
                             Tickzen
                         </a>
@@ -1426,7 +1426,7 @@
                         <ul class="navbar-nav">
                             <!-- Home -->
                             <li class="nav-item">
-                                <a class="nav-link {% if endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ url_for('stock_analysis_homepage_route') }}">
+                                <a class="nav-link {% if endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -1447,7 +1447,7 @@
                             
                             <!-- Automation -->
                             <li class="nav-item">
-                                <a class="nav-link {% if 'automation' in (request.endpoint or '') %}active{% endif %}" href="{{ url_for('automation.overview') }}">
+                                <a class="nav-link {% if 'automation' in (request.endpoint or '') %}active{% endif %}" href="{{ (automation_base_url ~ '/automation/overview') if automation_base_url else '/automation/overview' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                                         <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
@@ -1470,7 +1470,7 @@
                                             <i class="fab fa-wordpress"></i> WP Asset Generator
                                         </a>
                                     </li>
-                                    {% if session.get('firebase_user_email') in ['admin@tickzen.com', 'jadaunkg@gmail.com'] %}
+                                    {% if admin_tools_enabled and session.get('firebase_user_email') in ['admin@tickzen.com', 'jadaunkg@gmail.com'] %}
                                     <li class="dropdown-divider"></li>
                                     <li class="dropdown-header">
                                         <i class="fas fa-user-shield"></i> Admin Tools
@@ -1492,7 +1492,7 @@
                     {% else %}
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a class="nav-link {% if request.endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ url_for('stock_analysis_homepage_route') }}">
+                                <a class="nav-link {% if request.endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -1501,13 +1501,13 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#features">Features</a>
+                                <a class="nav-link" href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}#features">Features</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {% if request.endpoint == 'info.how_it_works' %}active{% endif %}" href="{{ url_for('info.how_it_works') }}">How It Works</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#pricing">Pricing</a>
+                                <a class="nav-link" href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}#pricing">Pricing</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('info.faq') }}">FAQs</a>
@@ -1560,7 +1560,7 @@
                                 <a class="nav-link btn-login" href="{{ url_for('login') }}">Sign In</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link btn-get-started" href="{{ url_for('stock_analysis_homepage_route') }}#demo">Start Free Trial</a>
+                                <a class="nav-link btn-get-started" href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}#demo">Start Free Trial</a>
                             </li>
                         </ul>
                     {% endif %}
@@ -1575,7 +1575,7 @@
             <ul class="navbar-nav mobile-nav" id="mobileNavbarNav">
                 <!-- Mobile menu header with logo -->
                 <li class="mobile-nav-header" style="display: flex; align-items: center; padding: 15px 25px; border-bottom: 1px solid #eee; margin-bottom: 10px;">
-                    <a href="{{ url_for('stock_analysis_homepage_route') }}" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #1e293b;">
+                    <a href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #1e293b;">
                         <img src="{{ url_for('static', filename='images/site icon 40x.png') }}" alt="Tickzen Icon" height="32" class="site-icon">
                         <span style="font-weight: 700; font-size: 1.15rem; color: #1e293b;">Tickzen</span>
                     </a>
@@ -1583,7 +1583,7 @@
                 {% if is_user_logged_in %}
                     <!-- Home -->
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ url_for('stock_analysis_homepage_route') }}">
+                        <a class="nav-link {% if request.endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}">
                             <i class="fas fa-home"></i> Home
                         </a>
                     </li>
@@ -1597,7 +1597,7 @@
                     
                     <!-- Wordpress Content Automation -->
                     <li class="nav-item">
-                        <a class="nav-link {% if 'automation' in (request.endpoint or '') %}active{% endif %}" href="{{ url_for('automation.overview') }}">
+                        <a class="nav-link {% if 'automation' in (request.endpoint or '') %}active{% endif %}" href="{{ (automation_base_url ~ '/automation/overview') if automation_base_url else '/automation/overview' }}">
                             <i class="fas fa-robot"></i> Content Automation
                         </a>
                     </li>
@@ -1613,7 +1613,7 @@
                                     </svg>
                                 </a>
                             </li>
-                            {% if session.get('firebase_user_email') in ['admin@tickzen.com', 'jadaunkg@gmail.com'] %}
+                            {% if admin_tools_enabled and session.get('firebase_user_email') in ['admin@tickzen.com', 'jadaunkg@gmail.com'] %}
                             <li>
                                 <a class="nav-link {% if request.endpoint == 'admin_panel' %}active{% endif %}" href="{{ url_for('admin_panel') }}">
                                     Admin Panel<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.3rem; vertical-align: middle;">
@@ -1657,18 +1657,18 @@
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ url_for('stock_analysis_homepage_route') }}">
+                        <a class="nav-link {% if request.endpoint == 'stock_analysis_homepage_route' %}active{% endif %}" href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}">
                             Home<i class="fas fa-home" style="margin-left: 0.5rem;"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#features">Features</a>
+                        <a class="nav-link" href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}#features">Features</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'info.how_it_works' %}active{% endif %}" href="{{ url_for('info.how_it_works') }}">How It Works</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('stock_analysis_homepage_route') }}#pricing">Pricing</a>
+                        <a class="nav-link" href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}#pricing">Pricing</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('info.faq') }}">FAQs</a>
@@ -1677,7 +1677,7 @@
                         <a class="nav-link btn-login" href="{{ url_for('login') }}">Sign In</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn-get-started" href="{{ url_for('stock_analysis_homepage_route') }}#demo">Start Free Trial</a>
+                        <a class="nav-link btn-get-started" href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}#demo">Start Free Trial</a>
                     </li>
                 {% endif %}
             </ul>
@@ -1733,10 +1733,10 @@
                     <h3>Features</h3>
                     <ul>
                         <li><a href="/features/live-demo">Live Demo</a></li>
-                        <li><a href="{{ url_for('stock_analysis_homepage_route') }}#features">AI Price Forecasting</a></li>
-                        <li><a href="{{ url_for('stock_analysis_homepage_route') }}#features">Technical Analysis</a></li>
-                        <li><a href="{{ url_for('stock_analysis_homepage_route') }}#features">Fundamental Data</a></li>
-                        <li><a href="{{ url_for('stock_analysis_homepage_route') }}#features">WordPress Publishing</a></li>
+                        <li><a href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}#features">AI Price Forecasting</a></li>
+                        <li><a href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}#features">Technical Analysis</a></li>
+                        <li><a href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}#features">Fundamental Data</a></li>
+                        <li><a href="{{ safe_jinja_url_for('stock_analysis_homepage_route') }}#features">WordPress Publishing</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
@@ -1855,7 +1855,7 @@
                     let isCorrectPageForHash = true; 
 
                     if (this.closest('.navbar-nav')) {
-                        const homepageUrl = "{{ url_for('stock_analysis_homepage_route') }}";
+                        const homepageUrl = "{{ safe_jinja_url_for('stock_analysis_homepage_route') }}";
                         isCorrectPageForHash = (window.location.pathname === homepageUrl && targetId) || 
                                                (this.href.startsWith(window.location.origin + homepageUrl + "#"));
                         if (this.href.includes(homepageUrl + "#")) {

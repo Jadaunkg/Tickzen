@@ -709,12 +709,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 40%;">Article Title & Site</th>
-                            <th style="width: 12%;">Category</th>
-                            <th style="width: 15%;">Author/Writer</th>
+                            <th style="width: 45%;">Article Title & Site</th>
+                            <th style="width: 15%;">Category</th>
+                            <th style="width: 18%;">Author/Writer</th>
                             <th style="width: 12%;">Status</th>
-                            <th style="width: 15%;">Published Date</th>
-                            <th style="width: 10%;">Actions</th>
+                            <th style="width: 20%;">Published Date</th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody">
@@ -945,11 +944,6 @@
                 </td>
                 <td>
                     <small>${dateStr}</small>
-                </td>
-                <td>
-                    <div class="action-menu">
-                        ${article.post_url && article.post_url !== '#' ? `<a href="${article.post_url}" target="_blank" rel="noopener noreferrer" class="action-btn"><i class="fas fa-external-link-alt"></i> View</a>` : '<button class="action-btn" disabled><i class="fas fa-ban"></i> N/A</button>'}
-                    </div>
                 </td>
             `;
             tableBody.appendChild(row);

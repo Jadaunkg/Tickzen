@@ -15,6 +15,11 @@ from pathlib import Path
 from enum import Enum
 import pickle
 
+try:
+    from google.cloud.firestore_v1.base_query import FieldFilter
+except ImportError:
+    FieldFilter = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -248,7 +253,7 @@ class JobPublishingStateManager:
         if self.db:
             try:
                 docs = (self.db.collection('job_automation_runs')
-                        .where('user_uid', '==', user_uid)
+                        .where(filter=FieldFilter('user_uid', '==', user_uid))
                         .order_by('timestamp', direction='DESCENDING')
                         .limit(limit)
                         .stream())
@@ -280,7 +285,7 @@ class JobPublishingStateManager:
             try:
                 query = self.db.collection('job_automation_runs')
                 if user_uid:
-                    query = query.where('user_uid', '==', user_uid)
+                    query = query.where(filter=FieldFilter('user_uid', '==', user_uid))
                 
                 docs = list(query.stream())
                 

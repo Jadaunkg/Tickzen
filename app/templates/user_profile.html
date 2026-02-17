@@ -52,10 +52,10 @@
           <hr class="m-0" style="border: none; border-bottom: 1px solid #e3e8ef;">
           <div class="card-body">
             <div class="d-grid gap-3">
-              <a href="{{ url_for('manage_site_profiles') }}" class="btn btn-outline-green w-100" title="Manage your publishing profiles">
+              <a href="{{ (automation_base_url ~ '/automation/stock-analysis/profiles') if automation_base_url else '/automation/stock-analysis/profiles' }}" class="btn btn-outline-green w-100" title="Manage your publishing profiles">
                 <i class="fas fa-layer-group"></i> Manage Publishing Profiles
               </a>
-              <a href="{{ url_for('automation_runner_page') }}" class="btn btn-outline-green w-100" title="Run automation tasks">
+              <a href="{{ (automation_base_url ~ '/automation/stock-analysis/run') if automation_base_url else '/automation/stock-analysis/run' }}" class="btn btn-outline-green w-100" title="Run automation tasks">
                 <i class="fas fa-play"></i> Run Automation
               </a>
               <a href="{{ url_for('view_activity_log') }}" class="btn btn-outline-green w-100" title="View your activity log">

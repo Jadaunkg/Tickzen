@@ -1,0 +1,251 @@
+{% extends "_base.html" %}
+
+{% block title %}Tickzen Automation - AI-Powered Content Creation Platform{% endblock %}
+
+{% block head_extra %}
+<meta name="description" content="Automate your content creation with AI-powered stock analysis, sports articles, earnings reports, and job portal automation. Scale your publishing with intelligent automation.">
+<meta name="keywords" content="content automation, AI articles, stock automation, sports automation, job automation, AI content creation, automated publishing">
+<meta name="author" content="Tickzen Automation">
+
+<!-- Open Graph Tags -->
+<meta property="og:title" content="Tickzen Automation - AI Content Creation Platform">
+<meta property="og:description" content="Generate high-quality articles automatically with AI-powered automation for stocks, sports, and jobs.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://automation.tickzen.app">
+
+<style>
+.automation-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.automation-hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.automation-hero .subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.btn-automation {
+    background: linear-gradient(45deg, #22c55e, #16a34a);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.btn-automation:hover {
+    transform: translateY(-2px);
+    color: white;
+}
+
+.features-section {
+    padding: 4rem 0;
+    background: #f8fafc;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.feature-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.stats-section {
+    padding: 3rem 0;
+    background: white;
+    text-align: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.stat-card {
+    padding: 1.5rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #22c55e;
+    display: block;
+}
+
+.cta-section {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    padding: 3rem 0;
+    text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="automation-hero">
+    <div class="container">
+        <h1>🚀 AI-Powered Content Automation</h1>
+        <p class="subtitle">Generate high-quality articles automatically. Scale your publishing with intelligent automation for stocks, sports, and job content.</p>
+        <a href="{{ safe_jinja_url_for('automation.overview') }}" class="btn-automation">
+            Get Started Free
+        </a>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 1rem;">Automation Services</h2>
+        <p style="text-align: center; color: #6b7280; max-width: 600px; margin: 0 auto;">
+            Leverage AI to create compelling content across multiple domains with our specialized automation tools.
+        </p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">📈</span>
+                <h3>Stock Analysis Automation</h3>
+                <p>Generate detailed stock analysis articles with real-time market data, technical analysis, and AI-powered insights.</p>
+                <ul style="text-align: left; margin-top: 1rem;">
+                    <li>Real-time market data integration</li>
+                    <li>Technical analysis charts</li>
+                    <li>AI-generated insights</li>
+                    <li>Multiple publishing sites</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">⚽</span>
+                <h3>Sports Content Automation</h3>
+                <p>Create engaging sports articles, match reports, and player analysis automatically across various sports.</p>
+                <ul style="text-align: left; margin-top: 1rem;">
+                    <li>Live match updates</li>
+                    <li>Player statistics analysis</li>
+                    <li>Team performance reports</li>
+                    <li>Multi-sport coverage</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">📊</span>
+                <h3>Earnings Reports Automation</h3>
+                <p>Automatically generate comprehensive earnings analysis and financial reports for public companies.</p>
+                <ul style="text-align: left; margin-top: 1rem;">
+                    <li>Quarterly earnings analysis</li>
+                    <li>Financial metrics breakdown</li>
+                    <li>Peer comparison analysis</li>
+                    <li>Automated scheduling</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">💼</span>
+                <h3>Job Portal Automation</h3>
+                <p>Automate job posting content, career advice articles, and industry trend analysis for job portals.</p>
+                <ul style="text-align: left; margin-top: 1rem;">
+                    <li>Job market analysis</li>
+                    <li>Career advice content</li>
+                    <li>Industry trend reports</li>
+                    <li>Salary insights</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <h2>Automation in Numbers</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number" id="totalArticles">1000+</span>
+                <p>Articles Generated</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">4</span>
+                <p>Content Categories</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">24/7</span>
+                <p>Automation Active</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">95%</span>
+                <p>Time Saved</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <h2>Ready to Automate Your Content?</h2>
+        <p style="margin: 1rem 0 2rem;">Start generating high-quality articles automatically with our AI-powered platform.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ safe_jinja_url_for('automation.overview') }}" class="btn-automation">
+                Access Dashboard
+            </a>
+            {% if not session.firebase_user_uid %}
+            <a href="{{ safe_jinja_url_for('login') }}" style="background: rgba(255,255,255,0.1); color: white; padding: 1rem 2rem; border-radius: 50px; text-decoration: none; font-weight: 600;">
+                Sign In
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<script>
+// Add loading animation to stats
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate stats counter
+    const totalArticlesEl = document.getElementById('totalArticles');
+    if (totalArticlesEl) {
+        // You can fetch real stats via API here
+        fetch('/automation/api/overview-stats')
+            .then(response => response.json())
+            .then(data => {
+                if (data.total_published_count) {
+                    totalArticlesEl.textContent = data.total_published_count + '+';
+                }
+            })
+            .catch(() => {
+                // Keep default value if API fails
+            });
+    }
+});
+</script>
+{% endblock %}

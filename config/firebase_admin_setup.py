@@ -162,7 +162,7 @@ import firebase_admin
 from firebase_admin import credentials, auth, firestore, db as realtime_db
 from firebase_admin import storage # <-- Import Firebase Storage
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 import logging
 import base64
 import binascii
@@ -202,7 +202,13 @@ def configure_azure_network_settings():
         return None
 
 # Load environment variables from .env file at the very beginning
-load_dotenv()
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_path = os.path.join(PROJECT_ROOT, '.env')
+load_dotenv(env_path, override=True)
+if os.path.exists(env_path):
+    for key, value in dotenv_values(env_path).items():
+        if value is not None:
+            os.environ[key] = value
 
 # Configure logging for this module
 logger = logging.getLogger(__name__)

@@ -75,14 +75,16 @@ import sys
 import os
 import asyncio
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# --- PHASE 1 REFACTOR: Use Core Modules ---
+from app.core.config import Config, PROJECT_ROOT
+# Add project root to sys.path if not present (handled by Config too, but good for safety)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-# Set the correct path for Firebase service account key
-FIREBASE_SERVICE_ACCOUNT_PATH = os.path.join(PROJECT_ROOT, 'config', 'firebase-service-account-key.json')
-if os.path.exists(FIREBASE_SERVICE_ACCOUNT_PATH):
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = FIREBASE_SERVICE_ACCOUNT_PATH
+from flask_session import Session # Added for Redis/Filesystem session support
+
+# Load environment using centralized config
+Config.load_env()
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_from_directory, Response
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -136,10 +138,7 @@ except ImportError as e:
     def batch_get_documents(db, refs, max_size=500): return []
     def warm_user_cache(db, uid): pass
 
-# Detect if running in reloader parent process (to skip expensive initialization)
-def is_reloader_process():
-    """Check if this is the parent reloader process (not the actual worker)"""
-    return os.environ.get('WERKZEUG_RUN_MAIN') != 'true'
+from app.core.utils import is_reloader_process
 
 # Apply startup optimizations before heavy imports
 if not is_reloader_process():
@@ -194,97 +193,25 @@ except ImportError as e:
     print(f"Analytics utilities module not available: {e}")
     ANALYTICS_UTILS_AVAILABLE = False
 
-FIREBASE_INITIALIZED_SUCCESSFULLY = True
+# Import initialized database functions
+from app.core.database import (
+    init_firebase, 
+    verify_firebase_token, 
+    get_firestore_client, 
+    get_storage_bucket, 
+    get_firebase_app, 
+    is_firebase_healthy, 
+    log_firebase_operation_error,
+    get_firebase_app_initialized,
+    get_firebase_health_status
+)
+
+FIREBASE_INITIALIZED_SUCCESSFULLY = init_firebase(is_worker_process=not is_reloader_process())
+
+# These flags still need to be managed locally for now as they are specific to app components
 AUTO_PUBLISHER_IMPORTED_SUCCESSFULLY = True
 PIPELINE_IMPORTED_SUCCESSFULLY = True
 PIPELINE_IMPORT_ERROR = None
-
-# Only initialize Firebase in the actual worker process, not the reloader parent
-if not is_reloader_process():
-    try:
-        # Import enhanced Firebase functions
-        from config.firebase_admin_setup import (
-            initialize_firebase_admin, verify_firebase_token, get_firestore_client, 
-            get_storage_bucket, get_firebase_app, get_firebase_health_status,
-            is_firebase_healthy, log_firebase_operation_error, get_firebase_app_initialized
-        )
-        
-        # Initialize Firebase with enhanced error handling
-        print("Initializing Firebase Admin SDK...")
-        initialize_firebase_admin()
-        
-        # Get the current initialization status after initialization
-        FIREBASE_INITIALIZED_SUCCESSFULLY = get_firebase_app_initialized()
-        
-        if FIREBASE_INITIALIZED_SUCCESSFULLY:
-            print("✅ Firebase Admin SDK initialized successfully")
-            
-            # Get health status for logging
-            health_status = get_firebase_health_status()
-            if health_status.get('recent_errors'):
-                print("⚠ Note: Some Firebase services had initialization warnings:")
-                for error in health_status.get('recent_errors', [])[-3:]:  # Show last 3 errors
-                    print(f"   - {error.get('type', 'UNKNOWN')}: {error.get('message', 'No message')}")
-        else:
-            print("❌ CRITICAL: Firebase Admin SDK not initialized correctly")
-            
-            # Get diagnostic information for troubleshooting
-            try:
-                health_status = get_firebase_health_status()
-                print("🔍 Diagnostic information:")
-                print(f"   - Recent errors: {len(health_status.get('recent_errors', []))}")
-                if health_status.get('recent_errors'):
-                    latest_error = health_status['recent_errors'][-1]
-                    print(f"   - Latest error: {latest_error.get('type')}: {latest_error.get('message')}")
-            except Exception as diag_error:
-                print(f"   - Could not get diagnostic info: {diag_error}")
-                
-    except ImportError as e_fb_admin:
-        print(f"CRITICAL: Failed to import Firebase Admin modules: {e_fb_admin}")
-        FIREBASE_INITIALIZED_SUCCESSFULLY = False
-        
-        # Enhanced mock functions with better error reporting
-        def verify_firebase_token(token): 
-            print("⚠ Firebase mock: verify_firebase_token called - authentication unavailable")
-            return None
-        def get_firestore_client(): 
-            print("⚠ Firebase mock: get_firestore_client called - database unavailable")
-            return None
-        def get_storage_bucket(): 
-            print("⚠ Firebase mock: get_storage_bucket called - storage unavailable")
-            return None
-        def get_firebase_app():
-            print("⚠ Firebase mock: get_firebase_app called - app unavailable")
-            return None
-        def is_firebase_healthy():
-            return False
-        def log_firebase_operation_error(operation, error, context=None):
-            print(f"⚠ Firebase mock: operation '{operation}' failed: {error}")
-            
-    except Exception as e_fb_unexpected:
-        print(f"UNEXPECTED: Error during Firebase setup: {e_fb_unexpected}")
-        FIREBASE_INITIALIZED_SUCCESSFULLY = False
-else:
-    # In reloader parent process - use mock functions
-    print("⏭️  Skipping Firebase initialization in reloader parent process")
-    FIREBASE_INITIALIZED_SUCCESSFULLY = True
-    
-    # Import functions that will be available after reload
-    try:
-        from config.firebase_admin_setup import (
-            verify_firebase_token, get_firestore_client, 
-            get_storage_bucket, get_firebase_app, get_firebase_health_status,
-            is_firebase_healthy, log_firebase_operation_error, get_firebase_app_initialized
-        )
-    except ImportError:
-        # Define minimal mocks if import fails
-        def verify_firebase_token(token): return None
-        def get_firestore_client(): return None
-        def get_storage_bucket(): return None
-        def get_firebase_app(): return None
-        def is_firebase_healthy(): return False
-        def log_firebase_operation_error(operation, error, context=None): pass
-        def get_firebase_app_initialized(): return True
 
 # Only import heavy modules in worker process
 if not is_reloader_process():
@@ -379,20 +306,24 @@ app = Flask(__name__,
             static_folder=STATIC_FOLDER_PATH,
             template_folder=TEMPLATE_FOLDER_PATH)
 
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "your_strong_default_secret_key_here_CHANGE_ME_TOO")
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
-ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+# Use centralized configuration
+flask_config = Config.get_flask_config(app.root_path)
+app.config.update(flask_config)
 
-# Flask-Caching configuration for performance optimization
+ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
+
+# Flask-Caching and Session configuration (handled by Config now)
 from flask_caching import Cache
-app.config['CACHE_TYPE'] = 'SimpleCache'  # In-memory cache (can upgrade to Redis later)
-app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes default cache timeout
-app.config['CACHE_THRESHOLD'] = 500  # Maximum number of items the cache will store
 cache = Cache(app)
-app.logger.info("Flask-Caching initialized with SimpleCache (5-minute default timeout)")
+if app.config.get('CACHE_TYPE') == 'RedisCache':
+    app.logger.info(f"Flask-Caching initialized with RedisCache")
+else:
+    app.logger.info("Flask-Caching initialized with SimpleCache (5-minute default timeout)")
+
+# Initialize Server-side Session if configured
+if app.config.get('SESSION_TYPE'):
+    Session(app)
+    app.logger.info(f"Flask-Session initialized using {app.config.get('SESSION_TYPE')}")
 
 # Register blueprints (basic ones that don't need login_required)
 from app.info_routes import info_bp
@@ -461,36 +392,13 @@ app.logger.info(f"Port: {os.getenv('PORT', '5000')}")
 
 # Import configuration based on environment
 if APP_ENV == 'production':
-    try:
-        from config.production_config import SOCKETIO_PROD_CONFIG
-        socketio = SocketIO(app, **SOCKETIO_PROD_CONFIG)
-        app.logger.info("Production SocketIO configuration loaded with threading")
-    except ImportError:
-        app.logger.warning("Production config not found, using fallback configuration")
-        socketio = SocketIO(app,
-                            async_mode='threading',
-                            cors_allowed_origins="*",
-                            ping_timeout=60,
-                            ping_interval=25,
-                            logger=False,
-                            engineio_logger=False
-                           )
+    socket_config = Config.get_socketio_config(app)
+    socketio = SocketIO(app, **socket_config)
+    app.logger.info("Production SocketIO configuration loaded via Config")
 else:
-    try:
-        from config.development_config import SOCKETIO_DEV_CONFIG
-        socketio = SocketIO(app, **SOCKETIO_DEV_CONFIG)
-        app.logger.info("Development SocketIO configuration loaded with threading")
-    except ImportError:
-        app.logger.warning("Development config not found, using fallback configuration")
-        # Development configuration with better timeout handling
-        socketio = SocketIO(app,
-                            cors_allowed_origins="*",
-                            ping_timeout=120,  # Increased timeout for development
-                            ping_interval=30,  # Increased interval
-                            logger=True,
-                            engineio_logger=True,
-                            async_mode='threading'  # Use threading instead of eventlet for development
-                           )
+    socket_config = Config.get_socketio_config(app)
+    socketio = SocketIO(app, **socket_config)
+    app.logger.info("Development SocketIO configuration loaded via Config")
 
 # --- TEMPLATE CONTEXT PROCESSOR ---
 @app.context_processor
@@ -703,61 +611,11 @@ def inject_globals_and_helpers():
         'zip': zip
     }
 
-@app.template_filter('format_datetime')
-def format_datetime_filter(value, fmt="%Y-%m-%d %H:%M:%S"):
-    if not value: return "N/A"
-    try:
-        if isinstance(value, str):
-            dt_obj = datetime.fromisoformat(value.replace('Z', '+00:00')) if value.endswith('Z') else datetime.fromisoformat(value)
-        elif isinstance(value, (int, float)):
-            if value > 10**10: 
-                 dt_obj = datetime.fromtimestamp(value / 1000, timezone.utc)
-            else: 
-                 dt_obj = datetime.fromtimestamp(value, timezone.utc)
-        elif isinstance(value, datetime):
-            dt_obj = value
-        elif hasattr(value, 'seconds') and hasattr(value, 'nanoseconds'): 
-            dt_obj = datetime.fromtimestamp(value.seconds + value.nanoseconds / 1e9, timezone.utc)
-        else:
-            return value 
+# --- PHASE 1 REFACTOR: Use Core Utils ---
+from app.core.utils import format_datetime_filter, format_earnings_date_filter, allowed_file
 
-        if dt_obj.tzinfo is None: 
-            dt_obj = dt_obj.replace(tzinfo=timezone.utc)
-
-        return dt_obj.strftime(fmt)
-    except (ValueError, AttributeError, TypeError) as e:
-        app.logger.warning(f"Could not format datetime value '{value}' (type: {type(value)}): {e}")
-        return value
-
-
-@app.template_filter('format_earnings_date')
-def format_earnings_date_filter(value):
-    """Format earnings calendar date into readable format with day name"""
-    if not value: return "N/A"
-    try:
-        from datetime import datetime, date, timedelta
-        dt_obj = datetime.strptime(value, "%Y-%m-%d")
-        
-        # Get day name and formatted date
-        day_name = dt_obj.strftime("%A")
-        formatted_date = dt_obj.strftime("%B %d, %Y")
-        
-        # Check if it's today, tomorrow, or show day name
-        today = date.today()
-        tomorrow = today + timedelta(days=1)
-        
-        if dt_obj.date() == today:
-            return f"Today - {formatted_date}"
-        elif dt_obj.date() == tomorrow:
-            return f"Tomorrow - {formatted_date}"
-        else:
-            return f"{day_name} - {formatted_date}"
-    except (ValueError, AttributeError, TypeError) as e:
-        return value
-
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+app.add_template_filter(format_datetime_filter, 'format_datetime')
+app.add_template_filter(format_earnings_date_filter, 'format_earnings_date')
 
 def get_all_report_section_keys():
     try:
@@ -782,61 +640,8 @@ def debug_decode_token(token):
         app.logger.warning(f"Failed to decode token payload (debug): {e}")
         return None
 
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # Get current Firebase initialization status
-        current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
-        
-        if not current_firebase_status:
-            app.logger.error("Login attempt failed: Firebase Admin SDK not initialized.")
-            session['notification_message'] = "Authentication service is currently unavailable. Please try again later."
-            session['notification_type'] = "danger"
-            return redirect(url_for('stock_analysis_homepage_route'))
-        if 'firebase_user_uid' not in session:
-            session['notification_message'] = "Please login to access this page."
-            session['notification_type'] = "warning"
-            return redirect(url_for('login', next=request.full_path))
-        return f(*args, **kwargs)
-    return decorated_function
-
-def admin_required(f):
-    """Decorator to require admin access for certain routes"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # Get current Firebase initialization status
-        current_firebase_status = get_firebase_app_initialized() if 'get_firebase_app_initialized' in globals() else FIREBASE_INITIALIZED_SUCCESSFULLY
-        
-        if not current_firebase_status:
-            app.logger.error("Admin access attempt failed: Firebase Admin SDK not initialized.")
-            session['notification_message'] = "Authentication service is currently unavailable. Please try again later."
-            session['notification_type'] = "danger"
-            return redirect(url_for('stock_analysis_homepage_route'))
-            
-        if 'firebase_user_uid' not in session:
-            session['notification_message'] = "Please log in to access this page."
-            session['notification_type'] = "warning"
-            return redirect(url_for('login', next=request.full_path))
-        
-        user_uid = session.get('firebase_user_uid')
-        user_email = session.get('firebase_user_email', '')
-        
-        # Define admin users (you can also store this in Firestore)
-        admin_emails = [
-            'admin@tickzen.com',
-            'jadaunkg@gmail.com',  # Add your admin email here
-            # Add more admin emails as needed
-        ]
-        
-        if user_email not in admin_emails:
-            app.logger.warning(f"Non-admin user {user_email} attempted to access admin route: {request.endpoint}")
-            session['notification_message'] = "Access denied. Administrator privileges required."
-            session['notification_type'] = "danger"
-            return redirect(url_for('dashboard_page'))
-        
-        app.logger.info(f"Admin access granted to {user_email} for route: {request.endpoint}")
-        return f(*args, **kwargs)
-    return decorated_function
+# --- PHASE 1 REFACTOR: Use Core Auth Decorators ---
+from app.core.auth import login_required, admin_required
 
 # Blueprint registration moved to after all function definitions (see end of file)
 

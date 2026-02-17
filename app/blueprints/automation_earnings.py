@@ -17,6 +17,7 @@ Routes:
 """
 
 from flask import Blueprint, render_template, redirect, url_for, session, current_app, jsonify
+from google.cloud.firestore_v1.base_query import FieldFilter
 import os
 import json
 from datetime import datetime
@@ -51,16 +52,8 @@ def api_dashboard_stats():
     cache = get_cache()
     user_uid = session.get('firebase_user_uid')
     
-    # Debug: Log the user UID being used
-    current_app.logger.info(f"Earnings Dashboard API called for user_uid: {user_uid}")
-    
-    # If no user_uid in session, try to get from alternative sources or use a default for debugging
     if not user_uid:
-        current_app.logger.warning("No firebase_user_uid in session, using hardcoded UID for debugging")
-        user_uid = "iROXMDJiuebQl9Jg4vvXohKea0C2"  # Temporary for debugging
-        
-    if not user_uid:
-        current_app.logger.error("No user_uid available, cannot fetch earnings data")
+        current_app.logger.error("No user_uid available in session, cannot fetch earnings data")
         return jsonify({
             'error': 'No user authentication found',
             'connected_sites': 0,
@@ -106,7 +99,7 @@ def api_dashboard_stats():
         try:
             # Get ALL articles first to debug what's available
             all_articles_query = db.collection('userPublishedArticles')\
-                .where('user_uid', '==', user_uid)
+                .where(filter=FieldFilter('user_uid', '==', user_uid))
             
             all_articles = list(all_articles_query.stream())
             
