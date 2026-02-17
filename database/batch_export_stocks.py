@@ -12,6 +12,8 @@ Features:
 - Auto-resume from last successful export
 - Detailed logging and error reporting
 - Summary statistics after each batch
+- **FORCED DIVIDEND UPDATES**: Always fetches fresh dividend data (cache bypassed)
+  to ensure recent dividend formatting bug fixes are applied
 
 Usage:
 -----
@@ -26,6 +28,12 @@ Usage:
     
     # Export specific batch number
     python batch_export_stocks.py --batch 1
+
+Recent Changes:
+--------------
+- Dividend data collection now bypasses monthly cache to ensure fresh yields
+- Dividend table updates are forced on every run (no conditional skipping)
+- This ensures dividend bug fixes are immediately applied to all stocks
 """
 
 import os

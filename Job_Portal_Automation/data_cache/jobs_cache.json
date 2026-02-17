@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-02-12T17:03:18.449806",
+  "timestamp": "2026-02-16T23:55:59.763171",
   "success": true,
-  "count": 133,
+  "count": 148,
   "data": [
     {
-      "id": "eaa80f4e5e7bc64adf254844c21174a0",
-      "title": "India Post GDS Form (28636 Posts)",
+      "id": "6782df52ffc8178d447e6bb7e230be85",
+      "title": "Railway RRB Group D Form (22195 Posts)",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/india-post-gds-online-form-2026/",
+      "url": "https://sarkariresult.com.cm/railway-rrb-group-d-level-1-recruitment-2026-online/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -28,28 +28,28 @@
       "is_new": false
     },
     {
-      "id": "6782df52ffc8178d447e6bb7e230be85",
-      "title": "Railway RRB Group D Form (22195 Posts)",
+      "id": "32a50f7cf652e5eff06a70c1aa9176a8",
+      "title": "BPSC TRE 4.0 Form 2026 (44000+ Posts)",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/railway-rrb-group-d-level-1-recruitment-2026-online/",
+      "url": "https://sarkariresult.com.cm/bpsc-school-teacher-tre-4-0-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": false
+      "is_new": true
     },
     {
-      "id": "f313a052ac78cf4f6b97e0e1044c913a",
-      "title": "BSSC Inter Level Form (25,311 Posts)",
+      "id": "8995f202ac59bedff528c23d82278ae5",
+      "title": "Indian Army Agniveer CEE Form 2026",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-bssc-inter-level-recruitment-2026-extend/",
+      "url": "https://sarkariresult.com.cm/indian-army-agniveer-cee-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": false
+      "is_new": true
     },
     {
       "id": "fb712be2039744d838f184f47b4883ba",
@@ -76,10 +76,46 @@
       "is_new": false
     },
     {
+      "id": "971cff992e626167bfdf22a3cfcfa3da",
+      "title": "SBI CBO Online Form 2026 (2050 Posts)",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/sbi-circle-based-officer-cbo-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "fc1d3066e16e66a19f8ccb3f6b6ad8be",
+      "title": "PNB Apprentice Form 2026 (5138 Posts)",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/pnb-apprentice-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
       "id": "6aca3c9ff518b95a4991d9ae04fbb413",
       "title": "India Post GDS Online Form 2026 (28,636 Post)",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/india-post-gds-online-form-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "c0836bebb0b8a18d255131c4fc33e28c",
+      "title": "Indian Army Agniveer CEE Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/indian-army-agniveer-cee-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -100,10 +136,10 @@
       "is_new": false
     },
     {
-      "id": "6c939f9270fba33d61efb990709c16b8",
-      "title": "BPSC School Teacher TRE 4.0 Online Form 2026 (44000+ Posts)",
+      "id": "baaeac6da83da4ec8cd9e44fc3467f54",
+      "title": "Bihar BSSC Inter Level Online Form 2026 (26,426 Posts) – Last Date Today",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpsc-school-teacher-tre-4-0-2026/",
+      "url": "https://sarkariresult.com.cm/bihar-bssc-inter-level-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -112,28 +148,28 @@
       "is_new": true
     },
     {
-      "id": "1a9593a557944626c615128ffcd651cc",
-      "title": "RSSB Clerk Jr-II / Junior Assistant Online Form 2026 (10644 Post)",
+      "id": "6c939f9270fba33d61efb990709c16b8",
+      "title": "BPSC School Teacher TRE 4.0 Online Form 2026 (44000+ Posts)",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rssb-clerk-jr-ii-junior-assistant-2026/",
+      "url": "https://sarkariresult.com.cm/bpsc-school-teacher-tre-4-0-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_duplicate": false,
+      "is_duplicate": true,
       "is_new": false
     },
     {
-      "id": "33b57758a282fc229dd73c599c3e8861",
-      "title": "Bihar BSSC Inter Level Online Form 2026 (25,311 Posts) – Date Extend",
+      "id": "b403a45fc5344470e49eb0316b665e2e",
+      "title": "UP Anganwadi Bharti Online Form 2026 (61,372 Posts)",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-bssc-inter-level-2026/",
+      "url": "https://sarkariresult.com.cm/up-anganwadi-bharti-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": false
+      "is_new": true
     },
     {
       "id": "595fdd867b21b54a647c5b7cfa8b3342",
@@ -148,46 +184,22 @@
       "is_new": false
     },
     {
-      "id": "20635c85c0daae5e95a406b63f3d6a9e",
-      "title": "Indian Army NCC 124th October Course Online Form 2026",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/indian-army-ncc-124th-october-course-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": true
-    },
-    {
-      "id": "f2228b5fed507137a581cc9c22b6280b",
-      "title": "UPSC IES/ISS Online Form 2026 – Start",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/upsc-ies-iss-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": true
-    },
-    {
-      "id": "d848cbe0e628618161b7a2a2342d5318",
-      "title": "SBI Circle Based Officer CBO Online Form 2026 – Date Extend",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/sbi-circle-based-officer-cbo-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": true
-    },
-    {
       "id": "afe8dc4ce9270d55571278cfd1ee093d",
       "title": "PNB Apprentice Online Form 2026 (5138 Posts) – Start",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/pnb-apprentice-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": true,
+      "is_new": false
+    },
+    {
+      "id": "86a0942092dcb9407b864e1582f83e71",
+      "title": "Bihar Police CSBC Constable Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-police-csbc-constable-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -208,15 +220,87 @@
       "is_new": false
     },
     {
-      "id": "86a0942092dcb9407b864e1582f83e71",
-      "title": "Bihar Police CSBC Constable Online Form 2026 – Start",
+      "id": "a4739252c0af5ef2bf2d1da4a7573d89",
+      "title": "RBI Bank Assistant Online Form 2026 – Start",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-police-csbc-constable-2026/",
+      "url": "https://sarkariresult.com.cm/rbi-bank-assistant-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "2ac35c4877463c5bd7573e838b763b9a",
+      "title": "JPSC Civil Services Pre Online Form 2026 – Date Extended",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/jpsc-civil-services-pre-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "9c97d244e63c5bbe21bb4c44bda53219",
+      "title": "Bihar BTSC Diary Officer Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-btsc-diary-officer-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "1a79659aaf28323617a8df9903debd6f",
+      "title": "AIIMS NORCET 10th Nursing Officer Online Form 2026",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/aiims-norcet-10th-nursing-officer-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "20635c85c0daae5e95a406b63f3d6a9e",
+      "title": "Indian Army NCC 124th October Course Online Form 2026",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/indian-army-ncc-124th-october-course-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "f2228b5fed507137a581cc9c22b6280b",
+      "title": "UPSC IES/ISS Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/upsc-ies-iss-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "d848cbe0e628618161b7a2a2342d5318",
+      "title": "SBI Circle Based Officer CBO Online Form 2026 – Date Extend",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/sbi-circle-based-officer-cbo-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": true,
       "is_new": false
     },
     {
@@ -248,18 +332,6 @@
       "title": "Bihar Police BPSSC ASI (Operation) Online Form 2026 – Start",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/bihar-police-bpssc-asi-operation-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": false
-    },
-    {
-      "id": "f010ddf50abd39c08279016e6fff6ac5",
-      "title": "Central Bank Specialist Officer Online Form 2026 – Date Extend",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/central-bank-specialist-officer-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -328,6 +400,114 @@
       "is_new": false
     },
     {
+      "id": "eaa80f4e5e7bc64adf254844c21174a0",
+      "title": "India Post GDS Form (28636 Posts)",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/india-post-gds-online-form-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": true,
+      "is_new": false
+    },
+    {
+      "id": "f313a052ac78cf4f6b97e0e1044c913a",
+      "title": "BSSC Inter Level Form (25,311 Posts)",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-bssc-inter-level-recruitment-2026-extend/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "4e3a4307c987db06c519f6d52e176234",
+      "title": "RSSB Clerk Jr-II / Junior Assistant Online Form 2026 (10644 Post) – Last Date Today",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rssb-clerk-jr-ii-junior-assistant-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "bc70b635393d368b8224441a03b46457",
+      "title": "Airforce Group Y/ Medical Assistant Airmen Intake 01/2027 Correction / Edit Form – Link Active",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/airforce-group-y-medical-assistant-airmen-intake-01-2027/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "155f596fd8ca7fb8371231734104cf8b",
+      "title": "Indian Airforce Agniveer Vayu Intake 01/2027 Correction / Edit Form – Link Active",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/indian-airforce-agniveer-vayu-intake-01-2027/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "201708f96cecdd23a405e6fb3349b0de",
+      "title": "Bihar BSSC Inter Level Online Form 2026 (26,426 Posts) – Date Extend",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-bssc-inter-level-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": true,
+      "is_new": false
+    },
+    {
+      "id": "f010ddf50abd39c08279016e6fff6ac5",
+      "title": "Central Bank Specialist Officer Online Form 2026 – Date Extend",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/central-bank-specialist-officer-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "1a9593a557944626c615128ffcd651cc",
+      "title": "RSSB Clerk Jr-II / Junior Assistant Online Form 2026 (10644 Post)",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rssb-clerk-jr-ii-junior-assistant-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": true,
+      "is_new": false
+    },
+    {
+      "id": "33b57758a282fc229dd73c599c3e8861",
+      "title": "Bihar BSSC Inter Level Online Form 2026 (25,311 Posts) – Date Extend",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-bssc-inter-level-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": true,
+      "is_new": false
+    },
+    {
       "id": "95372f336a773c6042187a23e27cfb5a",
       "title": "HSSC Stenographer Online Form 2026 (1952 Post) – Start",
       "posted_date": null,
@@ -361,7 +541,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "91809db8dc32d33a7570943fa350d5d2",
@@ -372,8 +552,8 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": true
+      "is_duplicate": true,
+      "is_new": false
     },
     {
       "id": "45a4f88c97e60d4510b2fddd52666123",

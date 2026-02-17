@@ -355,6 +355,13 @@ def format_insider_transaction_data(transactions):
             code_info = estimate_price_from_transaction_code(transaction_code)
             transaction_type_detailed = f"{transaction_type} ({code_info['type']})" if transaction_code else transaction_type
             
+            # CRITICAL FIX: Apply price correction for yfinance scaling issues
+            # If price is > 50,000, it's likely scaled incorrectly (off by 1M factor)
+            corrected_price = transaction_price
+            if transaction_price and transaction_price > 50000:
+                corrected_price = transaction_price / 1000000
+                logging.info(f"Transaction price corrected: {transaction_price} -> {corrected_price:.2f}")
+            
             formatted_transactions.append({
                 'name': name,
                 'type': transaction_type,
@@ -369,7 +376,7 @@ def format_insider_transaction_data(transactions):
                 'code_description': code_info['description'],
                 'raw_change': change,
                 'raw_price': transaction_price,
-                'estimated_value': abs(change) * (transaction_price if transaction_price and transaction_price > 0 else 0)
+                'estimated_value': abs(change) * (corrected_price if corrected_price and corrected_price > 0 else 0)
             })
         except Exception as e:
             logging.warning(f"Error formatting transaction: {e}")

@@ -576,23 +576,77 @@ class PipelineDataCollector:
             try:
                 yf_ticker = yf.Ticker(ticker)
                 
-                # Get company info (with monthly caching)
+                # Get company info (with selective fresh data for dividend fields)
                 if self._is_company_profile_cached_this_month(ticker):
                     cached_profile = self._load_company_profile_cache(ticker)
                     result['info'] = cached_profile or {}
+                    
+                    # CRITICAL FIX: Always fetch fresh dividend data to ensure bug fixes are applied
+                    # Dividend data can change frequently and we recently fixed dividend formatting bugs
                     logger.info(f"  ⏭️  Using cached company profile ({len(result['info'])} fields)")
+                    logger.info("  🔄 Fetching fresh dividend data to ensure accurate yields...")
+                    
+                    try:
+                        # Get fresh dividend-related fields from yfinance
+                        fresh_info = yf_ticker.info or {}
+                        dividend_fields = [
+                            'dividendYield', 'dividendRate', 'forwardDividendYield', 'forwardDividendRate',
+                            'trailingAnnualDividendYield', 'trailingAnnualDividendRate',
+                            'fiveYearAvgDividendYield', 'payoutRatio', 'exDividendDate',
+                            'lastSplitDate', 'lastSplitFactor'
+                        ]
+                        
+                        # Update cached profile with fresh dividend data
+                        for field in dividend_fields:
+                            if field in fresh_info:
+                                result['info'][field] = fresh_info[field]
+                        
+                        logger.info(f"  ✓ Updated {len([f for f in dividend_fields if f in fresh_info])} dividend fields with fresh data")
+                                
+                    except Exception as e:
+                        logger.warning(f"  ⚠️  Could not fetch fresh dividend data: {e} - using cached data")
+                        
                 else:
                     result['info'] = yf_ticker.info or {}
                     self._save_company_profile_cache(ticker, result['info'])
-                    logger.info(f"  ✓ Fetched {len(result['info'])} company info fields")
+                    logger.info(f"  ✓ Fetched {len(result['info'])} company info fields (including fresh dividend data)")
                 
                 # Get news (always fresh)
                 try:
-                    result['news'] = yf_ticker.news if hasattr(yf_ticker, 'news') else []
+                    news_data = yf_ticker.news if hasattr(yf_ticker, 'news') else []
+                    
+                    # Log raw structure for debugging
+                    logger.info(f"  🔍 Raw news_data type: {type(news_data).__name__}")
+                    
+                    # Handle different news data structures from yfinance
+                    if isinstance(news_data, dict):
+                        # If it's a dict, try to extract the list from common keys
+                        if 'result' in news_data:
+                            result['news'] = news_data['result'] if isinstance(news_data['result'], list) else []
+                            logger.info(f"  🔍 Extracted from 'result' key: {len(result['news'])} items")
+                        else:
+                            # Try to get it as a list of values
+                            result['news'] = list(news_data.values()) if news_data else []
+                            logger.info(f"  🔍 Extracted dict values: {len(result['news'])} items")
+                    elif isinstance(news_data, list):
+                        result['news'] = news_data
+                        logger.info(f"  🔍 News is already a list: {len(news_data)} items")
+                    else:
+                        result['news'] = []
+                        logger.info(f"  🔍 Unexpected type {type(news_data).__name__}, setting to empty list")
+                    
+                    if len(result['news']) > 0:
+                        # Log first article structure for diagnostics
+                        first = result['news'][0]
+                        first_keys = list(first.keys()) if isinstance(first, dict) else 'N/A'
+                        logger.info(f"  🔍 First article structure: {first_keys}")
+                    
                     logger.info(f"  ✓ Fetched {len(result['news'])} news articles")
-                except:
+                except Exception as e:
                     result['news'] = []
-                    logger.warning("  ! No news available")
+                    logger.warning(f"  ! No news available: {e}")
+                    import traceback
+                    logger.debug(traceback.format_exc())
                 
                 # Get analyst recommendations (always fresh)
                 try:

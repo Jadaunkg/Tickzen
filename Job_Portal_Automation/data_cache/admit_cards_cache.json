@@ -1,8 +1,20 @@
 {
-  "timestamp": "2026-02-12T17:03:18.449806",
+  "timestamp": "2026-02-16T23:55:59.763171",
   "success": true,
-  "count": 124,
+  "count": 142,
   "data": [
+    {
+      "id": "5d6e068dfbc439245bc31a44bc4a6234",
+      "title": "UPSSSC Enforcement Constable PET Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/upsssc-enforcement-constable-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
     {
       "id": "7ce68e3e0d27ad6fbd287d26ad5fb88b",
       "title": "Railway RRB ALP Admit Card 2026 – Out",
@@ -14,6 +26,18 @@
       "detailed_info": null,
       "is_duplicate": false,
       "is_new": false
+    },
+    {
+      "id": "94e6b8ef56d0695a7fdc924163966f96",
+      "title": "RRB Junior Engineer JE Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rrb-junior-engineer-je-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
     },
     {
       "id": "80d1f425bff72a6e426d919d847bc4cb",
@@ -28,10 +52,130 @@
       "is_new": false
     },
     {
-      "id": "f434c255746aacd0a2572fb3a5a39aec",
-      "title": "RRB Junior Engineer JE Exam City Details 2026 – Out",
+      "id": "f28983b00d73cc46d07d0060bfa609af",
+      "title": "Railway RRB Technician Revised Exam Date 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rrb-junior-engineer-je-2026/",
+      "url": "https://sarkariresult.com.cm/railway-rrb-technician-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "7632be809a453a5036090bf706101243",
+      "title": "BPSC ASO Mains Admit Card 2026 – Soon",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bpsc-aso-mains-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "e663dfc4886270f8d6f1ccba3a138af1",
+      "title": "RRB NTPC Graduate Level CBT-I Exam Date 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rrb-ntpc-graduate-level-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "a80d6aa5ef20b631a752c2988faca68f",
+      "title": "NTA CUET PG Exam Date 2026",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/nta-cuet-pg-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "65b6438cc88896d5208c6efdb23d54df",
+      "title": "UP Police SI, ASI Typing Test Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/up-police-si-asi-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "7ee31653100db6edfb91cb24140f4a8f",
+      "title": "Bank of Baroda Office Assistant Pre Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bank-of-baroda-office-assistant-2025/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "e11e6d5636786819afdac5e3039fae47",
+      "title": "CSBC Bihar Police Driver PET Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/csbc-bihar-police-driver-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "53da91753a0258ea058f32193445e10d",
+      "title": "NABARD Development Assistant Grade-B Pre Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/nabard-development-assistant-grade-b-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "f940da47933e3da8e3a301a80308b1ac",
+      "title": "BPSSC Bihar Police Enforcement SI Interview Letter 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bpssc-bihar-police-enforcement-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "1611ea737bce00117fac5d0696c705cb",
+      "title": "MPESB Police Constable PET Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/mpesb-police-constable-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "573cea3425b341f30a72daf79ebdf90c",
+      "title": "RRVUNL Technician Various Post Mains Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rrvunl-technician-various-post-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -49,7 +193,55 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "b8832f0a634d3c42682526319eec4e57",
+      "title": "MPPGCL Plant Assistant Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/mppgcl-plant-assistant-2025/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
       "is_new": true
+    },
+    {
+      "id": "4d1c343f477711cead4f7f7dca31b4e8",
+      "title": "Delhi DDA Steno, JSA, Jr Translator Skill Test Date 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/dda-various-post-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "e1ccf064ff577e85ddb8b9a2e1a6f62d",
+      "title": "DSSSB Various Post Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/dsssb-various-post-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "7886fd3a5885e1c5ed7c1443eb429b36",
+      "title": "Haryana High Court Stenographer Skill Test Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/haryana-high-court-stenographer-2025/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
     },
     {
       "id": "eb93fcb450c5a473f598f3c1c4c3e366",
@@ -61,7 +253,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "97e914b51dec90b58d2b57147e846a06",
@@ -73,7 +265,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "f6a46b48d5180ab50e5022566d2a1afa",
@@ -85,7 +277,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "811d9c1b8d9e3fc936b1bf4cc27eef30",
@@ -97,7 +289,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "53a134673cf4a5dfe3490e1144ea7cb6",
@@ -109,6 +301,30 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "f434c255746aacd0a2572fb3a5a39aec",
+      "title": "RRB Junior Engineer JE Exam City Details 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rrb-junior-engineer-je-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": true,
+      "is_new": false
+    },
+    {
+      "id": "16547e4c35e2666c2b0a634819f96232",
+      "title": "UP Police SI, ASI Typing Test Admit Card Date 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/up-police-si-asi-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": true,
       "is_new": false
     },
     {
@@ -168,7 +384,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_duplicate": false,
+      "is_duplicate": true,
       "is_new": false
     },
     {
@@ -252,7 +468,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_duplicate": false,
+      "is_duplicate": true,
       "is_new": false
     },
     {

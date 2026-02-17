@@ -1,5 +1,0 @@
-ticker,quarter,date,total_revenue,net_income,gross_profit,operating_income,eps_basic,eps_diluted,gross_margin
-AAPL,Q1,2025-Q3,102.47 B,27.47 B,48.34 B,32.43 B,1.85x,1.85x,47.2%
-AAPL,Q2,2025-Q2,94.04 B,23.43 B,43.72 B,28.20 B,1.57x,1.57x,46.5%
-AAPL,Q3,2025-Q1,95.36 B,24.78 B,44.87 B,29.59 B,1.65x,1.65x,47.1%
-AAPL,Q4,2024-Q4,124.30 B,36.33 B,58.27 B,42.83 B,2.41x,2.40x,46.9%

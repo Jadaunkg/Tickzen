@@ -464,7 +464,19 @@ class SupabaseDataExporter:
             
             # Check if company profile needs updating this month
             if self._is_company_profile_updated_this_month(stock_id):
-                logger.info("  ⏭️  Company profile already updated this month - skipping")
+                logger.info("  ⏭️  Company profile already updated this month - skipping profile update")
+                
+                # Even though we skip the full profile update, we still need to update sync timestamps
+                # Use UPDATE instead of UPSERT to only touch timestamp fields and avoid NULL violations
+                self.db.client.table('stocks').update(
+                    {
+                        'updated_at': datetime.now().isoformat(),
+                        'last_sync_date': datetime.now().isoformat(),
+                        'last_sync_status': 'success'
+                    }
+                ).eq('id', stock_id).execute()
+                
+                logger.info("  ✓ Updated sync timestamps")
                 result['records_exported']['stocks'] = 0  # Track as skipped
             else:
                 # Update full company profile
@@ -486,14 +498,26 @@ class SupabaseDataExporter:
             # 2.2: Export daily price data (incremental - only new records)
             logger.info("\n[2/11] Exporting daily price data...")
             
+            # Use raw stock_data for daily prices (has all trading days)
+            # processed_data is for technical indicators, not all price points
+            raw_price_data = collected_data.get('stock_data')
+            
+            if raw_price_data is None or (hasattr(raw_price_data, 'empty') and raw_price_data.empty):
+                logger.info(f"  ℹ️ No raw price data available, using processed_data")
+                raw_price_data = collected_data.get('processed_data')
+            
             # First filter to last 2 years for database storage policy
             filtered_price_data = self._filter_last_two_years(
-                collected_data['processed_data'], 
+                raw_price_data, 
                 'Date'
             )
             
+            logger.info(f"  📅 Raw data: {len(raw_price_data) if hasattr(raw_price_data, '__len__') else 'N/A'} rows")
+            logger.info(f"  📅 Filtered data: {len(filtered_price_data) if hasattr(filtered_price_data, '__len__') else 'N/A'} rows (last 2 years only)")
+            
             # Get latest date in database for this stock
             latest_price_date = self._get_latest_data_date(stock_id, 'daily_price_data', 'date')
+            logger.info(f"  📅 Latest daily_price_data date in DB: {latest_price_date}")
             
             # Filter to only new records (newer than latest DB date)
             incremental_price_data = self._filter_new_records_only(
@@ -503,6 +527,7 @@ class SupabaseDataExporter:
             )
             
             if incremental_price_data is not None and len(incremental_price_data) > 0:
+                logger.info(f"  📅 Found {len(incremental_price_data)} new trading days to export")
                 price_records = self.mapper.map_daily_prices(
                     stock_id,
                     incremental_price_data
@@ -525,7 +550,7 @@ class SupabaseDataExporter:
                 result['records_exported']['daily_price_data'] = total_inserted
                 self.mapper.sync_stats['records_inserted'] += total_inserted
             else:
-                logger.info(f"  ✅ No new price data to export")
+                logger.info(f"  ✅ No new price data to export (all data already in database)")
                 result['records_exported']['daily_price_data'] = 0
             
             # 2.3: Export technical indicators (incremental - only new records)
@@ -533,10 +558,12 @@ class SupabaseDataExporter:
             
             # Get latest date in database for this stock's technical indicators
             latest_indicators_date = self._get_latest_data_date(stock_id, 'technical_indicators', 'date')
+            logger.info(f"  📅 Latest technical_indicators date in DB: {latest_indicators_date}")
             
             # Filter to only new records (newer than latest DB date)
+            # Uses same filtered_price_data as daily prices (filtered to 2 years)
             incremental_indicators_data = self._filter_new_records_only(
-                filtered_price_data,  # Uses same data as price (filtered to 2 years) 
+                filtered_price_data,
                 latest_indicators_date, 
                 'Date'
             )
@@ -747,23 +774,38 @@ class SupabaseDataExporter:
             result['records_exported']['market_price_snapshot'] = 1
             self.mapper.sync_stats['records_inserted'] += 1
             
-            # 2.9: Export dividend data
+            # 2.9: Export dividend data (FORCED UPDATE due to recent dividend bug fixes)
             logger.info("\n[9/12] Exporting dividend data...")
+            logger.info("  🔄 Force updating dividend data (dividend formatting bug recently fixed)")
+            
             dividend_record = self.mapper.map_dividend_data(
                 stock_id,
                 collected_data['info']
             )
             
-            if dividend_record.get('ex_dividend_date'):
+            # ALWAYS export dividend data - removed conditional check to ensure updates
+            # This ensures that dividend bug fixes are applied to all stocks
+            try:
                 self.db.client.table('dividend_data').upsert(
                     [dividend_record],
                     on_conflict='stock_id,ex_dividend_date'
                 ).execute()
-                logger.info(f"  ✓ Exported dividend data")
+                logger.info(f"  ✓ Force updated dividend data (yields now correctly formatted)")
                 result['records_exported']['dividend_data'] = 1
                 self.mapper.sync_stats['records_inserted'] += 1
-            else:
-                logger.info("  ℹ No dividend data available")
+            except Exception as e:
+                # If primary key constraint fails (no ex_dividend_date), try stock_id only
+                try:
+                    self.db.client.table('dividend_data').upsert(
+                        [dividend_record],
+                        on_conflict='stock_id'
+                    ).execute()
+                    logger.info(f"  ✓ Force updated dividend data (stock_id conflict resolution)")
+                    result['records_exported']['dividend_data'] = 1
+                    self.mapper.sync_stats['records_inserted'] += 1
+                except Exception as e2:
+                    logger.warning(f"  ⚠️  Could not update dividend data: {e2}")
+                    result['records_exported']['dividend_data'] = 0
             
             # 2.10: Export ownership data
             logger.info("\n[10/12] Exporting ownership data...")
@@ -795,6 +837,60 @@ class SupabaseDataExporter:
             logger.info(f"  ✓ Exported sentiment data")
             result['records_exported']['sentiment_data'] = 1
             self.mapper.sync_stats['records_inserted'] += 1
+            
+            # 2.11b: Export stock-specific news data (NEW - Force update on every run)
+            logger.info("\n[11b/12] Exporting stock-specific news articles...")
+            logger.info("  🔄 Force updating news table with latest 15-20 articles")
+            
+            news_articles = collected_data.get('news', [])
+            logger.info(f"  🔍 News data type from collected_data: {type(news_articles).__name__}, size: {len(news_articles) if hasattr(news_articles, '__len__') else 'N/A'}")
+            
+            if news_articles and isinstance(news_articles, list) and len(news_articles) > 0:
+                logger.info(f"  🔍 Passing {len(news_articles)} articles to mapper...")
+                news_records = self.mapper.map_stock_news_data(
+                    stock_id,
+                    news_articles,
+                    ticker
+                )
+                
+                if news_records:
+                    try:
+                        # Delete old news for this stock (keep only recent ones)
+                        # Keep last 60 days of news, delete older
+                        from datetime import datetime as dt, timedelta
+                        cutoff_date = (dt.now() - timedelta(days=60)).isoformat()
+                        
+                        self.db.client.table('stock_news_data')\
+                            .delete()\
+                            .eq('stock_id', stock_id)\
+                            .lt('published_date', cutoff_date)\
+                            .execute()
+                        
+                        # Insert new news records (upsert to avoid duplicates)
+                        batch_size = 100
+                        total_inserted = 0
+                        
+                        for i in range(0, len(news_records), batch_size):
+                            batch = news_records[i:i+batch_size]
+                            self.db.client.table('stock_news_data').upsert(
+                                batch,
+                                on_conflict='stock_id,url,published_date'
+                            ).execute()
+                            total_inserted += len(batch)
+                        
+                        logger.info(f"  ✓ Exported {total_inserted} news articles (15-20 most recent)")
+                        result['records_exported']['stock_news_data'] = total_inserted
+                        self.mapper.sync_stats['records_inserted'] += total_inserted
+                        
+                    except Exception as e:
+                        logger.warning(f"  ⚠️  Could not export news articles: {e}")
+                        result['records_exported']['stock_news_data'] = 0
+                else:
+                    logger.info("  ℹ No news articles to export")
+                    result['records_exported']['stock_news_data'] = 0
+            else:
+                logger.info("  ℹ No news data available")
+                result['records_exported']['stock_news_data'] = 0
             
             # 2.12: Export insider transactions (monthly update)
             logger.info("\n[12/12] Exporting insider transactions...")
@@ -867,6 +963,21 @@ class SupabaseDataExporter:
             
             self.db.client.table('data_sync_log').insert(sync_log).execute()
             logger.info(f"  ✓ Sync log created")
+            
+            # CRITICAL FIX: Final timestamp update to ensure updated_at and last_sync_date are always current
+            logger.info("\nFINAL STEP: Updating sync timestamps")
+            logger.info("-" * 40)
+            
+            # Use UPDATE instead of UPSERT to only touch timestamp fields and avoid NULL violations
+            self.db.client.table('stocks').update(
+                {
+                    'updated_at': datetime.now().isoformat(),
+                    'last_sync_date': datetime.now().isoformat(),
+                    'last_sync_status': result['status']  # success, partial, or failed
+                }
+            ).eq('id', stock_id).execute()
+            
+            logger.info(f"  ✓ Final sync timestamps updated for stock ID {stock_id}")
             
             # Calculate total records
             total_records = sum(result['records_exported'].values())

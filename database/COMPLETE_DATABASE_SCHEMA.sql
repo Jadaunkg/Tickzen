@@ -1,9 +1,10 @@
 -- ============================================================================
 -- TICKZEN2 COMPLETE DATABASE SCHEMA
 -- ============================================================================
--- Generated: 2026-02-11 04:30:00
+-- Generated: 2026-02-16 10:00:00
 -- Database: Supabase PostgreSQL
 -- Purpose: Complete schema for database replication
+-- Status: Complete with stock_news_data table and all associated configurations
 --
 -- Usage:
 --   1. Create new Supabase project
@@ -29,6 +30,7 @@
 -- regime_risk_data              :  11 columns
 -- risk_data                     :  83 columns (19 base + 64 metadata)
 -- sentiment_data                :   9 columns
+-- stock_news_data               :  14 columns
 -- stocks                        :  25 columns
 -- technical_indicators          :  29 columns
 -- ============================================================================
@@ -434,6 +436,23 @@
 --   • sentiment_label
 --   • sentiment_confidence
 --   • analyst_sentiment
+--   • created_at
+--   • updated_at
+
+-- STOCK_NEWS_DATA
+-- ----------------------------------------------------------------------------
+--   • id
+--   • stock_id
+--   • title
+--   • summary
+--   • url
+--   • publisher
+--   • published_date
+--   • sentiment_score
+--   • sentiment_label
+--   • relevance_score
+--   • category
+--   • source_api
 --   • created_at
 --   • updated_at
 
@@ -1249,6 +1268,39 @@ CREATE TABLE IF NOT EXISTS sentiment_data (
 
 CREATE INDEX idx_sent_stock_date ON sentiment_data (stock_id, date DESC);
 CREATE INDEX idx_sent_score ON sentiment_data (stock_id, sentiment_score);
+
+-- ============================================================================
+-- 10b. STOCK NEWS DATA - Stock-specific news articles
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS stock_news_data (
+    id BIGSERIAL PRIMARY KEY,
+    stock_id BIGINT NOT NULL REFERENCES stocks(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    summary TEXT,
+    url TEXT,
+    publisher VARCHAR(255),
+    published_date TIMESTAMP WITH TIME ZONE,
+    
+    -- Sentiment
+    sentiment_score NUMERIC(8, 4),  -- -1.0 to 1.0
+    sentiment_label VARCHAR(50),  -- 'Bullish', 'Neutral', 'Bearish'
+    
+    -- Relevance
+    relevance_score NUMERIC(8, 4) DEFAULT 1.0,
+    category VARCHAR(100),
+    
+    -- Source tracking
+    source_api VARCHAR(50) DEFAULT 'yfinance',  -- 'yfinance' or 'finnhub'
+    
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    UNIQUE(stock_id, url, published_date)
+);
+
+CREATE INDEX idx_news_stock ON stock_news_data (stock_id);
+CREATE INDEX idx_news_published ON stock_news_data (published_date DESC);
+CREATE INDEX idx_news_stock_published ON stock_news_data (stock_id, published_date DESC);
 
 -- ============================================================================
 -- 11. INSIDER TRANSACTIONS - Insider trading activity

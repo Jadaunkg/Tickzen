@@ -410,28 +410,54 @@ def extract_profitability(fundamentals: dict):
     }
     return metrics
 
+def _format_dividend_yield(yield_value):
+    """
+    Helper function to properly format dividend yield values from yfinance.
+    yfinance can provide yields in different formats:
+    - As decimals (e.g., 0.0088 for 0.88%) - most common
+    - As percentages (e.g., 0.88 for 0.88%) - less common
+    - Sometimes inconsistently within the same response
+    
+    This function detects the format and converts to percentage display.
+    """
+    if yield_value == "N/A" or yield_value is None:
+        return "N/A"
+    
+    try:
+        yield_float = float(yield_value)
+        
+        # Real-world dividend yields are typically 0-10%
+        # Most values from yfinance are decimals (0.0088 for 0.88%)
+        if yield_float <= 0.15:  # Values <= 15% treated as decimals
+            # Convert decimal to percentage: 0.0088 -> 0.88%
+            return f"{yield_float * 100:.2f}%"
+        else:
+            # Values > 15% are likely errors or wrong format
+            # Apply correction: 41.0 -> 0.41%, 88.0 -> 0.88%
+            return f"{yield_float / 100:.2f}%"
+    except (ValueError, TypeError):
+        return str(yield_value)
+
 def extract_dividends_splits(fundamentals: dict):
     """
-    FIX: Extracts dividend and stock split information.
-    This version now passes raw values for formatting downstream and removes
-    the problematic standardization function that was causing errors.
+    FIXED: Extracts dividend and stock split information with proper yield formatting.
+    This version correctly handles yfinance's inconsistent dividend yield formats.
     """
     info = fundamentals.get('info', {})
     
-    # The problematic _standardize_percent_value function has been removed.
-    # We now pass the raw values directly, assuming that values like 'dividendYield'
-    # are provided as fractions (e.g., 0.0088 for 0.88%) by the API.
-    # The formatting is handled correctly by the `format_value` helper later on.
+    # Use the helper function to properly format dividend yields
+    # instead of relying on format_value's 'percent_direct' which assumes 
+    # the values are already percentages
     
     metrics = {
         "Dividend Rate": format_value(safe_get(info, 'dividendRate'), 'currency'),
-        "Dividend Yield": format_value(safe_get(info, 'dividendYield'), 'percent_direct'),
+        "Dividend Yield": _format_dividend_yield(safe_get(info, 'dividendYield')),
         "Payout Ratio": format_value(safe_get(info, 'payoutRatio'), 'percent'),
-        "5 Year Average Dividend Yield": format_value(safe_get(info, 'fiveYearAvgDividendYield'), 'percent_direct'), # This one is often a direct percentage
+        "5 Year Average Dividend Yield": _format_dividend_yield(safe_get(info, 'fiveYearAvgDividendYield')),
         "Forward Annual Dividend Rate": format_value(safe_get(info, 'forwardDividendRate'), 'currency'),
-        "Forward Annual Dividend Yield": format_value(safe_get(info, 'forwardDividendYield'), 'percent_direct'), 
+        "Forward Annual Dividend Yield": _format_dividend_yield(safe_get(info, 'forwardDividendYield')),
         "Trailing Dividend Rate": format_value(safe_get(info, 'trailingAnnualDividendRate'), 'currency'),
-        "Trailing Dividend Yield": format_value(safe_get(info, 'trailingAnnualDividendYield'), 'percent_direct'),
+        "Trailing Dividend Yield": _format_dividend_yield(safe_get(info, 'trailingAnnualDividendYield')),
         "Ex-Dividend Date": format_value(safe_get(info, 'exDividendDate'), 'date'),
         "Last Split Date": format_value(safe_get(info, 'lastSplitDate'), 'date'),
         "Last Split Factor": safe_get(info, 'lastSplitFactor', 'N/A'),

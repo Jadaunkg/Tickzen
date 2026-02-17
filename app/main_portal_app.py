@@ -144,7 +144,7 @@ def is_reloader_process():
 # Apply startup optimizations before heavy imports
 if not is_reloader_process():
     try:
-        from scripts.startup_optimization import optimize_matplotlib, get_heavy_imports
+        from scripts.startup_optimization import optimize_matplotlib, get_heavy_imports  # type: ignore
         optimize_matplotlib()
         print("🚀 Matplotlib optimization applied")
     except ImportError:
@@ -5432,10 +5432,10 @@ def run_sports_automation():
                     sys.path.insert(0, str(automation_root))
                 
                 # Import clients
-                from Sports_Article_Automation.utilities.perplexity_ai_client import PerplexityResearchCollector
-                from Sports_Article_Automation.utilities.sports_article_generator import SportsArticleGenerator
-                from Sports_Article_Automation.core.article_generation_pipeline import ArticleGenerationPipeline
-                from Sports_Article_Automation.testing.test_enhanced_search_content import EnhancedSearchContentFetcher
+                from Sports_Article_Automation.utilities.perplexity_ai_client import PerplexityResearchCollector  # type: ignore
+                from Sports_Article_Automation.utilities.sports_article_generator import SportsArticleGenerator  # type: ignore
+                from Sports_Article_Automation.core.article_generation_pipeline import ArticleGenerationPipeline  # type: ignore
+                from Sports_Article_Automation.testing.test_enhanced_search_content import EnhancedSearchContentFetcher  # type: ignore
                 
                 # Initialize clients
                 perplexity_client = PerplexityResearchCollector()

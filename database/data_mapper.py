@@ -1090,6 +1090,80 @@ class DataMapper:
             logger.error(f"Error mapping market snapshot: {e}")
             raise
     
+    def _format_dividend_yield(self, raw_yield):
+        """
+        Format dividend yield data with proper validation and correction.
+        
+        Args:
+            raw_yield: Raw yield value from yfinance (may be decimal or percentage)
+            
+        Returns:
+            Properly formatted yield as decimal (0.0259 for 2.59%)
+        """
+        if raw_yield is None or raw_yield == 0:
+            return None
+            
+        # Convert to float and handle edge cases
+        try:
+            yield_value = float(raw_yield)
+        except (ValueError, TypeError):
+            return None
+            
+        # Validation: yields should be reasonable (0-50%)
+        # If raw value is > 1, it might already be a percentage
+        if yield_value > 1:
+            # Assume it's already a percentage, convert to decimal
+            corrected_yield = yield_value / 100
+        else:
+            # Assume it's already a decimal
+            corrected_yield = yield_value
+            
+        # Final validation: yields above 50% are suspicious
+        if corrected_yield > 0.50:  # More than 50%
+            # Log warning and return None for manual review
+            logger.warning(f"Suspicious dividend yield detected: {raw_yield} -> {corrected_yield*100:.2f}%")
+            return None
+            
+        # Ensure we return a properly formatted decimal
+        return corrected_yield if corrected_yield >= 0 else None
+    
+    def _format_transaction_price(self, raw_price):
+        """
+        Format insider transaction price with proper scaling detection and correction.
+        
+        Handles yfinance data where prices may come in incorrectly scaled (e.g., 36,007,160 
+        instead of 36.01). Uses an intelligent threshold to detect and correct the scaling.
+        
+        Args:
+            raw_price: Raw price value from yfinance
+            
+        Returns:
+            Properly formatted price as decimal (36.01)
+        """
+        if raw_price is None or raw_price == 0:
+            return None
+            
+        try:
+            price_value = float(raw_price)
+        except (ValueError, TypeError):
+            return None
+        
+        # Validation: prices should be reasonable (typically $0.01 to $50,000)
+        # Stocks rarely trade above $50,000 per share
+        # If price > 50,000, it's likely scaled incorrectly (off by 1M factor)
+        if price_value > 50000:
+            # Scale down by dividing by 1,000,000
+            # This converts micro-units or other scaling back to normal dollars
+            corrected_price = price_value / 1000000
+            logger.info(f"Transaction price scaled down: {price_value} -> {corrected_price:.2f}")
+            return corrected_price
+        elif price_value < 0.01:
+            # Prices below $0.01 are suspicious (penny stocks are typically at least $0.01)
+            logger.warning(f"Suspicious transaction price detected: {price_value}")
+            return None
+        
+        return price_value
+        
     def map_dividend_data(self, stock_id: int, info: Dict) -> Dict:
         """
         Map dividend info to dividend_data table
@@ -1143,13 +1217,13 @@ class DataMapper:
                 
                 # Dividend Info
                 'dividend_rate': float(info.get('dividendRate')) if info.get('dividendRate') else None,
-                'dividend_yield_pct': float(info.get('dividendYield', 0) * 100) if info.get('dividendYield') else None,
+                'dividend_yield_pct': self._format_dividend_yield(info.get('dividendYield')),
                 'payout_ratio': float(info.get('payoutRatio')) if info.get('payoutRatio') else None,
-                'avg_dividend_yield_5y': float(info.get('fiveYearAvgDividendYield')) if info.get('fiveYearAvgDividendYield') else None,
+                'avg_dividend_yield_5y': self._format_dividend_yield(info.get('fiveYearAvgDividendYield')),
                 'dividend_forward_rate': float(info.get('dividendRate')) if info.get('dividendRate') else None,
-                'dividend_forward_yield': float(info.get('dividendYield', 0) * 100) if info.get('dividendYield') else None,
+                'dividend_forward_yield': self._format_dividend_yield(info.get('dividendYield')),
                 'dividend_trailing_rate': float(info.get('trailingAnnualDividendRate')) if info.get('trailingAnnualDividendRate') else None,
-                'dividend_trailing_yield': float(info.get('trailingAnnualDividendYield', 0) * 100) if info.get('trailingAnnualDividendYield') else None,
+                'dividend_trailing_yield': self._format_dividend_yield(info.get('trailingAnnualDividendYield')),
                 
                 # Dates - convert timestamps to date strings
                 'ex_dividend_date': convert_timestamp_to_date(info.get('exDividendDate')),
@@ -1304,9 +1378,12 @@ class DataMapper:
                 if not transaction_date:
                     continue
                 
-                # Get shares and price with safe conversion (cap large values)
+                # Get shares with safe conversion (cap large values)
                 shares = safe_float(row.get('Shares', row.get('#Shares')), max_value=999999999999999.0)
-                price = safe_float(row.get('Value', row.get('Price')), max_value=999999999999999.0)
+                
+                # Get price and apply formatting to correct yfinance scaling issues
+                raw_price = row.get('Value', row.get('Price'))
+                price = self._format_transaction_price(raw_price)
                 
                 record = {
                     'stock_id': stock_id,
@@ -1588,3 +1665,170 @@ class DataMapper:
         except Exception as e:
             logger.error(f"Error mapping regime risk data: {e}")
             return None
+
+    def map_stock_news_data(self, stock_id: int, news: List[Dict], ticker: str = None) -> List[Dict]:
+        """
+        Map stock-specific news articles to stock_news_data table
+        
+        Args:
+            stock_id: Stock ID from stocks table
+            news: List of news articles (from yfinance or Finnhub)
+            ticker: Stock ticker symbol (for context)
+            
+        Returns:
+            List of Dicts ready for stock_news_data table insertion
+            Returns 15-20 most recent articles with proper formatting
+        """
+        try:
+            news_records = []
+            
+            # Log input details at INFO level so we can diagnose issues
+            logger.info(f"  📰 Mapping news for stock_id={stock_id}: type={type(news).__name__}, size={len(news) if hasattr(news, '__len__') else 'N/A'}")
+            
+            if not news:
+                logger.info(f"  📰 No news data (empty/None) for stock_id {stock_id}")
+                return news_records
+            
+            # Handle different input structures
+            news_input_type = type(news).__name__
+            if isinstance(news, dict):
+                logger.info(f"  📰 News is a dict, extracting list...")
+                # If it's a dict, try to extract the list
+                if 'result' in news:
+                    news = news['result'] if isinstance(news['result'], list) else []
+                    logger.info(f"  📰 Extracted 'result' key: {len(news)} articles")
+                else:
+                    # Convert dict values to list if needed
+                    news = list(news.values()) if news else []
+                    logger.info(f"  📰 Converted dict values to list: {len(news)} articles")
+                    
+            if not isinstance(news, list):
+                logger.warning(f"  📰 News data is not a list or dict for stock_id {stock_id}, got {type(news).__name__} (original type was {news_input_type})")
+                return news_records
+            
+            # Process news articles (limit to 20 most recent)
+            logger.info(f"  📰 Processing up to 20 articles out of {len(news)} available")
+            max_articles = min(20, len(news))
+            skipped_count = 0
+            
+            for i, article in enumerate(news[:max_articles]):
+                if not isinstance(article, dict):
+                    logger.info(f"  📰 Article {i}: Skipped - not a dict (type={type(article).__name__})")
+                    skipped_count += 1
+                    continue
+                
+                try:
+                    # Handle different news source formats (yfinance, Finnhub, etc.)
+                    article_keys = list(article.keys())
+                    
+                    # Extract title (try multiple fields)
+                    title = article.get('title') or article.get('headline') or None
+                    
+                    # Handle yfinance nested 'content' structure (modern format)
+                    if not title and 'content' in article:
+                        content = article.get('content')
+                        if isinstance(content, dict):
+                            # Extract title from nested content dict (yfinance new structure)
+                            title = content.get('title') or content.get('headline') or None
+                        elif isinstance(content, str) and len(content) > 0:
+                            # Old format: content is text string
+                            title = content[:100].split('\n')[0]  # First line or first 100 chars
+                            if len(title) < 10:  # Ensure minimum length
+                                title = content[:100].replace('\n', ' ')[:100].strip()
+                    
+                    if not title:
+                        logger.info(f"  📰 Article {i}: Skipped - missing title. Keys: {article_keys[:5]}")
+                        skipped_count += 1
+                        continue
+                    
+                    # Get nested content object if it exists (yfinance new structure)
+                    content_obj = article.get('content') if isinstance(article.get('content'), dict) else {}
+                    
+                    # Extract URL from article or nested content
+                    url = (article.get('url') or 
+                           article.get('link') or 
+                           article.get('canonicalUrl') or
+                           content_obj.get('canonicalUrl') or
+                           content_obj.get('clickThroughUrl') or
+                           content_obj.get('url') or
+                           '')
+                    
+                    # Extract publisher/source from article or nested content
+                    publisher = article.get('publisher') or article.get('source') or 'Unknown'
+                    
+                    # Handle nested provider object (yfinance new structure)
+                    if isinstance(publisher, dict):
+                        publisher = publisher.get('displayName', 'Unknown')
+                    elif not publisher or publisher == 'Unknown':
+                        # Try to get from nested content provider
+                        provider = content_obj.get('provider')
+                        if isinstance(provider, dict):
+                            publisher = provider.get('displayName', 'Unknown')
+                    
+                    # Extract published timestamp from article or nested content
+                    published_ts = (article.get('datetime') or 
+                                   article.get('pubDate') or 
+                                   article.get('providerPublishTime') or
+                                   content_obj.get('pubDate') or
+                                   content_obj.get('publishTime'))
+                    published_date = None
+                    
+                    if published_ts:
+                        try:
+                            # Handle Unix timestamp format (Finnhub)
+                            if isinstance(published_ts, (int, float)) and published_ts > 1000000000:
+                                from datetime import datetime as dt
+                                published_date = dt.fromtimestamp(published_ts).isoformat()
+                            # Handle ISO string format (yfinance)
+                            elif isinstance(published_ts, str):
+                                published_date = published_ts
+                            # Handle datetime object
+                            elif hasattr(published_ts, 'isoformat'):
+                                published_date = published_ts.isoformat()
+                        except (ValueError, OverflowError):
+                            published_date = None
+                    
+                    # Extract summary (optional) from article or nested content
+                    summary = article.get('summary') or content_obj.get('summary') or None
+                    
+                    # Extract category if available from article or nested content
+                    category = article.get('category') or content_obj.get('category') or None
+                    
+                    # Determine source API
+                    source_api = 'yfinance'
+                    if 'datetime' in article:  # Finnhub uses 'datetime'
+                        source_api = 'finnhub'
+                    
+                    # Create record for database
+                    record = {
+                        'stock_id': stock_id,
+                        'title': title,
+                        'summary': summary,
+                        'url': url,
+                        'publisher': publisher,
+                        'published_date': published_date,
+                        'sentiment_score': None,  # Can be populated by sentiment analysis later
+                        'sentiment_label': None,
+                        'relevance_score': 1.0,  # Default to high relevance for stock-specific news
+                        'category': category,
+                        'source_api': source_api,
+                        'created_at': datetime.now().isoformat(),
+                        'updated_at': datetime.now().isoformat()
+                    }
+                    
+                    news_records.append(record)
+                    logger.info(f"  ✓ Article {i}: Successfully mapped '{title[:50]}...'")
+                    
+                except Exception as e:
+                    logger.warning(f"  ⚠️  Article {i}: Error processing: {e}")
+                    skipped_count += 1
+                    continue
+            
+            logger.info(f"  📰 Mapped {len(news_records)} news articles (processed {max_articles}, skipped {skipped_count}) for stock_id {stock_id}")
+            return news_records
+            
+        except Exception as e:
+            logger.error(f"  ❌ Error mapping stock news data for stock_id {stock_id}: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            return []

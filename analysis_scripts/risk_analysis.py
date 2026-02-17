@@ -572,6 +572,7 @@ class RiskAnalyzer:
         --------
         dict : Dictionary of risk metrics
         """
+        import logging
         returns = price_data.pct_change().dropna()
         
         # Calculate 30-day rolling volatility (annualized)
@@ -641,9 +642,13 @@ class RiskAnalyzer:
                 
                 # Align returns and market_returns to same index
                 common_idx = returns.index.intersection(market_returns.index)
-                if len(common_idx) >= 250:  # Need sufficient data for regime detection (200+ for MA)
+                data_coverage = len(common_idx) / len(returns) if len(returns) > 0 else 0
+                
+                if len(common_idx) >= 250 and data_coverage >= 0.90:  # Need 250+ days AND 90% coverage
                     aligned_returns = returns.loc[common_idx]
                     aligned_market = market_returns.loc[common_idx]
+                    
+                    logging.info(f"Regime analysis: {len(common_idx)} aligned days, {data_coverage*100:.1f}% coverage")
                     
                     regime_result = self.calculate_regime_risk_advanced(
                         returns=aligned_returns,
@@ -651,13 +656,17 @@ class RiskAnalyzer:
                         vix_data=None  # VIX optional for now
                     )
                     
-                    if regime_result:
+                    if regime_result and regime_result.get('profile') != 'Unknown':
                         risk_metrics['regime_risk'] = regime_result
+                    else:
+                        logging.warning(f"Regime calculation returned Unknown profile: {regime_result}")
+                        risk_metrics['regime_risk'] = None
                 else:
-                    logging.warning(f"Insufficient data for regime analysis: {len(common_idx)} days (need 250+)")
+                    reason = f"Insufficient data for regime analysis" if len(common_idx) < 250 else f"Low data coverage ({data_coverage*100:.1f}%)"
+                    logging.warning(f"{reason}: {len(common_idx)} aligned days out of {len(returns)} stock days (need 250+ with 90% coverage)")
                     risk_metrics['regime_risk'] = None
             except Exception as e:
-                logging.warning(f"Failed to calculate regime risk: {e}")
+                logging.warning(f"Failed to calculate regime risk: {e}", exc_info=True)
                 risk_metrics['regime_risk'] = None
         
         return risk_metrics
@@ -1047,6 +1056,31 @@ class RiskAnalyzer:
             market_ma50 = market_price.rolling(50).mean()
             market_ma200 = market_price.rolling(200).mean()
             
+            # Identify valid periods (skip first 200 days where MA200 is NaN)
+            # This prevents misclassification of early period data
+            valid_idx = ~market_ma200.isna()  # Only use dates where MA200 is calculated
+            if valid_idx.sum() < 100:  # Need at least 100 days with valid MAs
+                logging.warning(f"Insufficient valid MA periods: {valid_idx.sum()} days (need 100+)")
+                return {
+                    'bull_market_volatility': None,
+                    'bear_market_volatility': None,
+                    'volatile_market_volatility': None,
+                    'volatility_ratio': None,
+                    'bull_market_sharpe': None,
+                    'bear_market_sharpe': None,
+                    'defensive_score': None,
+                    'profile': 'Unknown',
+                    'regime_distribution': {'bull_days': 0, 'bear_days': 0, 'volatile_days': 0},
+                    'interpretation': 'Insufficient data for regime detection'
+                }
+            
+            # Filter to valid periods
+            market_ma50 = market_ma50[valid_idx]
+            market_ma200 = market_ma200[valid_idx]
+            market_price = market_price[valid_idx]
+            market_returns_valid = market_returns[valid_idx]
+            returns = returns[valid_idx]  # Align stock returns to valid periods
+            
             # Calculate S&P drawdown
             market_running_max = market_price.expanding().max()
             market_drawdown = (market_price - market_running_max) / market_running_max
@@ -1071,7 +1105,8 @@ class RiskAnalyzer:
             
             # Optional VIX filter (if VIX data provided)
             if vix_data is not None:
-                vix_aligned = vix_data.reindex(market_returns.index, method='ffill')
+                # Align VIX to valid periods
+                vix_aligned = vix_data.reindex(market_price.index, method='ffill')
                 high_vix = vix_aligned > vix_aligned.rolling(50).mean() * 1.2
                 
                 # High VIX overrides bull classification
@@ -1088,7 +1123,16 @@ class RiskAnalyzer:
             results = {}
             
             for regime_name, regime_returns in regimes.items():
-                if len(regime_returns) < 10:  # Need minimum data
+                if len(regime_returns) == 0:  # Handle completely empty regime
+                    logging.info(f"No data points in {regime_name} regime")
+                    results[f'{regime_name}_volatility'] = None
+                    results[f'{regime_name}_sharpe'] = None
+                    results[f'{regime_name}_avg_return'] = None
+                    results[f'{regime_name}_days'] = 0
+                    continue
+                
+                if len(regime_returns) < 10:  # Need minimum data for volatility estimation
+                    logging.info(f"Insufficient data in {regime_name} regime: {len(regime_returns)} days (need 10+)")
                     results[f'{regime_name}_volatility'] = None
                     results[f'{regime_name}_sharpe'] = None
                     results[f'{regime_name}_avg_return'] = None
@@ -1109,24 +1153,39 @@ class RiskAnalyzer:
                 results[f'{regime_name}_avg_return'] = round(avg_return, 4)
                 results[f'{regime_name}_days'] = len(regime_returns)
             
-            # Calculate defensive score (lower bear risk = more defensive)
-            if results.get('bull_volatility') and results.get('bear_volatility'):
-                volatility_ratio = results['bear_volatility'] / results['bull_volatility']
-                defensive_score = max(0, min(100, (1 / volatility_ratio) * 50))  # Scale 0-100, inverse ratio
-            else:
-                volatility_ratio = None
-                defensive_score = None
+            # Validate regime data availability (need minimum days per regime)
+            bull_days = results.get('bull_days', 0)
+            bear_days = results.get('bear_days', 0)
+            min_regime_days = 20  # Minimum days required for statistically meaningful volatility
             
-            # Classification
-            if defensive_score and defensive_score > 60:
-                profile = 'Defensive'
-                recommendation = 'Good for bear market protection'
-            elif defensive_score and defensive_score < 40:
-                profile = 'Aggressive'
-                recommendation = 'High risk in downturns - use with caution'
+            # Calculate defensive score (lower bear risk = more defensive)
+            volatility_ratio = None
+            defensive_score = None
+            profile = 'Unknown'
+            recommendation = 'Insufficient data for regime classification'
+            
+            if results.get('bull_volatility') and results.get('bear_volatility'):
+                # Validate we have meaningful data in both regimes
+                if bull_days >= min_regime_days and bear_days >= min_regime_days:
+                    volatility_ratio = results['bear_volatility'] / results['bull_volatility']
+                    defensive_score = max(0, min(100, (1 / volatility_ratio) * 50))  # Scale 0-100, inverse ratio
+                    
+                    # Classification based on defensive_score
+                    if defensive_score > 60:
+                        profile = 'Defensive'
+                        recommendation = 'Good for bear market protection'
+                    elif defensive_score < 40:
+                        profile = 'Aggressive'
+                        recommendation = 'High risk in downturns - use with caution'
+                    else:
+                        profile = 'Balanced'
+                        recommendation = 'Moderate behavior across regimes'
+                else:
+                    logging.warning(f"Insufficient regime data: Bull days={bull_days} (need {min_regime_days}), Bear days={bear_days} (need {min_regime_days})")
+                    profile = 'Unknown'
+                    recommendation = f"Insufficient {('bull' if bull_days < min_regime_days else 'bear')} market data"
             else:
-                profile = 'Balanced'
-                recommendation = 'Moderate behavior across regimes'
+                logging.warning(f"Missing volatility data: Bull vol={results.get('bull_volatility')}, Bear vol={results.get('bear_volatility')}")
             
             return {
                 'bull_market_volatility': results.get('bull_volatility'),
