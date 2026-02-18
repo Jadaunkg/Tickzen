@@ -1575,10 +1575,11 @@
 
             <div class="articles-grid" id="articlesGrid" data-current-view="card">
                 {% if sports_articles and sports_articles|length > 0 %}
+                    <!-- Debug: Articles found, rendering {{ sports_articles|length }} articles -->
                     {% for article in sports_articles %}
                     <div class="article-card" 
                          data-article-id="{{ article.id }}" 
-                         data-category="{% if article.data_source == 'database' %}database{% else %}{{ article.category }}{% endif %}"
+                         data-category="{% if article.data_source == 'database' or article.data_source == 'article_links' %}database{% else %}{{ article.category }}{% endif %}"
                          data-sport-category="{{ article.sport_category|default(article.category)|upper }}"
                          data-importance="{{ article.importance_tier|default('Medium') }}"
                          data-score="{{ article.importance_score|default(50) }}"
@@ -1758,10 +1759,16 @@
                     </div>
                     {% endfor %}
                 {% else %}
+                    <!-- Debug: No articles found. sports_articles length: {{ sports_articles|length if sports_articles else 'None' }} -->
                     <div style="text-align: center; padding: 3rem; color: hsl(var(--muted-foreground));">
                         <i class="fas fa-inbox" style="font-size: 3rem; color: var(--orange-600);"></i>
                         <p style="font-weight: 600; margin-top: 1rem; color: hsl(var(--foreground));">No articles available</p>
                         <p style="margin-top: 0.5rem;">Click "Collect RSS Articles" to fetch the latest content</p>
+                        {% if sports_articles is defined %}
+                            <small style="color: #666; margin-top: 1rem; display: block;">Debug: sports_articles variable is defined with {{ sports_articles|length }} items</small>
+                        {% else %}
+                            <small style="color: #666; margin-top: 1rem; display: block;">Debug: sports_articles variable is not defined</small>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
@@ -2353,17 +2360,25 @@ if (typeof lucide !== 'undefined') {
 
         // Filter articles
         if (category === 'all') {
-            filteredArticleCards = [...allArticleCards];
-            console.log(`✅ Showing all ${filteredArticleCards.length} articles`);
+            // Exclude database articles from 'All' category - only show RSS articles
+            filteredArticleCards = allArticleCards.filter(card => card.dataset.category !== 'database');
+            console.log(`✅ Showing ${filteredArticleCards.length} RSS articles (excluding database articles)`);
+        } else if (category === 'database') {
+            // Only show database articles for database category
+            filteredArticleCards = allArticleCards.filter(card => card.dataset.category === 'database');
+            console.log(`🎯 Showing ${filteredArticleCards.length} database articles`);
         } else {
-            filteredArticleCards = allArticleCards.filter(card => card.dataset.category === category);
-            console.log(`🎯 Filtered ${filteredArticleCards.length} articles for category "${category}"`);
+            // For cricket, football, basketball etc. - exclude database articles, only show RSS articles
+            filteredArticleCards = allArticleCards.filter(card => 
+                card.dataset.category === category && card.dataset.category !== 'database'
+            );
+            console.log(`🎯 Filtered ${filteredArticleCards.length} RSS articles for category "${category}" (excluding database articles)`);
             
-            // Debug: Log the first few articles' categories for database filter
-            if (category === 'database') {
-                console.log('🔍 First 5 article categories:');
-                allArticleCards.slice(0, 5).forEach((card, index) => {
-                    console.log(`  Article ${index + 1}: data-category="${card.dataset.category}", title="${card.dataset.title?.substring(0, 50)}..."`);
+            // Debug: Log the first few articles' categories for sport-specific filters
+            if (filteredArticleCards.length > 0) {
+                console.log('🔍 Sample sport category articles:');
+                filteredArticleCards.slice(0, 3).forEach((card, index) => {
+                    console.log(`  Article ${index + 1}: data-category="${card.dataset.category}", title="${card.dataset.title?.substring(0, 50)}..."`);  
                 });
             }
         }

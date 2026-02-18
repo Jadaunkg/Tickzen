@@ -5414,6 +5414,25 @@ def run_sports_automation():
             article_category = article.get('category', 'General')
             article_url = article.get('url', '')
             
+            # Map "database" category to proper sports category based on article title/content
+            if article_category.lower() == 'database':
+                # Attempt to derive proper category from article title
+                title_lower = article_title.lower()
+                if any(word in title_lower for word in ['football', 'soccer', 'premier league', 'champions league', 'fifa']):
+                    article_category = 'football'
+                    app.logger.info(f"Mapped database article to football category: {article_title[:50]}...")
+                elif any(word in title_lower for word in ['basketball', 'nba', 'nfl']):
+                    article_category = 'basketball'
+                    app.logger.info(f"Mapped database article to basketball category: {article_title[:50]}...")
+                elif any(word in title_lower for word in ['cricket', 'ipl', 'world cup cricket']):
+                    article_category = 'cricket'
+                    app.logger.info(f"Mapped database article to cricket category: {article_title[:50]}...")
+                else:
+                    # Default to football if no specific category detected
+                    article_category = 'football'
+                    app.logger.info(f"Mapped database article to default football category: {article_title[:50]}...")
+            
+            
             # Step 1: Generate full AI article using Perplexity + Gemini
             try:
                 socketio.emit('sports_automation_update', {
@@ -5435,7 +5454,6 @@ def run_sports_automation():
                 from Sports_Article_Automation.utilities.perplexity_ai_client import PerplexityResearchCollector  # type: ignore
                 from Sports_Article_Automation.utilities.sports_article_generator import SportsArticleGenerator  # type: ignore
                 from Sports_Article_Automation.core.article_generation_pipeline import ArticleGenerationPipeline  # type: ignore
-                from Sports_Article_Automation.testing.test_enhanced_search_content import EnhancedSearchContentFetcher  # type: ignore
                 
                 # Initialize clients
                 perplexity_client = PerplexityResearchCollector()

@@ -183,9 +183,10 @@ def generate_introduction_html(ticker, rdata):
         last_date_obj = rdata.get('last_date', datetime.now())
         last_date_fmt = last_date_obj.strftime('%B %Y')
 
-        sma50_val = detailed_ta_data.get('SMA_50')
+        # Use yfinance SMA values from rdata instead of calculated ones
+        sma50_val = rdata.get('sma_50')
         sma50_fmt = format_html_value(sma50_val, 'currency', ticker=ticker)
-        sma200_val = detailed_ta_data.get('SMA_200')
+        sma200_val = rdata.get('sma_200')
         sma200_fmt = format_html_value(sma200_val, 'currency', ticker=ticker)
         
         analyst_target_val = _safe_float(analyst_data.get('Mean Target Price')) # Use _safe_float for calculations
@@ -347,8 +348,9 @@ def generate_metrics_summary_html(ticker, rdata):
         forecast_1m_val = _safe_float(rdata.get('forecast_1m'))
         forecast_1y_val = _safe_float(rdata.get('forecast_1y'))
         analyst_target_val = _safe_float(analyst_data.get('Mean Target Price'))
-        sma50_val = _safe_float(detailed_ta_data.get('SMA_50'))
-        sma200_val = _safe_float(detailed_ta_data.get('SMA_200'))
+        # Use yfinance SMA values from rdata instead of calculated ones
+        sma50_val = _safe_float(rdata.get('sma_50'))
+        sma200_val = _safe_float(rdata.get('sma_200'))
         rsi_val = _safe_float(detailed_ta_data.get('RSI_14'))
         macd_hist_val = _safe_float(detailed_ta_data.get('MACD_Hist'))
         low_52wk_val = _safe_float(price_stats_data.get('52 Week Low'))

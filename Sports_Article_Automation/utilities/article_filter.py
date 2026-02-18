@@ -42,8 +42,9 @@ if not logger.handlers:
 class ArticleFilter:
     """Advanced filtering system for sports articles"""
     
-    # Only these 3 categories are allowed
-    ALLOWED_CATEGORIES = {'cricket', 'football', 'basketball'}
+    # Only these categories are allowed
+    # Note: "database" is a temporary category for articles sourced from database
+    ALLOWED_CATEGORIES = {'cricket', 'football', 'basketball', 'database'}
     
     # Importance tiers
     IMPORTANCE_TIERS = {

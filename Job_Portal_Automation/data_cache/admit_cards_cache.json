@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-02-16T23:55:59.763171",
+  "timestamp": "2026-02-17T21:15:24.354294",
   "success": true,
-  "count": 142,
+  "count": 147,
   "data": [
     {
-      "id": "5d6e068dfbc439245bc31a44bc4a6234",
-      "title": "UPSSSC Enforcement Constable PET Admit Card 2026 – Out",
+      "id": "b05ebfd0accb4987255f0e12ef045131",
+      "title": "Railway RRB Group D Answer Key 2026 – Out",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/upsssc-enforcement-constable-2026/",
+      "url": "https://sarkariresult.com.cm/railway-rrb-group-d-2026-chk-now/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -28,6 +28,30 @@
       "is_new": false
     },
     {
+      "id": "205627470b1004de5829483ac5c10a16",
+      "title": "MPPSC SET Admit Card 2026 – Soon",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/mppsc-set-2025/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "b7f6fec93e6e550cbdd00a1e97aa6c94",
+      "title": "Haryana HBSE Board 10th / 12th Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/haryana-hbse-board-10th-12th-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
       "id": "94e6b8ef56d0695a7fdc924163966f96",
       "title": "RRB Junior Engineer JE Admit Card 2026 – Out",
       "posted_date": null,
@@ -37,13 +61,49 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "80d1f425bff72a6e426d919d847bc4cb",
       "title": "SSC MTS / Havaldar Admit Card 2026 – Out",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/ssc-mts-havaldar-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "8e88754cee955738abe7b935bc4de343",
+      "title": "UPPSC Architectural Cum Planning Assistant Mains Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/uppsc-architectural-cum-planning-assistant-2025/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "b6f0e5989807099c950521f883d01d6c",
+      "title": "WBSSC Group C & D Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/wbssc-group-c-d-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "5d6e068dfbc439245bc31a44bc4a6234",
+      "title": "UPSSSC Enforcement Constable PET Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/upsssc-enforcement-constable-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -61,19 +121,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
-    },
-    {
-      "id": "7632be809a453a5036090bf706101243",
-      "title": "BPSC ASO Mains Admit Card 2026 – Soon",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bpsc-aso-mains-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "e663dfc4886270f8d6f1ccba3a138af1",
@@ -85,19 +133,19 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
-      "id": "a80d6aa5ef20b631a752c2988faca68f",
-      "title": "NTA CUET PG Exam Date 2026",
+      "id": "7632be809a453a5036090bf706101243",
+      "title": "BPSC ASO Mains Admit Card 2026 – Soon",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/nta-cuet-pg-2026/",
+      "url": "https://sarkariresult.com.cm/bpsc-aso-mains-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "65b6438cc88896d5208c6efdb23d54df",
@@ -109,7 +157,19 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
+    },
+    {
+      "id": "a80d6aa5ef20b631a752c2988faca68f",
+      "title": "NTA CUET PG Exam Date 2026",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/nta-cuet-pg-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
     },
     {
       "id": "7ee31653100db6edfb91cb24140f4a8f",
@@ -121,7 +181,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "e11e6d5636786819afdac5e3039fae47",
@@ -133,7 +193,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "53da91753a0258ea058f32193445e10d",
@@ -145,25 +205,13 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "f940da47933e3da8e3a301a80308b1ac",
       "title": "BPSSC Bihar Police Enforcement SI Interview Letter 2026 – Out",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/bpssc-bihar-police-enforcement-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": true
-    },
-    {
-      "id": "1611ea737bce00117fac5d0696c705cb",
-      "title": "MPESB Police Constable PET Admit Card 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/mpesb-police-constable-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -205,7 +253,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "4d1c343f477711cead4f7f7dca31b4e8",
@@ -248,6 +296,18 @@
       "title": "UPPSC RO/ ARO 2023 Typing Test Admit Card 2026",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/uppsc-ro-aro-mains-admit-card-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "1611ea737bce00117fac5d0696c705cb",
+      "title": "MPESB Police Constable PET Admit Card 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/mpesb-police-constable-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,

@@ -19,6 +19,7 @@ Routes:
 """
 
 from flask import Blueprint, render_template, redirect, url_for, session, current_app, request, jsonify
+from google.cloud import firestore
 
 # Always create a fresh blueprint - Flask handles duplicate registration checks internally
 sports_automation_bp = Blueprint('sports_automation', __name__, url_prefix='/sports')
@@ -58,8 +59,8 @@ def dashboard():
         try:
             # Query userPublishedArticles for sports articles
             sports_articles_ref = db.collection('userPublishedArticles')\
-                .where('user_uid', '==', user_uid)\
-                .where('article_type', '==', 'sports')
+                .where(filter=firestore.FieldFilter('user_uid', '==', user_uid))\
+                .where(filter=firestore.FieldFilter('article_type', '==', 'sports'))
             
             sports_docs = list(sports_articles_ref.stream())
             sports_published = len(sports_docs)
@@ -204,15 +205,39 @@ def run():
     try:
         from Sports_Article_Automation.api.sports_articles_loader import get_sports_loader
         
+        current_app.logger.info("🔄 Starting sports articles loading process...")
+        
         # Get sports loader and load articles
         sports_loader = get_sports_loader()
+        
+        current_app.logger.info("🔄 Calling sports_loader.load_articles()...")
         articles = sports_loader.load_articles()
+        
+        current_app.logger.info(f"📊 Loaded {len(articles)} total articles from all sources")
+        
+        # Check data source breakdown
+        rss_articles = [a for a in articles if a.get('data_source') not in ['database', 'article_links']]
+        db_articles = [a for a in articles if a.get('data_source') in ['database', 'article_links']]
+        
+        current_app.logger.info(f"📈 Article breakdown: {len(rss_articles)} RSS articles, {len(db_articles)} database articles")
+        
+        # Log sample articles to debug data_source field
+        if len(articles) > 0:
+            sample_article = articles[0]
+            current_app.logger.info(f"🔍 Sample article data_source: '{sample_article.get('data_source', 'NOT_SET')}', source: '{sample_article.get('source', 'NOT_SET')}'")
+        
+        # Ensure database articles have correct data_source field
+        for article in articles:
+            if article.get('data_source') in ['database', 'article_links']:
+                article['data_source'] = 'database'  # Normalize to 'database' for frontend
         
         # Sort by published date (newest first) - handle None values
         articles.sort(key=lambda x: x.get('published_date') or '', reverse=True)
         
         # Load ALL articles - pagination handled by frontend
         sports_articles = articles
+        
+        current_app.logger.info(f"✅ Successfully prepared {len(sports_articles)} articles for template (RSS: {len(rss_articles)}, DB: {len(db_articles)})")
         
         # Convert timestamps to IST for display
         def convert_articles_to_ist_display(articles_list):
@@ -268,10 +293,16 @@ def run():
         
         sports_articles = convert_articles_to_ist_display(sports_articles)
         
+        current_app.logger.info(f"🎯 Final articles count after IST conversion: {len(sports_articles)}")
+        
     except ImportError as e:
-        current_app.logger.warning(f"Could not import sports loader: {e}")
+        current_app.logger.error(f"❌ Could not import sports loader: {e}")
+        sports_articles = []
     except Exception as e:
-        current_app.logger.error(f"Error loading sports articles: {e}")
+        current_app.logger.error(f"❌ Error loading sports articles: {e}")
+        sports_articles = []
+    
+    current_app.logger.info(f"🚀 Rendering template with {len(sports_articles)} articles")
     
     return render_template('automation/sports/run.html',
                          title="Sports Article Automation - Tickzen",

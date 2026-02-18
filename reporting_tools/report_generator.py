@@ -488,11 +488,12 @@ def get_mpl_base64_from_file(image_path): # Helper to get base64 if needed for H
 
 
 # Helper function to determine sentiment (Keep Unchanged)
-def determine_sentiment(detailed_ta_data, overall_pct_change):
+def determine_sentiment(detailed_ta_data, overall_pct_change, sma_50_yfinance=None, sma_200_yfinance=None):
     # ... (implementation unchanged) ...
     current_price = detailed_ta_data.get('Current_Price')
-    sma_50 = detailed_ta_data.get('SMA_50')
-    sma_200 = detailed_ta_data.get('SMA_200')
+    # Use yfinance SMA values if provided, otherwise fall back to calculated ones
+    sma_50 = sma_50_yfinance if sma_50_yfinance is not None else detailed_ta_data.get('SMA_50')
+    sma_200 = sma_200_yfinance if sma_200_yfinance is not None else detailed_ta_data.get('SMA_200')
     rsi = detailed_ta_data.get('RSI_14') # Use RSI_14 from detailed data
     macd_hist = detailed_ta_data.get('MACD_Hist')
 
@@ -719,7 +720,10 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
     if volatility is None or pd.isna(volatility): volatility = None
     else: volatility = float(volatility)
 
-    sma50 = detailed_ta_data.get('SMA_50'); sma200 = detailed_ta_data.get('SMA_200')
+    # Use yfinance SMA values instead of calculated ones
+    info = fundamentals.get('info', {})
+    sma50 = info.get('fiftyDayAverage')
+    sma200 = info.get('twoHundredDayAverage')
     latest_rsi = detailed_ta_data.get('RSI_14')
 
     forecast_horizon_periods = 0; forecast_12m = pd.DataFrame(); final_forecast_average = None; forecast_1m = None
@@ -755,7 +759,7 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
     if current_price is not None and final_forecast_average is not None and current_price != 0:
         overall_pct_change = ((final_forecast_average - current_price) / current_price) * 100
 
-    sentiment = determine_sentiment(detailed_ta_data, overall_pct_change)
+    sentiment = determine_sentiment(detailed_ta_data, overall_pct_change, sma50, sma200)
 
     data_out['current_price'] = current_price
     data_out['last_date'] = last_date
@@ -803,20 +807,6 @@ def _prepare_report_data(ticker, actual_data, forecast_data, historical_data, fu
     data_out['share_statistics_data'] = extract_share_statistics_data(fundamentals, current_price)
     data_out['financial_efficiency_data'] = extract_financial_efficiency_data(fundamentals)
     data_out['stock_price_stats_data'] = extract_stock_price_stats_data(fundamentals)
-    
-    # --- CRITICAL FIX: Override moving averages with calculated values for consistency ---
-    # Replace yfinance API moving averages with our calculated values to ensure consistency
-    # across all report sections (introduction, metrics summary, and stock price statistics)
-    from analysis_scripts.fundamental_analysis import format_value
-    if sma50 is not None:
-        old_sma50 = data_out['stock_price_stats_data'].get('50 Day MA', 'N/A')
-        data_out['stock_price_stats_data']['50 Day MA'] = format_value(sma50, 'currency')
-        print(f"[Consistency Fix] Overriding 50-day SMA: {old_sma50} → {data_out['stock_price_stats_data']['50 Day MA']}")
-    if sma200 is not None:
-        old_sma200 = data_out['stock_price_stats_data'].get('200 Day MA', 'N/A')
-        data_out['stock_price_stats_data']['200 Day MA'] = format_value(sma200, 'currency')
-        print(f"[Consistency Fix] Overriding 200-day SMA: {old_sma200} → {data_out['stock_price_stats_data']['200 Day MA']}")
-    
     data_out['short_selling_data'] = extract_short_selling_data(fundamentals)
     data_out['peer_comparison_data'] = extract_peer_comparison_data(ticker)
     

@@ -11,6 +11,7 @@ and blueprints access them through this module.
 
 from functools import wraps
 from flask import session, redirect, url_for, flash, request, current_app
+from google.cloud import firestore
 
 # --- Callback Registry ---
 # These will be set by main_portal_app after initialization
@@ -200,7 +201,7 @@ def get_automation_shared_context(user_uid, profiles_list, ticker_status_limit=5
                 # Get ALL articles for this user (removed limit to get accurate count)
                 # This includes published, draft, scheduled, and pending articles
                 articles_query = db.collection('userPublishedArticles')\
-                    .where('user_uid', '==', user_uid)
+                    .where(filter=firestore.FieldFilter('user_uid', '==', user_uid))
                 
                 articles = list(articles_query.stream())
                 total_articles_count = len(articles)  # This now includes ALL articles (published + draft + scheduled + pending)
@@ -223,10 +224,19 @@ def get_automation_shared_context(user_uid, profiles_list, ticker_status_limit=5
                                 published_at = datetime.fromisoformat(published_at_str.replace('Z', '+00:00'))
                             elif hasattr(published_at_str, 'isoformat'):
                                 published_at = published_at_str
+                                # Ensure timezone awareness
+                                if published_at.tzinfo is None:
+                                    published_at = published_at.replace(tzinfo=timezone.utc)
                         except Exception:
                             pass
                     
-                    articles_with_dates.append((published_at or datetime.min.replace(tzinfo=timezone.utc), article_data, article_doc))
+                    # Ensure all dates are timezone-aware for proper comparison
+                    if published_at is None:
+                        published_at = datetime.min.replace(tzinfo=timezone.utc)
+                    elif published_at.tzinfo is None:
+                        published_at = published_at.replace(tzinfo=timezone.utc)
+                    
+                    articles_with_dates.append((published_at, article_data, article_doc))
                 
                 # Sort by published_at descending
                 articles_with_dates.sort(key=lambda x: x[0], reverse=True)

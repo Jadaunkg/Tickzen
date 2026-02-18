@@ -170,9 +170,10 @@ def generate_wordpress_introduction_html(ticker, rdata, content_library=None):
         
         last_date_fmt = last_date_obj.strftime('%B %Y')
 
-        sma50_val = detailed_ta_data.get('SMA_50')
+        # Use yfinance SMA values from rdata instead of calculated ones
+        sma50_val = rdata.get('sma_50')
         sma50_fmt = hc.format_html_value(sma50_val, 'currency', ticker=ticker)
-        sma200_val = detailed_ta_data.get('SMA_200')
+        sma200_val = rdata.get('sma_200')
         sma200_fmt = hc.format_html_value(sma200_val, 'currency', ticker=ticker)
         
         analyst_target_val = hc._safe_float(analyst_data.get('Mean Target Price'))
@@ -407,8 +408,9 @@ def generate_wordpress_metrics_summary_html(ticker, rdata, content_library=None)
         forecast_1m_val = hc._safe_float(rdata.get('forecast_1m'))
         forecast_1y_val = hc._safe_float(rdata.get('forecast_1y'))
         analyst_target_val = hc._safe_float(analyst_data.get('Mean Target Price'))
-        sma50_val = hc._safe_float(detailed_ta_data.get('SMA_50'))
-        sma200_val = hc._safe_float(detailed_ta_data.get('SMA_200'))
+        # Use yfinance SMA values from rdata instead of calculated ones
+        sma50_val = hc._safe_float(rdata.get('sma_50'))
+        sma200_val = hc._safe_float(rdata.get('sma_200'))
         rsi_val = hc._safe_float(detailed_ta_data.get('RSI_14'))
         macd_hist_val = hc._safe_float(detailed_ta_data.get('MACD_Hist'))
         low_52wk_val = hc._safe_float(price_stats_data.get('52 Week Low'))
@@ -4482,8 +4484,9 @@ def generate_wordpress_technical_analysis_summary_html(ticker, rdata, content_li
         # Get technical indicators
         current_price = hc._safe_float(rdata.get('current_price'))
         sma20 = hc._safe_float(detailed_ta_data.get('SMA_20'))
-        sma50 = hc._safe_float(detailed_ta_data.get('SMA_50'))
-        sma200 = hc._safe_float(detailed_ta_data.get('SMA_200'))
+        # Use yfinance SMA values from rdata instead of calculated ones
+        sma50 = hc._safe_float(rdata.get('sma_50'))
+        sma200 = hc._safe_float(rdata.get('sma_200'))
         rsi = hc._safe_float(detailed_ta_data.get('RSI_14'))
         macd_hist = hc._safe_float(detailed_ta_data.get('MACD_Hist'))
         macd_line = hc._safe_float(detailed_ta_data.get('MACD_Line'))

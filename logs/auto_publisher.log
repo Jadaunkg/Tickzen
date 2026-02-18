@@ -1,0 +1,333 @@
+2026-02-17 21:14:47 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-17 21:15:28 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-17 21:22:07 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Paul Tenorio (ID: 7)
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Liam Rosenior's Chelsea Reign Under Scrutiny: Is it an Act or Real Progress?' (76 chars)
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4227 chars
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile xhCjRkkKWbg7WUWDVn0V: https://soccerwallah.com/
+2026-02-17 21:23:25 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://soccerwallah.com/...
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 101 articles with 563 keywords
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Liam Rosenior's Chelsea Reign Under Scrutiny: Is it an Act or Real Progress?
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Liam Rosenior's Chelsea Reign Under Scrutiny: Is it an Act or Real Progress?
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'liam-roseniors-chelsea-reign-under-scrutiny-is-it-an-act-or-real-progress' (73 chars)
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Liam Rosenior's Chelsea Reign Under Scrutiny: Is i...' → 'liam-roseniors-chelsea-reign-under-scrutiny-is-it-an-act-or-real-progress' (73/74 chars) ✅
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Liam Rosenior's Chelsea Reign Under Scrutiny: Is it an Act or Real Progress?' (76 chars)
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'liam-roseniors-chelsea-reign-under-scrutiny-is-it-an-act-or-real-progress' (73 chars)
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-17 21:23:32 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Paul Tenorio (ID: 7)
+2026-02-17 21:23:34 - AutoPublisherLogger - INFO - Post 'Liam Rosenior's Chelsea Reign Under Scrutiny: Is it an Act or Real Progress?' draft on https://soccerwallah.com/. ID: 640, Link: https://soccerwallah.com/?p=640
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Phil McNulty (ID: 4)
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Real Madrid Loanee Endrick's Lyon Stint Ignites Manchester United Transfer Talk' (79 chars)
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 3752 chars
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Real Madrid Loanee Endrick's Lyon Stint Ignites Manchester United Transfer Talk
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Real Madrid Loanee Endrick's Lyon Stint Ignites Manchester United Transfer Talk
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Slug too long (78), truncating to max 74 chars
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'real-madrid-loanee-endricks-lyon-stint-ignites-manchester-united-transfer' (73 chars)
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Real Madrid Loanee Endrick's Lyon Stint Ignites Ma...' → 'real-madrid-loanee-endricks-lyon-stint-ignites-manchester-united-transfer' (73/74 chars) ✅
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Real Madrid Loanee Endrick's Lyon Stint Ignites Manchester United Transfer Talk' (79 chars)
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'real-madrid-loanee-endricks-lyon-stint-ignites-manchester-united-transfer' (73 chars)
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-17 21:23:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Phil McNulty (ID: 4)
+2026-02-17 21:23:59 - AutoPublisherLogger - INFO - Post 'Real Madrid Loanee Endrick's Lyon Stint Ignites Manchester United Transfer Talk' draft on https://soccerwallah.com/. ID: 641, Link: https://soccerwallah.com/?p=641
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Steven Goff (ID: 8)
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Michael Olise: Is He Bayern Munich's Next Arjen Robben Amid Dominant Run?' (73 chars)
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 1189 chars
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Michael Olise: Is He Bayern Munich's Next Arjen Robben Amid Dominant Run?
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 2 internal links
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Michael Olise: Is He Bayern Munich's Next Arjen Robben Amid Dominant Run?
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'michael-olise-is-he-bayern-munichs-next-arjen-robben-amid-dominant-run' (70 chars)
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Michael Olise: Is He Bayern Munich's Next Arjen Ro...' → 'michael-olise-is-he-bayern-munichs-next-arjen-robben-amid-dominant-run' (70/74 chars) ✅
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Michael Olise: Is He Bayern Munich's Next Arjen Robben Amid Dominant Run?' (73 chars)
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'michael-olise-is-he-bayern-munichs-next-arjen-robben-amid-dominant-run' (70 chars)
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-17 21:24:48 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Steven Goff (ID: 8)
+2026-02-17 21:24:50 - AutoPublisherLogger - INFO - Post 'Michael Olise: Is He Bayern Munich's Next Arjen Robben Amid Dominant Run?' draft on https://soccerwallah.com/. ID: 642, Link: https://soccerwallah.com/?p=642
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Adam Crafton (ID: 6)
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Juventus Directors Hit With Bans Fines Following Heated Inter Clash' (67 chars)
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4363 chars
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Juventus Directors Hit With Bans Fines Following Heated Inter Clash
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Juventus Directors Hit With Bans Fines Following Heated Inter Clash
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'juventus-directors-hit-with-bans-fines-following-heated-inter-clash' (67 chars)
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Juventus Directors Hit With Bans Fines Following H...' → 'juventus-directors-hit-with-bans-fines-following-heated-inter-clash' (67/74 chars) ✅
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Juventus Directors Hit With Bans Fines Following Heated Inter Clash' (67 chars)
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'juventus-directors-hit-with-bans-fines-following-heated-inter-clash' (67 chars)
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-17 21:25:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Adam Crafton (ID: 6)
+2026-02-17 21:25:19 - AutoPublisherLogger - INFO - Post 'Juventus Directors Hit With Bans Fines Following Heated Inter Clash' draft on https://soccerwallah.com/. ID: 643, Link: https://soccerwallah.com/?p=643
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Brian Straus (ID: 9)
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Inter Milan Edges Juventus 3-2 in Fiery Derby d'Italia Amid Red Card Storm' (74 chars)
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4415 chars
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Inter Milan Edges Juventus 3-2 in Fiery Derby d'Italia Amid Red Card Storm
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Inter Milan Edges Juventus 3-2 in Fiery Derby d'Italia Amid Red Card Storm
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'inter-milan-edges-juventus-32-in-fiery-derby-ditalia-amid-red-card-storm' (72 chars)
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Inter Milan Edges Juventus 3-2 in Fiery Derby d'It...' → 'inter-milan-edges-juventus-32-in-fiery-derby-ditalia-amid-red-card-storm' (72/74 chars) ✅
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Inter Milan Edges Juventus 3-2 in Fiery Derby d'Italia Amid Red Card Storm' (74 chars)
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'inter-milan-edges-juventus-32-in-fiery-derby-ditalia-amid-red-card-storm' (72 chars)
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-17 21:25:42 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Brian Straus (ID: 9)
+2026-02-17 21:25:44 - AutoPublisherLogger - INFO - Post 'Inter Milan Edges Juventus 3-2 in Fiery Derby d'Italia Amid Red Card Storm' draft on https://soccerwallah.com/. ID: 645, Link: https://soccerwallah.com/?p=645
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ives Galarcep (ID: 10)
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Man Utd and Liverpool Chasing Pulisic, But Transfer Advice Raises Eyebrows' (74 chars)
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4522 chars
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Man Utd and Liverpool Chasing Pulisic, But Transfer Advice Raises Eyebrows
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Man Utd and Liverpool Chasing Pulisic, But Transfer Advice Raises Eyebrows
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'man-utd-and-liverpool-chasing-pulisic-but-transfer-advice-raises-eyebrows' (73 chars)
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Man Utd and Liverpool Chasing Pulisic, But Transfe...' → 'man-utd-and-liverpool-chasing-pulisic-but-transfer-advice-raises-eyebrows' (73/74 chars) ✅
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Man Utd and Liverpool Chasing Pulisic, But Transfer Advice Raises Eyebrows' (74 chars)
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'man-utd-and-liverpool-chasing-pulisic-but-transfer-advice-raises-eyebrows' (73 chars)
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-17 21:26:11 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ives Galarcep (ID: 10)
+2026-02-17 21:26:14 - AutoPublisherLogger - INFO - Post 'Man Utd and Liverpool Chasing Pulisic, But Transfer Advice Raises Eyebrows' draft on https://soccerwallah.com/. ID: 646, Link: https://soccerwallah.com/?p=646
+2026-02-17 21:55:30 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-17 21:55:32 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-17 21:55:32 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-17 21:57:39 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 15:38:02 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 15:38:11 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 15:40:46 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 15:41:27 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 15:41:38 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 15:47:06 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 15:47:34 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 15:54:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 16:20:23 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 16:47:32 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: James Pearce (ID: 2)
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Rooney's Punditry: No Liverpool Slot 'Sack Claims', His Real Targets Revealed' (77 chars)
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4076 chars
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile xhCjRkkKWbg7WUWDVn0V: https://soccerwallah.com/
+2026-02-18 16:49:50 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://soccerwallah.com/...
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 106 articles with 585 keywords
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Rooney's Punditry: No Liverpool Slot 'Sack Claims', His Real Targets Revealed
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 2 internal links
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Rooney's Punditry: No Liverpool Slot 'Sack Claims', His Real Targets Revealed
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'rooneys-punditry-no-liverpool-slot-sack-claims-his-real-targets-revealed' (72 chars)
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Rooney's Punditry: No Liverpool Slot 'Sack Claims'...' → 'rooneys-punditry-no-liverpool-slot-sack-claims-his-real-targets-revealed' (72/74 chars) ✅
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Rooney's Punditry: No Liverpool Slot 'Sack Claims', His Real Targets Revealed' (77 chars)
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'rooneys-punditry-no-liverpool-slot-sack-claims-his-real-targets-revealed' (72 chars)
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-18 16:49:56 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: James Pearce (ID: 2)
+2026-02-18 16:49:59 - AutoPublisherLogger - INFO - Post 'Rooney's Punditry: No Liverpool Slot 'Sack Claims', His Real Targets Revealed' draft on https://soccerwallah.com/. ID: 673, Link: https://soccerwallah.com/?p=673
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Matt Law (ID: 3)
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Benfica Racism Storm: Vinícius Júnior Accusations Halt Real Madrid Clash' (72 chars)
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 6384 chars
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Benfica Racism Storm: Vinícius Júnior Accusations Halt Real Madrid Clash
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Benfica Racism Storm: Vinícius Júnior Accusations Halt Real Madrid Clash
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'benfica-racism-storm-vinícius-júnior-accusations-halt-real-madrid-clash' (71 chars)
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Benfica Racism Storm: Vinícius Júnior Accusations ...' → 'benfica-racism-storm-vinícius-júnior-accusations-halt-real-madrid-clash' (71/74 chars) ✅
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Benfica Racism Storm: Vinícius Júnior Accusations Halt Real Madrid Clash' (72 chars)
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'benfica-racism-storm-vinícius-júnior-accusations-halt-real-madrid-clash' (71 chars)
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-18 16:51:10 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Matt Law (ID: 3)
+2026-02-18 16:51:12 - AutoPublisherLogger - INFO - Post 'Benfica Racism Storm: Vinícius Júnior Accusations Halt Real Madrid Clash' draft on https://soccerwallah.com/. ID: 675, Link: https://soccerwallah.com/?p=675
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Nick Ames (ID: 5)
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Another Dembele Injury Blow for PSG in Champions League Playoff' (63 chars)
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4387 chars
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Another Dembele Injury Blow for PSG in Champions League Playoff
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Another Dembele Injury Blow for PSG in Champions League Playoff
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'another-dembele-injury-blow-for-psg-in-champions-league-playoff' (63 chars)
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Another Dembele Injury Blow for PSG in Champions L...' → 'another-dembele-injury-blow-for-psg-in-champions-league-playoff' (63/74 chars) ✅
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Another Dembele Injury Blow for PSG in Champions League Playoff' (63 chars)
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'another-dembele-injury-blow-for-psg-in-champions-league-playoff' (63 chars)
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-18 16:51:44 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Nick Ames (ID: 5)
+2026-02-18 16:51:46 - AutoPublisherLogger - INFO - Post 'Another Dembele Injury Blow for PSG in Champions League Playoff' draft on https://soccerwallah.com/. ID: 677, Link: https://soccerwallah.com/?p=677
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Paul Tenorio (ID: 7)
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Alvarez Transfer Saga: Atletico Fights Off Arsenal, Chelsea, Barcelona Bids' (75 chars)
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5689 chars
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Alvarez Transfer Saga: Atletico Fights Off Arsenal, Chelsea, Barcelona Bids
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Alvarez Transfer Saga: Atletico Fights Off Arsenal, Chelsea, Barcelona Bids
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'alvarez-transfer-saga-atletico-fights-off-arsenal-chelsea-barcelona-bids' (72 chars)
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Alvarez Transfer Saga: Atletico Fights Off Arsenal...' → 'alvarez-transfer-saga-atletico-fights-off-arsenal-chelsea-barcelona-bids' (72/74 chars) ✅
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Alvarez Transfer Saga: Atletico Fights Off Arsenal, Chelsea, Barcelona Bids' (75 chars)
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'alvarez-transfer-saga-atletico-fights-off-arsenal-chelsea-barcelona-bids' (72 chars)
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-18 16:52:31 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Paul Tenorio (ID: 7)
+2026-02-18 16:52:33 - AutoPublisherLogger - INFO - Post 'Alvarez Transfer Saga: Atletico Fights Off Arsenal, Chelsea, Barcelona Bids' draft on https://soccerwallah.com/. ID: 678, Link: https://soccerwallah.com/?p=678
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Phil McNulty (ID: 4)
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Kylian Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation' (103 chars)
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 5469 chars
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Kylian Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Kylian Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Slug too long (102), truncating to max 74 chars
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'kylian-mbappe-demands-lifetime-champions-league-ban-for-prestianni-after' (72 chars)
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Kylian Mbappe Demands Lifetime Champions League Ba...' → 'kylian-mbappe-demands-lifetime-champions-league-ban-for-prestianni-after' (72/74 chars) ✅
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Kylian Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation' (103 chars)
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'kylian-mbappe-demands-lifetime-champions-league-ban-for-prestianni-after' (72 chars)
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Phil McNulty (ID: 4)
+2026-02-18 16:53:07 - AutoPublisherLogger - INFO - Post 'Kylian Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation' draft on https://soccerwallah.com/. ID: 679, Link: https://soccerwallah.com/?p=679
