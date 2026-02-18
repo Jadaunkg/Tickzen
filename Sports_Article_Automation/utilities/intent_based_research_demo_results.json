@@ -1,0 +1,132 @@
+{
+  "demonstration_timestamp": "2026-02-18T17:45:13.900744",
+  "intent_detection_accuracy": 100.0,
+  "auto_publish_safety_rate": 60.0,
+  "test_results": [
+    {
+      "test_case": {
+        "headline": "Manchester United monitoring Kylian Mbappe move with PSG talks ongoing",
+        "category": "football",
+        "source": "Sky Sports",
+        "expected_intent": "rumour_transfer"
+      },
+      "detected_intent": "rumour_transfer",
+      "intent_details": {
+        "score": 3,
+        "matched_keywords": [
+          "move",
+          "monitoring",
+          "talks"
+        ],
+        "priority": "high"
+      },
+      "safety_level": "low",
+      "intent_match": true,
+      "auto_publish_safe": false
+    },
+    {
+      "test_case": {
+        "headline": "Lionel Messi ruled out for three weeks with hamstring injury",
+        "category": "football",
+        "source": "ESPN",
+        "expected_intent": "injury_suspension"
+      },
+      "detected_intent": "injury_suspension",
+      "intent_details": {
+        "score": 2,
+        "matched_keywords": [
+          "out",
+          "ruled out"
+        ],
+        "priority": "high"
+      },
+      "safety_level": "medium",
+      "intent_match": true,
+      "auto_publish_safe": true
+    },
+    {
+      "test_case": {
+        "headline": "Arsenal vs Liverpool team news and preview ahead of Premier League clash",
+        "category": "football",
+        "source": "BBC Sport",
+        "expected_intent": "match_preview"
+      },
+      "detected_intent": "match_preview",
+      "intent_details": {
+        "score": 5,
+        "matched_keywords": [
+          "preview",
+          "ahead of",
+          "clash",
+          "vs",
+          "team news"
+        ],
+        "priority": "medium"
+      },
+      "safety_level": "high",
+      "intent_match": true,
+      "auto_publish_safe": true
+    },
+    {
+      "test_case": {
+        "headline": "Pep Guardiola confirms rotation plans in press conference",
+        "category": "football",
+        "source": "Manchester City Official",
+        "expected_intent": "coach_manager"
+      },
+      "detected_intent": "coach_manager",
+      "intent_details": {
+        "score": 1,
+        "matched_keywords": [
+          "press conference"
+        ],
+        "priority": "medium"
+      },
+      "safety_level": "high",
+      "intent_match": true,
+      "auto_publish_safe": true
+    },
+    {
+      "test_case": {
+        "headline": "Chelsea board meeting discusses transfer policy changes",
+        "category": "football",
+        "source": "The Athletic",
+        "expected_intent": "team_internal"
+      },
+      "detected_intent": "team_internal",
+      "intent_details": {
+        "score": 2,
+        "matched_keywords": [
+          "board",
+          "policy"
+        ],
+        "priority": "high"
+      },
+      "safety_level": "low",
+      "intent_match": true,
+      "auto_publish_safe": false
+    }
+  ],
+  "intent_safety_breakdown": {
+    "rumour_transfer": {
+      "safe": 0,
+      "total": 1
+    },
+    "injury_suspension": {
+      "safe": 1,
+      "total": 1
+    },
+    "match_preview": {
+      "safe": 1,
+      "total": 1
+    },
+    "coach_manager": {
+      "safe": 1,
+      "total": 1
+    },
+    "team_internal": {
+      "safe": 0,
+      "total": 1
+    }
+  }
+}

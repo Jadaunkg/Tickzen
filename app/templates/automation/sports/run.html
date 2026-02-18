@@ -1265,6 +1265,76 @@
             color: hsl(var(--muted-foreground));
             cursor: not-allowed;
         }
+
+        /* Toast Notification System */
+        .toast-notification {
+            position: fixed;
+            top: 80px;
+            right: 30px;
+            background: white;
+            border-left: 4px solid #16a34a;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(100px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 400px;
+            min-width: 300px;
+        }
+
+        .toast-notification.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-message {
+            flex: 1;
+            color: #1e293b;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+        }
+
+        .toast-close:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        @media (max-width: 768px) {
+            .toast-notification {
+                top: 70px;
+                right: 20px;
+                left: 20px;
+                max-width: none;
+                min-width: auto;
+            }
+        }
     </style>
 {% endblock %}
 
@@ -1889,6 +1959,17 @@
         {% endif %}
         </div> <!-- Close content-wrapper -->
 
+        <!-- Toast notification container -->
+        <div id="toast-notification" class="toast-notification">
+            <div class="toast-icon">
+                <i data-lucide="check-circle" style="width: 24px; height: 24px; color: #16a34a;"></i>
+            </div>
+            <div class="toast-message"></div>
+            <button class="toast-close" onclick="closeToast()">
+                <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+            </button>
+        </div>
+
         <!-- Sticky Bottom Action Panel -->
         <div class="action-panel">
             <div class="action-panel-left">
@@ -1958,6 +2039,11 @@ if (typeof lucide !== 'undefined') {
         // Check if this is a completion message
         if (data.level === 'complete' || (data.level === 'success' && data.message.includes('Complete!')) || data.message.includes('Complete workflow') || data.message.includes('Automation pipeline started')) {
             handleAutomationComplete(data);
+            
+            // Show toast notification for successful completion
+            if (data.level === 'complete' || data.level === 'success') {
+                showToast('🎉 Sports automation completed successfully! State reset, articles remain visible.', 'success');
+            }
             return;
         }
         
@@ -2034,6 +2120,9 @@ if (typeof lucide !== 'undefined') {
             
             // Clear all selections and state immediately after automation completes
             clearAllSelectionsAndState();
+            
+            // Show toast notification for completion
+            showToast('🎉 Sports automation completed! Articles remain visible and state has been reset.', 'success');
             
             // Auto-refresh articles after 3 seconds WITHOUT full page reload
             setTimeout(() => {
@@ -2579,26 +2668,29 @@ if (typeof lucide !== 'undefined') {
         // Clear any stored article data
         delete window.lastArticleData;
         
-        // Reset filters to default if needed (but don't clear them aggressively)
-        const categoryFilter = document.getElementById('categoryFilter');
-        if (categoryFilter && categoryFilter.value) {
-            categoryFilter.value = '';
-        }
-        
-        const sourceFilter = document.getElementById('sourceFilter');
-        if (sourceFilter && sourceFilter.value) {
-            sourceFilter.value = '';
-        }
-        
-        const searchFilter = document.getElementById('searchFilter');
-        if (searchFilter && searchFilter.value) {
-            searchFilter.value = '';
+        // IMPORTANT: Don't clear filters here to prevent articles from disappearing
+        // Instead, ensure articles remain visible by resetting filteredArticleCards
+        if (allArticleCards.length > 0) {
+            // Reset filtered articles to show all articles (keep current category filter)
+            if (currentCategory === 'all') {
+                filteredArticleCards = allArticleCards.filter(card => card.dataset.category !== 'database');
+            } else if (currentCategory === 'database') {
+                filteredArticleCards = allArticleCards.filter(card => card.dataset.category === 'database');
+            } else {
+                filteredArticleCards = allArticleCards.filter(card => 
+                    card.dataset.category === currentCategory && card.dataset.category !== 'database'
+                );
+            }
+            
+            // Re-render the page to show articles
+            renderPage(1);
+            console.log(`✅ Articles remain visible: ${filteredArticleCards.length} articles shown`);
         }
         
         // Add visual feedback that state was cleared (only if progress log exists)
         const progressLog = document.getElementById('progressLog');
         if (progressLog) {
-            addLogEntry('🔄 State cleared - Ready for new automation run', 'success');
+            addLogEntry('🔄 State cleared - Articles remain visible - Ready for new automation run', 'success');
         }
         
         console.log('State cleared successfully - ready for new automation run');
@@ -2955,7 +3047,13 @@ if (typeof lucide !== 'undefined') {
                             // Update counts
                             updateSelectedCounts();
                             
-                            // Show success message
+                            // Clear all selections and state properly (keeps articles visible)
+                            clearAllSelectionsAndState();
+                            
+                            // Show toast notification instead of just log entry
+                            showToast('🎉 Sports automation completed successfully! Articles remain visible.', 'success');
+                            
+                            // Also add log entry for reference
                             addLogEntry('✅ Automation complete! Articles remain visible. Use Refresh to reload.', 'success');
                         }, 1000);
                     }
@@ -3462,5 +3560,59 @@ if (typeof lucide !== 'undefined') {
         
         console.log('✅ Test complete! Check the Collect RSS card.');
     };
+
+    // Toast notification functions (like site profiles page)
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast-notification');
+        if (!toast) {
+            console.error('[showToast] Toast notification element not found!');
+            return;
+        }
+        
+        const messageEl = toast.querySelector('.toast-message');
+        const icon = toast.querySelector('.toast-icon i');
+        
+        if (!messageEl) {
+            console.error('[showToast] Toast message element not found!');
+            return;
+        }
+        
+        if (messageEl) {
+            messageEl.textContent = message;
+        }
+        
+        // Update icon and colors based on type
+        if (icon) {
+            if (type === 'success') {
+                icon.setAttribute('data-lucide', 'check-circle');
+                icon.style.color = '#16a34a';
+                toast.style.borderLeftColor = '#16a34a';
+            } else if (type === 'error') {
+                icon.setAttribute('data-lucide', 'alert-circle');
+                icon.style.color = '#dc2626';
+                toast.style.borderLeftColor = '#dc2626';
+            }
+            
+            // Re-render Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        // Show toast
+        toast.classList.add('active');
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            closeToast();
+        }, 5000);
+    }
+
+    function closeToast() {
+        const toast = document.getElementById('toast-notification');
+        if (toast) {
+            toast.classList.remove('active');
+        }
+    }
 </script>
 {% endblock %}

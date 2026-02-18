@@ -379,56 +379,138 @@ class ArticleGenerationPipeline:
             logging.info(f"STAGE 1️⃣: PERPLEXITY AI RESEARCH COLLECTION (Enhanced Search DISABLED)")
             logging.info(f"{'='*70}")
             
-            # Sub-stage 1A: Collect Perplexity research
-            logging.info(f"\n🔍 Sub-stage 1A: Perplexity AI Research Collection")
+            # Sub-stage 1A: Collect Intent-Based Perplexity research
+            logging.info(f"\n🔍 Sub-stage 1A: Intent-Based Perplexity AI Research Collection")
             logging.info(f"-"*50)
             
             perplexity_research = None
+            intent_analysis = None
+            safety_level = "unknown"
+            auto_publish_safe = False
+            
             if self.perplexity_client:
-                if hasattr(self.perplexity_client, 'collect_enhanced_research_for_headline'):
-                    logging.info("🚀 Using ENHANCED single-request Perplexity research (rate limit optimized)...")
-                    perplexity_research = self.perplexity_client.collect_enhanced_research_for_headline(
+                if hasattr(self.perplexity_client, 'collect_intent_based_research'):
+                    logging.info("🎯 Using INTENT-BASED Perplexity research (journalistic safety optimized)...")
+                    research_result = self.perplexity_client.collect_intent_based_research(
                         headline=headline,
                         source=source,
                         category=category
                     )
+                    
+                    if research_result and research_result.get('status') == 'success':
+                        perplexity_research = research_result
+                        
+                        # Debug logging to see what we actually received
+                        logging.info(f"📊 DEBUG: Research result keys: {list(research_result.keys())}")
+                        if 'intent_classification' in research_result:
+                            logging.info(f"📊 DEBUG: Intent classification found: {research_result['intent_classification']}")
+                        else:
+                            logging.info(f"📊 DEBUG: No intent_classification in research result")
+                        
+                        intent_classification = research_result.get('intent_classification', {})
+                        intent_analysis = {
+                            'intent_type': intent_classification.get('detected_intent', 'unknown'),
+                            'safety_level': intent_classification.get('safety_level', 'unknown'),
+                            'auto_publish_safe': intent_classification.get('auto_publish_recommended', False),
+                            'confidence_score': 'N/A',
+                            'matched_keywords': intent_classification.get('intent_details', {}).get('matched_keywords', []),
+                            'priority': intent_classification.get('intent_details', {}).get('priority', 'medium'),
+                            'manual_review_reason': 'Safety threshold not met' if not intent_classification.get('auto_publish_recommended', False) else None
+                        }
+                        safety_level = intent_analysis.get('safety_level', 'unknown')
+                        auto_publish_safe = intent_analysis.get('auto_publish_safe', False)
+                        
+                        logging.info(f"\n🎯 INTENT ANALYSIS RESULTS:")
+                        logging.info(f"   🔍 Intent Type: {intent_analysis.get('intent_type', 'unknown')}")
+                        logging.info(f"   🛡️ Safety Level: {safety_level}")
+                        logging.info(f"   🤖 Auto-publish recommended: {'✅ YES' if auto_publish_safe else '❌ MANUAL REVIEW REQUIRED'}")
+                        logging.info(f"   📊 Confidence: {intent_analysis.get('confidence_score', 'N/A')}")
+                        logging.info(f"   🏷️ Keywords: {', '.join(intent_analysis.get('matched_keywords', []))}") 
+                        
+                        # Log safety gate decision
+                        if not auto_publish_safe:
+                            logging.warning(f"⚠️ SAFETY GATE: Article flagged for manual review")
+                            logging.warning(f"   Reason: {intent_analysis.get('manual_review_reason', 'Safety threshold not met')}")
+                        else:
+                            logging.info(f"✅ SAFETY GATE: Article approved for auto-publishing")
+                            
+                    else:
+                        logging.warning("⚠️ Intent-based research failed, attempting fallback...")
+                        # Fallback to old research method if available
+                        if hasattr(self.perplexity_client, 'collect_enhanced_research_for_headline'):
+                            logging.info("📡 Using enhanced research fallback...")
+                            perplexity_research = self.perplexity_client.collect_enhanced_research_for_headline(
+                                headline=headline, source=source, category=category
+                            )
+                        elif hasattr(self.perplexity_client, 'collect_research_for_headline'):
+                            logging.info("📡 Using standard research fallback...")
+                            perplexity_research = self.perplexity_client.collect_research_for_headline(
+                                headline=headline, source=source, category=category
+                            )
                 else:
-                    logging.info("📡 Using standard Perplexity research collection...")
-                    perplexity_research = self.perplexity_client.collect_research_for_headline(
-                        headline=headline,
-                        source=source,
-                        category=category
-                    )
+                    logging.warning("⚠️ Intent-based research not available, using legacy method...")
+                    if hasattr(self.perplexity_client, 'collect_enhanced_research_for_headline'):
+                        logging.info("📡 Using enhanced research collection...")
+                        perplexity_research = self.perplexity_client.collect_enhanced_research_for_headline(
+                            headline=headline, source=source, category=category
+                        )
+                    else:
+                        logging.info("📡 Using standard research collection...")
+                        perplexity_research = self.perplexity_client.collect_research_for_headline(
+                            headline=headline, source=source, category=category
+                        )
             else:
                 logging.warning("⚠️ Perplexity client not available")
             
-            # Log Perplexity research content size and save to file
+            # Log Intent-Based research content size and save to file
             if perplexity_research and perplexity_research.get('status') in ['success', 'placeholder']:
                 perplexity_content_length = 0
                 perplexity_content = ""
-                if 'research_sections' in perplexity_research:
+                
+                # Handle both intent-based and legacy research formats
+                if 'research_content' in perplexity_research:
+                    # New intent-based research format - research_content is already a string
+                    perplexity_content = perplexity_research.get('research_content', '')
+                    perplexity_content_length = len(perplexity_content)
+                elif 'research_sections' in perplexity_research:
+                    # Legacy research format
                     comprehensive = perplexity_research['research_sections'].get('comprehensive', {})
                     perplexity_content = comprehensive.get('content', '')
                     perplexity_content_length = len(perplexity_content)
                 
-                perplexity_sources_count = len(perplexity_research.get('compiled_sources', []))
-                perplexity_citations_count = len(perplexity_research.get('compiled_citations', []))
+                # Use correct field names for intent-based research
+                if 'sources' in perplexity_research and 'citations' in perplexity_research:
+                    perplexity_sources_count = len(perplexity_research.get('sources', []))
+                    perplexity_citations_count = len(perplexity_research.get('citations', []))
+                else:
+                    # Fallback to legacy field names
+                    perplexity_sources_count = len(perplexity_research.get('compiled_sources', []))
+                    perplexity_citations_count = len(perplexity_research.get('compiled_citations', []))
                 
-                logging.info(f"\n📊 PERPLEXITY RESEARCH SIZE:")
+                logging.info(f"\n📊 INTENT-BASED RESEARCH SIZE:")
                 logging.info(f"   📄 Content length: {perplexity_content_length:,} characters")
                 logging.info(f"   📚 Sources: {perplexity_sources_count}")
                 logging.info(f"   🔗 Citations: {perplexity_citations_count}")
                 
-                # Save Perplexity research to text file
+                # Save Intent-Based research to file (includes safety analysis)
                 if perplexity_content:
-                    saved_file = self._save_perplexity_research(
+                    # Get sources and citations using correct field names
+                    sources = perplexity_research.get('sources', perplexity_research.get('compiled_sources', []))
+                    citations = perplexity_research.get('citations', perplexity_research.get('compiled_citations', []))
+                    
+                    saved_file = self._save_intent_based_research(
                         headline=headline,
                         research_content=perplexity_content,
-                        sources=perplexity_research.get('compiled_sources', []),
-                        citations=perplexity_research.get('compiled_citations', [])
+                        sources=sources,
+                        citations=citations,
+                        intent_analysis=intent_analysis,
+                        safety_level=safety_level,
+                        auto_publish_safe=auto_publish_safe
                     )
                     if saved_file:
                         logging.info(f"   💾 Research saved to: {saved_file}")
+                        if intent_analysis:
+                            logging.info(f"   🎯 Intent analysis included for manual review")
             
             # Enhanced Search is DISABLED - skipping completely
             logging.info(f"\n⚠️ Enhanced Search: DISABLED (Not used in pipeline)")
@@ -587,6 +669,133 @@ class ArticleGenerationPipeline:
             logging.error(f"❌ Error saving Perplexity research: {e}")
             return None
     
+    def _save_intent_based_research(self, headline: str, research_content: str, 
+                                   sources: List[str], citations: List, 
+                                   intent_analysis: Dict, safety_level: str,
+                                   auto_publish_safe: bool) -> Optional[str]:
+        """
+        Save Intent-Based research content to a text file with safety analysis
+        
+        Args:
+            headline (str): Article headline
+            research_content (str): Research content from Perplexity
+            sources (List[str]): List of source URLs
+            citations (List): List of citations
+            intent_analysis (Dict): Intent detection and analysis data
+            safety_level (str): Safety level (high/medium/low)
+            auto_publish_safe (bool): Whether auto-publishing is recommended
+            
+        Returns:
+            str: Path to saved file or None if failed
+        """
+        try:
+            # Create directory for research data (same as legacy for consistency)
+            research_dir = BASE_DIR / "perplexity_researched_data"
+            research_dir.mkdir(exist_ok=True)
+            
+            # Generate safe filename from headline
+            safe_filename = "".join(c for c in headline if c.isalnum() or c in (' ', '-', '_'))[:50]
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"{safe_filename}_{timestamp}_INTENT.txt"
+            
+            filepath = research_dir / filename
+            
+            # Format the research content with intent analysis metadata
+            content_lines = []
+            content_lines.append("="*80)
+            content_lines.append("INTENT-BASED PERPLEXITY AI RESEARCH DATA")
+            content_lines.append("="*80)
+            content_lines.append(f"Headline: {headline}")
+            content_lines.append(f"Collected: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            content_lines.append(f"Content Length: {len(research_content)} characters")
+            content_lines.append(f"Sources: {len(sources)}")
+            content_lines.append(f"Citations: {len(citations)}")
+            content_lines.append("")
+            
+            # Intent Analysis Section
+            content_lines.append("="*80)
+            content_lines.append("🎯 INTENT ANALYSIS & SAFETY ASSESSMENT")
+            content_lines.append("="*80)
+            content_lines.append(f"Intent Type: {str(intent_analysis.get('intent_type', 'unknown'))}")
+            content_lines.append(f"Safety Level: {str(safety_level)}")
+            content_lines.append(f"Auto-publish Safe: {'✅ YES' if auto_publish_safe else '❌ MANUAL REVIEW REQUIRED'}")
+            content_lines.append(f"Confidence Score: {str(intent_analysis.get('confidence_score', 'N/A'))}")
+            
+            # Safely handle matched_keywords list
+            matched_keywords = intent_analysis.get('matched_keywords', [])
+            if isinstance(matched_keywords, list):
+                keywords_str = ', '.join(str(kw) for kw in matched_keywords)
+            else:
+                keywords_str = str(matched_keywords)
+            content_lines.append(f"Matched Keywords: {keywords_str}")
+            content_lines.append(f"Priority Level: {str(intent_analysis.get('priority', 'medium'))}")
+            
+            if not auto_publish_safe:
+                reason = intent_analysis.get('manual_review_reason', 'Safety threshold not met')
+                content_lines.append(f"Manual Review Reason: {str(reason)}")
+                
+            # Source Tier Analysis if available
+            if 'source_tier' in intent_analysis:
+                content_lines.append(f"Source Tier: {str(intent_analysis.get('source_tier', 'unknown'))}")
+                content_lines.append(f"Source Credibility: {str(intent_analysis.get('source_credibility', 'unknown'))}")
+            
+            content_lines.append("")
+            content_lines.append("="*80)
+            content_lines.append("📄 RESEARCH CONTENT:")
+            content_lines.append("-"*80)
+            # Ensure research_content is a string
+            content_lines.append(str(research_content))
+            content_lines.append("")
+            content_lines.append("="*80)
+            content_lines.append("📚 SOURCES:")
+            content_lines.append("-"*80)
+            for idx, source in enumerate(sources, 1):
+                # Ensure source is a string
+                if isinstance(source, dict):
+                    source_str = source.get('title', source.get('url', source.get('name', str(source))))
+                else:
+                    source_str = str(source)
+                content_lines.append(f"{idx}. {source_str}")
+            content_lines.append("")
+            
+            # Citations section
+            if citations:
+                content_lines.append("="*80)
+                content_lines.append("🔗 CITATIONS:")
+                content_lines.append("-"*80)
+                for idx, citation in enumerate(citations, 1):
+                    # Ensure citation is a string
+                    if isinstance(citation, dict):
+                        citation_str = citation.get('title', citation.get('url', citation.get('text', str(citation))))
+                    else:
+                        citation_str = str(citation)
+                    content_lines.append(f"{idx}. {citation_str}")
+                content_lines.append("")
+            
+            content_lines.append("="*80)
+            content_lines.append("🤖 AUTOMATION DECISION TREE:")
+            content_lines.append("-"*80)
+            if auto_publish_safe:
+                content_lines.append("✅ APPROVED FOR AUTO-PUBLISHING")
+                content_lines.append(f"   Reason: {safety_level.title()} safety level article type")
+                content_lines.append("   Action: Can proceed with automated article generation")
+            else:
+                content_lines.append("❌ FLAGGED FOR MANUAL REVIEW")
+                content_lines.append(f"   Reason: {intent_analysis.get('manual_review_reason', 'Safety concerns')}")
+                content_lines.append("   Action: Human review required before publishing")
+            content_lines.append("="*80)
+            
+            # Write to file
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(content_lines))
+            
+            logging.info(f"💾 Intent-based research saved to: {filepath}")
+            return str(filepath)
+            
+        except Exception as e:
+            logging.error(f"❌ Error saving intent-based research: {e}")
+            return None
+
     def save_generated_article(self, article_data: Dict, 
                               output_dir: str = "outputs/articles") -> Optional[str]:
         """
@@ -796,9 +1005,13 @@ class ArticleGenerationPipeline:
             logging.info("✅ Including Perplexity AI research")
             combined_research['sources_used'].append('Perplexity AI')
             
-            # Extract Perplexity content
+            # Extract Perplexity content (support both intent-based and legacy formats)
             perplexity_content = ""
-            if 'research_sections' in perplexity_research:
+            if 'research_content' in perplexity_research:
+                # New intent-based format
+                perplexity_content = perplexity_research.get('research_content', '')
+            elif 'research_sections' in perplexity_research:
+                # Legacy format
                 comprehensive_section = perplexity_research['research_sections'].get('comprehensive', {})
                 perplexity_content = comprehensive_section.get('content', '')
             
@@ -808,9 +1021,16 @@ class ArticleGenerationPipeline:
                 combined_content_parts.append(perplexity_content)
                 combined_content_parts.append("")
             
-            # Collect Perplexity sources and citations
-            perplexity_sources = perplexity_research.get('compiled_sources', [])
-            perplexity_citations = perplexity_research.get('compiled_citations', [])
+            # Collect Perplexity sources and citations (support both formats)
+            if 'sources' in perplexity_research and 'citations' in perplexity_research:
+                # New intent-based format
+                perplexity_sources = perplexity_research.get('sources', [])
+                perplexity_citations = perplexity_research.get('citations', [])
+            else:
+                # Legacy format
+                perplexity_sources = perplexity_research.get('compiled_sources', [])
+                perplexity_citations = perplexity_research.get('compiled_citations', [])
+            
             all_sources.extend(perplexity_sources)
             all_citations.extend(perplexity_citations)
             
@@ -839,11 +1059,38 @@ class ArticleGenerationPipeline:
         # Combine all content
         if combined_content_parts:
             full_combined_content = "\\n".join(combined_content_parts)
+            
+            # Safely deduplicate sources and citations
+            unique_sources = []
+            unique_citations = []
+            
+            # Convert sources to strings and deduplicate
+            seen_sources = set()
+            for source in all_sources:
+                if isinstance(source, dict):
+                    source_str = source.get('title', source.get('url', source.get('name', str(source))))
+                else:
+                    source_str = str(source)
+                if source_str not in seen_sources:
+                    seen_sources.add(source_str)
+                    unique_sources.append(source_str)
+            
+            # Convert citations to strings and deduplicate
+            seen_citations = set()
+            for citation in all_citations:
+                if isinstance(citation, dict):
+                    citation_str = citation.get('title', citation.get('url', citation.get('text', str(citation))))
+                else:
+                    citation_str = str(citation)
+                if citation_str not in seen_citations:
+                    seen_citations.add(citation_str)
+                    unique_citations.append(citation_str)
+            
             combined_research['research_sections'] = {
                 'comprehensive': {
                     'content': full_combined_content,
-                    'sources': list(set(all_sources)),  # Remove duplicates
-                    'citations': list(set(all_citations))  # Remove duplicates
+                    'sources': unique_sources,
+                    'citations': unique_citations
                 }
             }
         else:
@@ -857,8 +1104,12 @@ class ArticleGenerationPipeline:
             }
         
         # Set compiled sources and citations for compatibility
-        combined_research['compiled_sources'] = list(set(all_sources))
-        combined_research['compiled_citations'] = list(set(all_citations))
+        if 'research_sections' in combined_research:
+            combined_research['compiled_sources'] = combined_research['research_sections']['comprehensive']['sources']
+            combined_research['compiled_citations'] = combined_research['research_sections']['comprehensive']['citations']
+        else:
+            combined_research['compiled_sources'] = []
+            combined_research['compiled_citations'] = []
         
         # Add statistics
         combined_research['statistics'] = {

@@ -331,3 +331,222 @@
 2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
 2026-02-18 16:53:05 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Phil McNulty (ID: 4)
 2026-02-18 16:53:07 - AutoPublisherLogger - INFO - Post 'Kylian Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation' draft on https://soccerwallah.com/. ID: 679, Link: https://soccerwallah.com/?p=679
+2026-02-18 17:21:00 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 17:45:24 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 17:45:43 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Steven Goff (ID: 8)
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Rooney Doubts Slot's Aura, Predicts Liverpool Top Five Failure Sack' (67 chars)
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4642 chars
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile xhCjRkkKWbg7WUWDVn0V: https://soccerwallah.com/
+2026-02-18 17:47:10 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://soccerwallah.com/...
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 107 articles with 587 keywords
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Rooney Doubts Slot's Aura, Predicts Liverpool Top Five Failure Sack
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Rooney Doubts Slot's Aura, Predicts Liverpool Top Five Failure Sack
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'rooney-doubts-slots-aura-predicts-liverpool-top-five-failure-sack' (65 chars)
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Rooney Doubts Slot's Aura, Predicts Liverpool Top ...' → 'rooney-doubts-slots-aura-predicts-liverpool-top-five-failure-sack' (65/74 chars) ✅
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Rooney Doubts Slot's Aura, Predicts Liverpool Top Five Failure Sack' (67 chars)
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'rooney-doubts-slots-aura-predicts-liverpool-top-five-failure-sack' (65 chars)
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-18 17:47:16 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Steven Goff (ID: 8)
+2026-02-18 17:47:19 - AutoPublisherLogger - INFO - Post 'Rooney Doubts Slot's Aura, Predicts Liverpool Top Five Failure Sack' draft on https://soccerwallah.com/. ID: 685, Link: https://soccerwallah.com/?p=685
+2026-02-18 17:48:59 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Adam Crafton (ID: 6)
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation' (96 chars)
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 6011 chars
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Slug too long (95), truncating to max 74 chars
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'mbappe-demands-lifetime-champions-league-ban-for-prestianni-after' (65 chars)
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Mbappe Demands Lifetime Champions League Ban for P...' → 'mbappe-demands-lifetime-champions-league-ban-for-prestianni-after' (65/74 chars) ✅
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation' (96 chars)
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'mbappe-demands-lifetime-champions-league-ban-for-prestianni-after' (65 chars)
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-18 17:54:36 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Adam Crafton (ID: 6)
+2026-02-18 17:54:39 - AutoPublisherLogger - INFO - Post 'Mbappe Demands Lifetime Champions League Ban for Prestianni After Vinícius Jr. Racism Allegation' draft on https://soccerwallah.com/. ID: 689, Link: https://soccerwallah.com/?p=689
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Brian Straus (ID: 9)
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Ousmane Dembélé Suffers Another Injury, PSG Finds Unlikely Hero in Champions League Playoff' (91 chars)
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4207 chars
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Ousmane Dembélé Suffers Another Injury, PSG Finds Unlikely Hero in Champions League Playoff
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Ousmane Dembélé Suffers Another Injury, PSG Finds Unlikely Hero in Champions League Playoff
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Slug too long (90), truncating to max 74 chars
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'ousmane-dembélé-suffers-another-injury-psg-finds-unlikely-hero-in' (65 chars)
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Ousmane Dembélé Suffers Another Injury, PSG Finds ...' → 'ousmane-dembélé-suffers-another-injury-psg-finds-unlikely-hero-in' (65/74 chars) ✅
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Ousmane Dembélé Suffers Another Injury, PSG Finds Unlikely Hero in Champions League Playoff' (91 chars)
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'ousmane-dembélé-suffers-another-injury-psg-finds-unlikely-hero-in' (65 chars)
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-18 17:55:12 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Brian Straus (ID: 9)
+2026-02-18 17:55:15 - AutoPublisherLogger - INFO - Post 'Ousmane Dembélé Suffers Another Injury, PSG Finds Unlikely Hero in Champions League Playoff' draft on https://soccerwallah.com/. ID: 690, Link: https://soccerwallah.com/?p=690
+2026-02-18 18:06:44 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Baishali Karmakar (ID: 17)
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Sri Lanka, Zimbabwe Face Off for T20 Group B Supremacy' (54 chars)
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4168 chars
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile 5Eh0OuRiEXdkHE3XfAUL: https://sportspediazone.com/
+2026-02-18 18:08:14 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://sportspediazone.com/...
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 550 articles with 2018 keywords
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Sri Lanka, Zimbabwe Face Off for T20 Group B Supremacy
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Sri Lanka, Zimbabwe Face Off for T20 Group B Supremacy
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'sri-lanka-zimbabwe-face-off-for-t20-group-b-supremacy' (53 chars)
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Sri Lanka, Zimbabwe Face Off for T20 Group B Supre...' → 'sri-lanka-zimbabwe-face-off-for-t20-group-b-supremacy' (53/74 chars) ✅
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Sri Lanka, Zimbabwe Face Off for T20 Group B Supremacy' (54 chars)
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'sri-lanka-zimbabwe-face-off-for-t20-group-b-supremacy' (53 chars)
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Baishali Karmakar (ID: 17)
+2026-02-18 18:08:24 - AutoPublisherLogger - INFO - Post 'Sri Lanka, Zimbabwe Face Off for T20 Group B Supremacy' draft on https://sportspediazone.com/. ID: 4753, Link: https://sportspediazone.com/?p=4753
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://sportspediazone.com/
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Govind Singh (ID: 14)
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Pathirana Injury Rocks Sri Lanka's T20 World Cup 2026 Campaign' (62 chars)
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 6121 chars
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'report_sections_to_include', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'env_prefix_for_feature_image_colors', 'min_scheduling_gap_minutes', 'authors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile 5Eh0OuRiEXdkHE3XfAUL - Config present: True, Enabled: True, Available: True
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Pathirana Injury Rocks Sri Lanka's T20 World Cup 2026 Campaign
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Pathirana Injury Rocks Sri Lanka's T20 World Cup 2026 Campaign
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'pathirana-injury-rocks-sri-lankas-t20-world-cup-2026-campaign' (61 chars)
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Pathirana Injury Rocks Sri Lanka's T20 World Cup 2...' → 'pathirana-injury-rocks-sri-lankas-t20-world-cup-2026-campaign' (61/74 chars) ✅
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Pathirana Injury Rocks Sri Lanka's T20 World Cup 2026 Campaign' (62 chars)
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'pathirana-injury-rocks-sri-lankas-t20-world-cup-2026-campaign' (61 chars)
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Govind Singh (ID: 14)
+2026-02-18 18:09:13 - AutoPublisherLogger - INFO - Post 'Pathirana Injury Rocks Sri Lanka's T20 World Cup 2026 Campaign' draft on https://sportspediazone.com/. ID: 4754, Link: https://sportspediazone.com/?p=4754
+2026-02-18 18:14:19 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 18:23:54 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 18:32:29 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 18:34:17 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Ives Galarcep (ID: 10)
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Real Madrid star Alexander-Arnold told ‘where he has to improve’ to become ‘best full-back in world’' (100 chars)
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 6219 chars
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile xhCjRkkKWbg7WUWDVn0V: https://soccerwallah.com/
+2026-02-18 18:35:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://soccerwallah.com/...
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 108 articles with 590 keywords
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Real Madrid star Alexander-Arnold told ‘where he has to improve’ to become ‘best full-back in world’
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Real Madrid star Alexander-Arnold told ‘where he has to improve’ to become ‘best full-back in world’
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Slug too long (94), truncating to max 74 chars
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'real-madrid-star-alexanderarnold-told-where-he-has-to-improve-to-become' (71 chars)
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Real Madrid star Alexander-Arnold told ‘where he h...' → 'real-madrid-star-alexanderarnold-told-where-he-has-to-improve-to-become' (71/74 chars) ✅
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Real Madrid star Alexander-Arnold told ‘where he has to improve’ to become ‘best full-back in world’' (100 chars)
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'real-madrid-star-alexanderarnold-told-where-he-has-to-improve-to-become' (71 chars)
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-18 18:35:35 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Ives Galarcep (ID: 10)
+2026-02-18 18:35:37 - AutoPublisherLogger - INFO - Post 'Real Madrid star Alexander-Arnold told ‘where he has to improve’ to become ‘best full-back in world’' draft on https://soccerwallah.com/. ID: 700, Link: https://soccerwallah.com/?p=700
+2026-02-18 18:35:51 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: James Pearce (ID: 2)
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Trent Alexander-Arnold' (22 chars)
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4611 chars
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 2
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Trent Alexander-Arnold
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Trent Alexander-Arnold
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'trent-alexanderarnold' (21 chars)
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Trent Alexander-Arnold...' → 'trent-alexanderarnold' (21/74 chars) ✅
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Trent Alexander-Arnold' (22 chars)
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'trent-alexanderarnold' (21 chars)
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 2
+2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: James Pearce (ID: 2)
+2026-02-18 18:40:09 - AutoPublisherLogger - INFO - Post 'Trent Alexander-Arnold' draft on https://soccerwallah.com/. ID: 702, Link: https://soccerwallah.com/?p=702
+2026-02-18 18:43:08 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
