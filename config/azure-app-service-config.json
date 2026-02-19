@@ -5,10 +5,10 @@
   "azure": {
     "app_service": {
       "runtime": "python:3.10",
-      "startup_command": "gunicorn --config gunicorn.conf.py --worker-class gevent --workers 1 --bind 0.0.0.0:$PORT wsgi:application",
+      "startup_command": "gunicorn --config gunicorn.conf.py --worker-class gthread --workers 1 --threads 50 --worker-connections 2000 --bind 0.0.0.0:$PORT wsgi:application",
       "alternative_startup_commands": {
         "option_1": "bash startup.sh",
-        "option_2": "gunicorn --worker-class gevent --workers 1 --worker-connections 1000 --bind 0.0.0.0:$PORT --timeout 120 --preload-app wsgi:application",
+        "option_2": "gunicorn --worker-class gthread --workers 1 --threads 50 --worker-connections 2000 --bind 0.0.0.0:$PORT --timeout 180 --preload-app wsgi:application",
         "current_problematic": "gunicorn --worker-class eventlet --bind 0.0.0.0:$PORT --workers 2 app.main_portal_app:app"
       },
       "environment_variables": {
@@ -58,12 +58,12 @@
       "Enable application insights for monitoring"
     ],
     "startup_optimization": {
-      "recommended_command": "gunicorn --config gunicorn.conf.py --worker-class gevent --workers 1 --bind 0.0.0.0:$PORT wsgi:application",
-      "why_gevent_over_eventlet": [
-        "Better Azure App Service compatibility",
-        "More stable WebSocket handling",
-        "Reduced memory footprint",
-        "Better error handling and recovery"
+      "recommended_command": "gunicorn --config gunicorn.conf.py --worker-class gthread --workers 1 --threads 50 --worker-connections 2000 --bind 0.0.0.0:$PORT wsgi:application",
+      "why_threading_over_eventlet": [
+        "Avoids eventlet monkey-patching issues",
+        "Improved compatibility with third-party SDKs",
+        "Stable long-polling and SocketIO behavior",
+        "Simpler debugging and fewer runtime surprises"
       ],
       "why_single_worker": [
         "SocketIO requires sticky sessions",

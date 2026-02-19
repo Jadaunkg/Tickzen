@@ -1,13 +1,37 @@
 {
-  "timestamp": "2026-02-17T21:15:24.354294",
+  "timestamp": "2026-02-18T18:51:03.974478",
   "success": true,
-  "count": 140,
+  "count": 142,
   "data": [
+    {
+      "id": "6807f3cfe0ef1fbee7f1f9e48f5e3b78",
+      "title": "UPPSC LT Grade Assistant Teacher Result 2026 – Updated",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/uppsc-lt-grade-assistant-teacher-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
     {
       "id": "b05ebfd0accb4987255f0e12ef045131",
       "title": "Railway RRB Group D Answer Key 2026 – Out",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/railway-rrb-group-d-2026-chk-now/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "7d516903a9ed040ce6665140461b4ae0",
+      "title": "NTA CMAT Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/nta-cmat-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -25,7 +49,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "0755bf8a8000de9838d02bbb619f5a2e",
@@ -37,7 +61,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "b2f890d9d870df3ef4f2c8a6c6a44482",
@@ -49,7 +73,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "3f2e2f3bc7e47faec14d5de041c0443c",
@@ -61,7 +85,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "7c2749858f4ed1ba23f0eaaf5bdfc99d",
@@ -73,7 +97,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "cd73c1f4ff430d795e97a55f160c7f72",
@@ -85,7 +109,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "9677a1e3025d128cb02a348169e1eec0",
@@ -97,7 +121,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "ee50ce547080e6d0a32fe29cc65a7af1",
@@ -196,18 +220,6 @@
       "is_new": false
     },
     {
-      "id": "4bba3fcc9589844428616c5373c21022",
-      "title": "UPPSC LT Grade Assistant Teacher Result 2026 – Out",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/uppsc-lt-grade-assistant-teache-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": false
-    },
-    {
       "id": "48123c48ddefb25d1fc1af52fcd284f8",
       "title": "UPPSC Assistant Registrar Result 2026 – Out",
       "posted_date": null,
@@ -284,6 +296,18 @@
       "title": "NTA UGC NET December Result / Cutoff Marks 2026 – Out",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/nta-ugc-net-december-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "4bba3fcc9589844428616c5373c21022",
+      "title": "UPPSC LT Grade Assistant Teacher Result 2026 – Out",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/uppsc-lt-grade-assistant-teache-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,

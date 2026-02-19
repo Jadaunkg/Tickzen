@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-02-17T21:15:24.354294",
+  "timestamp": "2026-02-18T18:51:03.974478",
   "success": true,
-  "count": 149,
+  "count": 153,
   "data": [
     {
       "id": "6782df52ffc8178d447e6bb7e230be85",
@@ -112,16 +112,16 @@
       "is_new": false
     },
     {
-      "id": "c0836bebb0b8a18d255131c4fc33e28c",
-      "title": "Indian Army Agniveer CEE Online Form 2026 – Start",
+      "id": "edc1f5d3d2fc700dfa04e844d561f1ae",
+      "title": "India Post GDS Correction / Edit Form 2026 – Link Active",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/indian-army-agniveer-cee-2026/",
+      "url": "https://sarkariresult.com.cm/india-post-gds-online-form-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_duplicate": true,
-      "is_new": false
+      "is_duplicate": false,
+      "is_new": true
     },
     {
       "id": "b403a45fc5344470e49eb0316b665e2e",
@@ -136,6 +136,18 @@
       "is_new": false
     },
     {
+      "id": "c0836bebb0b8a18d255131c4fc33e28c",
+      "title": "Indian Army Agniveer CEE Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/indian-army-agniveer-cee-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": true,
+      "is_new": false
+    },
+    {
       "id": "6c939f9270fba33d61efb990709c16b8",
       "title": "BPSC School Teacher TRE 4.0 Online Form 2026 (44000+ Posts)",
       "posted_date": null,
@@ -146,6 +158,42 @@
       "detailed_info": null,
       "is_duplicate": true,
       "is_new": false
+    },
+    {
+      "id": "d68c874b7e1c29143adadeaebaffdb5e",
+      "title": "JPSC Drug Inspector Online Form 2026 – Last Date Today",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/jpsc-drug-inspector-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "9e3b78a0d97ff830b45756cd9736a5c7",
+      "title": "Central Silk Board (CSB) Scientist-B Online Form 2026 – Last Date Today",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/central-silk-board-csb-scientist-b-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
+    },
+    {
+      "id": "e7c5dc446a5be0504463f28dbd1c3e19",
+      "title": "HPSC PGT Computer Science Online Form 2026 (1672 Post) – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/hpsc-pgt-computer-science-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": true
     },
     {
       "id": "595fdd867b21b54a647c5b7cfa8b3342",
@@ -172,6 +220,18 @@
       "is_new": false
     },
     {
+      "id": "bae7c77151ec7fc538466baa07b59431",
+      "title": "Haryana HSSC Group C Various Post Online Form 2026 (4227 Posts) – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/haryana-group-c-various-post-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
       "id": "afe8dc4ce9270d55571278cfd1ee093d",
       "title": "PNB Apprentice Online Form 2026 (5138 Posts) – Start",
       "posted_date": null,
@@ -184,10 +244,10 @@
       "is_new": false
     },
     {
-      "id": "bae7c77151ec7fc538466baa07b59431",
-      "title": "Haryana HSSC Group C Various Post Online Form 2026 (4227 Posts) – Start",
+      "id": "2ac35c4877463c5bd7573e838b763b9a",
+      "title": "JPSC Civil Services Pre Online Form 2026 – Date Extended",
       "posted_date": null,
-      "url": "https://sarkariresult.com.cm/haryana-group-c-various-post-2026/",
+      "url": "https://sarkariresult.com.cm/jpsc-civil-services-pre-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -208,66 +268,6 @@
       "is_new": false
     },
     {
-      "id": "2ac35c4877463c5bd7573e838b763b9a",
-      "title": "JPSC Civil Services Pre Online Form 2026 – Date Extended",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/jpsc-civil-services-pre-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": false
-    },
-    {
-      "id": "9c97d244e63c5bbe21bb4c44bda53219",
-      "title": "Bihar BTSC Diary Officer Online Form 2026 – Start",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/bihar-btsc-diary-officer-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": false
-    },
-    {
-      "id": "1a79659aaf28323617a8df9903debd6f",
-      "title": "AIIMS NORCET 10th Nursing Officer Online Form 2026",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/aiims-norcet-10th-nursing-officer-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": false
-    },
-    {
-      "id": "20635c85c0daae5e95a406b63f3d6a9e",
-      "title": "Indian Army NCC 124th October Course Online Form 2026",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/indian-army-ncc-124th-october-course-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": false
-    },
-    {
-      "id": "f2228b5fed507137a581cc9c22b6280b",
-      "title": "UPSC IES/ISS Online Form 2026 – Start",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/upsc-ies-iss-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": false
-    },
-    {
       "id": "d848cbe0e628618161b7a2a2342d5318",
       "title": "SBI Circle Based Officer CBO Online Form 2026 – Date Extend",
       "posted_date": null,
@@ -277,18 +277,6 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": true,
-      "is_new": false
-    },
-    {
-      "id": "cd8f6eccfdc339732e0a5ec7b8de5b5c",
-      "title": "Haryana HPSC HCS Online Form 2026 – Start",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/haryana-hpsc-hcs-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
       "is_new": false
     },
     {
@@ -308,18 +296,6 @@
       "title": "Bihar Police BPSSC ASI (Operation) Online Form 2026 – Start",
       "posted_date": null,
       "url": "https://sarkariresult.com.cm/bihar-police-bpssc-asi-operation-2026/",
-      "portal": null,
-      "scraped_at": null,
-      "details_crawled": false,
-      "detailed_info": null,
-      "is_duplicate": false,
-      "is_new": false
-    },
-    {
-      "id": "1c5c9d42c62a79dff4e0c9afc29c2484",
-      "title": "RBI Non CSG Various Post Online Form 2026 – Start",
-      "posted_date": null,
-      "url": "https://sarkariresult.com.cm/rbi-non-csg-various-post-2026/",
       "portal": null,
       "scraped_at": null,
       "details_crawled": false,
@@ -364,6 +340,78 @@
       "is_new": false
     },
     {
+      "id": "f2228b5fed507137a581cc9c22b6280b",
+      "title": "UPSC IES/ISS Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/upsc-ies-iss-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "9c97d244e63c5bbe21bb4c44bda53219",
+      "title": "Bihar BTSC Diary Officer Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/bihar-btsc-diary-officer-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "1a79659aaf28323617a8df9903debd6f",
+      "title": "AIIMS NORCET 10th Nursing Officer Online Form 2026",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/aiims-norcet-10th-nursing-officer-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "20635c85c0daae5e95a406b63f3d6a9e",
+      "title": "Indian Army NCC 124th October Course Online Form 2026",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/indian-army-ncc-124th-october-course-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "cd8f6eccfdc339732e0a5ec7b8de5b5c",
+      "title": "Haryana HPSC HCS Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/haryana-hpsc-hcs-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
+      "id": "1c5c9d42c62a79dff4e0c9afc29c2484",
+      "title": "RBI Non CSG Various Post Online Form 2026 – Start",
+      "posted_date": null,
+      "url": "https://sarkariresult.com.cm/rbi-non-csg-various-post-2026/",
+      "portal": null,
+      "scraped_at": null,
+      "details_crawled": false,
+      "detailed_info": null,
+      "is_duplicate": false,
+      "is_new": false
+    },
+    {
       "id": "0cc7f1bcf33b2efdfb575d5b4823b7fb",
       "title": "MPPSC Assistant Town Planner Online Form 2026",
       "posted_date": null,
@@ -397,7 +445,7 @@
       "details_crawled": false,
       "detailed_info": null,
       "is_duplicate": false,
-      "is_new": true
+      "is_new": false
     },
     {
       "id": "6aca3c9ff518b95a4991d9ae04fbb413",
@@ -408,7 +456,7 @@
       "scraped_at": null,
       "details_crawled": false,
       "detailed_info": null,
-      "is_duplicate": false,
+      "is_duplicate": true,
       "is_new": false
     },
     {

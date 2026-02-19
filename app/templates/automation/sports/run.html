@@ -2124,10 +2124,13 @@ if (typeof lucide !== 'undefined') {
             // Show toast notification for completion
             showToast('🎉 Sports automation completed! Articles remain visible and state has been reset.', 'success');
             
-            // Auto-refresh articles after 3 seconds WITHOUT full page reload
+            // Clear progress log after 4 seconds (let users see completion message briefly)
             setTimeout(() => {
-                refreshArticlesWithoutReload();
-            }, 3000);
+                clearProgressLog();
+            }, 4000);
+            
+            // REMOVED: Auto-refresh that was causing articles to disappear
+            // User can manually click Refresh button if they want to see updated articles
         }, 2000);
     }
 
@@ -2690,7 +2693,7 @@ if (typeof lucide !== 'undefined') {
         // Add visual feedback that state was cleared (only if progress log exists)
         const progressLog = document.getElementById('progressLog');
         if (progressLog) {
-            addLogEntry('🔄 State cleared - Articles remain visible - Ready for new automation run', 'success');
+            addLogEntry('🔄 State cleared - Articles remain visible - Ready for new automation run. Click Refresh to see updated articles.', 'success');
         }
         
         console.log('State cleared successfully - ready for new automation run');
@@ -2882,17 +2885,23 @@ if (typeof lucide !== 'undefined') {
 
     // Refresh Articles - Without full page reload (used after automation)
     async function refreshArticlesWithoutReload() {
+        console.log('🔄 refreshArticlesWithoutReload() called - fetching fresh articles...');
         try {
             const response = await fetch('{{ url_for("api_sports_get_articles") }}?category=' + currentCategory);
             const data = await response.json();
             
-            if (data.success) {
+            if (data.success && data.articles && data.articles.length > 0) {
+                console.log(`✅ Received ${data.articles.length} fresh articles - updating display`);
                 // Update articles display without reloading
                 updateArticlesDisplay(data.articles, data.summary);
                 addLogEntry('✅ Articles refreshed successfully', 'success');
+            } else {
+                console.warn('⚠️ API returned no articles or failed - keeping existing articles visible');
+                addLogEntry('⚠️ Refresh returned no new articles - existing articles remain visible', 'info');
             }
         } catch (error) {
             console.error('Error refreshing articles:', error);
+            addLogEntry(`❌ Refresh failed: ${error.message} - existing articles remain visible`, 'error');
         }
     }
 
@@ -3051,10 +3060,17 @@ if (typeof lucide !== 'undefined') {
                             clearAllSelectionsAndState();
                             
                             // Show toast notification instead of just log entry
-                            showToast('🎉 Sports automation completed successfully! Articles remain visible.', 'success');
+                            showToast('🎉 Sports automation completed successfully! Articles remain visible. Click Refresh to see updated articles.', 'success');
                             
                             // Also add log entry for reference
                             addLogEntry('✅ Automation complete! Articles remain visible. Use Refresh to reload.', 'success');
+                            
+                            // Clear progress log after 4 seconds to clean up UI
+                            setTimeout(() => {
+                                clearProgressLog();
+                            }, 4000);
+                            
+                            // REMOVED: Auto-refresh that was causing articles to disappear
                         }, 1000);
                     }
                 }
@@ -3334,15 +3350,17 @@ if (typeof lucide !== 'undefined') {
         const grid = document.getElementById('articlesGrid');
         const currentView = grid.dataset.currentView || 'card';
         
+        // DEFENSIVE: Don't clear existing articles if new response is empty
+        // This prevents articles from disappearing due to API failures or empty responses
         if (articles.length === 0) {
-            allArticleCards = [];
-            filteredArticleCards = [];
-            renderPage(1);
+            console.warn('***** WARNING: updateArticlesDisplay received 0 articles - keeping existing articles to prevent disappearing *****');
+            addLogEntry('⚠️ No new articles received - existing articles remain visible', 'info');
             hideProgress();
             return;
         }
         
         // Create new card elements
+        console.log(`✅ updateArticlesDisplay: Processing ${articles.length} articles for display`);
         const newCards = articles.map(article => {
             const card = document.createElement('div');
             card.className = 'article-card';
@@ -3520,6 +3538,7 @@ if (typeof lucide !== 'undefined') {
         applyScoreFilterToArticles();
         
         renderPage(1);
+        console.log(`✅ updateArticlesDisplay completed successfully: ${allArticleCards.length} total, ${filteredArticleCards.length} visible`);
         hideProgress();
     }
 
@@ -3612,6 +3631,31 @@ if (typeof lucide !== 'undefined') {
         const toast = document.getElementById('toast-notification');
         if (toast) {
             toast.classList.remove('active');
+        }
+    }
+
+    // Clear progress log function - clears automation log entries while keeping articles visible
+    function clearProgressLog() {
+        const progressLog = document.getElementById('progressLog');
+        const progressSection = document.getElementById('progressSection');
+        
+        if (progressLog) {
+            // Clear all log entries with smooth fade out
+            progressLog.style.transition = 'opacity 0.5s ease';
+            progressLog.style.opacity = '0';
+            
+            setTimeout(() => {
+                progressLog.innerHTML = '';
+                progressLog.style.opacity = '1';
+                progressLog.style.transition = '';
+                
+                // Hide progress section if it's visible
+                if (progressSection && progressSection.classList.contains('active')) {
+                    progressSection.classList.remove('active');
+                }
+                
+                console.log('✅ Progress log cleared - UI cleaned up, articles remain visible');
+            }, 500);
         }
     }
 </script>

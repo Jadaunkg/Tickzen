@@ -29,18 +29,18 @@ proc_name = 'tickzen-render-app'
 workers = int(os.environ.get('WEB_CONCURRENCY', '1'))
 
 # Worker class
-# - 'sync': Traditional, best for Flask/SocketIO
+# - 'gthread': Threaded worker for SocketIO long-polling
 # - 'gevent': Async, requires gevent dependency
-# - 'asyncio': Python async, requires async app
-worker_class = 'sync'
+# - 'sync': Traditional sync worker
+worker_class = os.environ.get('GUNICORN_WORKER_CLASS', 'gthread')
 
-# Threads per worker (for threaded worker class)
-# Free tier: limited threads due to memory constraints
-threads = int(os.environ.get('GUNICORN_THREADS', '10'))
+# Threads per worker (for gthread)
+# Keep moderate to avoid memory pressure on small plans
+threads = int(os.environ.get('GUNICORN_THREADS', '20'))
 
 # Worker connections
-# Connections worker will keep open
-worker_connections = int(os.environ.get('WORKER_CONNECTIONS', '50'))
+# Increase to allow more concurrent socket connections
+worker_connections = int(os.environ.get('WORKER_CONNECTIONS', '1000'))
 
 # ===========================
 # TIMEOUT SETTINGS
@@ -55,7 +55,7 @@ else:
     timeout = 600  # 10 minutes for development
 
 # Server socket keep-alive timeout
-keepalive = int(os.environ.get('GUNICORN_KEEPALIVE', '10'))
+keepalive = int(os.environ.get('GUNICORN_KEEPALIVE', '30'))
 
 # ===========================
 # REQUEST HANDLING
@@ -167,10 +167,10 @@ def worker_abort(worker):
 # Production settings
 if os.environ.get('RENDER') or os.environ.get('FLASK_ENV') == 'production':
     # Stricter settings for production
-    timeout = 120
+    timeout = 180
     workers = 1
-    threads = 10
-    worker_connections = 50
+    threads = int(os.environ.get('GUNICORN_THREADS', '20'))
+    worker_connections = int(os.environ.get('WORKER_CONNECTIONS', '1000'))
     max_requests = 1000
     
     # Production logging
@@ -181,6 +181,8 @@ elif os.environ.get('FLASK_ENV') == 'development':
     # Relaxed settings for development
     timeout = 600
     workers = 1
+    threads = int(os.environ.get('GUNICORN_THREADS', '20'))
+    worker_connections = int(os.environ.get('WORKER_CONNECTIONS', '1000'))
     reload = True
     loglevel = 'debug'
 

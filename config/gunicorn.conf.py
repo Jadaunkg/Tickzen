@@ -5,16 +5,16 @@ import multiprocessing
 # Basic configuration
 bind = "0.0.0.0:8000"  # Azure expects port 8000
 workers = 1  # Single worker for SocketIO applications
-worker_class = "sync"  # Use sync worker class with threading for better compatibility
+worker_class = "gthread"  # Threaded worker for stable SocketIO long-polling
 worker_connections = 2000
 
 # Performance settings - Optimized for Azure with longer timeouts
 max_requests = 2000
 max_requests_jitter = 200
 timeout = 600  # Increased timeout for analysis processes
-keepalive = 10
+keepalive = 30
 preload_app = True  # Enable preloading for better performance
-threads = 100  # Increased threads for better concurrency
+threads = 50  # Balanced threads for stability on Azure
 
 # Process naming
 proc_name = "tickzen-app"

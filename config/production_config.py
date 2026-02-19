@@ -21,11 +21,11 @@ SOCKETIO_PROD_CONFIG = {
 PROD_SERVER_CONFIG = {
     'bind': '0.0.0.0:5000',
     'workers': 1,  # Single worker for SocketIO with threading
-    'worker_class': 'sync',  # Use sync worker class with threads
-    'threads': 100,  # Number of threads per worker for concurrent connections
+    'worker_class': 'gthread',  # Threaded worker for SocketIO long-polling
+    'threads': 50,  # Balanced threads for stability on Azure
     'worker_connections': 1000,
     'timeout': 120,
-    'keepalive': 5,
+    'keepalive': 30,
     'max_requests': 1000,
     'max_requests_jitter': 100,
     'preload_app': True,

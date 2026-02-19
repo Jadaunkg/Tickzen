@@ -550,3 +550,129 @@
 2026-02-18 18:40:07 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: James Pearce (ID: 2)
 2026-02-18 18:40:09 - AutoPublisherLogger - INFO - Post 'Trent Alexander-Arnold' draft on https://soccerwallah.com/. ID: 702, Link: https://soccerwallah.com/?p=702
 2026-02-18 18:43:08 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 18:49:51 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 18:51:06 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 18:57:04 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 19:09:51 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Matt Law (ID: 3)
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Benfica's Prestianni Under UEFA Probe Amid Vinicius Jr Racism Claims' (68 chars)
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 6638 chars
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile xhCjRkkKWbg7WUWDVn0V: https://soccerwallah.com/
+2026-02-18 19:12:19 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://soccerwallah.com/...
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 109 articles with 593 keywords
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Benfica's Prestianni Under UEFA Probe Amid Vinicius Jr Racism Claims
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Benfica's Prestianni Under UEFA Probe Amid Vinicius Jr Racism Claims
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'benficas-prestianni-under-uefa-probe-amid-vinicius-jr-racism-claims' (67 chars)
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Benfica's Prestianni Under UEFA Probe Amid Viniciu...' → 'benficas-prestianni-under-uefa-probe-amid-vinicius-jr-racism-claims' (67/74 chars) ✅
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Benfica's Prestianni Under UEFA Probe Amid Vinicius Jr Racism Claims' (68 chars)
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'benficas-prestianni-under-uefa-probe-amid-vinicius-jr-racism-claims' (67 chars)
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-02-18 19:12:25 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Matt Law (ID: 3)
+2026-02-18 19:12:28 - AutoPublisherLogger - INFO - Post 'Benfica's Prestianni Under UEFA Probe Amid Vinicius Jr Racism Claims' draft on https://soccerwallah.com/. ID: 707, Link: https://soccerwallah.com/?p=707
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Nick Ames (ID: 5)
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Kevin De Bruyne Injury Update Napoli Return Confirmed March 2026' (64 chars)
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4231 chars
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile xhCjRkkKWbg7WUWDVn0V: https://soccerwallah.com/
+2026-02-18 19:23:51 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://soccerwallah.com/...
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 109 articles with 593 keywords
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Kevin De Bruyne Injury Update Napoli Return Confirmed March 2026
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Kevin De Bruyne Injury Update Napoli Return Confirmed March 2026
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'kevin-de-bruyne-injury-update-napoli-return-confirmed-march-2026' (64 chars)
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Kevin De Bruyne Injury Update Napoli Return Confir...' → 'kevin-de-bruyne-injury-update-napoli-return-confirmed-march-2026' (64/74 chars) ✅
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Kevin De Bruyne Injury Update Napoli Return Confirmed March 2026' (64 chars)
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'kevin-de-bruyne-injury-update-napoli-return-confirmed-march-2026' (64 chars)
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-02-18 19:23:57 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Nick Ames (ID: 5)
+2026-02-18 19:24:00 - AutoPublisherLogger - INFO - Post 'Kevin De Bruyne Injury Update Napoli Return Confirmed March 2026' draft on https://soccerwallah.com/. ID: 709, Link: https://soccerwallah.com/?p=709
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Paul Tenorio (ID: 7)
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Kevin De Bruyne is on his way back! Napoli star flying back to Italy as lengthy injury rehab enters final stretch' (113 chars)
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 6059 chars
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Initializing system for profile xhCjRkkKWbg7WUWDVn0V: https://soccerwallah.com/
+2026-02-18 19:27:24 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Fetching articles from https://soccerwallah.com/...
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Successfully cached 109 articles with 593 keywords
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Kevin De Bruyne is on his way back! Napoli star flying back to Italy as lengthy injury rehab enters final stretch
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Kevin De Bruyne is on his way back! Napoli star flying back to Italy as lengthy injury rehab enters final stretch
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Slug too long (112), truncating to max 74 chars
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'kevin-de-bruyne-is-on-his-way-back-napoli-star-flying-back-to-italy-as' (70 chars)
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Kevin De Bruyne is on his way back! Napoli star fl...' → 'kevin-de-bruyne-is-on-his-way-back-napoli-star-flying-back-to-italy-as' (70/74 chars) ✅
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Kevin De Bruyne is on his way back! Napoli star flying back to Italy as lengthy injury rehab enters final stretch' (113 chars)
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'kevin-de-bruyne-is-on-his-way-back-napoli-star-flying-back-to-italy-as' (70 chars)
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-02-18 19:27:29 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Paul Tenorio (ID: 7)
+2026-02-18 19:27:32 - AutoPublisherLogger - INFO - Post 'Kevin De Bruyne is on his way back! Napoli star flying back to Italy as lengthy injury rehab enters final stretch' draft on https://soccerwallah.com/. ID: 711, Link: https://soccerwallah.com/?p=711
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://soccerwallah.com/
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Phil McNulty (ID: 4)
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'Kevin De Bruyne Injury Update: Napoli Star Nears Serie A Return' (63 chars)
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 4058 chars
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: None
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 3
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: None
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: football
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: draft
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['created_at', 'site_url', 'internal_linking', 'stockforecast_category_id', 'uploaded_ticker_file_name', 'all_tickers_from_file', 'ticker_count_from_file', 'ticker_file_storage_path', 'profile_name', 'sheet_name', 'last_updated_at', 'authors', 'min_scheduling_gap_minutes', 'env_prefix_for_feature_image_colors', 'ticker_preview_from_file', 'max_scheduling_gap_minutes', 'ticker_file_uploaded_at', 'profile_id']
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: not specified
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile xhCjRkkKWbg7WUWDVn0V - Config present: True, Enabled: True, Available: True
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] Adding internal links to article: Kevin De Bruyne Injury Update: Napoli Star Nears Serie A Return
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [INTERNAL_LINKING] ✅ Added 3 internal links
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Original title: Kevin De Bruyne Injury Update: Napoli Star Nears Serie A Return
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [SLUG_DEBUG] SPORTS - Final slug: 'kevin-de-bruyne-injury-update-napoli-star-nears-serie-a-return' (62 chars)
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [SLUG] SPORTS ARTICLE - Headline: 'Kevin De Bruyne Injury Update: Napoli Star Nears S...' → 'kevin-de-bruyne-injury-update-napoli-star-nears-serie-a-return' (62/74 chars) ✅
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'Kevin De Bruyne Injury Update: Napoli Star Nears Serie A Return' (63 chars)
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'kevin-de-bruyne-injury-update-napoli-star-nears-serie-a-return' (62 chars)
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: draft
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
+2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Phil McNulty (ID: 4)
+2026-02-18 19:29:49 - AutoPublisherLogger - INFO - Post 'Kevin De Bruyne Injury Update: Napoli Star Nears Serie A Return' draft on https://soccerwallah.com/. ID: 712, Link: https://soccerwallah.com/?p=712

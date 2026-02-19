@@ -1,8 +1,18 @@
-flask==2.3.3
-python-dotenv==1.0.0
-requests==2.31.0
-beautifulsoup4==4.12.2
-google-generativeai==0.3.0
-fpdf2==2.8.1
-supabase==2.3.4
-pytz==2023.3
+# Sports Article Automation - Dependencies Reference
+# All dependencies have been consolidated into the main requirements.txt file
+# located in the tickzen2 root directory.
+# 
+# To install all dependencies for the entire project including Sports Article Automation:
+# pip install -r ../requirements.txt
+#
+# This ensures all modules share the same dependency versions and reduces conflicts.
+
+# Note: The following dependencies are now included in the main requirements.txt:
+# - flask>=2.3.3
+# - python-dotenv>=1.0.0  
+# - requests>=2.31.0
+# - beautifulsoup4>=4.12.2
+# - google-generativeai>=0.3.0
+# - fpdf2>=2.8.1 (newly added)
+# - supabase>=2.3.4 (newly added)
+# - pytz>=2023.3
