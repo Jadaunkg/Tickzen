@@ -86,7 +86,14 @@ class SupabaseQueries:
             },
             "market_size": {
                 "market_cap": price_snapshot.get("market_cap") if price_snapshot else None,
-                "enterprise_value": fundamentals.get("total_cash") + fundamentals.get("total_debt") if fundamentals else None,
+                # Enterprise Value = Market Cap + Total Debt - Total Cash
+                # (previously was total_cash + total_debt which is both wrong and crashes on None)
+                "enterprise_value": (
+                    (price_snapshot.get("market_cap") or 0)
+                    + (fundamentals.get("total_debt") or 0)
+                    - (fundamentals.get("total_cash") or 0)
+                ) if (price_snapshot and fundamentals and
+                      price_snapshot.get("market_cap") is not None) else None,
                 "shares_outstanding": price_snapshot.get("shares_outstanding") if price_snapshot else None,
                 "float_shares": price_snapshot.get("float_shares") if price_snapshot else None
             },
@@ -133,24 +140,34 @@ class SupabaseQueries:
             columns="*"
         )
         
+        # Analyst targets and earnings dates are stored in the analyst_data table,
+        # NOT in forecast_data (they were split into a separate table in the mapper).
+        analyst = self.db.select_latest(
+            "analyst_data",
+            stock_id,
+            columns="*"
+        )
+
         forecast_response = {
             "price_forecast": {
-                "forecast_price_1y": forecast.get("forecast_price_1y") if forecast else None,
+                # forecast_price_1y stores the Prophet upper-band (High) price for the
+                # nearest forecast month; rename to forecast_price_high for clarity.
+                "forecast_price_high": forecast.get("forecast_price_1y") if forecast else None,
                 "forecast_avg_price": forecast.get("forecast_avg_price") if forecast else None,
                 "forecast_range_width": forecast.get("forecast_range_width") if forecast else None,
                 "forecast_period": forecast.get("forecast_period") if forecast else None
             },
             "analyst_targets": {
-                "target_price_mean": forecast.get("target_price_mean") if forecast else None,
-                "target_price_median": forecast.get("target_price_median") if forecast else None,
-                "target_price_high": forecast.get("target_price_high") if forecast else None,
-                "target_price_low": forecast.get("target_price_low") if forecast else None,
-                "analyst_rating": forecast.get("analyst_rating") if forecast else None,
-                "analyst_count": forecast.get("analyst_count") if forecast else None
+                "target_price_mean": analyst.get("target_price_mean") if analyst else None,
+                "target_price_median": analyst.get("target_price_median") if analyst else None,
+                "target_price_high": analyst.get("target_price_high") if analyst else None,
+                "target_price_low": analyst.get("target_price_low") if analyst else None,
+                "analyst_rating": analyst.get("analyst_rating") if analyst else None,
+                "analyst_count": analyst.get("analyst_count") if analyst else None
             },
             "earnings_timing": {
-                "next_earnings_date": forecast.get("next_earnings_date") if forecast else None,
-                "earnings_call_time_utc": forecast.get("earnings_call_time_utc") if forecast else None
+                "next_earnings_date": analyst.get("next_earnings_date") if analyst else None,
+                "earnings_call_time_utc": analyst.get("earnings_call_time_utc") if analyst else None
             }
         }
         
@@ -181,15 +198,18 @@ class SupabaseQueries:
             columns="*"
         )
         
-        # Get recent data for trend
+        # Get recent data for trend – filter by stock_id at the database level.
+        # Previously the columns list omitted stock_id, so the Python-side
+        # filter `t.get("stock_id") == stock_id` always evaluated to False,
+        # causing historical_trend to always be an empty list.
         recent_tech = self.db.select_ordered(
             "technical_indicators",
             columns="date, rsi_14, macd_line, bb_upper, bb_lower",
             order_by="date",
             ascending=False,
-            limit=days
+            limit=days,
+            stock_id=stock_id
         )
-        recent_tech = [t for t in recent_tech if t.get("stock_id") == stock_id]
         
         technicals = {
             "trend": {
@@ -370,15 +390,16 @@ class SupabaseQueries:
             columns="shares_short, short_ratio_days, short_pct_float"
         )
         
-        # Get recent insider transactions
+        # Get recent insider transactions – filter server-side so the limit
+        # applies only to THIS stock's rows, not the whole table.
         insider_transactions = self.db.select_ordered(
             "insider_transactions",
             columns="*",
             order_by="transaction_date",
             ascending=False,
-            limit=10
+            limit=10,
+            stock_id=stock_id
         )
-        insider_transactions = [t for t in insider_transactions if t.get("stock_id") == stock_id]
         
         risk_sentiment = {
             "risk": {
@@ -437,15 +458,16 @@ class SupabaseQueries:
             columns="*"
         )
         
-        # Get insider transactions (detailed table)
+        # Get insider transactions (detailed table) – filter server-side so the
+        # limit applies only to THIS stock's rows, not the whole table.
         insider_transactions = self.db.select_ordered(
             "insider_transactions",
             columns="*",
             order_by="transaction_date",
             ascending=False,
-            limit=50
+            limit=50,
+            stock_id=stock_id
         )
-        insider_transactions = [t for t in insider_transactions if t.get("stock_id") == stock_id]
         
         company = {
             "profile": {

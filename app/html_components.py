@@ -2151,8 +2151,9 @@ def generate_dividends_shareholder_returns_html(ticker, rdata):
             elif payout_ratio < 30: payout_level = "low and conservative"
             analysis_points.append(f"The <strong>payout ratio of {payout_ratio_fmt}</strong> is {payout_level}, indicating the company uses only ~{payout_ratio:.0f}% of its earnings to fund dividends. This leaves ample room for future increases or reinvestment in growth.")
         
+        # Note: trailing_yield is in percentage form (e.g., 0.1 for 0.1%), use percent_direct formatting
         if trailing_yield is not None and trailing_yield < 0.1:
-            analysis_points.append(f"The very low <strong>trailing yield of {format_html_value(trailing_yield, 'percent')}</strong> hints at a recent dividend initiation or a special, non-recurring payout, warranting further checks for consistency.")
+            analysis_points.append(f"The very low <strong>trailing yield of {format_html_value(trailing_yield, 'percent_direct')}</strong> hints at a recent dividend initiation or a special, non-recurring payout, warranting further checks for consistency.")
 
         if ex_div_date:
             analysis_points.append(f"Investors must own the stock before the upcoming <strong>ex-dividend date of {format_html_value(ex_div_date, 'date')}</strong> to receive the next dividend.")

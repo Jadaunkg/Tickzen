@@ -1,0 +1,11 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN pip install flask gunicorn
+
+RUN echo 'from flask import Flask\napp = Flask(__name__)\n@app.route("/")\ndef hello():\n    return "Hello from Cloud Run!"\napplication = app' > app.py
+
+ENV PORT=8080
+
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 2 app:application

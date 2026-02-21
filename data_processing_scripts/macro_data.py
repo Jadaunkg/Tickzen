@@ -3,7 +3,12 @@
 import pandas as pd
 import os
 import numpy as np
-import pandas_datareader as pdr
+try:
+    import pandas_datareader as pdr
+except (ImportError, TypeError) as e:
+    pdr = None
+    import logging as _log
+    _log.getLogger(__name__).warning(f"pandas_datareader unavailable ({e}); macro data will use cached/fallback values")
 from datetime import datetime, date
 import logging
 
@@ -197,6 +202,10 @@ def fetch_macro_indicators(app_root, start_date=None, end_date=None, stock_data=
 
     logger.info("Cache miss or invalid for macro data. Proceeding to download from FRED.")
     try:
+        if pdr is None:
+            logger.warning("pandas_datareader is not available. Cannot download from FRED. Returning empty DataFrame.")
+            raise ValueError("pandas_datareader library is not available.")
+
         if not FRED_API_KEY: #
             logger.warning("FRED_API_KEY environment variable not set. Cannot download from FRED.") 
             raise ValueError("FRED API Key not configured.")

@@ -1,5 +1,5 @@
 # Production Configuration for Tickzen
-# This file contains settings optimized for Azure App Service production
+# This file contains generic production settings
 
 import os
 
@@ -8,7 +8,7 @@ SOCKETIO_PROD_CONFIG = {
     'ping_timeout': 60,  # 1 minute
     'ping_interval': 25,  # 25 seconds
     'async_mode': 'threading',  # Use threading for better third-party SDK compatibility
-    'cors_allowed_origins': "*",
+    'cors_allowed_origins': os.getenv('CORS_ALLOWED_ORIGINS', '*'),  # Set CORS_ALLOWED_ORIGINS env var in production
     'logger': False,  # Disable verbose logging in production
     'engineio_logger': False,
     'max_http_buffer_size': 1e6,  # 1MB
@@ -22,7 +22,7 @@ PROD_SERVER_CONFIG = {
     'bind': '0.0.0.0:5000',
     'workers': 1,  # Single worker for SocketIO with threading
     'worker_class': 'gthread',  # Threaded worker for SocketIO long-polling
-    'threads': 50,  # Balanced threads for stability on Azure
+    'threads': 50,
     'worker_connections': 1000,
     'timeout': 120,
     'keepalive': 30,
@@ -45,7 +45,7 @@ PROD_TIMEOUT_CONFIG = {
 PROD_LOGGING_CONFIG = {
     'level': 'WARNING',  # Less verbose in production
     'format': '%(asctime)s - %(levelname)s - %(name)s - %(message)s',
-    'handlers': ['console'],  # Azure App Service captures console output
+    'handlers': ['console'],
 }
 
 # Environment variables for production
@@ -53,8 +53,6 @@ PROD_ENV_VARS = {
     'APP_ENV': 'production',
     'FLASK_DEBUG': 'False',
     'FLASK_ENV': 'production',
-    'WEBSITES_PORT': '5000',
-    'PYTHONPATH': '/home/site/wwwroot',
 }
 
 def get_prod_config():

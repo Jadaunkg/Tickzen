@@ -415,6 +415,99 @@
             grid-template-columns: 1fr 1fr;
         }
     }
+
+    /* ── SHIMMER / SKELETON LOADING ── */
+    @keyframes sports-shimmer {
+        0%   { background-position: -400px 0; }
+        100% { background-position:  400px 0; }
+    }
+
+    .skel {
+        display: inline-block;
+        border-radius: 6px;
+        background: linear-gradient(
+            90deg,
+            #f0f0f0 25%,
+            #e6e6e6 37%,
+            #f0f0f0 63%
+        );
+        background-size: 400px 100%;
+        animation: sports-shimmer 1.4s ease infinite !important;
+        animation-duration: 1.4s !important;
+        animation-iteration-count: infinite !important;
+    }
+
+    /* Skeleton placeholder for stat boxes */
+    .stat-box-skeleton .skel-value {
+        height: 28px;
+        width: 60px;
+        margin: 0 auto 0.4rem;
+        display: block;
+        border-radius: 6px;
+    }
+
+    .stat-box-skeleton .skel-label {
+        height: 14px;
+        width: 90px;
+        margin: 0 auto;
+        display: block;
+        border-radius: 4px;
+    }
+
+    .stat-box-skeleton .stat-icon {
+        background: #f0f0f0 !important;
+        color: transparent !important;
+    }
+
+    /* Real content hidden during skeleton phase */
+    .stat-box-real {
+        display: none;
+    }
+
+    /* Trending item skeleton */
+    .trending-skeleton .skel-rank {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+
+    .trending-skeleton .skel-title {
+        height: 16px;
+        width: 160px;
+        border-radius: 4px;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .trending-skeleton .skel-meta {
+        height: 12px;
+        width: 80px;
+        border-radius: 4px;
+        display: block;
+    }
+
+    .trending-skeleton .skel-badge {
+        height: 24px;
+        width: 38px;
+        border-radius: 4px;
+    }
+
+    /* Fade in real content after skeleton removed */
+    @keyframes sports-fade-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .content-revealed {
+        animation: sports-fade-in 0.35s ease forwards;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .skel {
+            animation: sports-shimmer 3s ease infinite !important;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -437,32 +530,47 @@
         </div>
 
         <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-icon">
-                    <i class="fas fa-file-alt"></i>
-                </div>
+        <div class="stats-grid" id="stats-grid">
+            <!-- Skeleton placeholders (shown briefly on load) -->
+            <div class="stat-box stat-box-skeleton" id="skel-stat-0">
+                <div class="stat-icon"><i class="fas fa-file-alt" style="opacity:0"></i></div>
+                <span class="skel skel-value"></span>
+                <span class="skel skel-label"></span>
+            </div>
+            <div class="stat-box stat-box-skeleton" id="skel-stat-1">
+                <div class="stat-icon"><i class="fas fa-fire" style="opacity:0"></i></div>
+                <span class="skel skel-value"></span>
+                <span class="skel skel-label"></span>
+            </div>
+            <div class="stat-box stat-box-skeleton" id="skel-stat-2">
+                <div class="stat-icon"><i class="fas fa-rss" style="opacity:0"></i></div>
+                <span class="skel skel-value"></span>
+                <span class="skel skel-label"></span>
+            </div>
+            <div class="stat-box stat-box-skeleton" id="skel-stat-3">
+                <div class="stat-icon"><i class="fas fa-globe" style="opacity:0"></i></div>
+                <span class="skel skel-value"></span>
+                <span class="skel skel-label"></span>
+            </div>
+
+            <!-- Real stat boxes (hidden until skeleton phase ends) -->
+            <div class="stat-box stat-box-real" id="real-stat-0">
+                <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
                 <div class="stat-value">{{ sports_published|default(0) }}</div>
                 <div class="stat-label">Articles Published</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-icon">
-                    <i class="fas fa-fire"></i>
-                </div>
+            <div class="stat-box stat-box-real" id="real-stat-1">
+                <div class="stat-icon"><i class="fas fa-fire"></i></div>
                 <div class="stat-value">{{ trending_count|default(0) }}</div>
                 <div class="stat-label">Trending Topics</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-icon">
-                    <i class="fas fa-rss"></i>
-                </div>
+            <div class="stat-box stat-box-real" id="real-stat-2">
+                <div class="stat-icon"><i class="fas fa-rss"></i></div>
                 <div class="stat-value">{{ rss_articles|default(0) }}</div>
                 <div class="stat-label">RSS Articles</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-icon">
-                    <i class="fas fa-globe"></i>
-                </div>
+            <div class="stat-box stat-box-real" id="real-stat-3">
+                <div class="stat-icon"><i class="fas fa-globe"></i></div>
                 <div class="stat-value">{{ connected_sites|default(0) }}</div>
                 <div class="stat-label">Connected Sites</div>
             </div>
@@ -477,7 +585,23 @@
                     <a href="{{ url_for('automation.sports_automation.trends') }}"
                         style="font-size: 0.813rem; color: var(--orange-600); text-decoration: none;">View All →</a>
                 </div>
-                <div class="content-card-body">
+                <div class="content-card-body" id="trending-card-body">
+                    <!-- Trending skeleton (shown briefly on load) -->
+                    <div id="trending-skeleton">
+                        {% for _ in range(4) %}
+                        <div class="trending-item trending-skeleton" style="display:flex;align-items:center;gap:1rem;">
+                            <span class="skel skel-rank"></span>
+                            <div style="flex:1">
+                                <span class="skel skel-title"></span>
+                                <span class="skel skel-meta"></span>
+                            </div>
+                            <span class="skel skel-badge"></span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Real content (hidden until skeleton removed) -->
+                    <div id="trending-real" style="display:none">
                     {% if trending_topics and trending_topics|length > 0 %}
                     {% for topic in trending_topics[:5] %}
                     <div class="trending-item">
@@ -496,6 +620,7 @@
                         <p>No trending topics available.<br>Check Google Trends for latest data.</p>
                     </div>
                     {% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -580,4 +705,41 @@
         <i class="fas fa-bars"></i>
     </button>
 </div>
+
+<script>
+(function () {
+    // Simulate a brief skeleton loading phase (500 ms) then reveal real content
+    // This gives users a polished shimmer effect while the DOM finishes painting.
+    var SKELETON_DURATION = 500; // ms — adjust as needed
+
+    function revealContent() {
+        // ── Stats grid ──
+        var skelStats = document.querySelectorAll('.stat-box-skeleton');
+        var realStats = document.querySelectorAll('.stat-box-real');
+        skelStats.forEach(function (el) { el.style.display = 'none'; });
+        realStats.forEach(function (el) {
+            el.style.display = '';
+            el.classList.add('content-revealed');
+        });
+
+        // ── Trending topics ──
+        var trendingSkel = document.getElementById('trending-skeleton');
+        var trendingReal = document.getElementById('trending-real');
+        if (trendingSkel) trendingSkel.style.display = 'none';
+        if (trendingReal) {
+            trendingReal.style.display = '';
+            trendingReal.classList.add('content-revealed');
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(revealContent, SKELETON_DURATION);
+        });
+    } else {
+        // DOM already ready (e.g. script runs after parse)
+        setTimeout(revealContent, SKELETON_DURATION);
+    }
+})();
+</script>
 {% endblock %}

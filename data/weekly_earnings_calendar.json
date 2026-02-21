@@ -1,1514 +1,3272 @@
 {
-  "last_refreshed": "2026-01-20T12:54:39.905357",
-  "last_refreshed_date": "2026-01-20",
+  "last_refreshed": "2026-02-19T21:36:07.340333",
+  "last_refreshed_date": "2026-02-19",
   "calendar": {
-    "2026-01-20": [
+    "2026-02-19": [
       {
-        "ticker": "KARX",
+        "ticker": "INDI",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "DFS",
+        "ticker": "TXRH",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FITB",
+        "ticker": "LYV",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NBBK",
+        "ticker": "PTGX",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CATX",
+        "ticker": "GRAL",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NPB",
+        "ticker": "ALRM",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "UAL",
+        "ticker": "CPRT",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "MARK",
+        "ticker": "FNF",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "WTFC",
+        "ticker": "AMH",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "KEY",
+        "ticker": "EIG",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "ZION",
+        "ticker": "PWR",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "AOD",
+        "ticker": "GHI",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "EDXC",
+        "ticker": "AXXA",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "WALD",
+        "ticker": "BBDC",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "IPAR",
+        "ticker": "BOOM",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "RVCB",
+        "ticker": "KYMR",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "SFNC",
+        "ticker": "GTBP",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "OZK",
+        "ticker": "ED",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "HWC",
+        "ticker": "DTM",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NROM",
+        "ticker": "MTUS",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "DIT",
+        "ticker": "DMLP",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "WRIV",
+        "ticker": "HHH",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FAST",
+        "ticker": "LNT",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "SFBS",
+        "ticker": "ALIT",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "EBZT",
+        "ticker": "DBX",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "MCB",
+        "ticker": "ACIC",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "MBWM",
+        "ticker": "PTCT",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NFBK",
+        "ticker": "ONTO",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "MMM",
+        "ticker": "WK",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "SPWR",
+        "ticker": "SEM",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "IBKR",
+        "ticker": "RYI",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NMZ",
+        "ticker": "NTLA",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "KARO",
+        "ticker": "LAUR",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "SMBK",
+        "ticker": "UPBD",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "PRGS",
+        "ticker": "BABA",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NIC",
+        "ticker": "BAND",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "TDY",
+        "ticker": "YETI",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BFC",
+        "ticker": "MSEX",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "DHI",
+        "ticker": "SVV",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "PEBO",
+        "ticker": "FIX",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BOID",
+        "ticker": "CENX",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "GTPS",
+        "ticker": "NABL",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "USB",
+        "ticker": "TZOO",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NFLX",
+        "ticker": "DAVA",
         "name": null,
-        "date": "2026-01-20"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FOR",
+        "ticker": "HG",
         "name": null,
-        "date": "2026-01-20"
-      }
-    ],
-    "2026-01-21": [
-      {
-        "ticker": "BANC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "SRCE",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "RLI",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "PFBX",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "PPBI",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "CTBI",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "PLD",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "SCHW",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "FPH",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "KMI",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "KNX",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "HAL",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "PLBC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "MMYT",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "JNJ",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "EGBN",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "ONB",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "JMSB",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "CZNC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "TRST",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "FGFH",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "UBOH",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "TEL",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "CWBC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "TRV",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "FBK",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "FULT",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "LOB",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "TFC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "BANF",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "FETM",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "DCOM",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "SNV",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "PAMT",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "FFBB",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "ALLY",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "PNFP",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "BKU",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "PVBC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "BANR",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "CBKM",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "MKC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "ORPB",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "HBNC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "SIGL",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "CFG",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "GSBC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "EQBK",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "NVEC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "UNB",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "DIMC",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "TCBX",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "TDY",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "WNS",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "CACI",
-        "name": null,
-        "date": "2026-01-21"
-      },
-      {
-        "ticker": "CSHX",
-        "name": null,
-        "date": "2026-01-21"
-      }
-    ],
-    "2026-01-22": [
-      {
-        "ticker": "ABT",
-        "name": null,
-        "date": "2026-01-22"
-      },
-      {
-        "ticker": "STBA",
-        "name": null,
-        "date": "2026-01-22"
-      },
-      {
-        "ticker": "PG",
-        "name": null,
-        "date": "2026-01-22"
-      },
-      {
-        "ticker": "USCB",
-        "name": null,
-        "date": "2026-01-22"
-      },
-      {
-        "ticker": "HTH",
-        "name": null,
-        "date": "2026-01-22"
-      },
-      {
-        "ticker": "PFIS",
-        "name": null,
-        "date": "2026-01-22"
-      },
-      {
-        "ticker": "OFG",
-        "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "OVLY",
+        "ticker": "METC",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CASS",
+        "ticker": "SO",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NWFL",
+        "ticker": "TNK",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BHRB",
+        "ticker": "LZ",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "ROK",
+        "ticker": "EWTX",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "AMTB",
+        "ticker": "OPEN",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "HTBK",
+        "ticker": "EXR",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FVCB",
+        "ticker": "PLSE",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CATY",
+        "ticker": "NMM",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NG",
+        "ticker": "MTLS",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "HZO",
+        "ticker": "MD",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "GLCP",
+        "ticker": "LFWD",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "ORI",
+        "ticker": "GTX",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FCAP",
+        "ticker": "PKST",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CARE",
+        "ticker": "FET",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "AA",
+        "ticker": "COLD",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BHB",
+        "ticker": "CNGO",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "MOFG",
+        "ticker": "GDOT",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "PCB",
+        "ticker": "EDRY",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "ALK",
+        "ticker": "EPAM",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FCX",
+        "ticker": "WMT",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "TESI",
+        "ticker": "PK",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "HBAN",
+        "ticker": "MPT",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "GBCI",
+        "ticker": "ACH",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BY",
+        "ticker": "APPN",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CBSH",
+        "ticker": "ESCA",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "ESQ",
+        "ticker": "WFCF",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "LYTS",
+        "ticker": "WEAV",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "SLM",
+        "ticker": "RMAX",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "INDB",
+        "ticker": "EVRG",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "HTB",
+        "ticker": "CWST",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NYMXF",
+        "ticker": "ST",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CSX",
+        "ticker": "STRW",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "MGYR",
+        "ticker": "WKC",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FNWB",
+        "ticker": "NXEN",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "GE",
+        "ticker": "FG",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "OSIS",
+        "ticker": "W",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "RVSB",
+        "ticker": "PRAX",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NTCT",
+        "ticker": "LMND",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "KRNY",
+        "ticker": "PRQR",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "EBC",
+        "ticker": "PRTA",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FFIN",
+        "ticker": "IMUX",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CASH",
+        "ticker": "VAL",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BPRN",
+        "ticker": "TRGP",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "HFWA",
+        "ticker": "CC",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "AMAL",
+        "ticker": "BWMX",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "ASB",
+        "ticker": "RNG",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "COF",
+        "ticker": "TRVR",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "RMBI",
+        "ticker": "LPRO",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "COLB",
+        "ticker": "FTI",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "HFBL",
+        "ticker": "WSC",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "EWBC",
+        "ticker": "AKAM",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "ACNB",
+        "ticker": "MDGL",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CWBK",
+        "ticker": "LKQ",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "MYFW",
+        "ticker": "IDA",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CLFD",
+        "ticker": "ASIC",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CLST",
+        "ticker": "CNP",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "TRUX",
+        "ticker": "CARG",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "INTC",
+        "ticker": "NPK",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CVRX",
+        "ticker": "UP",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CADE",
+        "ticker": "INSM",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BINI",
+        "ticker": "THRM",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "UBCP",
+        "ticker": "KLAR",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
         "ticker": "GATX",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "ISRG",
+        "ticker": "MGNX",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BCML",
+        "ticker": "CMLS",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "MITK",
+        "ticker": "SCKT",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FMBH",
+        "ticker": "MHH",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BFST",
+        "ticker": "AMN",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "OPBK",
+        "ticker": "LTCH",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "STRT",
+        "ticker": "ORGN",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "ISTR",
+        "ticker": "AGM",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "OCFC",
+        "ticker": "TNDM",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CZFS",
+        "ticker": "SATS",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "TCBI",
+        "ticker": "CWK",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CNS",
+        "ticker": "DGICA",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CEFC",
+        "ticker": "SFM",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "LUV",
+        "ticker": "POOL",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BSET",
+        "ticker": "HLIT",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "SSB",
+        "ticker": "GH",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "IBCP",
+        "ticker": "VC",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "RBKB",
+        "ticker": "ULS",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "TOWN",
+        "ticker": "RIG",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BCBP",
+        "ticker": "XPRO",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FUSB",
+        "ticker": "FOLD",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "BEDU",
+        "ticker": "TALK",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "MBLY",
+        "ticker": "ETSY",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "AUB",
+        "ticker": "ENZN",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "NTRS",
+        "ticker": "AXTI",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "OXBC",
+        "ticker": "FND",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "CUBI",
+        "ticker": "TVTX",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "MSBI",
+        "ticker": "DE",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "GOVB",
+        "ticker": "CHH",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FMNB",
+        "ticker": "CTO",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FSRL",
+        "ticker": "OLED",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "FSBW",
+        "ticker": "CEG",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "UBFO",
+        "ticker": "ARDX",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "XEL",
+        "ticker": "UPLD",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "UBSI",
+        "ticker": "EDIT",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "ATLO",
+        "ticker": "NEM",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
       },
       {
-        "ticker": "PFBC",
+        "ticker": "RLAY",
         "name": null,
-        "date": "2026-01-22"
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "TK",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "VGZ",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "FUN",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "INTE",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "BRC",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "VICR",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "PRDO",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "RMNI",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "GLPI",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "FIVN",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "ITGR",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "INSG",
+        "name": null,
+        "date": "2026-02-19"
+      },
+      {
+        "ticker": "ICUI",
+        "name": null,
+        "date": "2026-02-19"
       }
     ],
-    "2026-01-23": [
+    "2026-02-20": [
       {
-        "ticker": "CSBB",
+        "ticker": "AU",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "WBS",
+        "ticker": "GHC",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "GSIW",
+        "ticker": "OIS",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "TMP",
+        "ticker": "NRSN",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "FCNCA",
+        "ticker": "BCPC",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "SLB",
+        "ticker": "TXNM",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "VVPR",
+        "ticker": "PPL",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "PFLC",
+        "ticker": "TDS",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "NRIM",
+        "ticker": "LAMR",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "CCNB",
+        "ticker": "CMDB",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "CIBH",
+        "ticker": "WBD",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "CMA",
+        "ticker": "NTAI",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "ORBN",
+        "ticker": "LPTV",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "FRSB",
+        "ticker": "NAT",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "MBCN",
+        "ticker": "BIORQ",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "USMT",
+        "ticker": "GASS",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "SLRK",
+        "ticker": "ASIX",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "OPY",
+        "ticker": "ARR",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "BAH",
+        "ticker": "CCOI",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
       },
       {
-        "ticker": "RBCAA",
+        "ticker": "DNOW",
         "name": null,
-        "date": "2026-01-23"
+        "date": "2026-02-20"
+      },
+      {
+        "ticker": "WU",
+        "name": null,
+        "date": "2026-02-20"
+      },
+      {
+        "ticker": "POR",
+        "name": null,
+        "date": "2026-02-20"
       }
     ],
-    "2026-01-24": [
+    "2026-02-21": [],
+    "2026-02-22": [],
+    "2026-02-23": [
       {
-        "ticker": "PBCO",
+        "ticker": "FRPT",
         "name": null,
-        "date": "2026-01-24"
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "GNW",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "ALSN",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "KWR",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "FARO",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "LINC",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "EVER",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "OKE",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "OVV",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "ISPO",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BLZE",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "CIVI",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "SIBN",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "D",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "HLX",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "ERIE",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "VVX",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "PRA",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "ADUS",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "UCTT",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "SCL",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "OTLK",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "PAY",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "CPSS",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "TESI",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "IDYA",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "HSTM",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "MSVB",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BCC",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "KTOS",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "SKWD",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BASE",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BHF",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "ADEA",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "AXSM",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BCYC",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BTO",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "AESI",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "TARS",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "TNC",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "CNNE",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "PLOW",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "WENN",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "TTI",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "WBHC",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "MYGN",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "RHP",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "ACVA",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "CNDA",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "UFPI",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "OPAD",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BGFV",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "AGIG",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BRDG",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "CRGO",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BBBY",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "PRIM",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "ZD",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "PEPG",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "TLSS",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BMRN",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "FANG",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "HIMS",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "OLO",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "DPZ",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "DHC",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "KEYS",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "VIR",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "WGS",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "APLE",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "SGHC",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "INVX",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BSM",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "PRPO",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "JBTM",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "MAX",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "VNOM",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "DEA",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "YSG",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "OSG",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "SMMT",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "CTEV",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "SSTK",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "FWRD",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "IIPR",
+        "name": null,
+        "date": "2026-02-23"
+      },
+      {
+        "ticker": "BWXT",
+        "name": null,
+        "date": "2026-02-23"
       }
     ],
-    "2026-01-25": [
+    "2026-02-24": [
       {
-        "ticker": "BKR",
+        "ticker": "HRMY",
         "name": null,
-        "date": "2026-01-25"
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "PERF",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "PSTL",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CORT",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "GIC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "TMDX",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "BBIO",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CLVT",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "EXLS",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CLNE",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "REZI",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "TILE",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "TALO",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CSGP",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "AMT",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "GPOR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "WLKP",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "VRE",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "MQ",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "APLS",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "ESPR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "XMTR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SHC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "NVRI",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "EXPI",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "NMFC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "PTLO",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "MELI",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "O",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "AIN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SEI",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "UVE",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "LAB",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "PLNT",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "TYGO",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "AHCO",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "HYLN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SLRC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "FIS",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CYTK",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CYD",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "BOW",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "FVR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "AXGN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "INGN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "TREX",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CCC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "FERG",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "NRG",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "MTDR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "TEM",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "AWI",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "WDAY",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "STR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "DOCN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "UIS",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "DAWN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "HSIC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "FUND",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "RVLV",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "IPAR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "ELAN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "NOVT",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "HVT",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CAVA",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "INFU",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "FSLR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "RGEN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SPXC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "ESTA",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SILA",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "ODP",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "ZETA",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "TIPT",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "LTC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "RCKY",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "GDDY",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "JENA",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "ARVN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "FULC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "EVH",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "MATX",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CIBN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "MMSI",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "FLYW",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "QLUNF",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "EOG",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "TAKD",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "PLYM",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SLDE",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "OFIX",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "OPCH",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "PEN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "VRRM",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "GB",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "BXC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "NRP",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "PARR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "DRS",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CORZ",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CIFR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SLDP",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "MOS",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "TLF",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "AII",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "AS",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "XHR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "ATEC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "JAZZ",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "ABCL",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "AMED",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CBLL",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "NXRT",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CWH",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "EXPD",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "IOVA",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "AMC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "BRSL",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "VERA",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SUPN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "LAND",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SKT",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "HPQ",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "RRC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "BBLG",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "GMED",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "LTH",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "ATRO",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "LCID",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CDNA",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "AVNS",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SUI",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "HURN",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "MOBX",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "IMXI",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "WLK",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "KDP",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "LNW",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "FWRG",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SHLS",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "IMCR",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CGBD",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "SSTI",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "PCVX",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "ECG",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "IGIC",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "CECO",
+        "name": null,
+        "date": "2026-02-24"
+      },
+      {
+        "ticker": "PRCT",
+        "name": null,
+        "date": "2026-02-24"
       }
     ],
-    "2026-01-26": [
+    "2026-02-25": [
       {
-        "ticker": "SFST",
+        "ticker": "FAT",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "WSFS",
+        "ticker": "TRIN",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "PGC",
+        "ticker": "PNW",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "NWBI",
+        "ticker": "CSTE",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "FRBA",
+        "ticker": "SITC",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "EBTC",
+        "ticker": "TBLA",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "FFNW",
+        "ticker": "SARO",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "BSRR",
+        "ticker": "RCUS",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "WNEB",
+        "ticker": "KGS",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "MCBS",
+        "ticker": "USEA",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "AGNC",
+        "ticker": "ALKS",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "CHBH",
+        "ticker": "CARL",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "SPFI",
+        "ticker": "NSA",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "NRIX",
+        "ticker": "MANU",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "CFB",
+        "ticker": "GLNG",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "PRK",
+        "ticker": "CTRI",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "FSBC",
+        "ticker": "LFST",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "MOND",
+        "ticker": "ALT",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "MCBI",
+        "ticker": "SKYT",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "EFSC",
+        "ticker": "FSK",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "RBB",
+        "ticker": "SDRL",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "FINN",
+        "ticker": "ADMA",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "BMRC",
+        "ticker": "TTSH",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "LKFN",
+        "ticker": "LAW",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "AONC",
+        "ticker": "ZIP",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "BRO",
+        "ticker": "TASK",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "OVBC",
+        "ticker": "STAA",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "EBMT",
+        "ticker": "ACHC",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "MNSB",
+        "ticker": "CHRD",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "MDXL",
+        "ticker": "LB",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "STLD",
+        "ticker": "IBTA",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "PSBQ",
+        "ticker": "YOU",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "SASR",
+        "ticker": "NGVT",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "GGG",
+        "ticker": "CCCC",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "YXT",
+        "ticker": "STWD",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "FMBL",
+        "ticker": "LXU",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "EMO",
+        "ticker": "BATRA",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "SFBC",
+        "ticker": "MGRC",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "TBBA",
+        "ticker": "LUNG",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "KNDI",
+        "ticker": "EFC",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "CR",
+        "ticker": "WATT",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "HBT",
+        "ticker": "HOV",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "VBTX",
+        "ticker": "HIPO",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "NUE",
+        "ticker": "WTRG",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "KYN",
+        "ticker": "MGNI",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "MGF",
+        "ticker": "ECPG",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "BRLL",
+        "ticker": "AROC",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "MMU",
+        "ticker": "UMH",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "AIAD",
+        "ticker": "RDFN",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "NBTB",
+        "ticker": "FIHL",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "HBCP",
+        "ticker": "INN",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "OXLC",
+        "ticker": "ETNB",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "AGYS",
+        "ticker": "AMSF",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "EDVR",
+        "ticker": "MCI",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "WAL",
+        "ticker": "USPH",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "PDCC",
+        "ticker": "AVA",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "TSBK",
+        "ticker": "ZIMV",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "WRB",
+        "ticker": "SVC",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "PEBK",
+        "ticker": "VECO",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "MAXN",
+        "ticker": "CCAP",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "MTAL",
+        "ticker": "ICLR",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "FSUN",
+        "ticker": "ORA",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "FRME",
+        "ticker": "CRAWA",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "PBNK",
+        "ticker": "TNGX",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "ARE",
+        "ticker": "SMP",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "FBMS",
+        "ticker": "VCYT",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "BOH",
+        "ticker": "JOBY",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
       },
       {
-        "ticker": "BYFC",
+        "ticker": "BBSI",
         "name": null,
-        "date": "2026-01-26"
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "BKV",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MGEE",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ASPN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CRGY",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CCIF",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "NVDA",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MDXG",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "NU",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MRUS",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "GERN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SPOK",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "IMNN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CLMB",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "IBOC",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "IMAX",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ARRY",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "DOLE",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SHOO",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "DNA",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "LTBR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "STSFF",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "XPEL",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "WSR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SRPT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "VTOL",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "DRVN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "APG",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "UWMC",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "APA",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "FSS",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ARKO",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "LINE",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CWT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CLDT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MGPI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "IRWD",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CPRX",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "VICI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ZM",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "PLAB",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "GRBK",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "BXSL",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ARQT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "DIN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MIAX",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ACAD",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "TWFG",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "AMRN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CRMT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "AOMR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SSP",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "KW",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "VLN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SBLK",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CHE",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "EPR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "IONQ",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SGMO",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "LIVN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "PNTG",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "EHTH",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ADTN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "PR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SBGI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "PARK",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "NWPX",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "DNLI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "WHD",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "PEB",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "LXFR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "EOS",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "GNL",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ETB",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "EMD",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "DORM",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "GSAT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "RDW",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "RXST",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "KNTK",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "OC",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "GMRE",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "NMRK",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "GPRK",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "UTHR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CMPS",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "NOG",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "TKO",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "XZO",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "INVZ",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "GPCR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MDRR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "LMAT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "EBAY",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "DHIL",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "FFC",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "PSKY",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SNPS",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "WINA",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MIRM",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "XPER",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SNOW",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SDGR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "TPH",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "PGRE",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "PSTG",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SLNO",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CBZ",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "AI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "VSEC",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "NHC",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "EQC",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "JAMF",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "RXRX",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "FTAI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "OUT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ALKT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "STRL",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "JOE",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ZVIA",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CODI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "HAYW",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ASTE",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ENVX",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "PRSU",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CPK",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "TTD",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CSV",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ERII",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "UHS",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SBR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "IRON",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MYRG",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "IEP",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "RRGB",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "OSUR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "TDOC",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "HNST",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "NPKI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "VAC",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "AHT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "NTNX",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CHDN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ESEA",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "A",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "HCI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CAPL",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "GDRX",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "AGL",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "NRDS",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SNBR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "DBRG",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ROOT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "ALLT",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MDLN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "URBN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CRCL",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MEG",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "EE",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "JSPR",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "MRVI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "CHYM",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "HNI",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "TJX",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "PLQC",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SEZL",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "BLMN",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "SM",
+        "name": null,
+        "date": "2026-02-25"
+      },
+      {
+        "ticker": "BJRI",
+        "name": null,
+        "date": "2026-02-25"
       }
     ]
   }

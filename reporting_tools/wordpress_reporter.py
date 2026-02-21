@@ -11,6 +11,7 @@ import random
 import logging
 
 # Assuming your other imports (config, data_collection, etc.) are set up
+_pipeline_import_error = None
 try:
     from config.config import START_DATE, END_DATE # Using config for defaults if needed
     from data_processing_scripts.data_collection import fetch_stock_data
@@ -23,8 +24,21 @@ try:
     import analysis_scripts.technical_analysis as ta_module # Renamed to avoid conflict if you have a 'ta' variable
     # from reporting_tools.text_formatter import format_wordpress_content, format_narrative_section  # Module not found
 except ImportError as e:
-    print(f"Error importing project files in wordpress_reporter: {e}")
-    raise
+    _pipeline_import_error = str(e)
+    print(f"Warning: Some pipeline modules not available in wordpress_reporter: {e}")
+    # Define None stubs so the module can still be imported for ALL_REPORT_SECTIONS
+    fetch_stock_data = None
+    fetch_macro_indicators = None
+    preprocess_data = None
+    train_prophet_model = None
+    fa = None
+    hc = None
+    ta_module = None
+    try:
+        from config.config import START_DATE, END_DATE
+    except ImportError:
+        START_DATE = None
+        END_DATE = None
 
 def load_content_library(app_root: str):
     """Load content library variations from JSON file for WordPress posts only."""
@@ -3335,18 +3349,20 @@ def generate_wordpress_dividends_shareholder_returns_html(ticker, rdata, content
         five_year_avg_yield_fmt = hc.format_html_value(five_year_avg_yield, 'percent_direct')
 
         # Determine dividend characteristics for content library selection
+        # Note: div_yield values are in percentage form (e.g., 2.0 for 2%), not decimals
         dividend_level_key = "moderate_dividend"
         if div_yield is not None:
-            if div_yield > 0.04:
+            if div_yield > 4:
                 dividend_level_key = "high_dividend"
-            elif div_yield < 0.02:
+            elif div_yield < 2:
                 dividend_level_key = "low_dividend"
 
         payout_sustainability_key = "healthy_payout"
+        # Note: payout_ratio values are in percentage form (e.g., 75 for 75%), not decimals
         if payout_ratio is not None:
-            if payout_ratio > 0.75:
+            if payout_ratio > 75:
                 payout_sustainability_key = "high_payout"
-            elif payout_ratio < 0.30:
+            elif payout_ratio < 30:
                 payout_sustainability_key = "conservative_payout"
 
         yield_trend_key = "stable_yield"
@@ -3374,7 +3390,8 @@ def generate_wordpress_dividends_shareholder_returns_html(ticker, rdata, content
         # --- Paragraph 1: Dividend Overview and Yield Context ---
         paragraph1_parts = []
         paragraph1_parts.append(f"{company_name} {dividend_overview}, {yield_analysis}.")
-        paragraph1_parts.append(f"This means for every {currency_symbol}100 invested, shareholders receive approximately <strong>{currency_symbol}{(div_yield * 100):.2f}</strong> in annual dividend payments.")
+        # div_yield is already in percentage form (e.g., 0.02 for 0.02%), so no *100 needed
+        paragraph1_parts.append(f"This means for every {currency_symbol}100 invested, shareholders receive approximately <strong>{currency_symbol}{div_yield:.2f}</strong> in annual dividend payments.")
         
         if five_year_avg_yield is not None and div_yield is not None:
             if div_yield < five_year_avg_yield:
@@ -3390,14 +3407,16 @@ def generate_wordpress_dividends_shareholder_returns_html(ticker, rdata, content
 
         # --- Paragraph 2: Payout Analysis and Sustainability Assessment ---
         paragraph2_parts = []
-        paragraph2_parts.append(f"{transition_emphasis}, {company_name} {payout_assessment}, demonstrating that the organization allocates approximately <strong>{payout_ratio * 100:.0f}%</strong> of its earnings toward dividend distributions.")
+        # payout_ratio is already in percentage form (e.g., 0.99 for 0.99%), so no *100 needed
+        paragraph2_parts.append(f"{transition_emphasis}, {company_name} {payout_assessment}, demonstrating that the organization allocates approximately <strong>{payout_ratio:.0f}%</strong> of its earnings toward dividend distributions.")
         
+        # payout_ratio values are in percentage form (e.g., 75 for 75%)
         if payout_ratio is not None:
-            if payout_ratio > 0.75:
+            if payout_ratio > 75:
                 sustainability_concern = get_variation(content_library, 'dividends_shareholders.sustainability_analysis.high_risk',
                     ['This elevated payout level warrants careful monitoring of cash flow sustainability'])
                 paragraph2_parts.append(f"{sustainability_concern}, as limited earnings retention may constrain future growth investments or dividend increases during challenging periods.")
-            elif payout_ratio < 0.30:
+            elif payout_ratio < 30:
                 sustainability_strength = get_variation(content_library, 'dividends_shareholders.sustainability_analysis.conservative',
                     ['This conservative payout approach provides substantial financial flexibility'])
                 paragraph2_parts.append(f"{sustainability_strength}, leaving significant earnings available for reinvestment, debt reduction, or future dividend enhancement as business conditions permit.")
@@ -3414,13 +3433,14 @@ def generate_wordpress_dividends_shareholder_returns_html(ticker, rdata, content
         # --- Paragraph 3: Investment Implications and Strategic Positioning ---
         paragraph3_parts = []
         
+        # div_yield and payout_ratio values are in percentage form (e.g., 3 for 3%, 40 for 40%)
         if payout_ratio is not None and div_yield is not None:
-            if payout_ratio < 0.40 and div_yield < 0.03:
+            if payout_ratio < 40 and div_yield < 3:
                 investment_profile = get_variation(content_library, 'dividends_shareholders.investment_profile.growth_focused',
                     [f'The combination of modest yield and conservative payout suggests {ticker} prioritizes reinvestment over immediate income'])
                 paragraph3_parts.append(f"{investment_profile}, appealing to growth-oriented investors who value dividend safety and potential for future increases over current yield maximization.")
                 paragraph3_parts.append(f"Income-focused investors should recognize that while the dividend appears highly sustainable, the current yield may not satisfy portfolios requiring substantial immediate cash flow generation.")
-            elif payout_ratio > 0.60 or div_yield > 0.04:
+            elif payout_ratio > 60 or div_yield > 4:
                 investment_profile = get_variation(content_library, 'dividends_shareholders.investment_profile.income_focused',
                     [f'The substantial yield and meaningful payout ratio position {ticker} as an income-generating investment'])
                 paragraph3_parts.append(f"{investment_profile}, though investors should monitor earnings trends and cash flow sustainability to ensure dividend security during economic uncertainties.")
@@ -3679,6 +3699,7 @@ def generate_wordpress_dividends_shareholder_returns_html(ticker, rdata, content
         five_year_avg_yield_fmt = hc.format_html_value(five_year_avg_yield, 'percent_direct')
 
         # Determine dividend policy category (Market Standard Thresholds)
+        # Note: div_yield and payout_ratio are in percentage form (e.g., 4.0 for 4%, 60.0 for 60%)
         dividend_policy_key = "moderate_policy"
         if div_yield is not None and payout_ratio is not None:
             if div_yield > 4.0 or payout_ratio > 60.0:
@@ -3687,6 +3708,7 @@ def generate_wordpress_dividends_shareholder_returns_html(ticker, rdata, content
                 dividend_policy_key = "conservative_policy"
 
         # Determine shareholder returns category
+        # Note: div_yield is in percentage form (e.g., 5.0 for 5%)
         shareholder_returns_key = "moderate_returns"
         if div_yield is not None:
             if div_yield > 5.0:
@@ -3695,6 +3717,7 @@ def generate_wordpress_dividends_shareholder_returns_html(ticker, rdata, content
                 shareholder_returns_key = "weak_returns"
 
         # Determine payout sustainability (Market Standard Analysis)
+        # Note: payout_ratio is in percentage form (e.g., 75.0 for 75%)
         payout_analysis_key = "sustainable_payout"
         if payout_ratio is not None:
             if payout_ratio > 75.0:
@@ -3703,6 +3726,7 @@ def generate_wordpress_dividends_shareholder_returns_html(ticker, rdata, content
                 payout_analysis_key = "low_payout"
 
         # Determine yield attractiveness
+        # Note: div_yield is in percentage form (e.g., 4.0 for 4%)
         yield_assessment_key = "moderate_yield"
         if div_yield is not None:
             if div_yield > 4.0:
@@ -3736,7 +3760,8 @@ def generate_wordpress_dividends_shareholder_returns_html(ticker, rdata, content
         currency_symbol = hc.get_currency_symbol(ticker)
         
         paragraph1_parts.append(f"{company_name} {dividend_policy} and {yield_assessment}, providing shareholders with <strong>{rate_fmt} annual dividend per share</strong>.")
-        paragraph1_parts.append(f"This translates to approximately <strong>{currency_symbol}{(div_yield * 100):.2f}</strong> in annual dividend income for every {currency_symbol}100 invested in the company.")
+        # div_yield is already in percentage form (e.g., 0.02 for 0.02%), so no *100 needed
+        paragraph1_parts.append(f"This translates to approximately <strong>{currency_symbol}{div_yield:.2f}</strong> in annual dividend income for every {currency_symbol}100 invested in the company.")
         
         # Market standard yield comparison analysis
         if five_year_avg_yield is not None and div_yield is not None:
@@ -6034,30 +6059,33 @@ def generate_wordpress_report(site_name: str, ticker: str, app_root: str, report
         return {}, error_html, error_css
 
 # Define all possible sections (keys should match values in report_sections_to_include)
-ALL_REPORT_SECTIONS = {
-    "introduction": hc.generate_introduction_html,
-    "metrics_summary": hc.generate_metrics_summary_html,
-    "detailed_forecast_table": hc.generate_detailed_forecast_table_html, # If forecast_df exists
-    "company_profile": hc.generate_company_profile_html,
-    "valuation_metrics": hc.generate_valuation_metrics_html,
-    "total_valuation": hc.generate_total_valuation_html,
-    "profitability_growth": hc.generate_profitability_growth_html,
-    "analyst_insights": hc.generate_analyst_insights_html,
-    "financial_health": hc.generate_financial_health_html,
-    "financial_efficiency": hc.generate_financial_efficiency_html,
-    "historical_performance": hc.generate_historical_performance_html,
-    "technical_analysis_summary": hc.generate_technical_analysis_summary_html,
-    "short_selling_info": hc.generate_short_selling_info_html,
-    "stock_price_statistics": hc.generate_stock_price_statistics_html,
-    "share_statistics": hc.generate_share_statistics_html,
-    "dividends_shareholder_returns": hc.generate_dividends_shareholder_returns_html,
-    "peer_comparison": hc.generate_peer_comparison_html,
-    "conclusion_outlook": hc.generate_conclusion_outlook_html,
-    "risk_factors": hc.generate_risk_factors_html,
-    "faq": hc.generate_faq_html,
-    "report_info_disclaimer": hc.generate_report_info_disclaimer_html
-    # Add more if html_components.py has more generators
-}
+if hc is None:
+    ALL_REPORT_SECTIONS = {}
+else:
+    ALL_REPORT_SECTIONS = {
+        "introduction": hc.generate_introduction_html,
+        "metrics_summary": hc.generate_metrics_summary_html,
+        "detailed_forecast_table": hc.generate_detailed_forecast_table_html, # If forecast_df exists
+        "company_profile": hc.generate_company_profile_html,
+        "valuation_metrics": hc.generate_valuation_metrics_html,
+        "total_valuation": hc.generate_total_valuation_html,
+        "profitability_growth": hc.generate_profitability_growth_html,
+        "analyst_insights": hc.generate_analyst_insights_html,
+        "financial_health": hc.generate_financial_health_html,
+        "financial_efficiency": hc.generate_financial_efficiency_html,
+        "historical_performance": hc.generate_historical_performance_html,
+        "technical_analysis_summary": hc.generate_technical_analysis_summary_html,
+        "short_selling_info": hc.generate_short_selling_info_html,
+        "stock_price_statistics": hc.generate_stock_price_statistics_html,
+        "share_statistics": hc.generate_share_statistics_html,
+        "dividends_shareholder_returns": hc.generate_dividends_shareholder_returns_html,
+        "peer_comparison": hc.generate_peer_comparison_html,
+        "conclusion_outlook": hc.generate_conclusion_outlook_html,
+        "risk_factors": hc.generate_risk_factors_html,
+        "faq": hc.generate_faq_html,
+        "report_info_disclaimer": hc.generate_report_info_disclaimer_html
+        # Add more if html_components.py has more generators
+    }
 
 # Example Usage (if run directly) - Update to pass sections
 if __name__ == '__main__':

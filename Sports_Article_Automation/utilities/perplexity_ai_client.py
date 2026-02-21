@@ -26,6 +26,11 @@ from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
 
+# Load .env from the Sports_Article_Automation directory (one level up from utilities/)
+_sports_env = Path(__file__).resolve().parent.parent / ".env"
+if _sports_env.exists():
+    load_dotenv(_sports_env, override=True)
+
 # Import enhanced configuration
 try:
     from enhanced_config import EnhancedConfig
@@ -42,9 +47,6 @@ except ImportError:
         @classmethod
         def get_enhanced_sources(cls, category=None): 
             return ["ESPN", "BBC Sport", "The Athletic", "Reuters", "Associated Press", "Twitter/X verified", "YouTube official", "Reddit sports", "official team sites", "player social media"]
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Import content freshness validation using dynamic imports to avoid import errors
 import importlib

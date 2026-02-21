@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WSGI entry point for Azure App Service with startup optimizations
+WSGI entry point with startup optimizations
 This file is used by Gunicorn to start the application
 """
 
@@ -20,14 +20,6 @@ os.environ.setdefault('FLASK_DEBUG', 'False')
 print(f"🚀 Starting application initialization at {time.strftime('%Y-%m-%d %H:%M:%S')}")
 start_time = time.time()
 
-# Apply startup optimizations
-try:
-    from scripts.startup_optimization import optimize_startup_environment
-    optimize_startup_environment()
-    print("✅ Startup environment optimized")
-except ImportError as e:
-    print(f"⚠️  Warning: Could not import startup optimizations: {e}")
-
 # Import and configure the application
 from app.main_portal_app import app, socketio
 
@@ -39,7 +31,9 @@ try:
 except ImportError as e:
     print(f"⚠️  Warning: Could not import production config: {e}")
 
-# For Azure App Service and Gunicorn
+# For Gunicorn and WSGI hosting
+# Flask-SocketIO already wraps app.wsgi_app with SocketIO middleware during init_app()
+# so passing the Flask app directly works for both regular HTTP and /socket.io/ routes
 application = app
 
 elapsed_time = time.time() - start_time

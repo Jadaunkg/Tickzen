@@ -294,7 +294,8 @@ class SupabaseClient:
         return self._retry_with_backoff(_execute)
     
     def select_ordered(self, table: str, order_by: str, ascending: bool = True,
-                       limit: int = None, columns: str = "*") -> List[Dict]:
+                       limit: int = None, columns: str = "*",
+                       stock_id: int = None) -> List[Dict]:
         """
         Select records with ordering.
         
@@ -304,12 +305,18 @@ class SupabaseClient:
             ascending: Order direction
             limit: Maximum records to return
             columns: Columns to select
+            stock_id: Optional stock ID filter applied server-side (avoids
+                      fetching rows from every stock in the table)
             
         Returns:
             List of records
         """
         def _execute():
             query = self._client.table(table).select(columns)
+            # Apply stock_id filter at the database level so we never pull
+            # rows from other stocks into memory.
+            if stock_id is not None:
+                query = query.eq('stock_id', stock_id)
             query = query.order(order_by, desc=not ascending)
             
             if limit:
@@ -334,14 +341,18 @@ class SupabaseClient:
         Returns:
             Latest record or None
         """
+        # Pass stock_id to select_ordered so the filter is applied server-side.
+        # Previously this method fetched ALL rows from the table then filtered
+        # in Python, which silently returned None whenever the caller omitted
+        # stock_id from the columns list.
         records = self.select_ordered(
             table=table,
             columns=columns,
             order_by=order_by,
             ascending=False,
-            limit=1
+            limit=1,
+            stock_id=stock_id
         )
-        records = [r for r in records if r.get('stock_id') == stock_id]
         return records[0] if records else None
     
     def update(self, table: str, data: Dict[str, Any], filters: Dict[str, Any]) -> int:

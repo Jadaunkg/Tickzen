@@ -18,7 +18,7 @@ Key Features:
 ------------
 - **Health Monitoring**: Continuous service health tracking
 - **Error Recovery**: Automatic retry mechanisms
-- **Azure Compatibility**: Optimized for Azure App Service
+- **Cloud Compatibility**: Optimized for managed hosting
 - **Multi-Environment**: Development and production configurations
 - **Comprehensive Logging**: Detailed operation tracking
 
@@ -45,7 +45,7 @@ The module tracks:
 - Connection status to each Firebase service
 - Recent operation errors and timestamps
 - Service availability and response times
-- Network configuration for Azure deployment
+- Network configuration for cloud deployment
 
 Error Categories:
 ----------------
@@ -55,8 +55,8 @@ Error Categories:
 - STORAGE: File upload/download errors
 - NETWORK: Connectivity and timeout issues
 
-Azure App Service Optimizations:
--------------------------------
+Cloud Hosting Optimizations:
+---------------------------
 - Network timeout configurations
 - Connection pooling for Firebase services
 - Environment variable management
@@ -171,18 +171,18 @@ import requests
 import socket
 from datetime import datetime, timezone
 
-# Azure App Service network configuration
-def configure_azure_network_settings():
-    """Configure network settings for Azure App Service deployment"""
+# Cloud network configuration
+def configure_network_settings():
+    """Configure network settings for cloud deployment"""
     try:
-        # Set socket timeout for Azure network issues
+        # Set socket timeout for network instability
         socket.setdefaulttimeout(30)
         
-        # Configure requests session with Azure-friendly timeouts
+        # Configure requests session with production-friendly timeouts
         session = requests.Session()
         session.timeout = (10, 30)  # (connect_timeout, read_timeout)
         
-        # Add retry strategy for Azure network issues
+        # Add retry strategy for transient network issues
         from requests.adapters import HTTPAdapter
         from urllib3.util.retry import Retry
         
@@ -195,10 +195,10 @@ def configure_azure_network_settings():
         session.mount("http://", adapter)
         session.mount("https://", adapter)
         
-        logger.info("Azure network settings configured successfully")
+        logger.info("Network settings configured successfully")
         return session
     except Exception as e:
-        logger.warning(f"Failed to configure Azure network settings: {e}")
+        logger.warning(f"Failed to configure network settings: {e}")
         return None
 
 # Load environment variables from .env file at the very beginning
@@ -224,8 +224,8 @@ _firebase_health_status = {
     'last_error': None
 }
 
-# Configure Azure network settings
-azure_session = configure_azure_network_settings()
+# Configure network settings
+network_session = configure_network_settings()
 
 _firebase_app_initialized = False
 _firebase_app = None  # To store the initialized app instance
@@ -679,7 +679,7 @@ def verify_firebase_token(id_token):
     
     # Step 1: Optional network connectivity test for diagnostics (no fallback)
     try:
-        session_to_use = azure_session if azure_session else requests
+        session_to_use = network_session if network_session else requests
         cert_test = session_to_use.get(
             "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
             timeout=(10, 30)

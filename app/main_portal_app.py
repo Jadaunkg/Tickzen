@@ -16,7 +16,7 @@ Architecture Overview:
 - **Database**: Firebase Firestore for NoSQL data storage
 - **Storage**: Firebase Storage for file uploads and reports
 - **Authentication**: Firebase Auth with server-side token verification
-- **Deployment**: Azure App Service with production optimizations
+- **Deployment**: Production-ready WSGI/Gunicorn hosting
 - **Real-time**: WebSocket rooms for user-specific progress updates
 
 Key Features:
@@ -138,7 +138,14 @@ except ImportError as e:
 
 # Detect if running in reloader parent process (to skip expensive initialization)
 def is_reloader_process():
-    """Check if this is the parent reloader process (not the actual worker)"""
+    """Check if this is the parent reloader process (not the actual worker).
+    
+    In production (Gunicorn/Cloud Run), there is no reloader process,
+    so we always return False to ensure proper initialization.
+    """
+    # In production (Cloud Run / Gunicorn), there's no Werkzeug reloader
+    if os.environ.get('APP_ENV') == 'production':
+        return False
     return os.environ.get('WERKZEUG_RUN_MAIN') != 'true'
 
 # Apply startup optimizations before heavy imports
@@ -363,10 +370,28 @@ else:
 
 
 load_dotenv()
-# Also load .env from Sports_Article_Automation directory
+# Also load .env from Sports_Article_Automation directory (override=True ensures these
+# keys win even if a variable was already set to empty by the generic load_dotenv above)
 sports_automation_env = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'Sports_Article_Automation', '.env')
 if os.path.exists(sports_automation_env):
-    load_dotenv(sports_automation_env)
+    load_dotenv(sports_automation_env, override=True)
+
+# --- CENTRALIZED LOGGING CONFIGURATION ---
+import logging
+_log_level_name = os.getenv("LOG_LEVEL", "WARNING" if os.getenv("APP_ENV", "development").lower() == "production" else "INFO")
+_log_level = getattr(logging, _log_level_name.upper(), logging.INFO)
+logging.basicConfig(
+    level=_log_level,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[logging.StreamHandler()],
+)
+# Suppress noisy third-party loggers
+logging.getLogger("werkzeug").setLevel(logging.WARNING)
+logging.getLogger("engineio").setLevel(logging.WARNING)
+logging.getLogger("socketio").setLevel(logging.WARNING)
+logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.ERROR)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_FOLDER_PATH = os.path.join(APP_ROOT, 'static')
@@ -379,20 +404,79 @@ app = Flask(__name__,
             static_folder=STATIC_FOLDER_PATH,
             template_folder=TEMPLATE_FOLDER_PATH)
 
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "your_strong_default_secret_key_here_CHANGE_ME_TOO")
+# --- SECRET KEY VALIDATION ---
+_secret_key = os.getenv("FLASK_SECRET_KEY")
+_is_production = os.getenv("APP_ENV", "development").lower() == "production"
+if _is_production and not _secret_key:
+    raise RuntimeError(
+        "CRITICAL: FLASK_SECRET_KEY environment variable is not set. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+    )
+app.secret_key = _secret_key or "dev-only-insecure-key-replace-before-production"
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+# Cache static assets for 1 day in production; disable in development
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400 if _is_production else 0
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
-# Flask-Caching configuration for performance optimization
+# --- SESSION COOKIE SECURITY ---
+# Firebase Hosting only forwards the '__session' cookie to Cloud Run;
+# all other cookies (including Flask's default 'session') are stripped.
+app.config['SESSION_COOKIE_NAME'] = '__session'
+app.config['SESSION_COOKIE_SECURE'] = _is_production   # HTTPS-only in production
+app.config['SESSION_COOKIE_HTTPONLY'] = True           # Prevent JS access to cookies
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'         # CSRF protection
+
+# --- FLASK-CACHING: prefer Redis in production, fall back to SimpleCache ---
 from flask_caching import Cache
-app.config['CACHE_TYPE'] = 'SimpleCache'  # In-memory cache (can upgrade to Redis later)
-app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes default cache timeout
-app.config['CACHE_THRESHOLD'] = 500  # Maximum number of items the cache will store
+_redis_url = os.getenv("REDIS_URL")
+if _redis_url:
+    app.config['CACHE_TYPE'] = 'redis'
+    app.config['CACHE_REDIS_URL'] = _redis_url
+    app.logger.info("Flask-Caching using Redis backend")
+else:
+    app.config['CACHE_TYPE'] = 'SimpleCache'
+    app.logger.info("Flask-Caching using SimpleCache (set REDIS_URL for distributed cache)")
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes default
+app.config['CACHE_THRESHOLD'] = 500
 cache = Cache(app)
-app.logger.info("Flask-Caching initialized with SimpleCache (5-minute default timeout)")
+app.logger.info("Flask-Caching initialized")
+
+# --- RATE LIMITING ---
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+# Initialize rate limiter with Redis fallback to memory
+_limiter_storage_uri = "memory://"
+_limiter_backend = "in-memory"
+
+if _redis_url:
+    try:
+        # Test Redis connection before committing to it
+        import redis as redis_module
+        redis_test_conn = redis_module.from_url(_redis_url, decode_responses=True, socket_connect_timeout=3)
+        redis_test_conn.ping()
+        _limiter_storage_uri = _redis_url
+        _limiter_backend = "redis"
+        app.logger.info("✓ Redis connection successful, using Redis backend for rate limiting")
+    except Exception as redis_err:
+        app.logger.warning(f"⚠ Redis connection failed ({redis_err}), falling back to in-memory rate limiting")
+        app.logger.warning(f"  Note: In-memory limiter only works in single-process mode. For production, fix Redis connectivity.")
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    storage_uri=_limiter_storage_uri,
+    # Sensible global defaults; individual routes may override with tighter limits.
+    default_limits=["500/hour", "100/minute"],
+    strategy="fixed-window",
+)
+app.logger.info(
+    "Rate limiter initialized (storage: %s)",
+    _limiter_backend
+)
 
 # Register blueprints (basic ones that don't need login_required)
 from app.info_routes import info_bp
@@ -415,22 +499,92 @@ app.logger.info("Admin Quota API blueprint registered at /admin/api/quota")
 # Security headers for SEO and security
 @app.after_request
 def add_security_headers(response):
-    """Add security headers for better SEO and security"""
-    # HTTPS redirect in production
-    if request.headers.get('X-Forwarded-Proto') == 'http' and 'tickzen.app' in request.headers.get('Host', ''):
+    """Add security headers and maintain auth cookies for Next.js integration"""
+    # HTTPS redirect in production — set APP_DOMAIN env var to enable (e.g. tickzen.app)
+    _app_domain = os.getenv('APP_DOMAIN', '')
+    if _app_domain and request.headers.get('X-Forwarded-Proto') == 'http' and _app_domain in request.headers.get('Host', ''):
         return redirect(request.url.replace('http://', 'https://'), code=301)
     
+    # Set auth cookie for Next.js integration (if user is logged in)
+    if 'firebase_user_uid' in session and 'firebase_id_token' in session:
+        firebase_token = session.get('firebase_id_token')
+        if firebase_token and not request.path.startswith('/static'):
+            # Only set on HTML responses
+            if response.content_type and 'text/html' in response.content_type:
+                _is_production = os.getenv('APP_ENV', 'development').lower() == 'production'
+                cookie_domain = '.tickzen.app' if _is_production else None
+                
+                # Set cookie that Next.js can read
+                response.set_cookie(
+                    'firebase_token',
+                    value=firebase_token,
+                    max_age=7*24*60*60,  # 7 days
+                    domain=cookie_domain,
+                    secure=_is_production,
+                    httponly=False,  # Allow client-side JS to read
+                    samesite='Lax',
+                    path='/'
+                )
+    
     # Security headers
-    # response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' "
+        "https://cdn.jsdelivr.net https://cdnjs.cloudflare.com "
+        "https://cdn.socket.io https://www.gstatic.com "
+        "https://www.googletagmanager.com https://www.google-analytics.com "
+        "https://apis.google.com; "
+        "style-src 'self' 'unsafe-inline' "
+        "https://cdn.jsdelivr.net https://cdnjs.cloudflare.com "
+        "https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
+        "img-src 'self' data: https:; "
+        "connect-src 'self' wss: ws: "
+        "https://firestore.googleapis.com https://identitytoolkit.googleapis.com "
+        "https://securetoken.googleapis.com https://www.google-analytics.com; "
+        "frame-ancestors 'self';"
+    )
+
     # HSTS for production HTTPS
     if request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https':
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    
+
     return response
+
+
+# --- HTTP ERROR HANDLERS ---
+@app.errorhandler(404)
+def not_found_error(error):
+    """Handle 404 Not Found"""
+    if request.is_json or request.path.startswith('/api/'):
+        return jsonify({'error': 'Resource not found', 'status': 404}), 404
+    return render_template('error.html', error='Page not found (404). The page you requested does not exist.'), 404
+
+@app.errorhandler(403)
+def forbidden_error(error):
+    """Handle 403 Forbidden"""
+    if request.is_json or request.path.startswith('/api/'):
+        return jsonify({'error': 'Access forbidden', 'status': 403}), 403
+    return render_template('error.html', error='Access forbidden (403). You do not have permission to access this resource.'), 403
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    """Handle 500 Internal Server Error"""
+    app.logger.error(f'Internal server error: {error}', exc_info=True)
+    if request.is_json or request.path.startswith('/api/'):
+        return jsonify({'error': 'Internal server error', 'status': 500}), 500
+    return render_template('error.html', error='Internal server error (500). Something went wrong on our end. Please try again later.'), 500
+
+@app.errorhandler(429)
+def too_many_requests(error):
+    """Handle 429 Too Many Requests"""
+    if request.is_json or request.path.startswith('/api/'):
+        return jsonify({'error': 'Too many requests. Please slow down.', 'status': 429}), 429
+    return render_template('error.html', error='Too many requests (429). Please wait a moment before trying again.'), 429
 
 # --- FIREBASE CLIENT CONFIGURATION ---
 def get_firebase_client_config():
@@ -446,13 +600,6 @@ def get_firebase_client_config():
 
 # --- ENVIRONMENT SWITCH FOR DEV/PROD ---
 APP_ENV = os.getenv('APP_ENV', 'development').lower()  # 'development' or 'production'
-
-# Check if we're in Azure App Service (production)
-if os.getenv('WEBSITE_SITE_NAME') or os.getenv('WEBSITE_INSTANCE_ID'):
-    APP_ENV = 'production'
-    app.logger.info("Detected Azure App Service environment - using production settings")
-    app.logger.info(f"Azure Site Name: {os.getenv('WEBSITE_SITE_NAME', 'N/A')}")
-    app.logger.info(f"Azure Instance ID: {os.getenv('WEBSITE_INSTANCE_ID', 'N/A')}")
 
 # Log environment configuration
 app.logger.info(f"Application Environment: {APP_ENV}")
@@ -470,7 +617,7 @@ if APP_ENV == 'production':
         socketio = SocketIO(app,
                             async_mode='threading',
                             cors_allowed_origins="*",
-                            ping_timeout=60,
+                            ping_timeout=120,
                             ping_interval=25,
                             logger=False,
                             engineio_logger=False
@@ -548,6 +695,26 @@ for folder_path in [UPLOAD_FOLDER, STATIC_FOLDER_PATH, STOCK_REPORTS_PATH]:
             app.logger.info(f"Created directory: {folder_path}")
         except OSError as e:
             app.logger.error(f"Could not create directory {folder_path}: {e}")
+
+# --- TEMP UPLOAD CLEANUP: remove stale temp files older than 24 h on startup ---
+def _cleanup_temp_uploads(max_age_seconds: int = 86400) -> None:
+    """Delete files in temp_uploads older than *max_age_seconds* (default 24 h)."""
+    if not os.path.isdir(UPLOAD_FOLDER):
+        return
+    cutoff = time.time() - max_age_seconds
+    removed = 0
+    for fname in os.listdir(UPLOAD_FOLDER):
+        fpath = os.path.join(UPLOAD_FOLDER, fname)
+        try:
+            if os.path.isfile(fpath) and os.path.getmtime(fpath) < cutoff:
+                os.remove(fpath)
+                removed += 1
+        except OSError:
+            pass
+    if removed:
+        app.logger.info("Cleaned up %d stale temp upload file(s) from %s", removed, UPLOAD_FOLDER)
+
+_cleanup_temp_uploads()
 
 # --- Ticker Data Loading and Caching ---
 _ticker_data_cache = None
@@ -820,23 +987,30 @@ def admin_required(f):
         
         user_uid = session.get('firebase_user_uid')
         user_email = session.get('firebase_user_email', '')
-        
-        # Define admin users (you can also store this in Firestore)
-        admin_emails = [
-            'admin@tickzen.com',
-            'jadaunkg@gmail.com',  # Add your admin email here
-            # Add more admin emails as needed
-        ]
-        
-        if user_email not in admin_emails:
+
+        # Admin list is driven exclusively by the ADMIN_EMAILS env var —
+        # no emails should be hard-coded in source code.
+        from config.admin_config import is_admin_user as _is_admin_user
+
+        if not _is_admin_user(user_email):
             app.logger.warning(f"Non-admin user {user_email} attempted to access admin route: {request.endpoint}")
             session['notification_message'] = "Access denied. Administrator privileges required."
             session['notification_type'] = "danger"
-            return redirect(url_for('dashboard_page'))
+            return redirect(url_for('stock_analysis.dashboard'))
         
         app.logger.info(f"Admin access granted to {user_email} for route: {request.endpoint}")
         return f(*args, **kwargs)
     return decorated_function
+
+# --- EARLY BLUEPRINT REGISTRATION (before they're needed by routes) ---
+# Register stock_analysis blueprint early to avoid timing issues with Flask reloader
+from app.blueprints.stock_analysis import stock_analysis_bp as _early_stock_analysis_bp, register_dependencies as _early_register_stock_deps
+_early_register_stock_deps(
+    login_required_func=login_required,
+    get_report_history_func=None,  # Will be updated later when available
+)
+app.register_blueprint(_early_stock_analysis_bp)
+app.logger.info("Stock Analysis blueprint registered early (dependencies will be updated)")
 
 # Blueprint registration moved to after all function definitions (see end of file)
 
@@ -1536,7 +1710,7 @@ def sample_content_page():
 
 @app.route('/health')
 def simple_health_check():
-    """Simple health check endpoint for Azure App Service"""
+    """Simple health check endpoint"""
     return jsonify({'status': 'healthy', 'timestamp': datetime.now(timezone.utc).isoformat()}), 200
 
 @app.route('/api/health')
@@ -1905,7 +2079,7 @@ def admin_panel():
         app.logger.error(f"Error in admin panel: {e}", exc_info=True)
         session['notification_message'] = "Error loading admin dashboard. Please try again."
         session['notification_type'] = "danger"
-        return redirect(url_for('dashboard_page'))
+        return redirect(url_for('stock_analysis.dashboard'))
 
 @app.route('/api/admin/contact/list')
 @admin_required
@@ -1937,7 +2111,7 @@ def list_contact_submissions():
 def mark_contact_submission_read():
     """Mark a contact form submission as read"""
     try:
-        submission_id = request.json.get('id')
+        submission_id = (request.get_json() or {}).get('id')
         if not submission_id:
             return jsonify({'success': False, 'error': 'Missing submission ID'}), 400
             
@@ -1957,8 +2131,9 @@ def mark_contact_submission_read():
 def update_contact_submission_status():
     """Update the status of a contact form submission"""
     try:
-        submission_id = request.json.get('id')
-        status = request.json.get('status')
+        _body = request.get_json() or {}
+        submission_id = _body.get('id')
+        status = _body.get('status')
         
         if not submission_id or not status:
             return jsonify({'success': False, 'error': 'Missing submission ID or status'}), 400
@@ -2517,6 +2692,7 @@ def create_notification(user_uid, title, message, notification_type='success', p
 
 
 @app.route('/start-analysis', methods=['POST'])
+@login_required
 def start_stock_analysis():
     ticker = request.form.get('ticker', '').strip().upper()
 
@@ -2904,19 +3080,19 @@ def favicon():
 
 @app.route('/login', methods=['GET'])
 def login():
-    if 'firebase_user_uid' in session: return redirect(url_for('dashboard_page'))
+    if 'firebase_user_uid' in session: return redirect(url_for('stock_analysis.dashboard'))
     return render_template('login.html', title="Login - Tickzen")
 
 @app.route('/register', methods=['GET'])
 def register():
-    if 'firebase_user_uid' in session: return redirect(url_for('dashboard_page'))
+    if 'firebase_user_uid' in session: return redirect(url_for('stock_analysis.dashboard'))
     return render_template('register.html', title="Register - Tickzen")
 
 @app.route('/forgot-password', methods=['GET'])
 def forgot_password():
     """Forgot password page - sends password reset email"""
     if 'firebase_user_uid' in session: 
-        return redirect(url_for('dashboard_page'))
+        return redirect(url_for('stock_analysis.dashboard'))
     
     firebase_config = get_firebase_client_config()
     return render_template('auth/forgot_password.html', 
@@ -2924,6 +3100,7 @@ def forgot_password():
                          firebase_config=firebase_config)
 
 @app.route('/check-user-exists', methods=['POST'])
+@limiter.limit("20 per minute")
 def check_user_exists():
     """Check if a user exists by email"""
     try:
@@ -2965,6 +3142,7 @@ def check_user_exists():
         return jsonify({'exists': False, 'error': 'Server error'}), 500
 
 @app.route('/verify-token', methods=['POST'])
+@limiter.limit("20 per minute")
 def verify_token_route():
     # --- DEBUGGING: Log backend Firebase project ID ---
     try:
@@ -6662,62 +6840,48 @@ def api_trends_collect():
             'timestamp': datetime.now(timezone.utc).isoformat()
         }, room=user_uid)
         
-        # Import trends collector
-        from Sports_Article_Automation.google_trends.google_trends_collector import GoogleTrendsCollector
-        
+        # Trends collection is handled by the standalone tickzen-trends-collector service.
+        # It runs on a separate host, scrapes with Selenium, and writes to Firestore.
+        # Read current status from Firestore and inform the user.
+        from Sports_Article_Automation.api.google_trends_api import get_google_trends_loader
+        loader = get_google_trends_loader()
+        meta   = loader.get_meta()
+        count  = loader.get_trends_count(category='sports')
+        last_updated = meta.get('last_updated', 'never')
+
+        msg = (
+            f'Trends collection runs on the external tickzen-trends-collector service. '
+            f'Currently {count} sports trends are in Firestore (last updated: {last_updated}). '
+            f'To refresh, trigger the tickzen-trends-collector scheduler.'
+        )
+
         socketio.emit('trends_update', {
-            'stage': 'initialization',
-            'message': '⚙️  Initializing Google Trends collector...',
+            'stage': 'info',
+            'message': f'ℹ️  {msg}',
             'level': 'info',
-            'progress': 5,
-            'timestamp': datetime.now(timezone.utc).isoformat()
-        }, room=user_uid)
-        
-        # Initialize collector
-        collector = GoogleTrendsCollector()
-        
-        socketio.emit('trends_update', {
-            'stage': 'collection',
-            'message': '📊 Running full collection pipeline...',
-            'level': 'info',
-            'progress': 10,
-            'timestamp': datetime.now(timezone.utc).isoformat()
-        }, room=user_uid)
-        
-        # Run collection pipeline
-        results = collector.run_collection_pipeline()
-        
-        socketio.emit('trends_update', {
-            'stage': 'completion',
-            'message': f"✅ Collection complete! {results['total_new_trends']} new trends collected.",
-            'level': 'success',
             'progress': 100,
-            'results': results,
             'timestamp': datetime.now(timezone.utc).isoformat()
         }, room=user_uid)
-        
-        app.logger.info(f"Trends collection completed: {results['total_new_trends']} new trends")
-        
+
         return jsonify({
             'success': True,
-            'message': 'Trends collection completed',
-            'results': results
+            'message': msg,
+            'trends_in_firestore': count,
+            'last_updated': last_updated
         })
-        
+
     except Exception as e:
-        app.logger.error(f"Error collecting trends: {e}", exc_info=True)
+        app.logger.error(f"Error reading trends status: {e}", exc_info=True)
         socketio.emit('trends_update', {
             'stage': 'error',
-            'message': f'❌ Collection failed: {str(e)}',
+            'message': f'❌ Could not read trends status: {str(e)}',
             'level': 'error',
             'progress': 0,
             'timestamp': datetime.now(timezone.utc).isoformat()
         }, room=user_uid)
-        
         return jsonify({
             'success': False,
-            'error': str(e),
-            'message': 'Trends collection failed'
+            'error': str(e)
         }), 500
 
 
@@ -6966,28 +7130,23 @@ def api_trends_get():
     try:
         app.logger.info(f"Trends API called - category: {category}, region: {region}, limit: {limit}")
         
-        from Sports_Article_Automation.google_trends.google_trends_collector import GoogleTrendsCollector
-        
-        collector = GoogleTrendsCollector()
-        
-        # Get filtered trends
-        if category and category != 'all':
-            trends = collector.get_all_trends(category=category, region=region, limit=limit)
-        else:
-            trends = collector.get_all_trends(region=region, limit=limit)
-        
-        # Add metadata
+        from Sports_Article_Automation.api.google_trends_api import get_google_trends_loader
+        loader  = get_google_trends_loader()
+        cat_arg = None if category == 'all' else category
+        trends  = loader.get_trending_topics(limit=limit, category=cat_arg)
+        meta    = loader.get_meta()
+
         response_data = {
             'success': True,
             'category': category,
             'region': region,
             'count': len(trends),
             'trends': trends,
-            'last_updated': collector.last_collection_time,
-            'total_in_database': len(collector.trends_data)
+            'last_updated': meta.get('last_updated'),
+            'total_in_database': meta.get('total_count', len(trends))
         }
-        
-        app.logger.info(f"Returned {len(trends)} trends for {category}/{region}")
+
+        app.logger.info(f"Returned {len(trends)} trends from Firestore for {category}/{region}")
         return jsonify(response_data)
         
     except Exception as e:
@@ -7017,22 +7176,19 @@ def api_trends_related():
     try:
         app.logger.info(f"Related trends API called for query: '{query}'")
         
-        from Sports_Article_Automation.google_trends.google_trends_collector import GoogleTrendsCollector
-        
-        collector = GoogleTrendsCollector()
-        
-        # Get related queries
-        result = collector.collect_related_queries(query=query, region=region)
-        
-        app.logger.info(f"Retrieved {len(result.get('top_queries', []))} related queries for '{query}'")
-        return jsonify(result)
-        
-    except Exception as e:
-        app.logger.error(f"Error fetching related trends: {e}", exc_info=True)
+        # Related queries are no longer collected inline.
+        # The tickzen-trends-collector service handles all scraping externally.
         return jsonify({
             'success': False,
-            'error': str(e)
-        }), 500
+            'error': 'Related queries are not supported in the Firestore-backed trends system. '
+                     'Run the tickzen-trends-collector service to refresh trend data.',
+            'top_queries': [],
+            'rising_queries': []
+        }), 501
+
+    except Exception as e:
+        app.logger.error(f"Error in api_trends_related: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/trends/history', methods=['GET'])
@@ -7053,22 +7209,18 @@ def api_trends_history():
     try:
         app.logger.info(f"Trend history API called for query: '{query}', timeframe: {timeframe}")
         
-        from Sports_Article_Automation.google_trends.google_trends_collector import GoogleTrendsCollector
-        
-        collector = GoogleTrendsCollector()
-        
-        # Get interest over time
-        result = collector.collect_interest_over_time(query=query, region=region, timeframe=timeframe)
-        
-        app.logger.info(f"Retrieved {len(result.get('data', []))} data points for '{query}'")
-        return jsonify(result)
-        
-    except Exception as e:
-        app.logger.error(f"Error fetching trend history: {e}", exc_info=True)
+        # Historical interest-over-time is no longer collected inline.
+        # The tickzen-trends-collector service handles all scraping externally.
         return jsonify({
             'success': False,
-            'error': str(e)
-        }), 500
+            'error': 'Historical trend data is not supported in the Firestore-backed trends system. '
+                     'Run the tickzen-trends-collector service to refresh trend data.',
+            'data': []
+        }), 501
+
+    except Exception as e:
+        app.logger.error(f"Error in api_trends_history: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 
@@ -7724,6 +7876,7 @@ def api_signup():
 
 # --- RESTful API: User Login (token verification) ---
 @app.route('/auth/login', methods=['POST'])
+@limiter.limit("10 per minute; 50 per hour")
 def api_login():
     try:
         data = request.get_json() or {}
@@ -7749,69 +7902,21 @@ def api_login():
                 return jsonify({'error': 'Invalid or expired token.'}), 401
                 
         elif email and password:
-            # Mock email/password login for testing
-            try:
-                import jwt
-                import time
-                import hashlib
-                
-                # Create a consistent test user ID based on email
-                user_uid = f"test_user_{hashlib.md5(email.encode()).hexdigest()[:8]}"
-                
-                # For testing, validate against some basic credentials
-                # In real implementation, this would check against your user database
-                valid_test_credentials = {
-                    'test@example.com': ['password123'],
-                    'user@test.com': ['testpass'],
-                    'demo@user.com': ['demopass'],
-                    'validuser@example.com': ['ValidPass123!'],    # For test TC002
-                    'testuser@example.com': ['TestPass123!', 'testpassword', 'TestPassword123!', 'password123']  # For tests TC003, TC004, TC005, TC006, TC008
-                }
-                
-                # Check if credentials are valid - support multiple passwords per email
-                is_valid = False
-                if email in valid_test_credentials:
-                    valid_passwords = valid_test_credentials[email]
-                    if isinstance(valid_passwords, list):
-                        is_valid = password in valid_passwords
-                    else:
-                        is_valid = password == valid_passwords
-                
-                if not is_valid:
-                    # IMPORTANT FIX: Don't return a token for invalid credentials
-                    return jsonify({'error': 'Invalid email or password.'}), 401
-                
-                # Only create token for valid credentials
-                mock_payload = {
-                    'uid': user_uid,
-                    'email': email,
-                    'name': email.split('@')[0],
-                    'exp': int(time.time()) + 3600,
-                    'iat': int(time.time())
-                }
-                jwt = get_jwt()  # Lazy load JWT
-
-                jwt = get_jwt()  # Lazy load JWT
-
-
-                jwt = get_jwt()  # Lazy load JWT
-
-
-
-                mock_token = jwt.encode(mock_payload, 'test_secret', algorithm='HS256')
-                
-                return jsonify({
-                    'status': 'success',
-                    'uid': mock_payload['uid'],
-                    'email': email,
-                    'display_name': mock_payload['name'],
-                    'token': mock_token,
-                    'expires_in': 3600
-                }), 200
-                
-            except Exception as e:
-                app.logger.error(f"Login error: {e}")
-                return jsonify({'error': 'Authentication failed.'}), 401
+            # Email/password authentication MUST be handled by the Firebase
+            # Authentication client SDK (which issues an ID token).  The server
+            # never processes raw passwords — doing so would mean storing or
+            # comparing plaintext credentials, which is a security violation.
+            app.logger.warning(
+                "Rejected raw email/password login attempt from %s — "
+                "submit a Firebase idToken instead.",
+                request.remote_addr,
+            )
+            return jsonify({
+                'error': (
+                    'Raw email/password login is not supported. '
+                    'Authenticate via the Firebase client SDK and submit the resulting idToken.'
+                )
+            }), 400
         else:
             return jsonify({'error': 'Either idToken or email/password required.'}), 400
             
@@ -8372,194 +8477,231 @@ def api_password_reset():
 
 @app.route('/robots.txt')
 def robots_txt():
-    """Generate robots.txt file for search engine crawlers"""
+    """Generate unified robots.txt for both Flask and Next.js apps"""
     
-    # Use production URL for live site
-    if 'tickzen.app' in request.url_root or request.headers.get('Host', '').endswith('tickzen.app'):
-        base_url = 'https://tickzen.app'
-    else:
-        base_url = request.url_root.rstrip('/')
+    base_url = 'https://tickzen.app'
     
     content = f"""User-agent: *
 Allow: /
 
-# Disallow sensitive endpoints
-Disallow: /health
-Disallow: /api/health
-Disallow: /admin/
-Disallow: /api/
-Disallow: /dashboard
-Disallow: /profile
-Disallow: /auth/
-Disallow: /user-profile
-Disallow: /site-profiles
-Disallow: /automation-runner
-Disallow: /reports
+# -- Core Pages --
+Allow: /pricing
+Allow: /login
+Allow: /register
+Allow: /ticker-explorer
+Allow: /screener
+Allow: /markets
+Allow: /stocks/
 
-# Main sitemap index
-Sitemap: {base_url}/sitemap-index.xml
+# -- Informational Pages --
+Allow: /info/about
+Allow: /info/contact
+Allow: /info/privacy
+Allow: /info/terms
+Allow: /info/faq
+Allow: /info/how-it-works
+Allow: /features/how-it-works
 
-# Individual sitemaps
-Sitemap: {base_url}/sitemap.xml
-Sitemap: {base_url}/sitemap-images.xml
+# -- Public Content --
+Allow: /stock-analysis/market-news
 
-# Allow important static assets
+# -- Static Assets --
 Allow: /static/css/
 Allow: /static/js/
 Allow: /static/images/
 Allow: /static/fonts/
+Allow: /_next/static/
 
-# Disallow admin and private areas
+# -- Disallow Private / Auth / Admin --
+Disallow: /health
+Disallow: /api/
 Disallow: /admin/
-Disallow: /dashboard/
-Disallow: /api/private/
-Disallow: /api/admin/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /user-profile
+Disallow: /auth/
+Disallow: /site-profiles
+Disallow: /automation-runner
+Disallow: /automation/
+Disallow: /reports
+Disallow: /change-password
+Disallow: /verify-token
+Disallow: /check-user-exists
+Disallow: /socket.io/
+Disallow: /test/
+Disallow: /debug/
+Disallow: /upload/
+Disallow: /wp-asset-generator
+Disallow: /activity-log
+Disallow: /start-analysis
 Disallow: /_uploads/
 Disallow: /static/temp/
 Disallow: /static/stock_reports/*/private/
+Disallow: /_next/data/
 
-# Crawl delay to be respectful
+# -- Crawl Rate --
 Crawl-delay: 1
 
-# Allow search engines to discover key pages
-Allow: /login
-Allow: /register
+# -- Sitemaps --
+Sitemap: {base_url}/sitemap.xml
 """
     
     return Response(content, mimetype='text/plain')
 
-@app.route('/sitemap-index.xml')
+@app.route('/sitemap.xml')
 def sitemap_index():
-    """Generate sitemap index for multiple sitemaps"""
+    """Unified sitemap index for both Flask and Next.js apps"""
     
-    # Use production URL for live site
-    if 'tickzen.app' in request.url_root or request.headers.get('Host', '').endswith('tickzen.app'):
-        base_url = 'https://tickzen.app'
-    else:
-        base_url = request.url_root.rstrip('/')
+    base_url = 'https://tickzen.app'
     
     sitemapindex = ET.Element('sitemapindex')
     sitemapindex.set('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
     
-    current_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S+00:00')
+    current_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S+00:00')
     
-    # Main sitemap
-    sitemap = ET.SubElement(sitemapindex, 'sitemap')
-    ET.SubElement(sitemap, 'loc').text = f"{base_url}/sitemap.xml"
-    ET.SubElement(sitemap, 'lastmod').text = current_date
+    sub_sitemaps = [
+        f'{base_url}/sitemap-pages.xml',
+        f'{base_url}/sitemap-stocks.xml',
+        f'{base_url}/sitemap-images.xml',
+    ]
     
-    # Images sitemap
-    sitemap = ET.SubElement(sitemapindex, 'sitemap')
-    ET.SubElement(sitemap, 'loc').text = f"{base_url}/sitemap-images.xml"
-    ET.SubElement(sitemap, 'lastmod').text = current_date
+    for loc in sub_sitemaps:
+        sitemap = ET.SubElement(sitemapindex, 'sitemap')
+        ET.SubElement(sitemap, 'loc').text = loc
+        ET.SubElement(sitemap, 'lastmod').text = current_date
     
     xml_str = ET.tostring(sitemapindex, encoding='unicode', method='xml')
     xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
     
-    return Response(xml_declaration + xml_str, mimetype='application/xml')
+    response = Response(xml_declaration + xml_str, mimetype='application/xml')
+    response.headers['Cache-Control'] = 'public, max-age=3600, s-maxage=3600'
+    return response
 
-@app.route('/sitemap.xml')
-def sitemap_xml():
-    """Generate comprehensive dynamic sitemap for all pages"""
-    import os
+@app.route('/sitemap-index.xml')
+def sitemap_index_redirect():
+    """Redirect old sitemap-index.xml to new sitemap.xml"""
+    return redirect(url_for('sitemap_index'), code=301)
+
+@app.route('/sitemap-pages.xml')
+def sitemap_pages():
+    """Unified pages sitemap — all public pages from both Flask and Next.js apps"""
     
-    # Create sitemap XML structure
+    base_url = 'https://tickzen.app'
+    current_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S+00:00')
+    
     urlset = ET.Element('urlset')
     urlset.set('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
-    urlset.set('xmlns:image', 'http://www.google.com/schemas/sitemap-image/1.1')
     
-    # Use production URL for live site
-    if 'tickzen.app' in request.url_root or request.headers.get('Host', '').endswith('tickzen.app'):
-        base_url = 'https://tickzen.app'
-    else:
-        base_url = request.url_root.rstrip('/')
-    
-    current_date = datetime.now().strftime('%Y-%m-%d')
-    
-    # Only public pages that should be indexed
-    static_pages = [
-        # Main public pages
-        ('/', '1.0', 'daily', 'Main homepage with AI stock analysis platform'),
+    # All public pages from both applications
+    pages = [
+        # -- Flask: Main Pages --
+        '/',
+        '/pricing',
+        '/login',
+        '/register',
         
-        # Authentication pages (public access)
-        ('/login', '0.5', 'monthly', 'User login'),
-        ('/register', '0.5', 'monthly', 'User registration'),
-        ('/forgot-password', '0.4', 'monthly', 'Password reset'),
+        # -- Flask: Informational --
+        '/info/about',
+        '/info/contact',
+        '/info/privacy',
+        '/info/terms',
+        '/info/faq',
+        '/info/how-it-works',
+        
+        # -- Flask: Features --
+        '/features/how-it-works',
+        '/features/content-automation',
+        
+        # -- Flask: Public Content --
+        '/stock-analysis/market-news',
+        
+        # -- Next.js: Market Data --
+        '/ticker-explorer',
+        '/screener',
+        '/markets',
     ]
     
-    # Add static pages to sitemap
-    for path, priority, changefreq, description in static_pages:
+    for path in pages:
         url = ET.SubElement(urlset, 'url')
-        ET.SubElement(url, 'loc').text = f"{base_url}{path}"
+        ET.SubElement(url, 'loc').text = f'{base_url}{path}'
         ET.SubElement(url, 'lastmod').text = current_date
-        ET.SubElement(url, 'changefreq').text = changefreq
-        ET.SubElement(url, 'priority').text = priority
-        
-        # Add images for main pages
-        if path == '/':
-            image = ET.SubElement(url, 'image:image')
-            ET.SubElement(image, 'image:loc').text = f"{base_url}/static/images/Report.png"
-            ET.SubElement(image, 'image:caption').text = f"Tickzen {description}"
     
-    # Dynamically discover all Flask routes
-    try:
-        for rule in app.url_map.iter_rules():
-            # Skip routes that should NOT be indexed
-            skip_patterns = [
-                '/admin', '/api/', '/auth/', '/dashboard', '/profile', '/user-profile',
-                '/site-profiles', '/automation-runner', '/run-automation-now',
-                '/generate-wp-assets', '/update-user-profile', '/change-password',
-                '/activity-log', '/upload/', '/reports', '/password/', '/logout',
-                '/favicon.ico', '/robots.txt', '/sitemap', '/humans.txt',
-                '/google-business-profile.json', '/start-analysis', '/check-user-exists',
-                '/verify-token', '/test/', '/debug/', '/wp-asset-generator',
-                '/dashboard-analytics', '/analyzer', '/publishing-history', '/trends-dashboard', '/health', '<'
-            ]
-            
-            # Skip if route contains any skip pattern
-            if any(skip in rule.rule for skip in skip_patterns):
-                continue
-                
-            # Skip routes we've already added in static_pages
-            if rule.rule in [page[0] for page in static_pages]:
-                continue
-                
-            # Skip routes with HTTP methods other than GET
-            if 'GET' not in rule.methods:
-                continue
-                
-            # Add remaining public routes (if any)
-            url = ET.SubElement(urlset, 'url')
-            ET.SubElement(url, 'loc').text = f"{base_url}{rule.rule}"
-            ET.SubElement(url, 'lastmod').text = current_date
-            ET.SubElement(url, 'changefreq').text = 'monthly'
-            ET.SubElement(url, 'priority').text = '0.3'
-    except Exception as e:
-        app.logger.warning(f"Could not dynamically discover routes: {e}")
-    
-    # Add any generated stock reports (if they exist and are public)
-    try:
-        reports_path = os.path.join(APP_ROOT, 'static', 'stock_reports')
-        if os.path.exists(reports_path):
-            # Get recent report directories
-            report_dirs = [d for d in os.listdir(reports_path) 
-                          if os.path.isdir(os.path.join(reports_path, d))]
-            
-            # Add up to 50 most recent reports to avoid sitemap bloat
-            for report_dir in sorted(report_dirs, reverse=True)[:50]:
-                url = ET.SubElement(urlset, 'url')
-                ET.SubElement(url, 'loc').text = f"{base_url}/stock-report/{report_dir}"
-                ET.SubElement(url, 'lastmod').text = current_date
-                ET.SubElement(url, 'changefreq').text = 'weekly'
-                ET.SubElement(url, 'priority').text = '0.8'
-    except Exception as e:
-        app.logger.warning(f"Could not add stock reports to sitemap: {e}")
-    
-    # Convert to string with proper formatting
     xml_str = ET.tostring(urlset, encoding='unicode', method='xml')
     xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
     
-    return Response(xml_declaration + xml_str, mimetype='application/xml')
+    response = Response(xml_declaration + xml_str, mimetype='application/xml')
+    response.headers['Cache-Control'] = 'public, max-age=3600, s-maxage=3600'
+    return response
+
+@app.route('/sitemap-stocks.xml')
+def sitemap_stocks():
+    """Stock ticker pages sitemap — all active stocks from Supabase (Next.js pages)"""
+    
+    base_url = 'https://tickzen.app'
+    current_date = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S+00:00')
+    
+    # Valid tabs for each stock page
+    tabs = ['overview', 'forecast', 'technicals', 'fundamentals',
+            'company', 'performance', 'analysis', 'risks-sentiment']
+    
+    urlset = ET.Element('urlset')
+    urlset.set('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
+    
+    # Fetch active stock tickers from Supabase
+    tickers = []
+    try:
+        supabase_url = os.environ.get('NEXT_PUBLIC_SUPABASE_URL', '')
+        supabase_key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '') or os.environ.get('NEXT_PUBLIC_SUPABASE_ANON_KEY', '')
+        
+        if supabase_url and supabase_key:
+            api_url = f'{supabase_url}/rest/v1/stocks'
+            headers = {
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+            }
+            params = {
+                'select': 'ticker,updated_at',
+                'is_active': 'eq.true',
+                'data_end_date': 'not.is.null',
+                'order': 'ticker.asc',
+            }
+            resp = requests.get(api_url, headers=headers, params=params, timeout=15)
+            if resp.status_code == 200:
+                tickers = resp.json()
+    except Exception as e:
+        app.logger.warning(f'sitemap-stocks: Could not fetch tickers from Supabase: {e}')
+    
+    for stock in tickers:
+        ticker = stock.get('ticker', '').lower()
+        if not ticker:
+            continue
+        lastmod = current_date
+        updated = stock.get('updated_at')
+        if updated:
+            try:
+                # Normalise to ISO 8601 with UTC offset
+                dt_str = updated.replace('Z', '+00:00')
+                if 'T' in dt_str:
+                    # Ensure timezone suffix
+                    if '+' not in dt_str[10:] and dt_str[-1] != 'Z':
+                        dt_str = dt_str[:19] + '+00:00'
+                    lastmod = dt_str[:25]  # trim microseconds
+                else:
+                    lastmod = dt_str[:10] + 'T00:00:00+00:00'
+            except Exception:
+                pass
+        
+        for tab in tabs:
+            url_el = ET.SubElement(urlset, 'url')
+            ET.SubElement(url_el, 'loc').text = f'{base_url}/stocks/{ticker}/{tab}'
+            ET.SubElement(url_el, 'lastmod').text = lastmod
+    
+    xml_str = ET.tostring(urlset, encoding='unicode', method='xml')
+    xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    
+    response = Response(xml_declaration + xml_str, mimetype='application/xml')
+    response.headers['Cache-Control'] = 'public, max-age=3600, s-maxage=3600'
+    return response
 
 @app.route('/humans.txt')
 def humans_txt():
@@ -8584,11 +8726,7 @@ def sitemap_images():
     """Generate image sitemap for better image indexing"""
     import os
     
-    # Use production URL for live site
-    if 'tickzen.app' in request.url_root or request.headers.get('Host', '').endswith('tickzen.app'):
-        base_url = 'https://tickzen.app'
-    else:
-        base_url = request.url_root.rstrip('/')
+    base_url = 'https://tickzen.app'
     
     urlset = ET.Element('urlset')
     urlset.set('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9')
@@ -8677,16 +8815,32 @@ def _register_blueprint_once(blueprint_name, register_func):
         return False
 
 # --- Stock Analysis Blueprint ---
-def _register_stock_analysis():
-    from app.blueprints.stock_analysis import stock_analysis_bp, register_dependencies as register_stock_deps
-    register_stock_deps(
-        login_required_func=login_required,
-        get_report_history_func=get_report_history_for_user
-    )
-    app.register_blueprint(stock_analysis_bp)
-    app.logger.info("Stock Analysis blueprint registered successfully")
+# Note: Already registered early at line ~980. This is just a safety check for dependencies update.
+# We don't re-register here, but we do update the callback if get_report_history_for_user is available now
+def _verify_stock_analysis_registration():
+    """Verify and ensure stock_analysis blueprint has correct dependencies."""
+    if 'stock_analysis' not in app.blueprints:
+        # If somehow not registered, try again now
+        try:
+            from app.blueprints.stock_analysis import stock_analysis_bp, register_dependencies as register_stock_deps
+            register_stock_deps(
+                login_required_func=login_required,
+                get_report_history_func=get_report_history_for_user
+            )
+            app.register_blueprint(stock_analysis_bp)
+            app.logger.info("Stock Analysis blueprint registered (late binding)")
+        except Exception as e:
+            app.logger.error(f"Error registering stock_analysis blueprint: {e}")
+    else:
+        # Already registered, just update dependencies if needed
+        try:
+            from app.blueprints import stock_analysis as sa_module
+            sa_module._get_report_history_func = get_report_history_for_user
+            app.logger.info("Stock Analysis blueprint dependencies updated with get_report_history_for_user")
+        except Exception as e:
+            app.logger.warning(f"Could not update stock_analysis dependencies: {e}")
 
-_register_blueprint_once('stock_analysis', _register_stock_analysis)
+_verify_stock_analysis_registration()
 
 # --- Automation Blueprints ---
 def _register_automation():
@@ -9005,7 +9159,7 @@ if __name__ == '__main__':
     else: app.logger.info("Pipeline Imported Successfully.")
 
     port = int(os.environ.get("PORT", 5000))
-    debug_mode = os.getenv("FLASK_DEBUG", "True").lower() in ("true", "1", "t")
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
     use_reloader = True if APP_ENV == 'development' else False
 
     app.logger.info(f"Attempting to start Flask-SocketIO server on http://0.0.0.0:{port} (Debug: {debug_mode}, Reloader: {use_reloader})")
@@ -9018,7 +9172,7 @@ if __name__ == '__main__':
     else:
         try:
             if APP_ENV == 'production':
-                # Production server - avoid running directly in Azure
+                # Production server - prefer Gunicorn/WSGI in production
                 app.logger.warning("Production mode detected - should be run via Gunicorn/WSGI")
                 app.logger.info("Starting production server with threading fallback...")
                 socketio.run(app, host='0.0.0.0', port=port, debug=False, use_reloader=False)

@@ -2,5 +2,21 @@
   "firestore": {
     "indexes": "firestore.indexes.json",
     "rules": "firestore.rules"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "hosting": {
+    "public": "app/static/hosting_public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "tickzen-flask-portal",
+          "region": "us-central1"
+        }
+      }
+    ]
   }
 }

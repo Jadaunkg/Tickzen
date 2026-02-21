@@ -23,7 +23,7 @@ Note: This blueprint uses late-binding pattern to avoid circular imports.
 Dependencies are registered via register_dependencies() before blueprint registration.
 """
 
-from flask import Blueprint, render_template, jsonify, session, current_app, redirect, url_for
+from flask import Blueprint, render_template, jsonify, session, current_app, redirect, url_for, request
 from functools import wraps
 import time
 import sys
@@ -52,16 +52,23 @@ def login_required(f):
     """
     Wrapper for the login_required decorator.
     Uses the registered function from main_portal_app.
+    Defers registration check to REQUEST TIME, not decorator time.
     """
-    if _login_required_func:
-        return _login_required_func(f)
-    else:
-        # Fallback: pass through without authentication (should not happen in production)
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            current_app.logger.warning("login_required not registered - allowing access without auth check")
-            return f(*args, **kwargs)
-        return decorated_function
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Check at RUNTIME, not at decorator application time
+        if _login_required_func:
+            # Delegate to the registered login_required function
+            return _login_required_func(f)(*args, **kwargs)
+        else:
+            # Fallback: DENY access if registration was missed
+            current_app.logger.error(
+                "SECURITY: login_required called in stock_analysis blueprint but "
+                "no auth function was registered. Denying access to: %s",
+                request.path,
+            )
+            return redirect(url_for('login'))
+    return decorated_function
 
 
 def get_report_history_for_user(user_uid, display_limit=10):

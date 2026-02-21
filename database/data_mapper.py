@@ -359,9 +359,12 @@ class DataMapper:
                     'forecast_date': forecast_date,  # When forecast was generated
                     'forecast_period': max(30, days_ahead),  # Days ahead
                     
-                    # Prophet Forecast Prices for this month (varies by month)
-                    'forecast_price_1y': float(row['High']) if pd.notna(row['High']) else None,  # High price
-                    'forecast_avg_price': float(row['Average']) if pd.notna(row['Average']) else None,  # Average price
+                    # Prophet Forecast Prices for this month (varies by month).
+                    # forecast_price_1y stores the Prophet upper-band (High) for the
+                    # nearest monthly period — it is NOT a discrete 1-year price target.
+                    # The query layer exposes this as forecast_price_high.
+                    'forecast_price_1y': float(row['High']) if pd.notna(row['High']) else None,
+                    'forecast_avg_price': float(row['Average']) if pd.notna(row['Average']) else None,
                     'forecast_range_width': float(row['High'] - row['Low']) if pd.notna(row['High']) and pd.notna(row['Low']) else None,
                 }
                 

@@ -308,8 +308,11 @@ def preprocess_data(stock_df, macro_df):
         raise ValueError(f"Date range misalignment: Stock data ({stock_min} to {stock_max}) is entirely before macro data ({macro_min} to {macro_max}). Cannot proceed.")
     else:
         # Normal case with overlap
+        # Use stock_max as end_date (not macro_max) so that recent stock records beyond
+        # the FRED publication lag (~5-7 days) are NOT silently dropped.
+        # The macro reindex+ffill below will forward-fill the trailing gap in macro data.
         start_date = max(stock_min, macro_min)
-        end_date = min(stock_max, macro_max)
+        end_date = stock_max  # FIX: was min(stock_max, macro_max) — that clipped records when FRED lags behind
         
         if start_date > end_date:
             raise ValueError(f"Date range misalignment: Stock data range {stock_min} to {stock_max}, Macro data range {macro_min} to {macro_max}. No overlapping period found.")

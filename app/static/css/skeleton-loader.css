@@ -31,16 +31,37 @@
   }
 }
 
-/* Base skeleton element - Light theme optimized */
+/* Base skeleton element - animated shimmer */
 .skeleton {
-  /* Solid white skeleton block for a professional look; shimmer removed */
-  background: #ffffff;
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e8e8e8 37%,
+    #f0f0f0 63%
+  );
+  background-size: 400px 100%;
+  animation: skeleton-shimmer 1.4s ease infinite !important;
+  animation-duration: 1.4s !important;
+  animation-iteration-count: infinite !important;
   border-radius: 6px;
   display: inline-block;
   position: relative;
   overflow: hidden;
-  border: 1px solid #f2f4f6; /* subtle border to separate from white page background */
-  box-shadow: 0 1px 2px rgba(16,24,40,0.03);
+}
+
+/* Shimmer sweep keyframe */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* Keep shimmer even with prefers-reduced-motion (just slow it down) */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: skeleton-shimmer 3s ease infinite !important;
+    animation-duration: 3s !important;
+    animation-iteration-count: infinite !important;
+  }
 }
 
 /* Removed shimmer overlay; we'll use a centered spinner instead */
@@ -220,16 +241,31 @@
 .skeleton-spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(22,163,74,0.12); /* subtle ring background */
-  border-top: 4px solid var(--news-primary, var(--primary, #16a34a)); /* primary green */
+  border: 4px solid rgba(22, 163, 74, 0.15);
+  border-top: 4px solid #16a34a; /* Explicit color — no CSS var fallback chain needed */
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  box-shadow: 0 2px 6px rgba(16,24,40,0.06);
+  animation: skeleton-spin 0.9s linear infinite !important; /* !important guards against prefers-reduced-motion overrides */
+  animation-duration: 0.9s !important;
+  animation-iteration-count: infinite !important;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.06);
+  /* Force hardware acceleration for smooth rotation */
+  will-change: transform;
+  transform-origin: center center;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
+/* Use a dedicated keyframe name to avoid conflicts with style.css's @keyframes spin */
+@keyframes skeleton-spin {
+  0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Override prefers-reduced-motion for the spinner — it MUST keep rotating */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-spinner {
+    animation: skeleton-spin 1.5s linear infinite !important;
+    animation-duration: 1.5s !important;
+    animation-iteration-count: infinite !important;
+  }
 }
 
 /* Hide actual content while loading */

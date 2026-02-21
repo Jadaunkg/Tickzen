@@ -391,50 +391,33 @@ def trends():
 def collect_trends():
     """Collect latest Google Trends data."""
     user_uid = session['firebase_user_uid']
-    
+    current_app.logger.info(f"[TRENDS_COLLECTION] Starting trends collection for user {user_uid}")
+
+    # Trends collection is now handled by the standalone tickzen-trends-collector service.
+    # It runs on its own server, scrapes Google Trends with Selenium, and writes directly
+    # to Firestore. TickZen reads trends from Firestore via google_trends_api.py.
+    # To trigger a new collection, start the tickzen-trends-collector service.
     try:
-        current_app.logger.info(f"[TRENDS_COLLECTION] Starting trends collection for user {user_uid}")
-        
-        # Import the Google Trends pipeline
-        from Sports_Article_Automation.google_trends.google_trends_pipeline import GoogleTrendsAutomationPipeline
-        from pathlib import Path
-        
-        # Initialize the pipeline
-        sports_root = Path(current_app.root_path).parent / "Sports_Article_Automation"
-        pipeline = GoogleTrendsAutomationPipeline(project_root=str(sports_root))
-        
-        # Run the collection
-        current_app.logger.info("[TRENDS_COLLECTION] Running full collection pipeline...")
-        results = pipeline.run_full_collection()
-        
-        if results.get('success'):
-            current_app.logger.info(f"[TRENDS_COLLECTION] ✅ Success! New trends: {results.get('total_new_trends', 0)}")
-            return jsonify({
-                'success': True,
-                'message': f"Successfully collected {results.get('total_new_trends', 0)} new trends!",
-                'total_new_trends': results.get('total_new_trends', 0),
-                'timestamp': results.get('timestamp')
-            })
-        else:
-            error_msg = ', '.join(results.get('errors', ['Unknown error']))
-            current_app.logger.error(f"[TRENDS_COLLECTION] ❌ Failed: {error_msg}")
-            return jsonify({
-                'success': False,
-                'message': f"Collection failed: {error_msg[:100]}"
-            }), 500
-            
-    except ImportError as e:
-        current_app.logger.error(f"[TRENDS_COLLECTION] Import error: {e}")
+        from Sports_Article_Automation.api.google_trends_api import get_google_trends_loader
+        loader = get_google_trends_loader()
+        meta = loader.get_meta()
+        count = loader.get_trends_count(category='sports')
+        last_updated = meta.get('last_updated', 'unknown')
         return jsonify({
-            'success': False,
-            'message': 'Google Trends collection system not available'
-        }), 503
+            'success': True,
+            'message': (
+                f'Trends collection is managed by the external tickzen-trends-collector service. '
+                f'Currently {count} sports trends are available in Firestore (last updated: {last_updated}).'
+            ),
+            'trends_in_firestore': count,
+            'last_updated': last_updated,
+            'info': 'To refresh trends, run the tickzen-trends-collector scheduler.'
+        })
     except Exception as e:
-        current_app.logger.error(f"[TRENDS_COLLECTION] Error: {e}", exc_info=True)
         return jsonify({
             'success': False,
-            'message': f'Error collecting trends: {str(e)[:100]}'
-        }), 500
+            'message': f'Could not read trends status from Firestore: {str(e)[:100]}'
+        }), 503
 
 
 @sports_automation_bp.route('/library')

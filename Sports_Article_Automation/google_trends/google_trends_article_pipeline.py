@@ -56,21 +56,37 @@ class GoogleTrendsDataLoader:
         logger.info(f"Generated articles tracking: {self.generated_articles_path}")
     
     def load_trends_data(self) -> List[Dict]:
-        """Load trends data from JSON file"""
+        """
+        Load trends data from Firestore (primary) with JSON file fallback.
+        Trends are written to Firestore by the standalone tickzen-trends-collector service.
+        """
+        # --- Primary: read from Firestore ---
+        try:
+            from Sports_Article_Automation.api.google_trends_api import get_google_trends_loader
+            loader = get_google_trends_loader()
+            trends = loader.get_trending_topics(category='sports')
+            if trends:
+                logger.info(f"Loaded {len(trends)} trends from Firestore")
+                return trends
+            logger.warning("Firestore returned 0 trends — trying JSON fallback.")
+        except Exception as e:
+            logger.warning(f"Could not load trends from Firestore: {e}. Trying JSON fallback.")
+
+        # --- Fallback: local JSON file (used during development / first run) ---
         try:
             if not self.database_path.exists():
-                logger.error(f"Trends database not found: {self.database_path}")
+                logger.error(f"JSON fallback database not found: {self.database_path}")
                 return []
-            
+
             with open(self.database_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            
+
             trends = data.get('trends', [])
-            logger.info(f"Loaded {len(trends)} trends from database")
+            logger.info(f"Loaded {len(trends)} trends from JSON fallback database")
             return trends
-        
+
         except Exception as e:
-            logger.error(f"Error loading trends data: {e}")
+            logger.error(f"Error loading trends data from JSON fallback: {e}")
             return []
     
     def get_generated_articles_history(self) -> List[Dict]:

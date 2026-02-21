@@ -1,0 +1,19 @@
+# TickZen2 — Development-only Requirements
+# Install with: pip install -r requirements-prod.txt -r requirements-dev.txt
+# NOTE: selenium/webdriver-manager live in the SEPARATE tickzen-trends-collector project.
+#       They are NOT needed in tickzen2 (neither prod nor dev).
+
+# ===== MACHINE LEARNING (large — only needed if doing local ML training) =====
+# torch>=2.7.1
+# torchaudio>=2.7.1
+# torchvision>=0.22.1
+
+# ===== TESTING =====
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# ===== CODE QUALITY =====
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.4.0

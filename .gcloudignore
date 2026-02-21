@@ -1,0 +1,50 @@
+# Files ignored by gcloud source upload
+.gcloudignore
+.git/
+.github/
+.vscode/
+
+# Python caches and local envs
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+
+# Local env and logs
+.env
+.env.*
+*.log
+logs/
+
+# Build/test artifacts
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+
+# Local/generated data not needed for Cloud Build context
+/generated_data/
+/data/
+/database/
+
+# Exclude heavy/non-runtime parts from automation packages
+Sports_Article_Automation/.env
+Sports_Article_Automation/testing/
+Sports_Article_Automation/__pycache__/
+Sports_Article_Automation/logs/
+Sports_Article_Automation/*.log
+Sports_Article_Automation/core/
+Sports_Article_Automation/research/
+Sports_Article_Automation/google_trends/
+Sports_Article_Automation/pipelines/
+Sports_Article_Automation/publishers/
+
+Job_Portal_Automation/.env
+Job_Portal_Automation/testing/
+Job_Portal_Automation/__pycache__/
+Job_Portal_Automation/logs/
+Job_Portal_Automation/generated_data/
+Job_Portal_Automation/core/

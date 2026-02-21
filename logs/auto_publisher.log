@@ -676,3 +676,45 @@
 2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 3
 2026-02-18 19:29:46 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Phil McNulty (ID: 4)
 2026-02-18 19:29:49 - AutoPublisherLogger - INFO - Post 'Kevin De Bruyne Injury Update: Napoli Star Nears Serie A Return' draft on https://soccerwallah.com/. ID: 712, Link: https://soccerwallah.com/?p=712
+2026-02-19 20:29:08 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 20:30:37 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 20:41:08 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 20:41:10 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 20:46:16 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 20:46:33 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 20:47:08 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 20:47:34 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 20:53:03 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 20:53:16 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 21:35:48 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 21:36:08 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 21:36:43 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === WordPress Post Creation Debug ===
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Site URL: https://stockdunia.tech/
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Author: Natalie Campbell (ID: 5)
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Title: 'INDI Semiconductor: Q3 Sees Revenue Stall, Profitability Remains...' (67 chars)
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Content Length: 16909 chars
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Schedule Time: 2026-02-19 16:07:55.573537+00:00
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Category ID: 5
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Media ID: None
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Ticker: INDI
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Company Name: Semiconductor: Q3 Sees Revenue
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Status: publish
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Present: True
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Profile Config Keys: ['profile_id', 'profile_name', 'site_url', 'category_id', 'publish_status', 'article_type']
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] Article Type: earnings
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [CREATE_WP_POST_DEBUG] === End Debug Info ===
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [INTERNAL_LINKING_DEBUG] Profile q35hQoPIX39vT84hOado - Config present: False, Enabled: False, Available: True
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [SLUG] EARNINGS (earnings) - Headline: INDI Semiconductor: Q3 Sees Revenue Stall, Profita → 'indi-semiconductor-q3-sees-revenue-stall-profitability-remains' (62/74 chars)
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] Pre-WordPress validation:
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Title: 'INDI Semiconductor: Q3 Sees Revenue Stall, Profitability Remains...' (67 chars)
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Slug: 'indi-semiconductor-q3-sees-revenue-stall-profitability-remains' (62 chars)
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Status: publish
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Category: 5
+2026-02-19 21:37:55 - AutoPublisherLogger - INFO - [FINAL_VALIDATION] - Author: Natalie Campbell (ID: 5)
+2026-02-19 21:37:58 - AutoPublisherLogger - INFO - Post 'INDI Semiconductor: Q3 Sees Revenue Stall, Profitability Remains...' publish on https://stockdunia.tech/. ID: 592, Link: https://stockdunia.tech/indi-semiconductor-q3-sees-revenue-stall-profitability-remains/
+2026-02-19 21:38:04 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-19 21:57:01 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-20 22:36:24 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-20 22:36:40 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2
+2026-02-20 22:37:36 - AutoPublisherLogger - INFO - Using Firestore state management for user iROXMDJiuebQl9Jg4vvXohKea0C2

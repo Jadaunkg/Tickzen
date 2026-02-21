@@ -1,7 +1,7 @@
 """
 Firestore state management module for WordPress publisher
 This module replaces the pickle-based state management with Firestore-based state
-to ensure persistence across container restarts in Azure App Service.
+to ensure persistence across container restarts.
 """
 import os
 import pickle

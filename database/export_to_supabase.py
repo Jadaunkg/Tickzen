@@ -560,10 +560,16 @@ class SupabaseDataExporter:
             latest_indicators_date = self._get_latest_data_date(stock_id, 'technical_indicators', 'date')
             logger.info(f"  📅 Latest technical_indicators date in DB: {latest_indicators_date}")
             
+            # Filter processed_data (has technical indicators) to last 2 years
+            processed_filtered = self._filter_last_two_years(
+                collected_data.get('processed_data'),
+                'Date'
+            )
+            
             # Filter to only new records (newer than latest DB date)
-            # Uses same filtered_price_data as daily prices (filtered to 2 years)
+            # MUST use processed_data which has technical indicator columns (SMA, RSI, MACD, etc.)
             incremental_indicators_data = self._filter_new_records_only(
-                filtered_price_data,
+                processed_filtered,
                 latest_indicators_date, 
                 'Date'
             )
@@ -575,6 +581,7 @@ class SupabaseDataExporter:
                 )
                 
                 # Batch insert only new indicator records
+                batch_size = 1000
                 total_inserted = 0
                 for i in range(0, len(tech_records), batch_size):
                     batch = tech_records[i:i+batch_size]

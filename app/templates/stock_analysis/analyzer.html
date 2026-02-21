@@ -956,13 +956,22 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .then(data => {
                 console.log("Initial response from /start-analysis:", data);
-                if (data.status === 'processing_initiated') {
+                if (data.report_url) {
+                    // Server completed analysis and returned report URL directly
+                    if (progressText) progressText.textContent = 'Analysis Complete! Redirecting...';
+                    if (progressBar) {
+                        progressBar.style.width = '100%';
+                        progressBar.textContent = '100%';
+                        progressBar.style.backgroundColor = 'var(--success, #27ae60)';
+                    }
+                    stopTimer();
+                    window.location.href = data.report_url;
+                } else if (data.status === 'processing_initiated') {
                     // Successfully initiated, waiting for WebSocket updates...
                     if (progressMessage) progressMessage.textContent = 'Analysis initiated. Waiting for progress...';
                 } else if (data.status === 'error') { // If server returns an immediate error
                      throw new Error(data.message || "Failed to start analysis.");
                 }
-                // If data.report_url is present (for very fast tasks), client JS for 'analysis_complete' will handle it.
             })
             .catch(error => {
                 console.error('Error submitting analysis form or initial server error:', error);

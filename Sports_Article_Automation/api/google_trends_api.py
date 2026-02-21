@@ -1,100 +1,110 @@
 """
-Google Trends API Loader
-Provides access to Google Trends database for the automation system
+Google Trends API — Firestore Reader
+=====================================
+Reads Google Trends data from Firestore.
+Trends are collected by the standalone  tickzen-trends-collector  service
+and written to the  google_trends  Firestore collection.
+
+Collection:  google_trends
+  Documents: one per trend (id = slugified query)
+  Meta doc:  _meta  (last_updated, total_count)
 """
 
-import json
 import logging
-from pathlib import Path
-from typing import List, Dict, Optional
-from datetime import datetime
+from typing import Dict, List, Optional
 
 logger = logging.getLogger("GoogleTrendsAPI")
 
+COLLECTION = "google_trends"
+META_DOC = "_meta"
 
-def get_google_trends_loader():
-    """
-    Get the Google Trends loader instance
-    
-    Returns:
-        GoogleTrendsLoader: An instance of the Google Trends loader
-    """
+
+def get_google_trends_loader() -> "GoogleTrendsLoader":
+    """Return a GoogleTrendsLoader instance (Firestore-backed)."""
     return GoogleTrendsLoader()
 
 
 class GoogleTrendsLoader:
-    """Loader for Google Trends data"""
-    
+    """Read Google Trends data from Firestore."""
+
     def __init__(self):
-        """Initialize the Google Trends loader"""
-        self.project_root = Path(__file__).parent.parent
-        self.trends_db_path = self.project_root / "google_trends_database.json"
-        
-    def get_trending_topics(self, limit: Optional[int] = None, category: Optional[str] = None) -> List[Dict]:
+        self._db = None  # lazy-loaded
+
+    @property
+    def db(self):
+        if self._db is None:
+            try:
+                from config.firebase_admin_setup import get_firestore_client
+                self._db = get_firestore_client()
+            except Exception as e:
+                logger.error(f"Could not get Firestore client: {e}")
+                raise
+        return self._db
+
+    def get_trending_topics(
+        self,
+        limit: Optional[int] = None,
+        category: Optional[str] = None,
+    ) -> List[Dict]:
         """
-        Load trending topics from the Google Trends database
-        
+        Fetch trending topics from Firestore.
+
         Args:
-            limit (int, optional): Maximum number of trends to return
-            category (str, optional): Filter by category (e.g., 'sports')
-            
+            limit:    Max number of trends to return (None = all).
+            category: Filter by category, e.g. 'sports' (None = all).
+
         Returns:
-            list: List of trending topics with their metadata
+            List of trend dicts, sorted by rank.
         """
-        if not self.trends_db_path.exists():
-            logger.warning(f"Google Trends database not found: {self.trends_db_path}")
-            return []
-        
         try:
-            with open(self.trends_db_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            
-            # Extract trends list
-            trends = data.get('trends', [])
-            
+            col = self.db.collection(COLLECTION)
+            query = col.where("category", "==", category.lower()) if category else col
+            docs = query.stream()
+
+            trends: List[Dict] = []
+            for doc in docs:
+                if doc.id == META_DOC:
+                    continue
+                data = doc.to_dict()
+                if data:
+                    trends.append(data)
+
             if not trends:
-                logger.warning("No trends found in database")
+                logger.warning("No trends found in Firestore 'google_trends' collection.")
                 return []
-            
-            # Filter by category if specified
-            if category:
-                trends = [t for t in trends if t.get('category', '').lower() == category.lower()]
-            
-            # Sort by rank or importance_score
-            trends.sort(key=lambda x: (x.get('rank', 999), -x.get('importance_score', 0)))
-            
-            # Apply limit if specified
+
+            trends.sort(key=lambda x: (x.get("rank", 999), -x.get("importance_score", 0)))
+            logger.info(f"Loaded {len(trends)} trending topics from Firestore.")
+
             if limit:
                 trends = trends[:limit]
-            
-            logger.info(f"Loaded {len(trends)} trending topics from database")
+
             return trends
-            
+
         except Exception as e:
-            logger.error(f"Error loading Google Trends database: {e}")
+            logger.error(f"Error reading Google Trends from Firestore: {e}")
             return []
-    
+
     def get_trends_count(self, category: Optional[str] = None) -> int:
-        """
-        Get count of trending topics
-        
-        Args:
-            category (str, optional): Filter by category
-            
-        Returns:
-            int: Number of trending topics
-        """
-        trends = self.get_trending_topics(category=category)
-        return len(trends)
-    
+        """Return the count of trending topics."""
+        return len(self.get_trending_topics(category=category))
+
     def get_latest_collection_date(self) -> Optional[str]:
-        """
-        Get the latest collection date from the database
-        
-        Returns:
-            str: ISO format date string of latest collection
-        """
-        trends = self.get_trending_topics(limit=1)
-        if trends:
-            return trends[0].get('collected_date')
+        """Return the last_updated timestamp from the _meta document."""
+        try:
+            meta = self.db.collection(COLLECTION).document(META_DOC).get()
+            if meta.exists:
+                return meta.to_dict().get("last_updated")
+        except Exception as e:
+            logger.error(f"Error reading _meta from Firestore: {e}")
         return None
+
+    def get_meta(self) -> Dict:
+        """Return the full _meta document as a dict."""
+        try:
+            meta = self.db.collection(COLLECTION).document(META_DOC).get()
+            if meta.exists:
+                return meta.to_dict() or {}
+        except Exception as e:
+            logger.error(f"Error reading _meta: {e}")
+        return {}

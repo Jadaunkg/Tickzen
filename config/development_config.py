@@ -48,7 +48,6 @@ DEV_ENV_VARS = {
     'APP_ENV': 'development',
     'FLASK_DEBUG': 'True',
     'FLASK_ENV': 'development',
-    'WEBSITES_PORT': '5000',
 }
 
 def get_dev_config():

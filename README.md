@@ -3,7 +3,6 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![Flask](https://img.shields.io/badge/Framework-Flask-green.svg)](https://flask.palletsprojects.com/)
 [![Firebase](https://img.shields.io/badge/Database-Firebase-yellow.svg)](https://firebase.google.com/)
-[![Azure](https://img.shields.io/badge/Deployed-Azure%20App%20Service-0078d4.svg)](https://azure.microsoft.com/)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
 > A production-grade, AI-powered financial analysis and content automation ecosystem combining real-time stock intelligence with automated publishing capabilities.
@@ -25,7 +24,7 @@
 - ⚡ **Real-Time Communication** - WebSocket-based progress tracking
 - 🔒 **Enterprise Security** - Firebase Auth with quota management
 - 📱 **Multi-User Support** - Concurrent analysis with user isolation
-- 🚀 **Cloud-Ready** - Azure App Service deployment optimized
+- 🚀 **Cloud-Ready** - Deployment-ready architecture
 
 ---
 
@@ -59,7 +58,7 @@
 - Python 3.10+
 - Node.js & npm (for frontend)
 - Firebase Project setup
-- Azure App Service (for deployment)
+- Cloud hosting account (for deployment)
 - Google Cloud credentials
 
 ### Installation
@@ -759,10 +758,6 @@ WP_DEFAULT_CATEGORY_ID=1
 WP_MAX_DAILY_POSTS=5
 WP_FEATURED_IMAGE_SIZE=1200x630
 
-# Azure Configuration (if deployed)
-AZURE_APP_INSIGHTS_INSTRUMENTATION_KEY=your_key
-AZURE_STORAGE_CONNECTION_STRING=your_connection_string
-
 # Email Configuration
 SMTP_SERVER=smtp.gmail.com
 SMTP_PORT=587
@@ -1104,11 +1099,11 @@ Storage & Publishing
 User receives report URL
 ```
 
-### Deployment Architecture (Azure)
+### Deployment Architecture
 
 ```
 ┌──────────────────────────────────────┐
-│      Azure App Service               │
+│      Cloud App Hosting               │
 │  ┌────────────────────────────────┐  │
 │  │  Flask Application Container   │  │
 │  │  (with SocketIO support)       │  │
@@ -1122,8 +1117,8 @@ User receives report URL
     ┌─────────┴──────────┬──────────────┐
     │                    │              │
 ┌───▼──────┐  ┌──────────▼────┐  ┌────▼────────┐
-│ Firebase │  │  Azure Storage│  │  Azure SQL  │
-│(Primary) │  │  (Backup)     │  │  (Analytics)│
+│ Firebase │  │ Object Storage│  │ Managed SQL │
+│(Primary) │  │  (Backup)     │  │  (Optional) │
 └──────────┘  └───────────────┘  └─────────────┘
     │
     └─────────────────────────────────┐
@@ -1169,8 +1164,8 @@ User receives report URL
 |-----------|---------|
 | **Firebase** | Database, Auth, Storage |
 | **Google Cloud** | APIs, ML services |
-| **Azure App Service** | Production hosting |
-| **Azure Storage** | Backup & archival |
+| **Cloud Hosting Platform** | Production hosting |
+| **Object Storage** | Backup & archival |
 | **Docker** | Containerization |
 | **Redis** | Caching layer |
 
@@ -1201,41 +1196,14 @@ Comprehensive documentation is available in the following files:
 
 ## 🚀 Deployment
 
-### Deploy to Azure App Service
+### Deploy to Cloud Platform (Template)
 
 ```bash
-# 1. Create resource group
-az group create --name tickzen-rg --location eastus
-
-# 2. Create App Service plan
-az appservice plan create \
-  --name tickzen-plan \
-  --resource-group tickzen-rg \
-  --sku B2
-
-# 3. Create web app
-az webapp create \
-  --resource-group tickzen-rg \
-  --plan tickzen-plan \
-  --name tickzen2-app \
-  --runtime "PYTHON|3.10"
-
-# 4. Configure environment variables
-az webapp config appsettings set \
-  --resource-group tickzen-rg \
-  --name tickzen2-app \
-  --settings @app-settings.json
-
-# 5. Deploy application
-az webapp up \
-  --resource-group tickzen-rg \
-  --name tickzen2-app
-
-# 6. Enable WebSocket support
-az webapp update \
-  --resource-group tickzen-rg \
-  --name tickzen2-app \
-  --set settings.webSocketsEnabled=true
+# 1. Create an app service/container on your preferred cloud provider
+# 2. Set required environment variables from the Configuration section
+# 3. Ensure WebSocket support is enabled
+# 4. Deploy the app with Gunicorn using config/gunicorn.conf.py
+# 5. Verify /health and /api/health endpoints after deploy
 ```
 
 ### Deploy to Docker
@@ -1397,7 +1365,6 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 ## 🙏 Acknowledgments
 
 - Google Cloud & Firebase team for excellent backend services
-- Azure team for deployment infrastructure
 - Open-source communities (Flask, pandas, Prophet, etc.)
 - All contributors and testers
 
@@ -1415,7 +1382,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 - ✅ Quota System - Phase 1 Complete
 - ✅ Real-time WebSocket Communication
 - ✅ Firebase Firestore Integration
-- ✅ Azure App Service Optimization
+- ✅ Production Deployment Optimization
 - 🚀 Coming Soon: Mobile App, Advanced ML Models
 
 ---
